@@ -2,3 +2,7 @@
 /testes/login/appscript
 # Ignorar qualquer pasta chamada 'privado' e todo o seu conteúdo em qualquer nível
 **/privado/
+
+# Dependências do Node.js
+node_modules/
+package-lock.json

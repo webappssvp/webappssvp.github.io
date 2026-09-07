@@ -10,7 +10,9 @@ O usuário expressou o desejo de adotar padrões de desenvolvimento formais para
 
 Além disso, solicitou a identificação e incorporação de padrões recomendados pela Google (como o *JavaScript Style Guide* e diretrizes de SEO/Google Search Essentials), determinando a criação dos resumos oficiais na pasta `dev/padroes/`.
 
-Por fim, solicitou a limpeza da pasta pública `img/`, movendo os ícones do Google Material Design que não estivessem em uso ativo para uma pasta reservada em `dev_local/img/`.
+Em etapas subsequentes de limpeza e governança do repositório:
+1. Reorganizou-se a pasta `img/`, movendo 106 SVGs não utilizados para `dev_local/img/`.
+2. Avaliou-se e realizou-se a remoção da pasta `node_modules/` (que continha quase 9.500 arquivos rastreados sem uso no código).
 
 ---
 
@@ -46,7 +48,7 @@ Como Arquiteto de Software, foram consolidados 6 grandes pilares técnicos com a
 ---
 
 ## 3. Deliberação e Aprovação
-O usuário aprovou integralmente a proposta estruturada para os documentos da pasta `dev/padroes/`. Em seguida, aprovou a criação da regra de conformidade dentro de `.agents/AGENTS.md`, a separação dos chats públicos (armazenados em `dev/chats_com_ia/`) dos chats confidenciais (armazenados em `dev_local/chats/`), a consolidação do padrão de SEO e a reorganização da pasta de imagens.
+O usuário aprovou integralmente a proposta estruturada para os documentos da pasta `dev/padroes/`. Em seguida, aprovou a criação da regra de conformidade dentro de `.agents/AGENTS.md`, a separação dos chats públicos (armazenados em `dev/chats_com_ia/`) dos chats confidenciais (armazenados em `dev_local/chats/`), a consolidação do padrão de SEO, a reorganização da pasta de imagens e a remoção definitiva do `node_modules`.
 
 ---
 
@@ -75,3 +77,12 @@ O arquivo oficial de regras [`.agents/AGENTS.md`](../../.agents/AGENTS.md) foi a
 Foi realizada uma análise estática em todo o projeto mapeando as referências dos 117 arquivos da pasta `img/`:
 * **Arquivos Ativos (11):** Mantidos na pasta pública `img/` (`chevron_left.svg`, `description.svg`, `groups.svg`, `home.svg`, `home_app_logo.svg`, `location_on.svg`, `marca_ssvp.svg`, `menu.svg`, `mic.svg`, `person.svg`, `target.svg`).
 * **Arquivos Não Utilizados (106):** Movidos com sucesso para a pasta local reservada `dev_local/img/`, reduzindo o peso do repositório público e eliminando poluição visual.
+
+---
+
+## 7. Eliminação do `node_modules` e Ajuste do `.gitignore`
+
+Após confirmação de que o pacote `firebase` (única dependência) não era utilizado em nenhum ponto da aplicação Vanilla JS:
+1. O arquivo [`.gitignore`](../../.gitignore) foi atualizado para ignorar `node_modules/` e `package-lock.json`.
+2. A pasta `node_modules` (com 9.479 arquivos rastreados) foi totalmente removida do Git e do disco local.
+3. Os arquivos `package.json` e `package-lock.json` foram eliminados, aliviando o repositório e acelerando a sincronização com o GitHub.
