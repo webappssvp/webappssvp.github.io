@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Porteiro SSVP - Teste 2: Autenticação e Hierarquia</title>
+  <title>API WebApp SSVP - Teste 2: Autenticação e Hierarquia</title>
 
   <!-- Google Fonts Montserrat -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -202,151 +202,149 @@
 
     .card-explicativo-corpo {
       font-size: 0.85rem;
-      line-height: 1.5;
-      color: #cbd5e1;
+      line-height: 1.45;
+      color: var(--ssvp-text-muted);
     }
 
     .card-explicativo-corpo strong {
-      color: var(--ssvp-white);
+      color: var(--ssvp-text);
     }
 
     /* ==========================================================================
-       Card Flutuante / Modal de Seleção e Login
+       Modal Flutuante de Conexão e Login
        ========================================================================== */
     .overlay-modal {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(6, 10, 18, 0.88);
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(6px);
-      z-index: 90;
+      z-index: 200;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 1rem;
-      overflow-y: auto;
+      animation: aparecerModal 0.25s ease forwards;
     }
 
     .overlay-modal.ativo {
       display: flex;
     }
 
+    @keyframes aparecerModal {
+      from {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
     .card-login {
-      width: 100%;
-      max-width: 420px;
-      background: linear-gradient(180deg, #162035 0%, #0e1526 100%);
+      background-color: #121929;
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 1.25rem;
+      width: 100%;
+      max-width: 420px;
       padding: 1.5rem;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
-      gap: 1.15rem;
-      position: relative;
+      gap: 1rem;
     }
 
     .card-login-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 0.75rem;
     }
 
     .card-login-titulo {
       font-size: 1.1rem;
-      font-weight: 800;
+      font-weight: 700;
       color: var(--ssvp-white);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
     }
 
     .btn-fechar {
-      background: rgba(255, 255, 255, 0.08);
+      background: none;
       border: none;
-      color: var(--ssvp-white);
-      width: 2rem;
-      height: 2rem;
-      border-radius: 50%;
+      color: var(--ssvp-text-muted);
+      font-size: 1.2rem;
       cursor: pointer;
-      font-size: 1rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.2s ease;
+      padding: 0.25rem;
+      line-height: 1;
     }
 
     .btn-fechar:hover {
-      background-color: rgba(255, 255, 255, 0.2);
+      color: var(--ssvp-white);
     }
 
-    /* Formulários e Selects (Prevenção de Zoom no iPhone: font-size >= 16px) */
+    /* Formulários e Seletores */
     .form-grupo {
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
+      gap: 0.35rem;
     }
 
     .form-label {
-      font-size: 0.88rem;
+      font-size: 0.78rem;
       font-weight: 600;
-      color: #94a3b8;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
 
     .form-select,
     .form-input {
       width: 100%;
-      min-height: 48px;
+      background-color: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--ssvp-white);
+      border-radius: 0.6rem;
       padding: 0.75rem 0.85rem;
       font-size: 1rem;
-      /* 16px mínimo para Safari iOS */
-      color: var(--ssvp-white);
-      background-color: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
       outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      box-sizing: border-box;
-    }
-
-    .form-select option {
-      background-color: #111827;
-      color: #ffffff;
-      padding: 8px;
+      transition: border-color 0.2s, background-color 0.2s;
     }
 
     .form-select:focus,
     .form-input:focus {
       border-color: var(--ssvp-blue);
-      box-shadow: 0 0 0 3px rgba(0, 127, 255, 0.25);
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .form-select option {
+      background-color: #1a2234;
+      color: #ffffff;
     }
 
     .btn-submit {
-      width: 100%;
-      min-height: 50px;
       background-color: var(--ssvp-blue);
       color: var(--ssvp-white);
       border: none;
-      border-radius: 10px;
-      font-size: 1.05rem;
+      border-radius: 0.6rem;
+      padding: 0.85rem;
+      font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 127, 255, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
+      transition: background-color 0.2s, transform 0.1s;
       margin-top: 0.5rem;
-      box-shadow: 0 4px 12px rgba(0, 127, 255, 0.35);
-      transition: background-color 0.2s ease, transform 0.1s ease;
     }
 
     .btn-submit:hover {
-      background-color: #006cd9;
+      background-color: #0066cc;
     }
 
     .btn-submit:active {
@@ -356,17 +354,15 @@
     .btn-submit:disabled {
       background-color: #475569;
       cursor: not-allowed;
-      opacity: 0.6;
-      transform: none;
       box-shadow: none;
+      opacity: 0.7;
     }
 
     .feedback-msg {
-      font-size: 0.88rem;
-      font-weight: 600;
-      text-align: center;
-      padding: 0.65rem;
-      border-radius: 8px;
+      font-size: 0.82rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 0.5rem;
+      line-height: 1.4;
       display: none;
     }
 
@@ -490,18 +486,18 @@
     </div>
 
     <div class="bar-circle canto-circle" style="background-color: transparent; box-shadow: none;">
-      <span class="versao-badge" id="lblVersaoTopo">v2.0</span>
+      <span class="versao-badge" id="lblVersaoTopo">v2.1</span>
     </div>
   </header>
 
   <!-- Área de Conteúdo Central (Scrollável com Cards Educativos) -->
   <main class="display-area" id="areaConteudo">
 
-    <!-- Card 1: O que é o Porteiro SSVP -->
+    <!-- Card 1: O que é a API do WebApp SSVP -->
     <article class="card-explicativo">
-      <h2 class="card-explicativo-titulo">🛡️ O que é o Porteiro SSVP?</h2>
+      <h2 class="card-explicativo-titulo">🛡️ O que é a API do WebApp SSVP?</h2>
       <p class="card-explicativo-corpo">
-        O <strong>Porteiro SSVP</strong> é o assistente de segurança digital do nosso aplicativo. Ele protege os dados
+        A <strong>API do WebApp SSVP</strong> é o assistente de segurança digital do nosso aplicativo. Ela protege os dados
         das famílias que visitamos, garantindo que <strong>nenhuma informação sensível</strong> fique desprotegida na
         internet ou exposta em links públicos.
       </p>
@@ -512,8 +508,8 @@
       <h2 class="card-explicativo-titulo">🗺️ Como funciona a Conexão?</h2>
       <p class="card-explicativo-corpo">
         Seguindo a hierarquia da nossa Sociedade, você seleciona seu <strong>Conselho Central</strong>, depois seu
-        <strong>Conselho Particular</strong> e finalmente a sua <strong>Conferência</strong>. O Porteiro localiza a
-        planilha da sua conferência automaticamente nos bastidores.
+        <strong>Conselho Particular</strong> e finalmente a sua <strong>Conferência</strong>. A API do WebApp localiza a
+        planilha da sua conferência automaticamente nos bastidores através da planilha <strong>_indice_conferencias</strong>.
       </p>
     </article>
 
@@ -531,8 +527,8 @@
     <article class="card-explicativo" style="opacity: 0.85;">
       <h2 class="card-explicativo-titulo" style="font-size: 0.9rem;">⚙️ Endpoint do Google Apps Script</h2>
       <p class="card-explicativo-corpo" style="font-size: 0.78rem;">
-        URL do Porteiro: <span id="lblUrlAtiva"
-          style="color: #60a5fa; word-break: break-all;">AKfycbym44Qw...</span><br>
+        URL da API WebApp: <span id="lblUrlAtiva"
+          style="color: #60a5fa; word-break: break-all;">AKfycb...</span><br>
         <button type="button" onclick="configurarUrlManual()"
           style="background: none; border: none; color: #38bdf8; font-weight: bold; cursor: pointer; text-decoration: underline; padding-top: 4px;">
           Alterar ou Testar Outra URL
@@ -557,11 +553,11 @@
       <!-- ETAPA 1: Cascata de Seleção (CM ➔ CC ➔ CP ➔ CF) -->
       <div id="secaoSelects" style="display: flex; flex-direction: column; gap: 0.9rem;">
 
-        <!-- Select 0: Conselho Metropolitano (Fixo / Desativado por enquanto) -->
+        <!-- Select 0: Conselho Metropolitano (Fixo) -->
         <div class="form-grupo">
           <label for="selConselhoMetropolitano" class="form-label">Conselho Metropolitano:</label>
           <select id="selConselhoMetropolitano" class="form-select" disabled style="opacity: 0.8; cursor: not-allowed; background-color: rgba(255, 255, 255, 0.03); border-style: dashed;">
-            <option value="SP" selected>São Paulo</option>
+            <option value="SP" selected>São Paulo (SP)</option>
           </select>
         </div>
 
@@ -650,7 +646,7 @@
     </div>
 
     <div class="bar-circle canto-circle" id="btn_ajuda"
-      onclick="alert('Porteiro SSVP - Versão 2.0\nToque no topo para escolher seu Conselho Central e Conferência.')"
+      onclick="alert('WebApp SSVP - Versão 2.1\nToque no topo para escolher seu Conselho Central e Conferência.')"
       title="Ajuda">❓</div>
   </footer>
 
@@ -658,13 +654,14 @@
        Lógica Javascript: IndexedDB, Chamadas da API e Estados da Interface
        ========================================================================== -->
   <script>
-    // URL Padrão Oficial do Porteiro SSVP
-    const URL_PADRAO_PORTEIRO = "https://script.google.com/macros/s/AKfycbzP6CehGh2U_kLhVPMZNZKeoaWIWzpzd-fgNh03qnmwYVBJFoI3nMP6TZBGH1ZahT9t/exec";
-    const STORAGE_KEY_URL = "ssvp_porteiro_url";
+    // URL Padrão Oficial da API do WebApp SSVP
+    const URL_PADRAO_WEBAPP = "https://script.google.com/macros/s/AKfycbzP6CehGh2U_kLhVPMZNZKeoaWIWzpzd-fgNh03qnmwYVBJFoI3nMP6TZBGH1ZahT9t/exec";
+    const STORAGE_KEY_URL = "ssvp_webapp_url";
 
     // Cache em memória da estrutura do CC atual
     let cacheEstruturaCC = {
       id_cc: null,
+      nome_cc: null,
       conselhos_particulares: [],
       conferencias: []
     };
@@ -715,23 +712,18 @@
       await recuperarSessaoDoIndexedDB();
     });
 
-    function obterUrlPorteiro() {
+    function obterUrlWebapp() {
       const urlSalva = localStorage.getItem(STORAGE_KEY_URL);
-      if (urlSalva && urlSalva.includes("AKfycbym44Qw7BO")) {
-        // Migração automática da URL antiga do t1 para a nova do t2
-        localStorage.setItem(STORAGE_KEY_URL, URL_PADRAO_PORTEIRO);
-        return URL_PADRAO_PORTEIRO;
-      }
-      return (urlSalva && urlSalva.trim() !== "") ? urlSalva.trim() : URL_PADRAO_PORTEIRO;
+      return (urlSalva && urlSalva.trim() !== "") ? urlSalva.trim() : URL_PADRAO_WEBAPP;
     }
 
     function atualizarLabelUrlAtiva() {
-      const url = obterUrlPorteiro();
+      const url = obterUrlWebapp();
       lblUrlAtiva.textContent = url.replace("https://script.google.com/macros/s/", "").substring(0, 20) + "...";
     }
 
     function configurarUrlManual() {
-      const atual = obterUrlPorteiro();
+      const atual = obterUrlWebapp();
       const nova = prompt("Cole a URL do Google Apps Script (/exec) ou deixe em branco para usar a padrão:", atual);
       if (nova !== null) {
         if (nova.trim() === "") {
@@ -888,7 +880,7 @@
     }
 
     // ==========================================================================
-    // Chamadas à API do Porteiro SSVP
+    // Chamadas à API do WebApp SSVP
     // ==========================================================================
 
     // 1. Carregar Conselhos Centrais (action=get_ccs)
@@ -899,7 +891,7 @@
       grupoCF.style.display = "none";
 
       try {
-        const urlBase = obterUrlPorteiro();
+        const urlBase = obterUrlWebapp();
         const sep = urlBase.includes("?") ? "&" : "?";
         
         // Usa GET para leitura rápida e compatibilidade total em celulares
@@ -911,16 +903,11 @@
 
         const dados = await res.json();
 
-        // Diagnóstico: Se o script ainda for o t1_ping (v1.0)
-        if (dados && dados.dados && dados.dados.versao_api === "1.0") {
-          throw new Error("O Google Apps Script ainda está rodando o t1_ping (v1.0). Atualize o código do Apps Script para o t2_auth e crie uma 'Nova versão' em 'Gerenciar implantações'.");
-        }
-
         if (dados.sucesso && dados.dados && dados.dados.conselhos_centrais) {
           const lista = dados.dados.conselhos_centrais;
           if (lista.length === 0) {
             selConselhoCentral.innerHTML = `<option value="">Nenhum conselho central encontrado</option>`;
-            exibirFeedback("A aba 'conselhos_centrais' está vazia na planilha do Porteiro.", "erro");
+            exibirFeedback("A aba 'conselhos_centrais' está vazia na planilha central do WebApp.", "erro");
             return;
           }
 
@@ -937,7 +924,7 @@
         }
       } catch (err) {
         selConselhoCentral.innerHTML = `<option value="">Erro ao carregar</option>`;
-        exibirFeedback(`Erro de conexão com o Porteiro: ${err.message}`, "erro");
+        exibirFeedback(`Erro de conexão com a API do WebApp: ${err.message}`, "erro");
       }
     }
 
@@ -955,7 +942,7 @@
       grupoCF.style.display = "none";
 
       try {
-        const urlBase = obterUrlPorteiro();
+        const urlBase = obterUrlWebapp();
         const sep = urlBase.includes("?") ? "&" : "?";
         
         // Usa GET passando id_cc codificado na URL
@@ -975,12 +962,16 @@
             conferencias: dados.dados.conferencias || []
           };
 
-          // Popula o Select de CPs
+          // Popula o Select de CPs com nome e código identificador
           selConselhoParticular.innerHTML = `<option value="">Selecione o Conselho Particular...</option>`;
           cacheEstruturaCC.conselhos_particulares.forEach(cp => {
             const opt = document.createElement("option");
-            opt.value = cp.id_cp;
-            opt.textContent = cp.nome_cp || cp.id_cp;
+            const codigoExibicao = cp.id_ssvp || cp.id_cp;
+            opt.value = codigoExibicao;
+            opt.textContent = cp.nome_cp ? `${cp.nome_cp} (${codigoExibicao})` : codigoExibicao;
+            opt.dataset.idConselho = cp.id_conselho || "";
+            opt.dataset.idSsvp = cp.id_ssvp || "";
+            opt.dataset.nomeCp = cp.nome_cp || "";
             selConselhoParticular.appendChild(opt);
           });
         } else {
@@ -999,14 +990,33 @@
         return;
       }
 
-      // Filtra as conferências que pertencem a este id_cp
-      const cfsFiltradas = cacheEstruturaCC.conferencias.filter(cf => String(cf.id_cp).trim() === String(idCp).trim());
+      const optSelecionada = selConselhoParticular.options[selConselhoParticular.selectedIndex];
+      const idConselho = optSelecionada ? (optSelecionada.dataset.idConselho || "").trim().toUpperCase() : "";
+      const nomeCp = optSelecionada ? (optSelecionada.dataset.nomeCp || "").trim().toLowerCase() : "";
+      const cpVal = String(idCp).trim().toUpperCase();
+
+      // Filtra as conferências que pertencem a este CP de forma híbrida e resiliente
+      const cfsFiltradas = cacheEstruturaCC.conferencias.filter(cf => {
+        const cfCp = String(cf.id_cp || "").trim().toUpperCase();
+        const cfSsvp = String(cf.id_ssvp || "").trim().toUpperCase();
+
+        // 1. Vínculo exato por id_ssvp do CP (ex: cfCp === "SPCAPA")
+        if (cfCp && cfCp === cpVal) return true;
+        // 2. Vínculo por código local do CP (ex: cfCp === "PA")
+        if (idConselho && cfCp === idConselho) return true;
+        // 3. Vínculo pelo nome do CP
+        if (nomeCp && cfCp.toLowerCase() === nomeCp) return true;
+        // 4. Vínculo hierárquico cumulativo: se o id_ssvp da CF começa com o id_ssvp do CP (ex: "SPCAPAFA".startsWith("SPCAPA"))
+        if (cpVal.length >= 4 && cfSsvp.startsWith(cpVal)) return true;
+
+        return false;
+      });
 
       selConferencia.innerHTML = `<option value="">Selecione a Conferência...</option>`;
       cfsFiltradas.forEach(cf => {
         const opt = document.createElement("option");
         opt.value = cf.id_ssvp;
-        opt.textContent = cf.nome_cf || cf.id_ssvp;
+        opt.textContent = cf.nome_cf ? `${cf.nome_cf} (${cf.id_ssvp})` : cf.id_ssvp;
         opt.dataset.nomeCf = cf.nome_cf || cf.id_ssvp;
         selConferencia.appendChild(opt);
       });
@@ -1068,10 +1078,10 @@
       ocultarFeedback();
 
       try {
-        const urlBase = obterUrlPorteiro();
+        const urlBase = obterUrlWebapp();
         const sep = urlBase.includes("?") ? "&" : "?";
         
-        // Passa os parâmetros na URL e no corpo para contornar qualquer perda de payload em redirects 302 do Safari/Chrome
+        // Passa os parâmetros na URL e no corpo para contornar qualquer perda de payload em redirects 302 do Apps Script
         const urlLogin = `${urlBase}${sep}action=login&id_cc=${encodeURIComponent(sessaoAtiva.id_cc)}&id_ssvp=${encodeURIComponent(sessaoAtiva.id_ssvp)}&email=${encodeURIComponent(email)}&senha=${encodeURIComponent(senha)}`;
         
         const res = await fetch(urlLogin, {
@@ -1123,7 +1133,7 @@
       } catch (err) {
         barraSuperior.style.backgroundColor = "var(--ssvp-red)";
         txtStatusPrincipal.textContent = "Erro na validação";
-        exibirFeedback(`Falha ao consultar Porteiro: ${err.message}`, "erro");
+        exibirFeedback(`Falha ao consultar a API do WebApp: ${err.message}`, "erro");
       } finally {
         btnLogin.disabled = false;
         btnLogin.innerHTML = `<span>Entrar no WebApp</span>`;

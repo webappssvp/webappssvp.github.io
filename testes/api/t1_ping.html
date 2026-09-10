@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Porteiro SSVP - Teste 1: Ping e Latência</title>
+  <title>API WebApp SSVP - Teste 1: Ping e Latência</title>
 
   <!-- CSS Compartilhado dos Testes -->
   <link rel="stylesheet" href="../testes.css">
@@ -276,7 +276,7 @@
             </div>
             <div class="sub-card-content-wrapper">
               <div class="sub-card-content">
-                Este teste avalia o canal básico de comunicação entre a interface web do celular e o <strong>Porteiro SSVP</strong> no Google Apps Script:
+                Este teste avalia o canal básico de comunicação entre a interface web do celular e a <strong>API do WebApp SSVP</strong> no Google Apps Script:
                 <ul>
                   <li><strong>Conectividade HTTP:</strong> Se o Google Apps Script responde sem erros de CORS.</li>
                   <li><strong>Latência Real (Ida e Volta):</strong> Quanto tempo o celular do vicentino aguarda para receber um retorno da nuvem.</li>
@@ -315,7 +315,7 @@
     <!-- Card de Configuração da URL -->
     <section class="config-card">
       <div class="config-header">
-        <span class="config-title">⚙️ Configuração da URL do Porteiro</span>
+        <span class="config-title">⚙️ Configuração da URL da API WebApp</span>
         <span class="status-badge badge-desconectado" id="badgeStatus">URL Não Configurada</span>
       </div>
 
@@ -341,7 +341,7 @@
       </div>
 
       <p style="font-size: 0.85rem; color: var(--ssvp-text-muted);">
-        Envia uma requisição <code>POST /exec?action=ping</code> para o Porteiro SSVP e mede os tempos de resposta.
+        Envia uma requisição <code>POST /exec?action=ping</code> para a API do WebApp SSVP e mede os tempos de resposta.
       </p>
 
       <button type="button" class="btn-acao btn-ping" id="btnPing" onclick="executarPing()">
@@ -384,7 +384,7 @@
     <!-- Resposta JSON da API -->
     <section class="config-card">
       <div class="config-header">
-        <span class="config-title">📄 Resposta Bruta do Porteiro (JSON)</span>
+        <span class="config-title">📄 Resposta Bruta da API do WebApp (JSON)</span>
         <button type="button" onclick="copiarJson()" style="background: none; border: 1px solid var(--ssvp-gray-border); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; color: var(--ssvp-navy); font-weight: 600;">
           📋 Copiar JSON
         </button>
@@ -400,10 +400,10 @@
 
   <script>
     // Chave de armazenamento local
-    const STORAGE_KEY_URL = "ssvp_porteiro_url";
+    const STORAGE_KEY_URL = "ssvp_webapp_url";
 
-    // URL Padrão Oficial do Porteiro SSVP (Carregada automaticamente em novos aparelhos)
-    const URL_PADRAO_PORTEIRO = "https://script.google.com/macros/s/AKfycbzP6CehGh2U_kLhVPMZNZKeoaWIWzpzd-fgNh03qnmwYVBJFoI3nMP6TZBGH1ZahT9t/exec";
+    // URL Padrão Oficial da API do WebApp SSVP (Carregada automaticamente em novos aparelhos)
+    const URL_PADRAO_WEBAPP = "https://script.google.com/macros/s/AKfycbzP6CehGh2U_kLhVPMZNZKeoaWIWzpzd-fgNh03qnmwYVBJFoI3nMP6TZBGH1ZahT9t/exec";
 
     // Elementos do DOM
     const inputUrl = document.getElementById("urlWebapp");
@@ -428,8 +428,8 @@
         inputUrl.value = urlSalva.trim();
         badgeStatus.textContent = "URL Personalizada";
         badgeStatus.className = "status-badge badge-conectado";
-      } else if (URL_PADRAO_PORTEIRO && URL_PADRAO_PORTEIRO.trim() !== "") {
-        inputUrl.value = URL_PADRAO_PORTEIRO.trim();
+      } else if (URL_PADRAO_WEBAPP && URL_PADRAO_WEBAPP.trim() !== "") {
+        inputUrl.value = URL_PADRAO_WEBAPP.trim();
         badgeStatus.textContent = "URL Padrão Ativa";
         badgeStatus.className = "status-badge badge-conectado";
       } else {
@@ -461,10 +461,10 @@
     // Restaurar URL padrão do projeto
     function restaurarUrlPadrao() {
       localStorage.removeItem(STORAGE_KEY_URL);
-      inputUrl.value = URL_PADRAO_PORTEIRO;
+      inputUrl.value = URL_PADRAO_WEBAPP;
       badgeStatus.textContent = "URL Padrão Ativa";
       badgeStatus.className = "status-badge badge-conectado";
-      alert("URL padrão do Porteiro SSVP restaurada com sucesso!");
+      alert("URL padrão da API do WebApp SSVP restaurada com sucesso!");
     }
 
     // Disparar o Ping com medição rigorosa de tempo
@@ -481,7 +481,7 @@
       btnPing.innerHTML = `<span class="spinner"></span> Medindo tempo de resposta...`;
       txtStatusConexao.textContent = "Conectando...";
       txtStatusConexao.style.color = "var(--ssvp-blue)";
-      jsonOutput.textContent = "// Enviando requisição para o Porteiro SSVP...";
+      jsonOutput.textContent = "// Enviando requisição para a API do WebApp SSVP...";
 
       // Monta a URL garantindo o parâmetro de ação ping
       const separador = urlBase.includes("?") ? "&" : "?";

@@ -17,8 +17,7 @@
 
 
 ## Organização de Planos de Implementação
-* **Planos Gerais e Funcionalidades:** Os planos de implementação (específicos de features, conjuntos de features ou o plano geral do webapp) devem ser salvos na pasta `dev/implement/` para subirem para o repositório público.
-* **Segurança e Privacidade de Dados:** Qualquer plano de implementação que envolva segurança de dados, autenticação, criptografia, chaves de API, senhas ou privacidade de dados (LGPD) deve ser mantido estritamente na pasta `dev_local/` (evitando a exposição pública via `.gitignore`).
+* **Planos de Implementação e Arquitetura (`dev_local/implement/`):** Todos os planos de implementação (específicos de features, segurança, fluxos de login, modelagem de dados ou o plano geral de versões do webapp) devem ser salvos na pasta `dev_local/implement/` para mantê-los protegidos de exposição pública no Git.
 * **Ajustes Simples, Protótipos e Testes:** Para tarefas triviais, pequenos ajustes de layout, correções de sintaxe, ou para quaisquer arquivos e protótipos de teste dentro de subpastas da pasta `testes/` (como `testes/sincronizacao/`, `testes/internet/` e similares), o agente **NÃO deve criar planos de implementação (`implementation_plan.md`), listas de tarefas (`task.md`) ou walkthroughs (`walkthrough.md`)**. Nesses casos, o agente deve fazer as alterações e propor os snippets diretamente.
 
 

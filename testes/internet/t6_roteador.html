@@ -305,7 +305,7 @@
       fill: currentColor;
     }
 
-    /* Simulador de Rede e Porteiro */
+    /* Simulador de Rede e WebApp */
     .sim-btn-group {
       display: flex;
       gap: 8px;
@@ -937,7 +937,7 @@
         </div>
       </div>
 
-      <!-- Card 3: O Porteiro da SSVP (O Roteador) -->
+      <!-- Card 3: O WebApp da SSVP (O Roteador) -->
       <div class="expandable-card active" id="card-router">
         <div class="card-header" onclick="toggleCard('card-router')">
           <div class="card-title-group">
@@ -945,7 +945,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
             </svg>
-            <span>O Porteiro da SSVP (O Roteador)</span>
+            <span>O WebApp da SSVP (O Roteador)</span>
           </div>
           <!-- Ícone SVG Material: Keyboard Arrow Down -->
           <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -954,7 +954,7 @@
         </div>
         <div class="card-body">
           <p class="card-description">
-            A conta ssvpweb funciona como um porteiro. Ela oculta a ID e o link das planilhas das conferên          <!-- Ilustração SVG 3.1 (Nova): Porteiro do SSVPweb intermediando a URL da Planilha -->
+            A conta ssvpweb funciona como um roteador WebApp. Ela oculta a ID e o link das planilhas das conferên          <!-- Ilustração SVG 3.1 (Nova): WebApp SSVP intermediando a URL da Planilha -->
           <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box;">
             <svg viewBox="0 0 360 330" width="100%" height="auto" style="background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); padding: 8px; display: block;">
               <defs>
@@ -966,7 +966,7 @@
                   <stop offset="0%" stop-color="#10b981" />
                   <stop offset="100%" stop-color="#047857" />
                 </linearGradient>
-                <linearGradient id="gradPorteiro" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="gradWebapp" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#0284c7" />
                                <!-- Markers de Seta de Roteador (Tamanho de 4px - 1/3 do tamanho anterior de 12px) -->
                 <marker id="arrowBlueRouter" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
@@ -993,19 +993,19 @@
               <rect x="246.5" y="5" width="57" height="68" rx="7" fill="url(#gradPlanilhaBig)" />
               <path d="M 254 18 L 295 18 M 254 28 L 295 28 M 254 38 L 295 38 M 254 48 L 295 48 M 254 58 L 295 58 M 264 11 L 264 65" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
 
-              <!-- ================= CENTRO: O PORTEIRO (Ampliado 50%: Círculo r=39, Servidor 39x42px, y=140) ================= -->
+              <!-- ================= CENTRO: O WEBAPP (Ampliado 50%: Círculo r=39, Servidor 39x42px, y=140) ================= -->
               <g transform="translate(180, 140)">
                 <!-- Círculo de Escudo do Roteador -->
                 <circle cx="0" cy="0" r="39" fill="rgba(2, 132, 199, 0.04)" stroke="rgba(2, 132, 199, 0.3)" stroke-width="1.2" />
                 <!-- Servidor em Rack -->
-                <rect x="-19.5" y="-21" width="39" height="42" rx="4" fill="url(#gradPorteiro)" stroke="rgba(255,255,255,0.15)" stroke-width="0.5" />
-                <!-- Cadeado no centro do Porteiro -->
+                <rect x="-19.5" y="-21" width="39" height="42" rx="4" fill="url(#gradWebapp)" stroke="rgba(255,255,255,0.15)" stroke-width="0.5" />
+                <!-- Cadeado no centro do WebApp -->
                 <rect x="-9" y="-1.5" width="18" height="15" rx="2" fill="#ffffff" />
                 <path d="M -6.75 -1.5 V -7.5 A 6.75 6.75 0 0 1 6.75 -7.5 V -1.5" fill="none" stroke="#ffffff" stroke-width="1.8" />
                 <!-- Led de status ativo -->
                 <circle cx="-12" cy="-12" r="1.8" fill="#4ade80" />
                 <circle cx="-6" cy="-12" r="1.8" fill="#4ade80" />
-                <text x="0" y="-48" fill="#0284c7" font-size="20" font-weight="700" text-anchor="middle">Porteiro</text>
+                <text x="0" y="-48" fill="#0284c7" font-size="20" font-weight="700" text-anchor="middle">WebApp</text>
               </g>
 
               <!-- ================= 3 SMARTPHONES NA BASE (Dobro do tamanho: 48x84px, y=230) ================= -->
@@ -1035,7 +1035,7 @@
               <path d="M 180 226 L 180 184" fill="none" stroke="rgba(0,127,255,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowBlueRouter)" marker-end="url(#arrowBlueRouter)" />
               <path d="M 272 226 L 212 172" fill="none" stroke="rgba(0,127,255,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowBlueRouter)" marker-end="url(#arrowBlueRouter)" />
               
-              <!-- Setas Superiores: Porteiro ➔ Planilhas na Nuvem -->
+              <!-- Setas Superiores: WebApp ➔ Planilhas na Nuvem -->
               <path d="M 148 108 L 88 79" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowGreenRouter)" marker-end="url(#arrowGreenRouter)" />
               <path d="M 180 96 L 180 79" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowGreenRouter)" marker-end="url(#arrowGreenRouter)" />
               <path d="M 212 108 L 272 79" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowGreenRouter)" marker-end="url(#arrowGreenRouter)" />
@@ -1079,10 +1079,10 @@
 
             <div class="sim-btn-group">
               <button class="sim-action-btn" id="btn-sim-direta" onclick="runSimulation('direta')">
-                ❌ Sem Porteiro (Direto)
+                ❌ Sem WebApp (Direto)
               </button>
               <button class="sim-action-btn" id="btn-sim-roteada" onclick="runSimulation('roteada')">
-                🛡️ Com Porteiro (Roteado)
+                🛡️ Com WebApp (Roteado)
               </button>
             </div>
 

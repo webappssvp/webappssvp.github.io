@@ -305,7 +305,7 @@
       fill: currentColor;
     }
 
-    /* Simulador de Rede e Porteiro */
+    /* Simulador de Rede e WebApp */
     .sim-btn-group {
       display: flex;
       gap: 8px;
@@ -786,7 +786,7 @@
         </div>
       </div>
 
-      <!-- Card 3: O Porteiro da SSVP (O Roteador) -->
+      <!-- Card 3: O WebApp da SSVP (O Roteador) -->
       <div class="expandable-card" id="card-router">
         <div class="card-header" onclick="toggleCard('card-router')">
           <div class="card-title-group">
@@ -794,7 +794,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
             </svg>
-            <span>O Porteiro da SSVP (O Roteador)</span>
+            <span>O WebApp da SSVP (O Roteador)</span>
           </div>
           <!-- Ícone SVG Material: Keyboard Arrow Down -->
           <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -803,7 +803,7 @@
         </div>
         <div class="card-body">
           <p class="card-description">
-            A conta ssvpweb funciona como um porteiro. Ela oculta a ID e o link das planilhas das conferências, evitando que fiquem expostos no celular ou em redes públicas de internet.
+            A conta ssvpweb funciona como um roteador WebApp. Ela oculta a ID e o link das planilhas das conferências, evitando que fiquem expostos no celular ou em redes públicas de internet.
           </p>
 
           <!-- Retângulo de Ilustração 3 (Placeholder) -->
@@ -811,7 +811,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
             </svg>
-            <span>[Ilustração: O Porteiro Blindando a URL das Planilhas]</span>
+            <span>[Ilustração: O WebApp Blindando a URL das Planilhas]</span>
           </div>
 
           <!-- Simulador Comparativo Interativo -->
@@ -829,10 +829,10 @@
 
             <div class="sim-btn-group">
               <button class="sim-action-btn" id="btn-sim-direta" onclick="runSimulation('direta')">
-                ❌ Sem Porteiro (Direto)
+                ❌ Sem WebApp (Direto)
               </button>
               <button class="sim-action-btn" id="btn-sim-roteada" onclick="runSimulation('roteada')">
-                🛡️ Com Porteiro (Roteado)
+                🛡️ Com WebApp (Roteado)
               </button>
             </div>
 
