@@ -9,7 +9,7 @@
 .bar-sup {
   position: relative;
   background-color: var(--cor-barra-sup);
-  padding-top: calc(var(--padding-vertical-barras) + env(safe-area-inset-top));
+  padding-top: max(0.85rem, calc(var(--padding-vertical-barras) + env(safe-area-inset-top, 0px)));
   padding-bottom: var(--padding-vertical-barras);
   padding-left: 1rem;
   padding-right: 1rem;
@@ -117,7 +117,8 @@
   position: relative;
   background-color: var(--cor-barra-inf);
   padding-top: var(--padding-vertical-barras);
-  padding-bottom: calc(var(--padding-vertical-barras) + env(safe-area-inset-bottom));
+  /* Garante no mínimo 1.5rem (~24px) de margem inferior para não sobrepor a barra de gestos ou 3 botões do Android */
+  padding-bottom: max(1.5rem, calc(var(--padding-vertical-barras) + env(safe-area-inset-bottom, 0px)));
   padding-left: 1rem;
   padding-right: 1rem;
   display: flex;

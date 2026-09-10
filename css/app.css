@@ -50,8 +50,9 @@ html {
 
 body {
   min-height: 100%;
-  height: 100vh;
-  height: 100dvh;
+  height: 100vh;   /* Fallback para navegadores sem suporte a novas unidades */
+  height: 100svh;  /* Viewport com barras de navegação do Android ativas */
+  height: 100dvh;  /* Viewport dinâmico moderno */
   display: flex;
   flex-direction: column;
   background-color: var(--ssvp-bg);
