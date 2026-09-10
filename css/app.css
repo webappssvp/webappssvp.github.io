@@ -1,0 +1,148 @@
+/* ==========================================================================
+   WebApp SSVP - App CSS & Design System Principal
+   Diretrizes: dev/padroes/ (01_marca_ssvp.md a 07_diretrizes_unidades_medida.md)
+   ========================================================================== */
+
+:root {
+  /* Dimensões Ergonômicas SSVP (Acessibilidade 60+) */
+  --raio-cantos: 3.2rem;
+  --raio-audio: 3.8rem;
+  --padding-vertical-barras: 0.55rem;
+  --toque-minimo: 3rem; /* 48x48px */
+
+  /* Paleta Oficial da Marca SSVP */
+  --ssvp-navy: #002d62;
+  --ssvp-blue: #007fff;
+  --ssvp-red: #d32f2f;
+  --ssvp-green: #15803d;
+  --ssvp-yellow: #f59e0b;
+  --ssvp-bg: #0b0f19;
+  --ssvp-card-bg: rgba(18, 25, 41, 0.96);
+  --ssvp-card-border: rgba(255, 255, 255, 0.1);
+  --ssvp-text: #f3f4f6;
+  --ssvp-text-muted: #94a3b8;
+  --ssvp-white: #ffffff;
+
+  /* Estados Dinâmicos da Barra Superior (Semáforo Vicentino) */
+  --cor-barra-sup: var(--ssvp-red);
+  --cor-barra-inf: var(--ssvp-navy);
+
+  /* Tipografia Institucional */
+  --fonte-titulos: 'EB Garamond', 'Garamond', Georgia, serif;
+  --fonte-interface: 'Montserrat', Arial, -apple-system, sans-serif;
+}
+
+/* Reset Universal e Prevenção de Zoom Indesejado no iOS */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--fonte-interface);
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  background-color: var(--ssvp-bg);
+  color: var(--ssvp-text);
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ssvp-bg);
+  color: var(--ssvp-text);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ==========================================================================
+   Banner de Atualização em 1 Toque (PWA)
+   ========================================================================== */
+.banner-atualizacao {
+  display: none;
+  background: linear-gradient(90deg, #1e3a8a 0%, #0064b6 100%);
+  color: var(--ssvp-white);
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 150;
+  flex-shrink: 0;
+}
+
+.banner-atualizacao.ativo {
+  display: flex;
+}
+
+.btn-atualizar-pwa {
+  background-color: #facc15;
+  color: #1e293b;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.btn-atualizar-pwa:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================================================
+   Área Central Scrollável (Display Area)
+   ========================================================================== */
+.display-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Cards Explicativos para Leigos */
+.card-explicativo {
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--ssvp-card-bg);
+  border: 1px solid var(--ssvp-card-border);
+  border-radius: 1rem;
+  padding: 1.15rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.card-explicativo-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #93c5fd;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-explicativo-corpo {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--ssvp-text-muted);
+}
+
+.card-explicativo-corpo strong {
+  color: var(--ssvp-text);
+}

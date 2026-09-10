@@ -1,0 +1,163 @@
+/* ==========================================================================
+   WebApp SSVP - Barras Superior e Inferior (Navegação e Semáforo)
+   Diretrizes: dev/padroes/01_marca_ssvp.md e 05_acessibilidade_ergonomia.md
+   ========================================================================== */
+
+/* ==========================================================================
+   Barra Superior Fixa (Header Reativo / Semáforo Vicentino)
+   ========================================================================== */
+.bar-sup {
+  position: relative;
+  background-color: var(--cor-barra-sup);
+  padding-top: calc(var(--padding-vertical-barras) + env(safe-area-inset-top));
+  padding-bottom: var(--padding-vertical-barras);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* Círculos das Extremidades */
+.bar-circle {
+  width: var(--raio-cantos);
+  height: var(--raio-cantos);
+  border-radius: 50%;
+  background-color: var(--ssvp-white);
+  color: var(--ssvp-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  user-select: none;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+}
+
+/* Botão Central de Status Clicável */
+.status-header-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  transition: background-color 0.2s ease;
+  max-width: calc(100% - 7rem);
+}
+
+.status-header-container:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.status-header-container:active {
+  transform: scale(0.98);
+}
+
+.status-texto-principal {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ssvp-white);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  letter-spacing: 0.02em;
+}
+
+.status-subtexto {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Animação Pulsar para Semáforo Não Conectado */
+.pulsar {
+  animation: animarPulsar 1.8s infinite ease-in-out;
+}
+
+@keyframes animarPulsar {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(0.96);
+  }
+}
+
+/* Identificador Discreto de Versão no Topo */
+.versao-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ssvp-navy);
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   Barra Inferior Fixa (Footer de Acessibilidade 60+)
+   ========================================================================== */
+.bar-inf {
+  position: relative;
+  background-color: var(--cor-barra-inf);
+  padding-top: var(--padding-vertical-barras);
+  padding-bottom: calc(var(--padding-vertical-barras) + env(safe-area-inset-bottom));
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+/* Botão Central de Áudio / Voz (Destaque Ergonômico) */
+.audio-circle {
+  width: var(--raio-audio);
+  height: var(--raio-audio);
+  border-radius: 50%;
+  background-color: var(--ssvp-white);
+  color: var(--ssvp-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s ease;
+}
+
+.audio-circle:active {
+  transform: scale(0.95);
+}
+
+.audio-circle svg {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+
+.canto-circle {
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.canto-circle:active {
+  transform: scale(0.95);
+}
