@@ -35,7 +35,8 @@
       --md-on-surface: #f1f5f9;       /* Texto Principal */
       --md-on-surface-variant: #94a3b8; /* Texto Secundário */
       --md-border-subtle: rgba(255, 255, 255, 0.08);
-      --md-border-strong: rgba(255, 255, 255, 0.18);
+      --md-border-soft: rgba(255, 255, 255, 0.14);
+      --md-border-strong: rgba(255, 255, 255, 0.22);
 
       /* Sombras e Elevação M3 */
       --md-elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
@@ -60,7 +61,8 @@
       --md-on-surface: #0f172a;
       --md-on-surface-variant: #475569;
       --md-border-subtle: rgba(0, 0, 0, 0.08);
-      --md-border-strong: rgba(0, 0, 0, 0.2);
+      --md-border-soft: rgba(0, 0, 0, 0.14);
+      --md-border-strong: rgba(0, 0, 0, 0.22);
       --md-amber-bg: #fef3c7;
     }
 
@@ -86,6 +88,7 @@
       display: flex;
       flex-direction: column;
       user-select: none;
+      -webkit-user-select: none;
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
@@ -668,7 +671,7 @@
     .display-area {
       flex: 1;
       overflow-y: auto;
-      padding: 1rem 0.9rem calc(5.5rem + var(--safe-bottom)) 0.9rem;
+      padding: 1rem 0.9rem calc(5.2rem + var(--safe-bottom)) 0.9rem;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -746,21 +749,10 @@
       font-size: 0.82rem;
       font-weight: 700;
       color: var(--md-on-surface);
-      display: flex;
-      justify-content: space-between;
+      display: block;
     }
 
-    .badge-foco-ativo {
-      display: none;
-      font-size: 0.7rem;
-      color: var(--md-secondary);
-      font-weight: 800;
-    }
-
-    .grupo-campo.ativo .badge-foco-ativo {
-      display: inline-block;
-    }
-
+    /* Caixa de Texto Padrão (Input e Textarea) */
     .campo-formulario {
       width: 100%;
       background-color: var(--md-surface-1);
@@ -771,17 +763,33 @@
       font-size: 1rem;
       outline: none;
       resize: vertical;
-      transition: border-color 0.15s ease;
+      transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .campo-formulario:focus {
       border-color: var(--md-secondary);
     }
 
+    /* DESTAQUE: INPUT ALVO DA FALA COM FUNDO AZUL TRANSLÚCIDO E FAROL */
+    .grupo-campo.ativo .campo-formulario,
+    .campo-formulario.em-foco {
+      background-color: rgba(0, 127, 255, 0.16) !important;
+      border-color: var(--md-secondary) !important;
+      box-shadow: 0 0 10px rgba(0, 127, 255, 0.25);
+    }
+
+    body.tema-claro .grupo-campo.ativo .campo-formulario,
+    body.tema-claro .campo-formulario.em-foco {
+      background-color: rgba(0, 100, 182, 0.09) !important;
+      border-color: var(--ssvp-blue) !important;
+      box-shadow: 0 0 8px rgba(0, 100, 182, 0.2);
+    }
+
+    /* Barra de Ação Limpa no Campo (Botão Teclado com Mudança Apenas na Cor de Fundo) */
     .barra-acao-campo {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       margin-top: 0.2rem;
     }
 
@@ -789,26 +797,41 @@
       background-color: var(--md-surface-2);
       border: 1.5px solid var(--md-secondary);
       color: var(--md-on-surface);
-      padding: 0.35rem 0.75rem;
+      padding: 0.35rem 0.85rem;
       border-radius: 8px;
       font-size: 0.78rem;
       font-weight: 700;
       cursor: pointer;
       box-shadow: var(--md-elevation-1);
-      transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
     }
 
+    .btn-abrir-teclado:hover {
+      background-color: rgba(0, 127, 255, 0.14);
+    }
+
+    .btn-abrir-teclado:active {
+      transform: scale(0.95);
+    }
+
+    /* Teclado Aberto: Muda puramente a cor de fundo e realce (Texto fixo "Teclado") */
     .btn-abrir-teclado.ativo {
-      background-color: var(--md-secondary);
-      color: #ffffff;
-      border-color: #60a5fa;
-      box-shadow: 0 0 10px rgba(0, 127, 255, 0.45);
+      background-color: var(--md-secondary) !important;
+      color: #ffffff !important;
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 12px rgba(0, 127, 255, 0.45);
     }
 
-    .info-alvo-voz {
-      font-size: 0.72rem;
-      color: var(--md-secondary);
-      font-weight: 700;
+    body.tema-claro .btn-abrir-teclado.ativo {
+      background-color: var(--ssvp-blue) !important;
+      color: #ffffff !important;
+      border-color: var(--ssvp-blue) !important;
     }
 
     /* Leitura em Voz Alta (Bordas Pulsantes) */
@@ -830,7 +853,7 @@
     }
 
     /* ==========================================================================
-       7. BARRA INFERIOR NO POLEGAR: MENU | FALAR/OUVIR (VERTICAL) | SAIR
+       7. BARRA INFERIOR NO POLEGAR COM BORDAS SUAVES E BOTÃO SAIR VERMELHO
        ========================================================================== */
     .app-footer {
       position: fixed;
@@ -839,13 +862,14 @@
       right: 0;
       background-color: var(--md-surface-2);
       border-top: 1px solid var(--md-border-subtle);
-      padding-top: 0.45rem;
-      padding-bottom: calc(0.45rem + var(--safe-bottom));
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
+      padding-top: 0.5rem;
+      padding-bottom: calc(0.5rem + var(--safe-bottom));
+      padding-left: 1rem;
+      padding-right: 1rem;
       display: flex;
       align-items: center;
       justify-content: space-around;
+      gap: 0.6rem;
       box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
       z-index: 60;
     }
@@ -855,34 +879,52 @@
       flex-direction: row-reverse;
     }
 
-    /* Botões Laterais: Menu e Sair (Layout Vertical: Ícone no Topo + Texto Embaixo) */
+    /* Botão Lateral: Menu (Bordas Suaves + Alinhamento Vertical) */
     .btn-footer-lateral {
-      background-color: transparent;
-      border: none;
+      background-color: rgba(255, 255, 255, 0.04);
+      border: 1.5px solid var(--md-border-soft);
       color: var(--md-on-surface);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0.2rem;
-      min-width: 4rem;
-      padding: 0.35rem 0.5rem;
-      border-radius: 0.85rem;
+      min-width: 4.4rem;
+      height: 3.5rem;
+      padding: 0.35rem 0.55rem;
+      border-radius: 0.9rem;
       cursor: pointer;
-      transition: background-color 0.15s ease, transform 0.1s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body.tema-claro .btn-footer-lateral {
+      background-color: #ffffff;
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
     .btn-footer-lateral:hover {
-      background-color: rgba(255, 255, 255, 0.08);
+      background-color: rgba(255, 255, 255, 0.09);
+      border-color: var(--md-secondary);
+    }
+
+    body.tema-claro .btn-footer-lateral:hover {
+      background-color: #f1f5f9;
+      border-color: var(--ssvp-blue);
     }
 
     .btn-footer-lateral:active {
       transform: scale(0.94);
+      background-color: rgba(255, 255, 255, 0.15);
     }
 
     .btn-footer-lateral svg {
-      width: 1.6rem;
-      height: 1.6rem;
+      width: 1.45rem;
+      height: 1.45rem;
       fill: currentColor;
     }
 
@@ -890,51 +932,94 @@
       font-size: 0.72rem;
       font-weight: 700;
       color: var(--md-on-surface-variant);
+      pointer-events: none;
     }
 
-    /* Botão Sair com Destaque Sutil de Alerta */
-    .btn-sair-lateral:hover .footer-btn-label,
-    .btn-sair-lateral:hover svg {
-      color: #fca5a5;
-      fill: #fca5a5;
+    /* BOTÃO SAIR COM FUNDO VERMELHO INSTITUCIONAL E BORDAS SUAVES */
+    .btn-sair-lateral {
+      background: linear-gradient(135deg, #b91c1c 0%, var(--ssvp-red) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
     }
 
-    /* Botão Central: FALAR / OUVIR (Layout Vertical Empilhado + FAB Elevado) */
+    body.tema-claro .btn-sair-lateral {
+      background: linear-gradient(135deg, #b91c1c 0%, var(--ssvp-red) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-sair-lateral .footer-btn-label,
+    .btn-sair-lateral svg {
+      color: #ffffff !important;
+      fill: #ffffff !important;
+    }
+
+    .btn-sair-lateral:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+      border-color: #ffffff;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.55);
+    }
+
+    .btn-sair-lateral:active {
+      transform: scale(0.94);
+      background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%);
+    }
+
+    /* Botão Central: FALAR / OUVIR (Contido dentro da Barra + Bordas Suaves) */
     .btn-audio-central {
       position: relative;
+      margin: 0; /* 100% contido na barra, sem vazamentos */
       background: linear-gradient(135deg, var(--ssvp-blue) 0%, var(--md-secondary) 100%);
       color: #ffffff;
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      min-width: 4.6rem;
-      height: 4.6rem;
-      border-radius: 1.5rem;
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      min-width: 5.4rem;
+      height: 3.5rem;
+      border-radius: 0.95rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0.15rem;
       cursor: pointer;
-      box-shadow: 0 6px 16px rgba(0, 100, 182, 0.5);
-      margin-top: -1.2rem;
+      box-shadow: 0 2px 8px rgba(0, 100, 182, 0.35);
       flex-shrink: 0;
-      transition: transform 0.15s ease, background 0.25s ease, border-color 0.25s ease;
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      transition: transform 0.12s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .btn-audio-central:hover {
+      border-color: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 4px 12px rgba(0, 127, 255, 0.45);
     }
 
     .btn-audio-central:active {
-      transform: scale(0.94);
+      transform: scale(0.95);
     }
 
+    /* Estado: Modo Ouvir (Verde Vicentino) */
     .btn-audio-central.modo-ouvir {
       background: linear-gradient(135deg, #15803d 0%, #22c55e 100%);
-      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.45);
+      box-shadow: 0 2px 8px rgba(34, 197, 94, 0.35);
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+
+    .btn-audio-central.modo-ouvir:hover {
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.5);
     }
 
     .btn-audio-central svg,
     .btn-audio-central img {
-      width: 1.7rem;
-      height: 1.7rem;
+      width: 1.45rem;
+      height: 1.45rem;
       fill: #ffffff;
       filter: brightness(0) invert(1);
+      pointer-events: none;
     }
 
     .audio-central-label {
@@ -942,23 +1027,30 @@
       font-weight: 800;
       letter-spacing: 0.03em;
       text-transform: uppercase;
-    }
-
-    /* Anel de Progresso do Toque Longo */
-    .press-ring {
-      position: absolute;
-      inset: -4px;
-      border-radius: 1.7rem;
-      border: 3px solid #60a5fa;
-      opacity: 0;
-      transform: scale(0.85);
-      transition: opacity 0.1s ease, transform 0.7s cubic-bezier(0, 0, 0.2, 1);
       pointer-events: none;
     }
 
-    .btn-audio-central.pressionando .press-ring {
+    /* Barra / Indicador Visual de Progresso do Toque Longo */
+    .press-indicator-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3.5px;
+      width: 0%;
+      background-color: #ffffff;
+      opacity: 0;
+      border-radius: 2px;
+      pointer-events: none;
+      transition: width 0.6s cubic-bezier(0.1, 0.7, 0.1, 1), opacity 0.1s ease;
+    }
+
+    .btn-audio-central.pressionando .press-indicator-bar {
       opacity: 1;
-      transform: scale(1.05);
+      width: 100%;
+    }
+
+    .btn-audio-central.pressionando {
+      transform: scale(0.94);
       border-color: #ffffff;
     }
 
@@ -971,16 +1063,16 @@
     }
 
     body.modo-apenas-icones .btn-footer-lateral {
-      min-width: 3.2rem;
-      height: 3.2rem;
-      border-radius: 50%;
+      min-width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 0.9rem;
     }
 
     body.modo-apenas-icones .btn-audio-central {
-      min-width: 4rem;
-      height: 4rem;
-      border-radius: 50%;
-      margin-top: -1rem;
+      min-width: 3.8rem;
+      height: 3.5rem;
+      border-radius: 0.95rem;
+      margin: 0;
     }
 
     /* ==========================================================================
@@ -1046,7 +1138,7 @@
     /* Toast Flutuante de Mensagem Rápida */
     .toast-msg {
       position: fixed;
-      bottom: calc(5.5rem + var(--safe-bottom));
+      bottom: calc(5.2rem + var(--safe-bottom));
       left: 50%;
       transform: translateX(-50%) translateY(20px);
       background-color: #002d62;
@@ -1089,7 +1181,7 @@
       <h1 class="header-conf-name" id="lblConfName">Conf. São Francisco de Assis</h1>
       <div class="header-sub-row">
         <span class="header-cp-name">CP São Vicente • SSVP Brasil</span>
-        <span class="header-version-pill">t5_barras_e_ajuda.html • v1.0</span>
+        <span class="header-version-pill">t5_barras_e_ajuda.html • v1.6</span>
       </div>
     </div>
 
@@ -1250,9 +1342,10 @@
           <div class="sheet-card-box">
             <span class="sheet-card-title">📖 Guia Rápido da Visita</span>
             <ul style="font-size: 0.82rem; padding-left: 1.15rem; line-height: 1.5; color: var(--md-on-surface-variant);">
-              <li><strong>Falar:</strong> Toque no campo e use o microfone central para ditar o relato sem digitar.</li>
-              <li><strong>Ouvir:</strong> Segure o botão central por 1s para ler textos do relatório em voz alta.</li>
-              <li><strong>Sair:</strong> Toque em Sair na barra inferior para proteger os dados da família (LGPD).</li>
+              <li><strong>Falar:</strong> Toque no campo e use o microfone na barra para ditar o relato sem digitar.</li>
+              <li><strong>Ouvir:</strong> Toque e segure o botão por 600ms para alternar e ouvir textos em voz alta.</li>
+              <li><strong>Teclado:</strong> Toque em Teclado para abrir ou recolher a digitação manual com os dedos.</li>
+              <li><strong>Sair:</strong> Toque no botão vermelho na barra inferior para proteger os dados da família (LGPD).</li>
             </ul>
           </div>
         </section>
@@ -1279,7 +1372,7 @@
   </div>
 
   <!-- ========================================================================
-       ÁREA CENTRAL DE TRABALHO (CARD DA VISITA + CAMPOS DE TEXTO)
+       ÁREA CENTRAL DE TRABALHO (CARD DA VISITA + CAMPOS LIMPOS COM FAROL AZUL)
        ======================================================================== -->
   <main class="display-area" id="areaConteudo">
 
@@ -1292,16 +1385,13 @@
       </div>
       <h2 class="card-titulo">Visita em Andamento</h2>
       <p class="card-detalhes">
-        Selecione o campo. Ele acenderá a <strong>borda azul de foco</strong>. Use o botão <strong>Falar</strong> abaixo ou toque em <strong>[ Teclado ]</strong> para digitar:
+        Selecione o campo. O <strong>campo alvo acenderá o fundo azul com transparência</strong> para receber a fala. Toque no botão <strong>[ Teclado ]</strong> para abrir ou recolher a digitação:
       </p>
 
       <!-- Campo 1: Família / Assistido -->
       <div class="grupo-campo ajuda-alvo" id="grupoFamilia" data-ajuda-titulo="Campo Família / Assistido"
         data-ajuda-texto="Identifica a pessoa de referência ou o nome da família que está recebendo a visita dos vicentinos.">
-        <label class="label-campo" for="campoFamilia">
-          <span>1. Família / Assistido:</span>
-          <span class="badge-foco-ativo">● Alvo da Fala</span>
-        </label>
+        <label class="label-campo" for="campoFamilia">1. Família / Assistido:</label>
         <div class="campo-wrapper">
           <input type="text" id="campoFamilia" class="campo-formulario" placeholder="Ex: Família Silva (Dona Neuza)"
             onfocus="registrarFocoCampo(this, 'grupoFamilia')"
@@ -1309,10 +1399,11 @@
             onblur="lidarBlurCampo(this)">
         </div>
         <div class="barra-acao-campo">
-          <span class="info-alvo-voz">🎯 Fala direcionada aqui</span>
-          <button type="button" class="btn-abrir-teclado ajuda-alvo" id="btnTecladoFamilia" onclick="alternarTeclado('campoFamilia', 'btnTecladoFamilia')"
+          <button type="button" class="btn-abrir-teclado ajuda-alvo" id="btnTecladoFamilia" 
+            onpointerdown="event.preventDefault()"
+            onclick="alternarTeclado('campoFamilia', 'btnTecladoFamilia')"
             data-ajuda-titulo="Botão Teclado"
-            data-ajuda-texto="Mostra ou recolhe o teclado do celular. Toque nele se quiser digitar com os dedos em vez de usar o microfone.">
+            data-ajuda-texto="Exibe ou oculta o teclado virtual do celular para digitação manual com os dedos.">
             Teclado
           </button>
         </div>
@@ -1321,21 +1412,19 @@
       <!-- Campo 2: Relato / Observações da Visita -->
       <div class="grupo-campo ativo ajuda-alvo" id="grupoRelato" data-ajuda-titulo="Campo Relato da Visita"
         data-ajuda-texto="Espaço para descrever como foi a conversa, situação espiritual, moradia e necessidades imediatas da família.">
-        <label class="label-campo" for="campoRelato">
-          <span>2. Relato da Visita:</span>
-          <span class="badge-foco-ativo">● Alvo da Fala</span>
-        </label>
+        <label class="label-campo" for="campoRelato">2. Relato da Visita:</label>
         <div class="campo-wrapper">
-          <textarea id="campoRelato" class="campo-formulario" rows="3" placeholder="Ex: Conversamos sobre a saúde do idoso e necessidades da família..."
+          <textarea id="campoRelato" class="campo-formulario em-foco" rows="3" placeholder="Ex: Conversamos sobre a saúde do idoso e necessidades da família..."
             onfocus="registrarFocoCampo(this, 'grupoRelato')"
             onclick="lidarCliqueCampo(this, 'grupoRelato')"
             onblur="lidarBlurCampo(this)"></textarea>
         </div>
         <div class="barra-acao-campo">
-          <span class="info-alvo-voz">🎯 Fala direcionada aqui</span>
-          <button type="button" class="btn-abrir-teclado ajuda-alvo" id="btnTecladoRelato" onclick="alternarTeclado('campoRelato', 'btnTecladoRelato')"
+          <button type="button" class="btn-abrir-teclado ajuda-alvo" id="btnTecladoRelato" 
+            onpointerdown="event.preventDefault()"
+            onclick="alternarTeclado('campoRelato', 'btnTecladoRelato')"
             data-ajuda-titulo="Botão Teclado"
-            data-ajuda-texto="Mostra ou recolhe o teclado virtual para digitação com os dedos.">
+            data-ajuda-texto="Exibe ou oculta o teclado virtual para digitação com os dedos.">
             Teclado
           </button>
         </div>
@@ -1344,10 +1433,7 @@
       <!-- Campo 3: Encaminhamentos / Demandas -->
       <div class="grupo-campo ajuda-alvo" id="grupoDemandas" data-ajuda-titulo="Campo Encaminhamentos e Demandas"
         data-ajuda-texto="Anote aqui as providências da conferência: cesta básica, remédios, encaminhamento ao médico ou apoio social.">
-        <label class="label-campo" for="campoDemandas">
-          <span>3. Encaminhamentos / Demandas:</span>
-          <span class="badge-foco-ativo">● Alvo da Fala</span>
-        </label>
+        <label class="label-campo" for="campoDemandas">3. Encaminhamentos / Demandas:</label>
         <div class="campo-wrapper">
           <input type="text" id="campoDemandas" class="campo-formulario" placeholder="Ex: Cesta básica, fraldas G, remédio contínuo"
             onfocus="registrarFocoCampo(this, 'grupoDemandas')"
@@ -1355,10 +1441,11 @@
             onblur="lidarBlurCampo(this)">
         </div>
         <div class="barra-acao-campo">
-          <span class="info-alvo-voz">🎯 Fala direcionada aqui</span>
-          <button type="button" class="btn-abrir-teclado ajuda-alvo" id="btnTecladoDemandas" onclick="alternarTeclado('campoDemandas', 'btnTecladoDemandas')"
+          <button type="button" class="btn-abrir-teclado ajuda-alvo" id="btnTecladoDemandas" 
+            onpointerdown="event.preventDefault()"
+            onclick="alternarTeclado('campoDemandas', 'btnTecladoDemandas')"
             data-ajuda-titulo="Botão Teclado"
-            data-ajuda-texto="Alterna o teclado na tela para preenchimento manual.">
+            data-ajuda-texto="Exibe ou oculta o teclado na tela para preenchimento manual.">
             Teclado
           </button>
         </div>
@@ -1368,7 +1455,7 @@
     <!-- Card 2: Leitura em Voz Alta e Metas -->
     <article class="md-card falar-texto ajuda-alvo" onclick="lidarToqueCardTexto(this)"
       data-ajuda-titulo="Card com Leitura em Áudio"
-      data-ajuda-texto="Quando o modo Ouvir estiver ativo no botão central, tocar neste cartão faz o celular ler todas as informações em voz alta para você.">
+      data-ajuda-texto="Quando o modo Ouvir estiver ativo no botão do microfone, tocar neste cartão faz o celular ler todas as informações em voz alta para você.">
       <div class="card-header-row">
         <span class="card-chip" style="background-color: rgba(21, 128, 61, 0.15); color: #86efac; border-color: rgba(34, 197, 94, 0.3);">
           🔊 Texto Legível por Voz
@@ -1383,7 +1470,7 @@
   </main>
 
   <!-- ========================================================================
-       BARRA INFERIOR NO POLEGAR: MENU | FALAR/OUVIR (VERTICAL) | SAIR
+       BARRA INFERIOR NO POLEGAR COM BORDAS SUAVES E BOTÃO SAIR EM VERMELHO
        ======================================================================== -->
   <footer class="app-footer" id="appFooter">
 
@@ -1398,17 +1485,19 @@
       <span class="footer-btn-label">Menu</span>
     </button>
 
-    <!-- 2. Botão Central: FALAR / OUVIR (Ícone Vertical + Texto Embaixo) -->
+    <!-- 2. Botão Central de Áudio: FALAR / OUVIR (Contido dentro da Barra) -->
     <button type="button" class="btn-audio-central ajuda-alvo" id="btnAudioHub"
-      title="Falar / Ouvir: Toque para ação; Segure para alternar"
+      title="Toque rápido para ação; Segure por 0,6s para alternar Falar / Ouvir"
       data-ajuda-titulo="Botão Falar / Ouvir"
-      data-ajuda-texto="O botão principal de voz: dê um toque rápido para ditar no campo azul, ou toque e segure por 1 segundo para alternar para o modo Ouvir (leitura em voz alta).">
-      <div class="press-ring" id="pressRing"></div>
+      data-ajuda-texto="Toque rápido para ditar no campo ativo (ou ler em voz alta). Toque e segure para alternar suavemente entre o modo Falar e Ouvir.">
       
-      <!-- Ícone Vertical mic.svg -->
-      <span id="audioIconBox">
-        <img src="../../img/mic.svg" id="imgMicSvg" alt="Falar" style="width: 1.7rem; height: 1.7rem; display: block;">
-        <svg id="svgSpeaker" style="display: none; width: 1.7rem; height: 1.7rem; fill: #ffffff;" viewBox="0 -960 960 960">
+      <!-- Indicador visual de preenchimento ao segurar -->
+      <div class="press-indicator-bar" id="pressBar"></div>
+
+      <!-- Ícone Dinâmico Falar/Ouvir -->
+      <span id="audioIconBox" style="display: flex; align-items: center; justify-content: center; pointer-events: none;">
+        <img src="../../img/mic.svg" id="imgMicSvg" alt="Falar" style="width: 1.45rem; height: 1.45rem; display: block; pointer-events: none;">
+        <svg id="svgSpeaker" style="display: none; width: 1.45rem; height: 1.45rem; fill: #ffffff; pointer-events: none;" viewBox="0 -960 960 960">
           <path d="M560-131v-82q90-26 145-100t55-167q0-93-55-167T560-747v-82q124 28 202 125.5T840-480q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-320q46 17 73 57.5t27 92.5q0 52-27 92.5T560-320ZM400-606l-86 86H200v80h114l86 86v-252ZM300-480Z"/>
         </svg>
       </span>
@@ -1417,7 +1506,7 @@
       <span class="audio-central-label" id="lblAudioTexto">Falar</span>
     </button>
 
-    <!-- 3. Botão Sair (Proteção Rápida de Dados LGPD no Polegar) -->
+    <!-- 3. Botão Sair (Fundo Vermelho Institucional com Bordas Suaves e Proteção LGPD) -->
     <button type="button" class="btn-footer-lateral btn-sair-lateral ajuda-alvo" id="btnFooterSair" onclick="executarLogoutRapido()"
       title="Sair e Proteger Dados (LGPD)"
       data-ajuda-titulo="Botão Sair (Proteção de Dados)"
@@ -1473,7 +1562,9 @@
     };
 
     let permitindoTecladoManual = false;
+    let idCampoTecladoAberto = null;
     let pressTimer = null;
+    let foiToqueLongo = false;
     let sinteseVozAtiva = false;
 
     // Referências DOM
@@ -1591,13 +1682,14 @@
     }
 
     // ==========================================================================
-    // 3. GESTÃO DOS CAMPOS, FAROL DE FOCO E TOGGLE DE TECLADO
+    // 3. GESTÃO DOS CAMPOS, FAROL DE FOCO E TOGGLE DE TECLADO (TEXTO FIXO)
     // ==========================================================================
     function configurarCampoFocoVisual(idCampo) {
       ["grupoFamilia", "grupoRelato", "grupoDemandas"].forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove("ativo");
       });
+
       [campoFamilia, campoRelato, campoDemandas].forEach(c => c && c.classList.remove("em-foco"));
 
       const campo = document.getElementById(idCampo);
@@ -1616,11 +1708,13 @@
       dispararFeedbackTabil(20);
       configurarCampoFocoVisual(campo.id);
 
-      if (permitindoTecladoManual) {
+      // Se este campo está com teclado ativado ou em modo digitação explícita
+      if (idCampoTecladoAberto === campo.id || permitindoTecladoManual) {
         campo.setAttribute("inputmode", "text");
         return;
       }
 
+      // No modo de fala por voz padrão, previne o teclado nativo de cobrir a tela
       if (configAtual.modoAudio === "falar") {
         campo.setAttribute("inputmode", "none");
       } else {
@@ -1633,71 +1727,91 @@
       registrarFocoCampo(campo, idGrupo);
     }
 
+    /**
+     * Alterna a exibição ou ocultamento do teclado virtual
+     * Mantém o texto do botão fixo como "Teclado", alterando apenas a cor de fundo (classe .ativo).
+     */
     function alternarTeclado(idCampo, idBtn) {
       if (configAtual.modoAjudaAtivo) return;
       const campo = document.getElementById(idCampo);
       const btn = document.getElementById(idBtn);
       if (!campo) return;
 
-      const tecladoAberto = campo.dataset.tecladoAberto === "true";
+      const estaAberto = (idCampoTecladoAberto === idCampo);
 
-      if (tecladoAberto) {
-        // Ocultar Teclado
-        dispararFeedbackTabil(25);
-        dispararFeedbackSonoro(523.25);
-        campo.dataset.tecladoAberto = "false";
+      if (estaAberto) {
+        // ----------------------------------------------------
+        // 1. OCULTAR TECLADO (Fundo volta ao neutro)
+        // ----------------------------------------------------
+        idCampoTecladoAberto = null;
         campo.setAttribute("inputmode", "none");
-        campo.blur();
+        campo.blur(); // Recolhe o teclado virtual do dispositivo
+
         if (btn) btn.classList.remove("ativo");
+
+        // Mantém o campo aceso em azul translúcido como alvo da fala
         configurarCampoFocoVisual(idCampo);
+        dispararFeedbackTabil(25);
+        dispararFeedbackSonoro(520);
+        exibirToast("Teclado recolhido");
       } else {
-        // Mostrar Teclado
-        dispararFeedbackTabil(40);
-        dispararFeedbackSonoro(784);
+        // ----------------------------------------------------
+        // 2. EXIBIR TECLADO (Fundo muda para azul ativo)
+        // ----------------------------------------------------
+        // Apaga o fundo de qualquer outro botão de teclado
+        document.querySelectorAll(".btn-abrir-teclado").forEach(b => b.classList.remove("ativo"));
+        [campoFamilia, campoRelato, campoDemandas].forEach(c => {
+          if (c && c !== campo) {
+            c.setAttribute("inputmode", "none");
+          }
+        });
+
+        idCampoTecladoAberto = idCampo;
         permitindoTecladoManual = true;
 
-        [campoFamilia, campoRelato, campoDemandas].forEach(c => {
-          if (c && c !== campo) c.dataset.tecladoAberto = "false";
-        });
-        document.querySelectorAll(".btn-abrir-teclado").forEach(b => {
-          if (b !== btn) b.classList.remove("ativo");
-        });
-
-        campo.dataset.tecladoAberto = "true";
         campo.removeAttribute("inputmode");
         campo.setAttribute("inputmode", "text");
-
-        if (document.activeElement === campo) campo.blur();
         campo.focus();
 
+        // Posiciona o cursor no final do texto existente
         const len = campo.value ? campo.value.length : 0;
         if (campo.setSelectionRange) campo.setSelectionRange(len, len);
+
         if (btn) btn.classList.add("ativo");
 
         configurarCampoFocoVisual(idCampo);
+        dispararFeedbackTabil(40);
+        dispararFeedbackSonoro(784);
 
         setTimeout(() => { permitindoTecladoManual = false; }, 300);
+        exibirToast("Teclado aberto");
       }
     }
 
     function lidarBlurCampo(campo) {
-      if (configAtual.modoAudio === "falar" && !permitindoTecladoManual) {
-        campo.setAttribute("inputmode", "none");
-        campo.dataset.tecladoAberto = "false";
-        const btn = campo.closest(".grupo-campo")?.querySelector(".btn-abrir-teclado");
-        if (btn) btn.classList.remove("ativo");
+      if (!permitindoTecladoManual) {
+        // Se o usuário tocou fora do campo e não no botão de alternância
+        setTimeout(() => {
+          if (document.activeElement !== campo && idCampoTecladoAberto === campo.id) {
+            idCampoTecladoAberto = null;
+            campo.setAttribute("inputmode", "none");
+            const btn = campo.closest(".grupo-campo")?.querySelector(".btn-abrir-teclado");
+            if (btn) btn.classList.remove("ativo");
+          }
+        }, 180);
       }
     }
 
     // ==========================================================================
-    // 4. BOTÃO CENTRAL: FALAR / OUVIR (LAYOUT VERTICAL + PRESS & HOLD)
+    // 4. BOTÃO DE MICROFONE EMBUTIDO: PRESS & HOLD (ALTERNAR) VS TOQUE RÁPIDO
     // ==========================================================================
+    // Evita menus de contexto nativos e cópia de imagem em dispositivos móveis
+    btnAudioHub.addEventListener("contextmenu", (e) => e.preventDefault());
+
     btnAudioHub.addEventListener("pointerdown", iniciarPressAudio);
     btnAudioHub.addEventListener("pointerup", finalizarPressAudio);
     btnAudioHub.addEventListener("pointerleave", cancelarPressAudio);
     btnAudioHub.addEventListener("pointercancel", cancelarPressAudio);
-
-    let foiToqueLongo = false;
 
     function iniciarPressAudio(e) {
       if (configAtual.modoAjudaAtivo) return;
@@ -1705,10 +1819,11 @@
       btnAudioHub.classList.add("pressionando");
       dispararFeedbackTabil(15);
 
+      // Temporizador de toque longo: 600ms para alternância deliberada e suave
       pressTimer = setTimeout(() => {
         foiToqueLongo = true;
         alternarModoFalarOuvir();
-      }, 700);
+      }, 600);
     }
 
     function finalizarPressAudio(e) {
@@ -1717,6 +1832,7 @@
       clearTimeout(pressTimer);
 
       if (!foiToqueLongo) {
+        // Toque rápido: executa imediatamente a ação do modo atual
         executarAcaoAudioModoAtual();
       }
     }
@@ -1738,7 +1854,7 @@
         svgSpeaker.style.display = "block";
         lblAudioTexto.textContent = "Ouvir";
         body.classList.add("modo-leitura-ativo");
-        exibirToast("Modo Ouvir ativo: toque nos cards verdes para escutar");
+        exibirToast("Modo Ouvir ativo: toque nos cards para ler");
       } else {
         btnAudioHub.classList.remove("modo-ouvir");
         imgMicSvg.style.display = "block";
@@ -1746,7 +1862,7 @@
         lblAudioTexto.textContent = "Falar";
         body.classList.remove("modo-leitura-ativo");
         pararLeituraVoz();
-        exibirToast("Modo Falar ativo: dite pelo microfone");
+        exibirToast("Modo Falar ativo: dite no microfone");
       }
     }
 
@@ -1956,16 +2072,17 @@
       }, 2600);
     }
 
-    // Sincronização automática com redimensionamento de teclado (Android/iOS)
+    // Sincronização automática com fechamento do teclado pelo sistema operacional (Android/iOS)
     if (window.visualViewport) {
       let alturaAnterior = window.visualViewport.height;
       window.visualViewport.addEventListener("resize", () => {
         const alturaAtual = window.visualViewport.height;
         if (alturaAtual - alturaAnterior > 140) {
+          // O teclado foi fechado pelo botão voltar nativo do celular
+          idCampoTecladoAberto = null;
           [campoFamilia, campoRelato, campoDemandas].forEach(c => {
-            if (c) {
-              c.dataset.tecladoAberto = "false";
-              if (configAtual.modoAudio === "falar") c.setAttribute("inputmode", "none");
+            if (c && configAtual.modoAudio === "falar") {
+              c.setAttribute("inputmode", "none");
             }
           });
           document.querySelectorAll(".btn-abrir-teclado").forEach(b => b.classList.remove("ativo"));
