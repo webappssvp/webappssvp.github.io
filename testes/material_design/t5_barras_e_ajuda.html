@@ -71,6 +71,34 @@
       font-size: 118%;
     }
 
+    /* ==========================================================================
+       SIMULAÇÃO DE PERCEPÇÃO VISUAL (DALTONISMO E ACESSIBILIDADE WCAG 1.4.1)
+       ========================================================================== */
+    html.simular-deuteranopia {
+      filter: url(#filtro-deuteranopia);
+      -webkit-filter: url(#filtro-deuteranopia);
+    }
+
+    html.simular-protanopia {
+      filter: url(#filtro-protanopia);
+      -webkit-filter: url(#filtro-protanopia);
+    }
+
+    html.simular-tritanopia {
+      filter: url(#filtro-tritanopia);
+      -webkit-filter: url(#filtro-tritanopia);
+    }
+
+    html.simular-monocromia {
+      filter: grayscale(100%);
+      -webkit-filter: grayscale(100%);
+    }
+
+    html.simular-alto-contraste {
+      filter: contrast(150%);
+      -webkit-filter: contrast(150%);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -83,6 +111,7 @@
       color: var(--md-on-surface);
       font-family: var(--font-ui);
       height: 100vh;
+      height: 100dvh;
       width: 100vw;
       overflow: hidden;
       display: flex;
@@ -322,7 +351,7 @@
       padding-top: calc(0.6rem + var(--safe-top));
       display: flex;
       flex-direction: column;
-      max-height: 82vh;
+      max-height: 85vh;
       transform: translateY(-100%);
       transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
     }
@@ -541,6 +570,26 @@
       bottom: 4px;
     }
 
+    /* Seletor M3 Dropdown (Simulação de Daltonismo) */
+    .m3-select-box {
+      background-color: var(--md-surface-1);
+      border: 1.5px solid var(--md-border-strong);
+      color: var(--md-on-surface);
+      padding: 0.55rem 0.75rem;
+      border-radius: 0.65rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 0.35rem;
+      transition: border-color 0.15s ease;
+    }
+
+    .m3-select-box:focus {
+      border-color: var(--md-secondary);
+    }
+
     /* ==========================================================================
        5. SISTEMA INTERATIVO DE AJUDA: "O QUE É ISSO?"
        ========================================================================== */
@@ -666,17 +715,40 @@
     }
 
     /* ==========================================================================
-       6. ÁREA CENTRAL (CARDS DA VISITA E CONTROLE DE FOCO/TECLADO)
+       6. ÁREA CENTRAL (CARDS DA VISITA, CONTROLE DE FOCO E ROLAGEM DESTRAVADA)
        ========================================================================== */
     .display-area {
-      flex: 1;
+      flex: 1 1 0%;
+      min-height: 0;
+      width: 100%;
       overflow-y: auto;
-      padding: 1rem 0.9rem calc(5.2rem + var(--safe-bottom)) 0.9rem;
+      overflow-x: hidden;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
+      padding: 1rem 0.9rem calc(6.8rem + var(--safe-bottom)) 0.9rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1rem;
-      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Barra de Rolagem Suave e Visível */
+    .display-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .display-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .display-area::-webkit-scrollbar-thumb {
+      background-color: var(--md-border-strong);
+      border-radius: 999px;
+    }
+
+    .display-area::-webkit-scrollbar-thumb:hover {
+      background-color: var(--md-secondary);
     }
 
     .md-card {
@@ -785,6 +857,75 @@
       box-shadow: 0 0 8px rgba(0, 100, 182, 0.2);
     }
 
+    /* ==========================================================================
+       PULSO DE LUMINÂNCIA / RESPIRAÇÃO (OPÇÃO 1: GRAVAÇÃO ATIVA - ACESSIBILIDADE WCAG 1.4.1)
+       Variando a luminosidade de fundo e o contorno, perceptível mesmo em escala de cinza
+       ========================================================================== */
+    @keyframes pulsoEscutaLuminosa {
+      0% {
+        background-color: rgba(255, 255, 255, 0.16) !important;
+        border-color: #ffffff !important;
+        box-shadow: 0 0 0 1.5px #ffffff, 0 0 10px rgba(255, 255, 255, 0.35);
+      }
+      50% {
+        background-color: rgba(255, 255, 255, 0.38) !important;
+        border-color: #ffffff !important;
+        box-shadow: 0 0 0 3.5px #ffffff, 0 0 20px rgba(255, 255, 255, 0.7);
+      }
+      100% {
+        background-color: rgba(255, 255, 255, 0.16) !important;
+        border-color: #ffffff !important;
+        box-shadow: 0 0 0 1.5px #ffffff, 0 0 10px rgba(255, 255, 255, 0.35);
+      }
+    }
+
+    @keyframes pulsoEscutaLuminosaClaro {
+      0% {
+        background-color: rgba(0, 100, 182, 0.14) !important;
+        border-color: var(--ssvp-blue) !important;
+        box-shadow: 0 0 0 1.5px var(--ssvp-blue), 0 0 10px rgba(0, 100, 182, 0.35);
+      }
+      50% {
+        background-color: rgba(0, 100, 182, 0.32) !important;
+        border-color: var(--ssvp-blue) !important;
+        box-shadow: 0 0 0 3.5px var(--ssvp-blue), 0 0 20px rgba(0, 100, 182, 0.65);
+      }
+      100% {
+        background-color: rgba(0, 100, 182, 0.14) !important;
+        border-color: var(--ssvp-blue) !important;
+        box-shadow: 0 0 0 1.5px var(--ssvp-blue), 0 0 10px rgba(0, 100, 182, 0.35);
+      }
+    }
+
+    .campo-formulario.gravando-voz {
+      animation: pulsoEscutaLuminosa 1.3s infinite ease-in-out !important;
+    }
+
+    body.tema-claro .campo-formulario.gravando-voz {
+      animation: pulsoEscutaLuminosaClaro 1.3s infinite ease-in-out !important;
+    }
+
+    /* Pulso Luminoso no Botão Central Falar enquanto grava */
+    .btn-audio-central.gravando-ativo {
+      animation: pulsoBotaoLuminoso 1.3s infinite ease-in-out !important;
+      border-color: #ffffff !important;
+    }
+
+    @keyframes pulsoBotaoLuminoso {
+      0% {
+        box-shadow: 0 0 0 1.5px #ffffff, 0 0 10px rgba(255, 255, 255, 0.4);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 0 4px #ffffff, 0 0 24px rgba(255, 255, 255, 0.85);
+        transform: scale(1.03);
+      }
+      100% {
+        box-shadow: 0 0 0 1.5px #ffffff, 0 0 10px rgba(255, 255, 255, 0.4);
+        transform: scale(1);
+      }
+    }
+
     /* Barra de Ação Limpa no Campo (Botão Teclado com Mudança Apenas na Cor de Fundo) */
     .barra-acao-campo {
       display: flex;
@@ -834,22 +975,135 @@
       border-color: var(--ssvp-blue) !important;
     }
 
-    /* Leitura em Voz Alta (Bordas Pulsantes) */
-    .falar-texto {
-      transition: transform 0.15s ease, outline 0.2s ease;
-      border-radius: 12px;
+    /* ==========================================================================
+       CARDS DE METAS DA FAMÍLIA & SISTEMA DE ÁUDIO (OUVIR / PARAR TOGGLE & SWIPE)
+       ========================================================================== */
+    .secao-metas-cabecalho {
+      width: min(100%, 36rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+      padding: 0 0.25rem;
     }
 
-    body.modo-leitura-ativo .falar-texto {
+    .secao-metas-topo-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .secao-metas-titulo {
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--md-on-surface);
+    }
+
+    .secao-metas-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--md-secondary);
+      background-color: rgba(0, 127, 255, 0.12);
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 127, 255, 0.3);
+    }
+
+    .secao-metas-dica {
+      font-size: 0.76rem;
+      color: var(--md-on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* Card Individual de Meta */
+    .card-meta {
       cursor: pointer;
-      outline: 2.5px dashed var(--md-success) !important;
-      outline-offset: 4px;
-      animation: pulsoLeitura 2s infinite ease-in-out;
+      border: 1.5px solid var(--md-border-soft);
+      transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      position: relative;
+      touch-action: pan-y;
     }
 
-    @keyframes pulsoLeitura {
-      0%, 100% { outline-color: var(--md-success); transform: scale(1); }
-      50% { outline-color: #86efac; transform: scale(1.01); }
+    /* Topo do Card de Meta: alinha o chip de status à direita */
+    .card-meta .card-header-row {
+      justify-content: flex-end;
+    }
+
+    .card-meta:hover {
+      border-color: var(--md-secondary);
+      transform: translateY(-2px);
+    }
+
+    .card-meta:active {
+      transform: scale(0.98);
+    }
+
+    /* Meta Selecionada como Alvo do Ouvir */
+    .card-meta.selecionada {
+      border-color: var(--md-secondary);
+      background: linear-gradient(180deg, var(--md-surface-1) 0%, rgba(0, 127, 255, 0.06) 100%);
+    }
+
+    /* Meta que está sendo LIDA EM VOZ ALTA neste instante (Halo Verde Pulsante) */
+    .card-meta.em-leitura-ativa {
+      border-color: #22c55e !important;
+      box-shadow: 0 0 0 2.5px #22c55e, 0 0 20px rgba(34, 197, 94, 0.5) !important;
+      animation: pulsoCardLeitura 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulsoCardLeitura {
+      0%, 100% {
+        box-shadow: 0 0 0 2px #22c55e, 0 0 12px rgba(34, 197, 94, 0.35);
+      }
+      50% {
+        box-shadow: 0 0 0 3.5px #4ade80, 0 0 24px rgba(74, 222, 128, 0.7);
+        transform: scale(1.01);
+      }
+    }
+
+    /* Chips de Status das Metas */
+    .chip-status-meta {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .chip-andamento {
+      background-color: rgba(21, 128, 61, 0.2);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .chip-agendada {
+      background-color: rgba(0, 127, 255, 0.2);
+      color: #93c5fd;
+      border: 1px solid rgba(0, 127, 255, 0.4);
+    }
+
+    .chip-pendente {
+      background-color: rgba(217, 119, 6, 0.2);
+      color: #fde047;
+      border: 1px solid rgba(234, 179, 8, 0.4);
+    }
+
+    .chip-planejada {
+      background-color: rgba(147, 51, 234, 0.2);
+      color: #d8b4fe;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+
+    .chip-concluida {
+      background-color: rgba(100, 116, 139, 0.2);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.4);
     }
 
     /* ==========================================================================
@@ -967,10 +1221,10 @@
       background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%);
     }
 
-    /* Botão Central: FALAR / OUVIR (Contido dentro da Barra + Bordas Suaves) */
+    /* Botão Central: FALAR / OUVIR / PARAR (Contido dentro da Barra + Bordas Suaves) */
     .btn-audio-central {
       position: relative;
-      margin: 0; /* 100% contido na barra, sem vazamentos */
+      margin: 0;
       background: linear-gradient(135deg, var(--ssvp-blue) 0%, var(--md-secondary) 100%);
       color: #ffffff;
       border: 1.5px solid rgba(255, 255, 255, 0.35);
@@ -1011,6 +1265,19 @@
 
     .btn-audio-central.modo-ouvir:hover {
       box-shadow: 0 4px 12px rgba(34, 197, 94, 0.5);
+    }
+
+    /* Estado: Falando Ativamente no Modo Ouvir (Botão "PARAR" com pulso) */
+    .btn-audio-central.falando-ativo {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 0 2px #ffffff, 0 0 16px rgba(239, 68, 68, 0.7) !important;
+      animation: pulsoBotaoParar 1.2s infinite ease-in-out !important;
+    }
+
+    @keyframes pulsoBotaoParar {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
     }
 
     .btn-audio-central svg,
@@ -1056,7 +1323,7 @@
 
     /* ==========================================================================
        8. CONTROLE: MODO APENAS ÍCONES (ESCONDE RÓTULOS DE TEXTO)
-       ========================================================================== */
+       ========================================================================= */
     body.modo-apenas-icones .footer-btn-label,
     body.modo-apenas-icones .audio-central-label {
       display: none;
@@ -1181,7 +1448,7 @@
       <h1 class="header-conf-name" id="lblConfName">Conf. São Francisco de Assis</h1>
       <div class="header-sub-row">
         <span class="header-cp-name">CP São Vicente • SSVP Brasil</span>
-        <span class="header-version-pill">t5_barras_e_ajuda.html • v1.6</span>
+        <span class="header-version-pill">t5_barras_e_ajuda.html • v2.2</span>
       </div>
     </div>
 
@@ -1282,6 +1549,7 @@
 
         <!-- MÓDULO 2: CONFIGURAÇÕES -->
         <section class="modulo-secao" id="moduloConfiguracoes">
+          <!-- Formato dos Botões -->
           <div class="m3-switch-row">
             <div class="m3-switch-label-group">
               <span class="m3-switch-title">Formato dos Botões</span>
@@ -1293,6 +1561,7 @@
             </label>
           </div>
 
+          <!-- Fonte Grande -->
           <div class="m3-switch-row">
             <div class="m3-switch-label-group">
               <span class="m3-switch-title">Fonte Grande (Idosos)</span>
@@ -1304,6 +1573,7 @@
             </label>
           </div>
 
+          <!-- Modo Canhoto -->
           <div class="m3-switch-row">
             <div class="m3-switch-label-group">
               <span class="m3-switch-title">Modo Canhoto</span>
@@ -1315,6 +1585,7 @@
             </label>
           </div>
 
+          <!-- Tema Claro / Escuro -->
           <div class="m3-switch-row">
             <div class="m3-switch-label-group">
               <span class="m3-switch-title">Tema Claro / Escuro</span>
@@ -1324,6 +1595,22 @@
               <input type="checkbox" id="switchTemaClaro" onchange="alternarTemaClaro(this.checked)">
               <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
             </label>
+          </div>
+
+          <!-- NOVO: Simulação de Percepção Visual (Daltonismo & Acessibilidade WCAG) -->
+          <div class="m3-switch-row" style="flex-direction: column; align-items: flex-start; gap: 0.35rem;">
+            <div class="m3-switch-label-group" style="width: 100%;">
+              <span class="m3-switch-title">👁️ Simulação Visual (Daltonismo)</span>
+              <span class="m3-switch-desc">Veja a tela com diferentes percepções de cor</span>
+            </div>
+            <select id="selectDaltonismo" class="m3-select-box" onchange="aplicarSimulacaoVisual(this.value)">
+              <option value="normal">🟢 Normal (Cores Reais)</option>
+              <option value="deuteranopia">🟡 Deuteranopia (Deficiência Verde-Vermelho)</option>
+              <option value="protanopia">🔴 Protanopia (Ausência de Vermelho)</option>
+              <option value="tritanopia">🔵 Tritanopia (Deficiência Azul-Amarelo / Idosos)</option>
+              <option value="monocromia">⚫ Monocromático (Escala de Cinza)</option>
+              <option value="alto-contraste">⚡ Alto Contraste (+50%)</option>
+            </select>
           </div>
         </section>
 
@@ -1343,7 +1630,7 @@
             <span class="sheet-card-title">📖 Guia Rápido da Visita</span>
             <ul style="font-size: 0.82rem; padding-left: 1.15rem; line-height: 1.5; color: var(--md-on-surface-variant);">
               <li><strong>Falar:</strong> Toque no campo e use o microfone na barra para ditar o relato sem digitar.</li>
-              <li><strong>Ouvir:</strong> Toque e segure o botão por 600ms para alternar e ouvir textos em voz alta.</li>
+              <li><strong>Ouvir:</strong> Toque e segure para alternar. Toque rápido para falar / parar. Deslize para baixo num card para ler todas em sequência!</li>
               <li><strong>Teclado:</strong> Toque em Teclado para abrir ou recolher a digitação manual com os dedos.</li>
               <li><strong>Sair:</strong> Toque no botão vermelho na barra inferior para proteger os dados da família (LGPD).</li>
             </ul>
@@ -1372,11 +1659,11 @@
   </div>
 
   <!-- ========================================================================
-       ÁREA CENTRAL DE TRABALHO (CARD DA VISITA + CAMPOS LIMPOS COM FAROL AZUL)
+       ÁREA CENTRAL DE TRABALHO (FORMULÁRIO DE VISITA + 6 METAS VICENTINAS)
        ======================================================================== -->
   <main class="display-area" id="areaConteudo">
 
-    <!-- Card Interativo de Visita com Farol de Foco -->
+    <!-- Card 1: Interativo de Visita com Farol de Foco -->
     <article class="md-card card-interativo ajuda-alvo" data-ajuda-titulo="Card da Visita Domiciliar"
       data-ajuda-texto="Espaço principal para você registrar as necessidades da família durante a visita. Você pode falar no microfone para preencher ou abrir o teclado.">
       <div class="card-header-row">
@@ -1452,21 +1739,107 @@
       </div>
     </article>
 
-    <!-- Card 2: Leitura em Voz Alta e Metas -->
-    <article class="md-card falar-texto ajuda-alvo" onclick="lidarToqueCardTexto(this)"
-      data-ajuda-titulo="Card com Leitura em Áudio"
-      data-ajuda-texto="Quando o modo Ouvir estiver ativo no botão do microfone, tocar neste cartão faz o celular ler todas as informações em voz alta para você.">
-      <div class="card-header-row">
-        <span class="card-chip" style="background-color: rgba(21, 128, 61, 0.15); color: #86efac; border-color: rgba(34, 197, 94, 0.3);">
-          🔊 Texto Legível por Voz
-        </span>
-        <span style="font-size: 0.72rem; color: var(--md-on-surface-variant);">Meta em Andamento</span>
+    <!-- CABEÇALHO DA SEÇÃO DE METAS COM DICA DE GESTOS -->
+    <div class="secao-metas-cabecalho">
+      <div class="secao-metas-topo-row">
+        <h2 class="secao-metas-titulo">🎯 Metas de Promoção Social</h2>
+        <span class="secao-metas-badge">6 Metas • Áudio Inteligente</span>
       </div>
-      <h3 class="card-titulo">Meta: Consulta Médica de Oftalmologia</h3>
-      <p class="card-detalhes" id="txtMetaCorpo">
-        Agendamento de consulta de vista para Dona Neuza na UBS Central. A conferência apoiará com o transporte solidário no dia da consulta.
+      <div class="secao-metas-dica">
+        <span>💡 <strong>Toque:</strong> lê uma meta • <strong>Arraste para baixo ⬇️:</strong> lê esta e as seguintes!</span>
+      </div>
+    </div>
+
+    <!-- META 1: SAÚDE / OFTALMOLOGIA -->
+    <article class="md-card card-meta selecionada ajuda-alvo" id="meta1"
+      onpointerdown="iniciarGestoCardMeta(event, 'meta1')"
+      onpointerup="finalizarGestoCardMeta(event, 'meta1')"
+      data-ajuda-titulo="Meta 1: Saúde e Óculos de Grau"
+      data-ajuda-texto="Toque para ouvir esta meta isolada. Deslize para baixo no cartão para ouvir esta e todas as metas seguintes em sequência contínua.">
+      <div class="card-header-row">
+        <span class="chip-status-meta chip-andamento">Em Andamento</span>
+      </div>
+      <h3 class="card-titulo" id="titMeta1">1. Consulta Oftalmológica e Óculos de Grau</h3>
+      <p class="card-detalhes" id="txtMeta1">
+        Agendamento de consulta de vista para Dona Neuza na UBS Central e apoio fraterno da Conferência com o transporte solidário no dia.
       </p>
     </article>
+
+    <!-- META 2: EDUCAÇÃO / MATERIAL ESCOLAR -->
+    <article class="md-card card-meta ajuda-alvo" id="meta2"
+      onpointerdown="iniciarGestoCardMeta(event, 'meta2')"
+      onpointerup="finalizarGestoCardMeta(event, 'meta2')"
+      data-ajuda-titulo="Meta 2: Educação e Kit Escolar"
+      data-ajuda-texto="Toque para ouvir esta meta. Deslize para baixo no cartão para ouvir a partir daqui até o final da lista de metas.">
+      <div class="card-header-row">
+        <span class="chip-status-meta chip-agendada">Agendada</span>
+      </div>
+      <h3 class="card-titulo" id="titMeta2">2. Matrícula Escolar e Material dos Netos</h3>
+      <p class="card-detalhes" id="txtMeta2">
+        Garantir a rematrícula e fornecer kits de cadernos, lápis e mochilas para Lucas e Sofia no início do semestre letivo.
+      </p>
+    </article>
+
+    <!-- META 3: MORADIA / DIGNIDADE -->
+    <article class="md-card card-meta ajuda-alvo" id="meta3"
+      onpointerdown="iniciarGestoCardMeta(event, 'meta3')"
+      onpointerup="finalizarGestoCardMeta(event, 'meta3')"
+      data-ajuda-titulo="Meta 3: Reforma do Telhado"
+      data-ajuda-texto="Melhoria habitacional emergencial. Toque para escutar, ou deslize para baixo para escutar esta e as seguintes.">
+      <div class="card-header-row">
+        <span class="chip-status-meta chip-pendente">Pendente</span>
+      </div>
+      <h3 class="card-titulo" id="titMeta3">3. Reparo do Telhado e Infiltrações</h3>
+      <p class="card-detalhes" id="txtMeta3">
+        Substituição de telhas quebradas e vedação de infiltração no quarto das crianças com auxílio solidário do Conselho Particular.
+      </p>
+    </article>
+
+    <!-- META 4: CIDADANIA / BPC -->
+    <article class="md-card card-meta ajuda-alvo" id="meta4"
+      onpointerdown="iniciarGestoCardMeta(event, 'meta4')"
+      onpointerup="finalizarGestoCardMeta(event, 'meta4')"
+      data-ajuda-titulo="Meta 4: Requerimento do BPC"
+      data-ajuda-texto="Garantia de direitos e cidadania. Toque para ouvir isolado ou arraste para baixo para leitura contínua.">
+      <div class="card-header-row">
+        <span class="chip-status-meta chip-andamento">Em Andamento</span>
+      </div>
+      <h3 class="card-titulo" id="titMeta4">4. Requerimento do BPC no CRAS</h3>
+      <p class="card-detalhes" id="txtMeta4">
+        Acompanhamento junto ao CRAS para emissão de laudos e protocolo do Benefício de Prestação Continuada para a pessoa idosa da casa.
+      </p>
+    </article>
+
+    <!-- META 5: TRABALHO E RENDA -->
+    <article class="md-card card-meta ajuda-alvo" id="meta5"
+      onpointerdown="iniciarGestoCardMeta(event, 'meta5')"
+      onpointerup="finalizarGestoCardMeta(event, 'meta5')"
+      data-ajuda-titulo="Meta 5: Curso de Panificação"
+      data-ajuda-texto="Capacitação profissional e autonomia. Toque para ouvir ou arraste para baixo para ouvir a 5 e a 6 em sequência.">
+      <div class="card-header-row">
+        <span class="chip-status-meta chip-planejada">Planejada</span>
+      </div>
+      <h3 class="card-titulo" id="titMeta5">5. Curso de Panificação Comunitária</h3>
+      <p class="card-detalhes" id="txtMeta5">
+        Inscrição da filha mais velha na oficina paroquial de pães artesanais e doces caseiros para geração sustentável de renda familiar.
+      </p>
+    </article>
+
+    <!-- META 6: SEGURANÇA ALIMENTAR -->
+    <article class="md-card card-meta ajuda-alvo" id="meta6"
+      onpointerdown="iniciarGestoCardMeta(event, 'meta6')"
+      onpointerup="finalizarGestoCardMeta(event, 'meta6')"
+      data-ajuda-titulo="Meta 6: Cesta e Horta"
+      data-ajuda-texto="Última meta da lista: toque para ouvir a conclusão do plano de promoção familiar.">
+      <div class="card-header-row">
+        <span class="chip-status-meta chip-concluida">Concluída</span>
+      </div>
+      <h3 class="card-titulo" id="titMeta6">6. Cesta Básica e Horta no Quintal</h3>
+      <p class="card-detalhes" id="txtMeta6">
+        Entrega mensal de cesta de alimentos reforçada e montagem de canteiros para plantio de legumes e temperos no quintal da residência.
+      </p>
+    </article>
+
   </main>
 
   <!-- ========================================================================
@@ -1485,20 +1858,28 @@
       <span class="footer-btn-label">Menu</span>
     </button>
 
-    <!-- 2. Botão Central de Áudio: FALAR / OUVIR (Contido dentro da Barra) -->
+    <!-- 2. Botão Central de Áudio: FALAR / OUVIR / PARAR (Contido dentro da Barra) -->
     <button type="button" class="btn-audio-central ajuda-alvo" id="btnAudioHub"
-      title="Toque rápido para ação; Segure por 0,6s para alternar Falar / Ouvir"
+      title="Toque rápido para ação (Iniciar/Parar fala); Segure por 0,6s para alternar Falar / Ouvir"
       data-ajuda-titulo="Botão Falar / Ouvir"
-      data-ajuda-texto="Toque rápido para ditar no campo ativo (ou ler em voz alta). Toque e segure para alternar suavemente entre o modo Falar e Ouvir.">
+      data-ajuda-texto="No modo Ouvir: toque para começar a falar; toque novamente para parar imediatamente. Segure para alternar entre Falar e Ouvir.">
       
       <!-- Indicador visual de preenchimento ao segurar -->
       <div class="press-indicator-bar" id="pressBar"></div>
 
-      <!-- Ícone Dinâmico Falar/Ouvir -->
+      <!-- Ícone Dinâmico Falar/Ouvir/Parar -->
       <span id="audioIconBox" style="display: flex; align-items: center; justify-content: center; pointer-events: none;">
+        <!-- Ícone 1: Microfone (Modo Falar) -->
         <img src="../../img/mic.svg" id="imgMicSvg" alt="Falar" style="width: 1.45rem; height: 1.45rem; display: block; pointer-events: none;">
+        
+        <!-- Ícone 2: Alto-falante (Modo Ouvir) -->
         <svg id="svgSpeaker" style="display: none; width: 1.45rem; height: 1.45rem; fill: #ffffff; pointer-events: none;" viewBox="0 -960 960 960">
           <path d="M560-131v-82q90-26 145-100t55-167q0-93-55-167T560-747v-82q124 28 202 125.5T840-480q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-320q46 17 73 57.5t27 92.5q0 52-27 92.5T560-320ZM400-606l-86 86H200v80h114l86 86v-252ZM300-480Z"/>
+        </svg>
+
+        <!-- Ícone 3: Parar / Stop (Modo Ouvir em Execução) -->
+        <svg id="svgStop" style="display: none; width: 1.45rem; height: 1.45rem; fill: #ffffff; pointer-events: none;" viewBox="0 -960 960 960">
+          <path d="M240-240v-480h480v480H240Z"/>
         </svg>
       </span>
 
@@ -1547,6 +1928,26 @@
   <div class="toast-msg" id="toastMsg">Sessão protegida e rascunho salvo!</div>
 
   <!-- ========================================================================
+       FILTROS SVG CIENTÍFICOS PARA SIMULAÇÃO DE DALTONISMO (WCAG 1.4.1)
+       ======================================================================== -->
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;" aria-hidden="true">
+    <defs>
+      <!-- Deuteranopia (Verde-Vermelho / +comum) -->
+      <filter id="filtro-deuteranopia">
+        <feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0" />
+      </filter>
+      <!-- Protanopia (Ausência de Vermelho) -->
+      <filter id="filtro-protanopia">
+        <feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0" />
+      </filter>
+      <!-- Tritanopia (Azul-Amarelo / Envelhecimento visual) -->
+      <filter id="filtro-tritanopia">
+        <feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- ========================================================================
        SCRIPTS: LÓGICA COMPLETA DE INTERAÇÃO, AJUDA E VOZ
        ======================================================================== -->
   <script>
@@ -1556,6 +1957,7 @@
       fonteGrande: false,
       modoCanhoto: false,
       temaClaro: false,
+      simulacaoVisual: "normal",
       modoAudio: "falar", // "falar" ou "ouvir"
       campoAtivoId: "campoRelato",
       modoAjudaAtivo: false
@@ -1565,7 +1967,19 @@
     let idCampoTecladoAberto = null;
     let pressTimer = null;
     let foiToqueLongo = false;
-    let sinteseVozAtiva = false;
+
+    // Lista Ordenada de Metas e Controle do Reprodutor de Áudio
+    const METAS_ORDENADAS = ["meta1", "meta2", "meta3", "meta4", "meta5", "meta6"];
+    let estaFalando = false;
+    let modoSequencialAtivo = false;
+    let indiceSequencial = 0;
+    let idMetaSelecionada = "meta1";
+    let idMetaEmLeitura = null;
+
+    // Captura de Gestos nos Cards (Toque simples vs Arraste para Baixo)
+    let gestoStartX = 0;
+    let gestoStartY = 0;
+    let gestoStartTime = 0;
 
     // Referências DOM
     const body = document.body;
@@ -1579,6 +1993,7 @@
     const btnAudioHub = document.getElementById("btnAudioHub");
     const imgMicSvg = document.getElementById("imgMicSvg");
     const svgSpeaker = document.getElementById("svgSpeaker");
+    const svgStop = document.getElementById("svgStop");
     const lblAudioTexto = document.getElementById("lblAudioTexto");
 
     const campoFamilia = document.getElementById("campoFamilia");
@@ -1745,11 +2160,10 @@
         // ----------------------------------------------------
         idCampoTecladoAberto = null;
         campo.setAttribute("inputmode", "none");
-        campo.blur(); // Recolhe o teclado virtual do dispositivo
+        campo.blur();
 
         if (btn) btn.classList.remove("ativo");
 
-        // Mantém o campo aceso em azul translúcido como alvo da fala
         configurarCampoFocoVisual(idCampo);
         dispararFeedbackTabil(25);
         dispararFeedbackSonoro(520);
@@ -1758,7 +2172,6 @@
         // ----------------------------------------------------
         // 2. EXIBIR TECLADO (Fundo muda para azul ativo)
         // ----------------------------------------------------
-        // Apaga o fundo de qualquer outro botão de teclado
         document.querySelectorAll(".btn-abrir-teclado").forEach(b => b.classList.remove("ativo"));
         [campoFamilia, campoRelato, campoDemandas].forEach(c => {
           if (c && c !== campo) {
@@ -1773,7 +2186,6 @@
         campo.setAttribute("inputmode", "text");
         campo.focus();
 
-        // Posiciona o cursor no final do texto existente
         const len = campo.value ? campo.value.length : 0;
         if (campo.setSelectionRange) campo.setSelectionRange(len, len);
 
@@ -1790,7 +2202,6 @@
 
     function lidarBlurCampo(campo) {
       if (!permitindoTecladoManual) {
-        // Se o usuário tocou fora do campo e não no botão de alternância
         setTimeout(() => {
           if (document.activeElement !== campo && idCampoTecladoAberto === campo.id) {
             idCampoTecladoAberto = null;
@@ -1803,9 +2214,8 @@
     }
 
     // ==========================================================================
-    // 4. BOTÃO DE MICROFONE EMBUTIDO: PRESS & HOLD (ALTERNAR) VS TOQUE RÁPIDO
+    // 4. BOTÃO DE ÁUDIO EMBUTIDO: PRESS & HOLD (ALTERNAR) VS TOQUE RÁPIDO (TOGGLE)
     // ==========================================================================
-    // Evita menus de contexto nativos e cópia de imagem em dispositivos móveis
     btnAudioHub.addEventListener("contextmenu", (e) => e.preventDefault());
 
     btnAudioHub.addEventListener("pointerdown", iniciarPressAudio);
@@ -1819,7 +2229,7 @@
       btnAudioHub.classList.add("pressionando");
       dispararFeedbackTabil(15);
 
-      // Temporizador de toque longo: 600ms para alternância deliberada e suave
+      // Temporizador de toque longo: 600ms para alternância deliberada entre Falar e Ouvir
       pressTimer = setTimeout(() => {
         foiToqueLongo = true;
         alternarModoFalarOuvir();
@@ -1832,7 +2242,7 @@
       clearTimeout(pressTimer);
 
       if (!foiToqueLongo) {
-        // Toque rápido: executa imediatamente a ação do modo atual
+        // Toque rápido: executa a ação do modo atual (ou faz o Toggle Ouvir/Parar)
         executarAcaoAudioModoAtual();
       }
     }
@@ -1846,22 +2256,25 @@
       dispararFeedbackTabil(60);
       dispararFeedbackSonoro(880);
 
+      // Se estava falando ao alternar, cancela a fala imediatamente
+      if (estaFalando) pararLeituraVoz();
+
       configAtual.modoAudio = configAtual.modoAudio === "falar" ? "ouvir" : "falar";
 
       if (configAtual.modoAudio === "ouvir") {
         btnAudioHub.classList.add("modo-ouvir");
         imgMicSvg.style.display = "none";
         svgSpeaker.style.display = "block";
+        svgStop.style.display = "none";
         lblAudioTexto.textContent = "Ouvir";
-        body.classList.add("modo-leitura-ativo");
-        exibirToast("Modo Ouvir ativo: toque nos cards para ler");
+        exibirToast("Modo Ouvir ativo: toque ou arraste para baixo ⬇️");
       } else {
         btnAudioHub.classList.remove("modo-ouvir");
+        btnAudioHub.classList.remove("falando-ativo");
         imgMicSvg.style.display = "block";
         svgSpeaker.style.display = "none";
+        svgStop.style.display = "none";
         lblAudioTexto.textContent = "Falar";
-        body.classList.remove("modo-leitura-ativo");
-        pararLeituraVoz();
         exibirToast("Modo Falar ativo: dite no microfone");
       }
     }
@@ -1872,18 +2285,48 @@
       if (configAtual.modoAudio === "falar") {
         iniciarDitadoVozNoCampoFocado();
       } else {
-        const textoMeta = document.getElementById("txtMetaCorpo")?.textContent || "";
-        falarTextoSintetizado(textoMeta);
+        // MODO OUVIR COM TOGGLE (SE TOCAR NOVAMENTE PARA DE FALAR)
+        if (estaFalando) {
+          pararLeituraVoz();
+          exibirToast("⏹️ Leitura de voz interrompida");
+        } else {
+          falarMetaIndividual(idMetaSelecionada || "meta1");
+        }
       }
     }
 
+    /**
+     * Inicia gravação/ditado por voz com animação de pulso de luminância (Opção 1)
+     * Proporciona feedback visual acessível mesmo em escala de cinza (WCAG 1.4.1).
+     */
     function iniciarDitadoVozNoCampoFocado() {
       const campo = document.getElementById(configAtual.campoAtivoId) || campoRelato;
       dispararFeedbackSonoro(700);
 
+      function ativarEfeitoGravando() {
+        if (campo) campo.classList.add("gravando-voz");
+        if (btnAudioHub) btnAudioHub.classList.add("gravando-ativo");
+      }
+
+      function desativarEfeitoGravando() {
+        if (campo) campo.classList.remove("gravando-voz");
+        if (btnAudioHub) btnAudioHub.classList.remove("gravando-ativo");
+      }
+
       const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+
       if (!SpeechRec) {
-        alert("O reconhecimento de voz nativo não é suportado pelo seu navegador neste dispositivo. Use o botão [Teclado]!");
+        ativarEfeitoGravando();
+        exibirToast("🎙️ Gravando voz... Fale agora!");
+        setTimeout(() => {
+          desativarEfeitoGravando();
+          if (campo) {
+            const fraseExemplo = "Dona Neuza necessita de apoio com remédio contínuo e fraldas descartáveis.";
+            campo.value = (campo.value ? campo.value + " " : "") + fraseExemplo;
+            exibirToast("✅ Texto ditado inserido com sucesso!");
+            dispararFeedbackSonoro(1046.5);
+          }
+        }, 3200);
         return;
       }
 
@@ -1893,65 +2336,269 @@
         rec.continuous = false;
         rec.interimResults = false;
 
-        exibirToast("Gravando voz... Fale agora!");
+        rec.onstart = () => {
+          ativarEfeitoGravando();
+          exibirToast("🎙️ Gravando voz... Fale agora!");
+        };
+
         rec.onresult = (e) => {
           const resultado = e.results[0][0].transcript;
           if (campo) {
             campo.value = (campo.value ? campo.value + " " : "") + resultado;
-            exibirToast("Texto adicionado com sucesso!");
+            exibirToast("✅ Texto adicionado com sucesso!");
             dispararFeedbackSonoro(1046.5);
           }
+          desativarEfeitoGravando();
         };
+
         rec.onerror = () => {
           exibirToast("Não foi possível capturar a voz. Tente novamente.");
+          desativarEfeitoGravando();
         };
+
+        rec.onend = () => {
+          desativarEfeitoGravando();
+        };
+
         rec.start();
       } catch (err) {
+        desativarEfeitoGravando();
         exibirToast("Permissão de microfone necessária.");
       }
     }
 
-    function lidarToqueCardTexto(card) {
-      if (configAtual.modoAjudaAtivo) return;
-      if (configAtual.modoAudio !== "ouvir") return;
-
-      const texto = card.querySelector(".card-detalhes")?.textContent || card.textContent;
-      falarTextoSintetizado(texto);
+    // ==========================================================================
+    // 5. GESTÃO DOS GESTOS NOS CARDS: TOQUE (ISOLADA) VS ARRASTAR PARA BAIXO (SEQUÊNCIA)
+    // ==========================================================================
+    function iniciarGestoCardMeta(e, idMeta) {
+      gestoStartX = e.clientX;
+      gestoStartY = e.clientY;
+      gestoStartTime = Date.now();
     }
 
-    function falarTextoSintetizado(texto) {
+    function finalizarGestoCardMeta(e, idMeta) {
+      if (configAtual.modoAjudaAtivo) return;
+
+      const diffY = e.clientY - gestoStartY;
+      const diffX = Math.abs(e.clientX - gestoStartX);
+      const tempo = Date.now() - gestoStartTime;
+
+      // Se arrastou para baixo por mais de 30px com pouco desvio horizontal
+      if (diffY > 30 && diffX < 50) {
+        // GESTO: TOCAR E ARRASTAR PARA BAIXO -> FALA ESTA E AS SEGUINTES EM SEQUÊNCIA
+        if (configAtual.modoAudio === "ouvir") {
+          iniciarLeituraSequencial(idMeta);
+        } else {
+          selecionarMetaCard(idMeta);
+          exibirToast("Mude para o modo [Ouvir] para ler em sequência!");
+        }
+        return;
+      }
+
+      // TOQUE SIMPLES (sem arrasto significativo): FALA APENAS ESTA META
+      if (Math.abs(diffY) < 18 && diffX < 18) {
+        lidarToqueSimplesCardMeta(idMeta);
+      }
+    }
+
+    function lidarToqueSimplesCardMeta(idMeta) {
+      // Se tocar na meta que já está falando: PARA
+      if (estaFalando && idMetaEmLeitura === idMeta) {
+        pararLeituraVoz();
+        exibirToast("⏹️ Leitura de voz interrompida");
+        return;
+      }
+
+      // Se o modo atual for "Ouvir", fala apenas esta meta
+      if (configAtual.modoAudio === "ouvir") {
+        falarMetaIndividual(idMeta);
+      } else {
+        // Se estiver no modo Falar, seleciona a meta visualmente
+        selecionarMetaCard(idMeta);
+        dispararFeedbackTabil(25);
+        exibirToast(`Meta selecionada. Mude para [Ouvir] para escutar!`);
+      }
+    }
+
+    function selecionarMetaCard(idMeta) {
+      idMetaSelecionada = idMeta;
+      document.querySelectorAll(".card-meta").forEach(c => {
+        c.classList.toggle("selecionada", c.id === idMeta);
+      });
+    }
+
+    /**
+     * Fala apenas uma meta isolada
+     */
+    function falarMetaIndividual(idMeta) {
+      modoSequencialAtivo = false;
+      falarMetaComCallback(idMeta, () => {
+        finalizarEstadoLeitura();
+        dispararFeedbackSonoro(880);
+      });
+    }
+
+    /**
+     * Inicia a leitura contínua a partir de uma meta até o fim da lista
+     */
+    function iniciarLeituraSequencial(idMetaInicial) {
+      pararLeituraVoz();
+      modoSequencialAtivo = true;
+      indiceSequencial = METAS_ORDENADAS.indexOf(idMetaInicial);
+      if (indiceSequencial === -1) indiceSequencial = 0;
+
+      dispararFeedbackTabil(50);
+      dispararFeedbackSonoro(784);
+      exibirToast(`⏩ Leitura contínua: Meta ${indiceSequencial + 1} e seguintes`);
+      executarPassoSequencial();
+    }
+
+    function executarPassoSequencial() {
+      if (!modoSequencialAtivo) return;
+
+      if (indiceSequencial >= METAS_ORDENADAS.length) {
+        finalizarEstadoLeitura();
+        exibirToast("✅ Todas as metas foram lidas com sucesso!");
+        dispararFeedbackSonoro(1046.5);
+        return;
+      }
+
+      const idAtual = METAS_ORDENADAS[indiceSequencial];
+      falarMetaComCallback(idAtual, () => {
+        if (modoSequencialAtivo) {
+          indiceSequencial++;
+          if (indiceSequencial < METAS_ORDENADAS.length) {
+            // Pausa confortável de 500ms entre as metas
+            setTimeout(executarPassoSequencial, 500);
+          } else {
+            finalizarEstadoLeitura();
+            exibirToast("✅ Fim das metas da família!");
+            dispararFeedbackSonoro(1046.5);
+          }
+        }
+      });
+    }
+
+    /**
+     * Motor central de Síntese de Voz com callback de término e Auto-Scroll
+     */
+    function falarMetaComCallback(idMeta, onFinish) {
+      selecionarMetaCard(idMeta);
+      const card = document.getElementById(idMeta);
+      if (!card) {
+        if (onFinish) onFinish();
+        return;
+      }
+
+      // Auto-scroll suave para manter a meta sendo lida no centro visual
+      card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      const titulo = card.querySelector(".card-titulo")?.textContent || "";
+      const detalhes = card.querySelector(".card-detalhes")?.textContent || "";
+      const textoCompleto = `${titulo}. Detalhes: ${detalhes}`;
+
       if (!("speechSynthesis" in window)) {
-        alert("Sintetizador de voz não suportado neste aparelho.");
+        iniciarSimulacaoLeitura(idMeta, onFinish);
         return;
       }
 
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(texto);
+
+      const utterance = new SpeechSynthesisUtterance(textoCompleto);
       utterance.lang = "pt-BR";
-      utterance.rate = 0.95; // Velocidade agradável para idosos
+      utterance.rate = 0.95; // Cadência ideal para idosos
       utterance.pitch = 1.0;
 
       utterance.onstart = () => {
-        exibirToast("Lendo texto em voz alta...");
+        estaFalando = true;
+        idMetaEmLeitura = idMeta;
+
+        lblAudioTexto.textContent = "Parar";
+        svgSpeaker.style.display = "none";
+        svgStop.style.display = "block";
+        btnAudioHub.classList.add("falando-ativo");
+
+        aplicarDestaqueCardLeitura(idMeta);
+        dispararFeedbackSonoro(659.25);
       };
+
       utterance.onend = () => {
-        pararLeituraVoz();
+        estaFalando = false;
+        if (onFinish) {
+          onFinish();
+        } else {
+          finalizarEstadoLeitura();
+          dispararFeedbackSonoro(880);
+        }
+      };
+
+      utterance.onerror = () => {
+        estaFalando = false;
+        finalizarEstadoLeitura();
       };
 
       window.speechSynthesis.speak(utterance);
     }
 
     function pararLeituraVoz() {
+      modoSequencialAtivo = false;
       if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
+      finalizarEstadoLeitura();
+      dispararFeedbackTabil(30);
+    }
+
+    function finalizarEstadoLeitura() {
+      estaFalando = false;
+      modoSequencialAtivo = false;
+      idMetaEmLeitura = null;
+
+      if (configAtual.modoAudio === "ouvir") {
+        lblAudioTexto.textContent = "Ouvir";
+        svgSpeaker.style.display = "block";
+        svgStop.style.display = "none";
+      }
+      btnAudioHub.classList.remove("falando-ativo");
+
+      document.querySelectorAll(".card-meta").forEach(c => c.classList.remove("em-leitura-ativa"));
+    }
+
+    function aplicarDestaqueCardLeitura(idMeta) {
+      document.querySelectorAll(".card-meta").forEach(c => {
+        c.classList.toggle("em-leitura-ativa", c.id === idMeta);
+      });
+    }
+
+    function iniciarSimulacaoLeitura(idMeta, onFinish) {
+      estaFalando = true;
+      idMetaEmLeitura = idMeta;
+      lblAudioTexto.textContent = "Parar";
+      svgSpeaker.style.display = "none";
+      svgStop.style.display = "block";
+      btnAudioHub.classList.add("falando-ativo");
+      aplicarDestaqueCardLeitura(idMeta);
+      exibirToast("🔊 Leitura de demonstração...");
+
+      setTimeout(() => {
+        if (estaFalando) {
+          estaFalando = false;
+          if (onFinish) {
+            onFinish();
+          } else {
+            finalizarEstadoLeitura();
+          }
+        }
+      }, 4000);
     }
 
     // ==========================================================================
-    // 5. BOTÃO SAIR: LOGOUT IMEDIATO COM AUTO-SAVE DE EMERGÊNCIA (LGPD)
+    // 6. BOTÃO SAIR: LOGOUT IMEDIATO COM AUTO-SAVE DE EMERGÊNCIA (LGPD)
     // ==========================================================================
     function executarLogoutRapido() {
       if (configAtual.modoAjudaAtivo) return;
+      if (estaFalando) pararLeituraVoz();
+
       dispararFeedbackTabil(50);
       dispararFeedbackSonoro(440);
 
@@ -1981,7 +2628,7 @@
     }
 
     // ==========================================================================
-    // 6. GESTÃO DA NAVEGAÇÃO DE TELAS (BOTTOM SHEET M3)
+    // 7. GESTÃO DA NAVEGAÇÃO DE TELAS (BOTTOM SHEET M3)
     // ==========================================================================
     function abrirSeletorPagina() {
       if (configAtual.modoAjudaAtivo) return;
@@ -2003,7 +2650,7 @@
     }
 
     // ==========================================================================
-    // 7. PREFERÊNCIAS E CONFIGURAÇÕES
+    // 8. PREFERÊNCIAS E CONFIGURAÇÕES (INCLUINDO SIMULADOR DE DALTONISMO)
     // ==========================================================================
     function alternarFormatoBotoes(comTexto) {
       configAtual.botoesComTexto = comTexto;
@@ -2028,6 +2675,43 @@
       configAtual.temaClaro = ativar;
       body.classList.toggle("tema-claro", ativar);
       dispararFeedbackTabil(25);
+    }
+
+    /**
+     * Aplica a lente de simulação visual (Daltonismo) via filtros SVG/CSS na raiz
+     * @param {string} modo - "normal" | "deuteranopia" | "protanopia" | "tritanopia" | "monocromia" | "alto-contraste"
+     */
+    function aplicarSimulacaoVisual(modo) {
+      configAtual.simulacaoVisual = modo;
+      const htmlEl = document.documentElement;
+
+      // Remove classes anteriores
+      htmlEl.classList.remove(
+        "simular-deuteranopia",
+        "simular-protanopia",
+        "simular-tritanopia",
+        "simular-monocromia",
+        "simular-alto-contraste"
+      );
+
+      dispararFeedbackTabil(25);
+
+      if (modo === "normal") {
+        exibirToast("👁️ Cores normais (Padrão)");
+        return;
+      }
+
+      htmlEl.classList.add(`simular-${modo}`);
+
+      const nomes = {
+        deuteranopia: "Deuteranopia (Verde-Vermelho)",
+        protanopia: "Protanopia (Sem Vermelho)",
+        tritanopia: "Tritanopia (Azul-Amarelo)",
+        monocromia: "Monocromático (Escala de Cinza)",
+        "alto-contraste": "Alto Contraste (+50%)"
+      };
+
+      exibirToast(`👁️ Lente ativa: ${nomes[modo] || modo}`);
     }
 
     function executarSincronizacaoManual() {
@@ -2078,7 +2762,6 @@
       window.visualViewport.addEventListener("resize", () => {
         const alturaAtual = window.visualViewport.height;
         if (alturaAtual - alturaAnterior > 140) {
-          // O teclado foi fechado pelo botão voltar nativo do celular
           idCampoTecladoAberto = null;
           [campoFamilia, campoRelato, campoDemandas].forEach(c => {
             if (c && configAtual.modoAudio === "falar") {
@@ -2094,6 +2777,7 @@
     // Inicialização
     window.addEventListener("DOMContentLoaded", () => {
       configurarCampoFocoVisual("campoRelato");
+      selecionarMetaCard("meta1");
     });
   </script>
 </body>
