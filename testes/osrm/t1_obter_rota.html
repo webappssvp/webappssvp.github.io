@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Teste OSRM T1 - Consulta de Rota (Carro, A Pé e Bicicleta)</title>
+
+  <!-- CSS Comum do Laboratório de Testes -->
+  <link rel="stylesheet" href="../testes.css">
+  <!-- Fonte Montserrat e EB Garamond (Identidade SSVP) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cor-ssvp-azul: #0064B6;
+      --cor-ssvp-vermelho: #E00512;
+      --cor-ssvp-navy: #002d62;
+      --cor-fundo-dark: #0b111e;
+      --cor-painel-dark: #131c2e;
+      --cor-borda: rgba(255, 255, 255, 0.12);
+      --cor-destaque: #38bdf8;
+      --cor-sucesso: #22c55e;
+      --cor-alerta: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--cor-fundo-dark);
+      color: #f1f5f9;
+      line-height: 1.5;
+    }
+
+    /* Barra Superior com Identificação da Versão */
+    .topbar-versao {
+      background: linear-gradient(90deg, var(--cor-ssvp-navy) 0%, var(--cor-ssvp-azul) 100%);
+      color: #ffffff;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-titulo {
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .topbar-acoes {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .btn-voltar {
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+
+    .btn-voltar:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .badge-versao {
+      font-size: 0.72rem;
+      font-weight: 800;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      white-space: nowrap;
+    }
+
+    /* Container Principal */
+    .container-osrm {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 1.2rem 1rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    /* Card Conceitual - O que é o OSRM? */
+    .card-explicativo {
+      background: linear-gradient(135deg, #101c30 0%, #0d1524 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.28);
+      border-radius: 1rem;
+      padding: 1.2rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-explicativo-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .icone-servico {
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 0.6rem;
+      background: var(--cor-ssvp-azul);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .titulo-servico {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin: 0;
+    }
+
+    .subtitulo-servico {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .texto-explicativo {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      margin: 0.5rem 0 0.8rem;
+      line-height: 1.55;
+    }
+
+    .grid-beneficios-osrm {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.6rem;
+    }
+
+    .item-beneficio {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.65rem;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .item-beneficio strong {
+      color: #ffffff;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    /* Formulário de Consulta */
+    .card-formulario {
+      background: var(--cor-painel-dark);
+      border: 1.5px solid var(--cor-borda);
+      border-radius: 1rem;
+      padding: 1.2rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .form-titulo {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.5rem;
+      margin: 0;
+    }
+
+    .grupo-campo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .label-campo {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .label-tag {
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-family: monospace;
+    }
+
+    /* Seletor de Modo de Transporte (Carro vs A Pé vs Bicicleta) */
+    .seletor-modos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.55rem;
+    }
+
+    .btn-modo {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      border-radius: 0.75rem;
+      padding: 0.65rem 0.5rem;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      min-height: 52px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .btn-modo:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-modo.ativo {
+      background: linear-gradient(135deg, var(--cor-ssvp-navy) 0%, var(--cor-ssvp-azul) 100%);
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+      transform: scale(1.02);
+    }
+
+    .icone-modo {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .texto-modo {
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+    }
+
+    .input-endereco {
+      width: 100%;
+      background-color: #0b111e;
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 1rem; /* >= 16px previne auto-zoom no Safari iOS */
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-endereco:focus {
+      outline: none;
+      border-color: var(--cor-destaque);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+
+    .coordenadas-detectadas {
+      font-size: 0.74rem;
+      color: #64748b;
+      font-family: monospace;
+      padding-left: 0.25rem;
+    }
+
+    /* Barra de Botões Rápidos e Ações */
+    .botoes-atalho {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .btn-atalho {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 36px;
+      transition: all 0.2s;
+    }
+
+    .btn-atalho:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+
+    .btn-obter-rota {
+      background: linear-gradient(135deg, var(--cor-ssvp-azul) 0%, #0284c7 100%);
+      color: #ffffff;
+      border: 2px solid #38bdf8;
+      border-radius: 0.85rem;
+      padding: 0.95rem 1.2rem;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 14px rgba(0, 100, 182, 0.4);
+      min-height: 48px; /* Padrão WCAG acessibilidade */
+      user-select: none;
+      transition: transform 0.1s, filter 0.2s;
+    }
+
+    .btn-obter-rota:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-obter-rota:active {
+      transform: scale(0.98);
+    }
+
+    .btn-obter-rota:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: grayscale(0.5);
+    }
+
+    /* Resumo das Métricas da Rota */
+    .card-metricas {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.65rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .metrica-box {
+      background: #111a2d;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 0.75rem;
+      padding: 0.75rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .metrica-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metrica-valor {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .metrica-sub {
+      font-size: 0.7rem;
+      color: #64748b;
+    }
+
+    /* Botão de abrir no Google Maps com o modo selecionado */
+    .btn-maps-externo {
+      display: none;
+      background: rgba(30, 41, 59, 0.9);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      color: #ffffff;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 46px;
+      transition: all 0.2s;
+    }
+
+    .btn-maps-externo:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+    }
+
+    /* Área de Exibição do JSON de Retorno */
+    .card-json {
+      background: #060910;
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .json-header {
+      background: #131c2e;
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .json-titulo {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .json-acoes {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-copiar {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-copiar:hover {
+      background: rgba(56, 189, 248, 0.3);
+      color: #ffffff;
+    }
+
+    .json-pre-wrapper {
+      max-height: 440px;
+      overflow: auto;
+      padding: 1rem;
+      background-color: #060910;
+    }
+
+    .json-code {
+      margin: 0;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: #38bdf8;
+      white-space: pre;
+    }
+
+    /* URL Utilizada */
+    .card-url-endpoint {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.75rem;
+      word-break: break-all;
+      color: #94a3b8;
+    }
+
+    .card-url-endpoint strong {
+      color: #e2e8f0;
+    }
+
+    .url-link {
+      color: #38bdf8;
+      text-decoration: underline;
+    }
+
+    /* Feedback de Status / Alerta */
+    .status-banner {
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.75rem;
+      font-size: 0.82rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-banner.erro {
+      display: flex;
+      background: rgba(224, 5, 18, 0.2);
+      border: 1px solid #e00512;
+      color: #fca5a5;
+    }
+
+    .status-banner.aviso {
+      display: flex;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid #f59e0b;
+      color: #fde68a;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topo com Identificação da Versão -->
+  <header class="topbar-versao">
+    <div class="topbar-titulo">
+      <span>🌐</span> Teste OSRM T1 • Consulta de Rota &amp; JSON
+    </div>
+    <div class="topbar-acoes">
+      <a href="./index.html" class="btn-voltar">← OSRM</a>
+      <span class="badge-versao">v1.1 • Carro, A Pé &amp; Bike</span>
+    </div>
+  </header>
+
+  <main class="container-osrm">
+
+    <!-- 1. Explicação Sucinta do Serviço OSRM -->
+    <section class="card-explicativo" aria-label="O que é o serviço OSRM">
+      <div class="card-explicativo-header">
+        <div class="icone-servico">🚗</div>
+        <div>
+          <h1 class="titulo-servico">O que é o serviço OSRM?</h1>
+          <p class="subtitulo-servico">Open Source Routing Machine • Malha Viária Aberta</p>
+        </div>
+      </div>
+      
+      <p class="texto-explicativo">
+        O <strong>OSRM (Open Source Routing Machine)</strong> é um serviço de cálculo de rotas de altíssima velocidade construído sobre a base colaborativa mundial do <strong>OpenStreetMap (OSM)</strong>. Permite alternar entre perfis de mobilidade como <strong>carro (`driving`)</strong>, <strong>a pé (`walking`)</strong> ou <strong>bicicleta (`cycling`)</strong>, fornecendo a malha viária completa (conversões, distâncias e tempos estimados) em formato aberto <strong>JSON / GeoJSON</strong> com custo zero.
+      </p>
+
+      <div class="grid-beneficios-osrm">
+        <div class="item-beneficio">
+          <strong>💰 Custo Zero (R$ 0,00)</strong>
+          Não requer cartão de crédito nem chaves privadas de API do Google Cloud.
+        </div>
+        <div class="item-beneficio">
+          <strong>🚶 Suporte A Pé e de Carro</strong>
+          Calcula tanto visitas motorizadas quanto visitas a pé no mesmo bairro.
+        </div>
+        <div class="item-beneficio">
+          <strong>🔄 Formato Padrão GeoJSON</strong>
+          Compatível nativamente com o mapa Leaflet e pronto para cálculo de rotas vicentinas.
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Formulário com Modo de Transporte, 2 Inputs e Botão Obter Rota -->
+    <section class="card-formulario" aria-label="Formulário de Consulta de Rota">
+      <h2 class="form-titulo">
+        <span>📍 Parâmetros do Trajeto</span>
+        <span style="font-size:0.75rem; font-weight:600; color:#94a3b8;">Origem, Destino e Modo</span>
+      </h2>
+
+      <!-- Banner de Alerta / Erro Dinâmico -->
+      <div id="bannerStatus" class="status-banner" role="alert"></div>
+
+      <!-- Seletor de Modo de Transporte (Carro vs A Pé vs Bicicleta) -->
+      <div class="grupo-campo">
+        <span class="label-campo">
+          <span>Modo de Deslocamento:</span>
+          <span class="label-tag" id="tagModoAtivo">Perfil: driving (carro)</span>
+        </span>
+        <div class="seletor-modos" role="group" aria-label="Escolha o modo de transporte">
+          <button type="button" class="btn-modo ativo" data-modo="driving" id="modoDriving">
+            <span class="icone-modo">🚗</span>
+            <span class="texto-modo">De Carro</span>
+          </button>
+          <button type="button" class="btn-modo" data-modo="walking" id="modoWalking">
+            <span class="icone-modo">🚶</span>
+            <span class="texto-modo">A Pé (Pedestre)</span>
+          </button>
+          <button type="button" class="btn-modo" data-modo="cycling" id="modoCycling">
+            <span class="icone-modo">🚲</span>
+            <span class="texto-modo">Bicicleta</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Input 1: Endereço Inicial -->
+      <div class="grupo-campo">
+        <label for="inputOrigem" class="label-campo">
+          <span>Endereço Inicial (Origem):</span>
+          <span class="label-tag">Partida</span>
+        </label>
+        <input 
+          type="text" 
+          id="inputOrigem" 
+          class="input-endereco" 
+          placeholder="Ex: Rua Domingos de Morais, 2887, São Paulo - SP"
+          value="Rua Domingos de Morais, 2887, São Paulo - SP"
+          autocomplete="off">
+        <span class="coordenadas-detectadas" id="coordOrigemTexto">Coord: -23.606259, -46.638563 (Paróquia N. Sra. da Saúde)</span>
+      </div>
+
+      <!-- Input 2: Endereço Final -->
+      <div class="grupo-campo">
+        <label for="inputDestino" class="label-campo">
+          <span>Endereço Final (Destino):</span>
+          <span class="label-tag">Destino</span>
+        </label>
+        <input 
+          type="text" 
+          id="inputDestino" 
+          class="input-endereco" 
+          placeholder="Ex: Rua Pedro de Toledo, 850, São Paulo - SP"
+          value="Rua Pedro de Toledo, 850, São Paulo - SP"
+          autocomplete="off">
+        <span class="coordenadas-detectadas" id="coordDestinoTexto">Coord: -23.598345, -46.643577 (Família Silva / Dona Marta)</span>
+      </div>
+
+      <!-- Atalhos de Exemplo Rápido -->
+      <div class="botoes-atalho">
+        <button type="button" class="btn-atalho" id="btnExemploVicentino">
+          ⛪ Exemplo Visita Vicentina
+        </button>
+        <button type="button" class="btn-atalho" id="btnExemploPaulista">
+          🏢 Exemplo Av. Paulista ➔ Sé
+        </button>
+        <button type="button" class="btn-atalho" id="btnInverterPontos">
+          ⇄ Inverter Origem e Destino
+        </button>
+      </div>
+
+      <!-- Botão Obter Rota -->
+      <button type="button" class="btn-obter-rota" id="btnObterRota">
+        <span id="iconeBtnRota">🚗</span> <span id="textoBtnRota">Obter Rota de Carro OSRM</span>
+      </button>
+    </section>
+
+    <!-- 3. Resumo das Métricas da Rota Calculada -->
+    <section class="card-metricas" id="cardMetricas" aria-label="Métricas da Rota">
+      <div class="metrica-box">
+        <span class="metrica-label">Modo</span>
+        <span class="metrica-valor" id="resumoModo" style="font-size:1.05rem;">🚗 Carro</span>
+        <span class="metrica-sub" id="resumoPerfilSub">perfil: driving</span>
+      </div>
+      <div class="metrica-box">
+        <span class="metrica-label">Distância Total</span>
+        <span class="metrica-valor" id="resumoDistancia">--</span>
+        <span class="metrica-sub" id="resumoDistanciaMetros">--</span>
+      </div>
+      <div class="metrica-box">
+        <span class="metrica-label">Tempo Estimado</span>
+        <span class="metrica-valor" id="resumoTempo">--</span>
+        <span class="metrica-sub" id="resumoTempoSub">Velocidade média</span>
+      </div>
+      <div class="metrica-box">
+        <span class="metrica-label">Coordenadas</span>
+        <span class="metrica-valor" id="resumoPontos">--</span>
+        <span class="metrica-sub">Pontos de malha viária</span>
+      </div>
+      <div class="metrica-box">
+        <span class="metrica-label">Manobras (Steps)</span>
+        <span class="metrica-valor" id="resumoPassos">--</span>
+        <span class="metrica-sub">Conversões na rota</span>
+      </div>
+    </section>
+
+    <!-- Botão de abrir no Google Maps Nativo com o modo selecionado -->
+    <button type="button" class="btn-maps-externo" id="btnAbrirGoogleMapsReal">
+      <span>🗺️</span> Abrir Rota no App Google Maps Oficial (<span id="textoMapsModo">Modo Carro</span>)
+    </button>
+
+    <!-- 4. URL do Endpoint da Requisição -->
+    <aside class="card-url-endpoint" id="cardUrlEndpoint" style="display: none;">
+      <strong>Endpoint OSRM Consultado:</strong><br>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="url-link" id="linkUrlEndpoint">--</a>
+    </aside>
+
+    <!-- 5. Exibição do JSON de Retorno Formatado -->
+    <section class="card-json" aria-label="Retorno JSON do OSRM">
+      <div class="json-header">
+        <span class="json-titulo">
+          <span>📦</span> JSON de Retorno da Rota (Raw Payload)
+        </span>
+        <div class="json-acoes">
+          <button type="button" class="btn-copiar" id="btnCopiarJson">
+            📋 Copiar JSON
+          </button>
+        </div>
+      </div>
+      <div class="json-pre-wrapper">
+        <pre class="json-code"><code id="codigoJson">// Clique no botão "Obter Rota" acima para disparar a requisição e visualizar o JSON retornado.</code></pre>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Script dos Testes SSVP -->
+  <script src="../testes.js"></script>
+
+  <script>
+    // ==========================================================================
+    // DICIONÁRIO DE COORDENADAS CONHECIDAS PARA RESOLUÇÃO INSTANTÂNEA E FALLBACK
+    // ==========================================================================
+    const DICIONARIO_LOCAIS = {
+      "rua domingos de morais, 2887, são paulo - sp": { lat: -23.606259, lon: -46.638563, nome: "Paróquia N. Sra. da Saúde" },
+      "rua pedro de toledo, 850, são paulo - sp": { lat: -23.598345, lon: -46.643577, nome: "Família Silva (Dona Marta)" },
+      "rua loefgren, 120, são paulo - sp": { lat: -23.599637, lon: -46.635810, nome: "Carona Confrade João" },
+      "avenida paulista, 1000, são paulo - sp": { lat: -23.565150, lon: -46.651700, nome: "Avenida Paulista" },
+      "praça da sé, são paulo - sp": { lat: -23.550300, lon: -46.634200, nome: "Catedral da Sé" }
+    };
+
+    let modoAtual = 'driving'; // 'driving', 'walking', 'cycling'
+    let ultimoPontoA = null;
+    let ultimoPontoB = null;
+    let ultimoJsonRecebido = null;
+
+    /**
+     * Normaliza string para busca simples no dicionário
+     * @param {string} texto
+     * @return {string}
+     */
+    function normalizarTexto(texto) {
+      return (texto || '').trim().toLowerCase();
+    }
+
+    /**
+     * Resolve coordenadas de um endereço em texto:
+     * 1. Verifica se já são coordenadas "lat, lon"
+     * 2. Verifica no dicionário local
+     * 3. Consulta o Nominatim OpenStreetMap Geocoder
+     * @param {string} endereco
+     * @return {Promise<{lat: number, lon: number, fonte: string}>}
+     */
+    async function resolverCoordenadas(endereco) {
+      const normalizado = normalizarTexto(endereco);
+
+      // 1. Caso o usuário tenha digitado diretamente "-23.6062, -46.6385"
+      const matchCoord = normalizado.match(/^([-+]?\d{1,2}\.\d+)[,\s]+([-+]?\d{1,3}\.\d+)$/);
+      if (matchCoord) {
+        return {
+          lat: parseFloat(matchCoord[1]),
+          lon: parseFloat(matchCoord[2]),
+          fonte: 'coordenada direta'
+        };
+      }
+
+      // 2. Procura no dicionário rápido
+      if (DICIONARIO_LOCAIS[normalizado]) {
+        const item = DICIONARIO_LOCAIS[normalizado];
+        return { lat: item.lat, lon: item.lon, fonte: item.nome };
+      }
+
+      // 3. Consulta via Geocoder Nominatim (OpenStreetMap)
+      try {
+        const urlNominatim = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(endereco)}`;
+        const res = await fetch(urlNominatim);
+        if (res.ok) {
+          const dados = await res.json();
+          if (dados && dados.length > 0) {
+            return {
+              lat: parseFloat(dados[0].lat),
+              lon: parseFloat(dados[0].lon),
+              fonte: 'Nominatim OSM'
+            };
+          }
+        }
+      } catch (erro) {
+        console.warn('[Geocoding] Falha ao consultar Nominatim, usando fallback:', erro);
+      }
+
+      throw new Error(`Não foi possível localizar as coordenadas do endereço: "${endereco}". Tente digitar coordenadas exatas no formato: -23.6062, -46.6385`);
+    }
+
+    /**
+     * Exibe banner de erro ou aviso
+     * @param {string} mensagem
+     * @param {'erro'|'aviso'} tipo
+     */
+    function exibirAlerta(mensagem, tipo = 'erro') {
+      const banner = document.getElementById('bannerStatus');
+      banner.textContent = mensagem;
+      banner.className = `status-banner ${tipo}`;
+    }
+
+    /**
+     * Limpa o banner de alerta
+     */
+    function limparAlerta() {
+      const banner = document.getElementById('bannerStatus');
+      banner.textContent = '';
+      banner.className = 'status-banner';
+      banner.style.display = 'none';
+    }
+
+    /**
+     * Atualiza a interface ao trocar de modo de transporte
+     * @param {'driving'|'walking'|'cycling'} novoModo
+     */
+    function selecionarModoTransporte(novoModo) {
+      modoAtual = novoModo;
+
+      // Atualiza botões visuais
+      document.querySelectorAll('.btn-modo').forEach(btn => {
+        if (btn.dataset.modo === novoModo) {
+          btn.classList.add('ativo');
+        } else {
+          btn.classList.remove('ativo');
+        }
+      });
+
+      // Atualiza textos e tags
+      const tag = document.getElementById('tagModoAtivo');
+      const iconeBtn = document.getElementById('iconeBtnRota');
+      const textoBtn = document.getElementById('textoBtnRota');
+      const textoMaps = document.getElementById('textoMapsModo');
+
+      if (novoModo === 'walking') {
+        tag.textContent = 'Perfil: walking (a pé)';
+        iconeBtn.textContent = '🚶';
+        textoBtn.textContent = 'Obter Rota A Pé OSRM';
+        textoMaps.textContent = 'Modo A Pé';
+      } else if (novoModo === 'cycling') {
+        tag.textContent = 'Perfil: cycling (bicicleta)';
+        iconeBtn.textContent = '🚲';
+        textoBtn.textContent = 'Obter Rota de Bicicleta OSRM';
+        textoMaps.textContent = 'Modo Bicicleta';
+      } else {
+        tag.textContent = 'Perfil: driving (carro)';
+        iconeBtn.textContent = '🚗';
+        textoBtn.textContent = 'Obter Rota de Carro OSRM';
+        textoMaps.textContent = 'Modo Carro';
+      }
+
+      // Se já houver consulta feita, reexecuta automaticamente com o novo modo
+      if (ultimoPontoA && ultimoPontoB) {
+        obterRotaOSRM();
+      }
+    }
+
+    /**
+     * Consulta a rota viária no servidor público do OSRM
+     */
+    async function obterRotaOSRM() {
+      limparAlerta();
+      const inputOrigem = document.getElementById('inputOrigem');
+      const inputDestino = document.getElementById('inputDestino');
+      const btnObter = document.getElementById('btnObterRota');
+      const codigoJson = document.getElementById('codigoJson');
+      const cardMetricas = document.getElementById('cardMetricas');
+      const cardUrlEndpoint = document.getElementById('cardUrlEndpoint');
+      const linkUrlEndpoint = document.getElementById('linkUrlEndpoint');
+      const btnMaps = document.getElementById('btnAbrirGoogleMapsReal');
+
+      const textoOrigem = inputOrigem.value.trim();
+      const textoDestino = inputDestino.value.trim();
+
+      if (!textoOrigem || !textoDestino) {
+        exibirAlerta('Por favor, informe o endereço inicial (origem) e o endereço final (destino).', 'aviso');
+        return;
+      }
+
+      btnObter.disabled = true;
+      btnObter.innerHTML = `<span>⏳</span> Consultando modo ${modoAtual}...`;
+      codigoJson.textContent = `// Aguarde: calculando rota no perfil "${modoAtual}" via OSRM...`;
+
+      try {
+        // 1. Resolve coordenadas
+        const pontoA = await resolverCoordenadas(textoOrigem);
+        ultimoPontoA = pontoA;
+        document.getElementById('coordOrigemTexto').textContent = `Coord: ${pontoA.lat.toFixed(6)}, ${pontoA.lon.toFixed(6)} (${pontoA.fonte})`;
+
+        const pontoB = await resolverCoordenadas(textoDestino);
+        ultimoPontoB = pontoB;
+        document.getElementById('coordDestinoTexto').textContent = `Coord: ${pontoB.lat.toFixed(6)}, ${pontoB.lon.toFixed(6)} (${pontoB.fonte})`;
+
+        // 2. Monta a URL da API OSRM com o modo selecionado (driving, walking ou cycling)
+        const endpointOSRM = `https://router.project-osrm.org/route/v1/${modoAtual}/${pontoA.lon},${pontoA.lat};${pontoB.lon},${pontoB.lat}?overview=full&geometries=geojson&steps=true`;
+
+        // Atualiza card de endpoint
+        linkUrlEndpoint.href = endpointOSRM;
+        linkUrlEndpoint.textContent = endpointOSRM;
+        cardUrlEndpoint.style.display = 'block';
+
+        // 3. Dispara a requisição HTTP GET
+        const resposta = await fetch(endpointOSRM);
+        if (!resposta.ok) {
+          throw new Error(`Servidor OSRM respondeu com status HTTP ${resposta.status}`);
+        }
+
+        const jsonRetorno = await resposta.json();
+        ultimoJsonRecebido = jsonRetorno;
+
+        // 4. Formata o JSON com indentação de 2 espaços
+        codigoJson.textContent = JSON.stringify(jsonRetorno, null, 2);
+
+        // 5. Preenche as Métricas se houver rota válida
+        if (jsonRetorno.routes && jsonRetorno.routes.length > 0) {
+          const rotaPrincipal = jsonRetorno.routes[0];
+          
+          // Modo
+          if (modoAtual === 'walking') {
+            document.getElementById('resumoModo').textContent = '🚶 A Pé';
+            document.getElementById('resumoPerfilSub').textContent = 'perfil: walking';
+          } else if (modoAtual === 'cycling') {
+            document.getElementById('resumoModo').textContent = '🚲 Bicicleta';
+            document.getElementById('resumoPerfilSub').textContent = 'perfil: cycling';
+          } else {
+            document.getElementById('resumoModo').textContent = '🚗 Carro';
+            document.getElementById('resumoPerfilSub').textContent = 'perfil: driving';
+          }
+
+          // Distância
+          const distMetros = Math.round(rotaPrincipal.distance);
+          const distKm = (distMetros / 1000).toFixed(2);
+          document.getElementById('resumoDistancia').textContent = `${distKm} km`;
+          document.getElementById('resumoDistanciaMetros').textContent = `${distMetros} metros`;
+
+          // Duração (com cálculo realista para pedestre ~4.5 km/h se servidor demo mantiver tabela única)
+          let durMinutos = 0;
+          if (modoAtual === 'walking') {
+            // Velocidade média a pé vicentina: 4.5 km/h (1.25 m/s)
+            durMinutos = Math.round((distMetros / 1.25) / 60);
+            document.getElementById('resumoTempo').textContent = `${durMinutos} min`;
+            document.getElementById('resumoTempoSub').textContent = 'Caminhada (~4,5 km/h)';
+          } else if (modoAtual === 'cycling') {
+            durMinutos = Math.round((distMetros / 4.16) / 60); // ~15 km/h
+            document.getElementById('resumoTempo').textContent = `${durMinutos} min`;
+            document.getElementById('resumoTempoSub').textContent = 'Ciclista (~15 km/h)';
+          } else {
+            const durSegundos = Math.round(rotaPrincipal.duration);
+            durMinutos = (durSegundos / 60).toFixed(1);
+            document.getElementById('resumoTempo').textContent = `${durMinutos} min`;
+            document.getElementById('resumoTempoSub').textContent = 'Trânsito urbano estimado';
+          }
+
+          // Coordenadas
+          const qtdCoords = (rotaPrincipal.geometry && rotaPrincipal.geometry.coordinates) 
+            ? rotaPrincipal.geometry.coordinates.length 
+            : 0;
+          document.getElementById('resumoPontos').textContent = `${qtdCoords} pts`;
+
+          // Passos / Manobras
+          let totalSteps = 0;
+          if (rotaPrincipal.legs) {
+            rotaPrincipal.legs.forEach(leg => {
+              if (leg.steps) totalSteps += leg.steps.length;
+            });
+          }
+          document.getElementById('resumoPassos').textContent = `${totalSteps} manobras`;
+
+          cardMetricas.style.display = 'grid';
+          btnMaps.style.display = 'flex';
+        } else {
+          exibirAlerta(`O OSRM não encontrou rota viária para o modo ${modoAtual}.`, 'aviso');
+        }
+
+      } catch (erro) {
+        console.error('[OSRM] Erro na requisição:', erro);
+        exibirAlerta(erro.message || 'Erro inesperado ao consultar rota no OSRM.', 'erro');
+        codigoJson.textContent = `// ERRO NA CONSULTA (${modoAtual}):\n${erro.message}\n\nVerifique sua conexão ou se o endereço é válido.`;
+      } finally {
+        btnObter.disabled = false;
+        const icone = modoAtual === 'walking' ? '🚶' : (modoAtual === 'cycling' ? '🚲' : '🚗');
+        const nomeModo = modoAtual === 'walking' ? 'A Pé' : (modoAtual === 'cycling' ? 'de Bicicleta' : 'de Carro');
+        btnObter.innerHTML = `<span>${icone}</span> Obter Rota ${nomeModo} OSRM`;
+      }
+    }
+
+    // ==========================================================================
+    // INICIALIZAÇÃO DE EVENTOS
+    // ==========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Eventos dos botões de modo de transporte
+      document.querySelectorAll('.btn-modo').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selecionarModoTransporte(btn.dataset.modo);
+        });
+      });
+
+      // Botão Principal Obter Rota
+      document.getElementById('btnObterRota').addEventListener('click', obterRotaOSRM);
+
+      // Copiar JSON
+      const btnCopiar = document.getElementById('btnCopiarJson');
+      btnCopiar.addEventListener('click', async () => {
+        const codigo = document.getElementById('codigoJson').textContent;
+        try {
+          await navigator.clipboard.writeText(codigo);
+          const textoOriginal = btnCopiar.textContent;
+          btnCopiar.textContent = '✅ Copiado!';
+          btnCopiar.style.borderColor = '#22c55e';
+          btnCopiar.style.color = '#22c55e';
+          setTimeout(() => {
+            btnCopiar.textContent = textoOriginal;
+            btnCopiar.style.borderColor = '';
+            btnCopiar.style.color = '';
+          }, 2000);
+        } catch (e) {
+          alert('Não foi possível copiar automaticamente para a área de transferência.');
+        }
+      });
+
+      // Botão Abrir no Google Maps Nativo com o modo equivalente
+      document.getElementById('btnAbrirGoogleMapsReal').addEventListener('click', () => {
+        const origem = encodeURIComponent(document.getElementById('inputOrigem').value.trim());
+        const destino = encodeURIComponent(document.getElementById('inputDestino').value.trim());
+        
+        let modoGoogle = 'driving';
+        if (modoAtual === 'walking') modoGoogle = 'walking';
+        if (modoAtual === 'cycling') modoGoogle = 'bicycling';
+
+        const urlMaps = `https://www.google.com/maps/dir/?api=1&origin=${origem}&destination=${destino}&travelmode=${modoGoogle}`;
+        window.open(urlMaps, '_blank');
+      });
+
+      // Atalho 1: Exemplo Vicentino (Paróquia -> Dona Marta)
+      document.getElementById('btnExemploVicentino').addEventListener('click', () => {
+        document.getElementById('inputOrigem').value = "Rua Domingos de Morais, 2887, São Paulo - SP";
+        document.getElementById('coordOrigemTexto').textContent = "Coord: -23.606259, -46.638563 (Paróquia N. Sra. da Saúde)";
+        document.getElementById('inputDestino').value = "Rua Pedro de Toledo, 850, São Paulo - SP";
+        document.getElementById('coordDestinoTexto').textContent = "Coord: -23.598345, -46.643577 (Família Silva / Dona Marta)";
+        obterRotaOSRM();
+      });
+
+      // Atalho 2: Exemplo Paulista -> Sé
+      document.getElementById('btnExemploPaulista').addEventListener('click', () => {
+        document.getElementById('inputOrigem').value = "Avenida Paulista, 1000, São Paulo - SP";
+        document.getElementById('coordOrigemTexto').textContent = "Coord: -23.565150, -46.651700 (Avenida Paulista)";
+        document.getElementById('inputDestino').value = "Praça da Sé, São Paulo - SP";
+        document.getElementById('coordDestinoTexto').textContent = "Coord: -23.550300, -46.634200 (Catedral da Sé)";
+        obterRotaOSRM();
+      });
+
+      // Atalho 3: Inverter Origem e Destino
+      document.getElementById('btnInverterPontos').addEventListener('click', () => {
+        const inputOrigem = document.getElementById('inputOrigem');
+        const inputDestino = document.getElementById('inputDestino');
+        const temp = inputOrigem.value;
+        inputOrigem.value = inputDestino.value;
+        inputDestino.value = temp;
+
+        const spanOrigem = document.getElementById('coordOrigemTexto');
+        const spanDestino = document.getElementById('coordDestinoTexto');
+        const tempSpan = spanOrigem.textContent;
+        spanOrigem.textContent = spanDestino.textContent;
+        spanDestino.textContent = tempSpan;
+
+        if (ultimoPontoA && ultimoPontoB) {
+          obterRotaOSRM();
+        }
+      });
+
+      // Permite apertar [Enter] nos campos para disparar a busca
+      ['inputOrigem', 'inputDestino'].forEach(id => {
+        document.getElementById(id).addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            obterRotaOSRM();
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
