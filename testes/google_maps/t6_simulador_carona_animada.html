@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulador de Rota com Carona e Áudio Dinâmico - Google Maps T6</title>
+  <title>Simulador de Rota com Carona e Áudio Dinâmico - Google Maps T6 v1.2</title>
 
   <!-- CSS Comum do Laboratório de Testes -->
   <link rel="stylesheet" href="../testes.css">
@@ -21,7 +21,7 @@
       --cor-ssvp-navy: #002d62;
       --cor-alerta-amarelo: #f59e0b;
       --cor-sucesso-verde: #15803d;
-      --altura-mapa: 320px;
+      --altura-mapa: 340px;
     }
 
     * {
@@ -67,6 +67,7 @@
       padding: 0.2rem 0.55rem;
       border-radius: 9999px;
       border: 1px solid rgba(255, 255, 255, 0.3);
+      white-space: nowrap;
     }
 
     /* Container Principal */
@@ -76,7 +77,55 @@
       padding: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.85rem;
+    }
+
+    /* Card de Contexto do Dia a Dia Vicentino */
+    .card-contexto-carona {
+      background: linear-gradient(135deg, #131d31 0%, #0d1527 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.25);
+      border-radius: 0.85rem;
+      padding: 0.75rem 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .contexto-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .pontos-itinerario {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+    }
+
+    .item-ponto {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #cbd5e1;
+    }
+
+    .item-ponto strong {
+      color: #ffffff;
+    }
+
+    .icone-tag {
+      font-size: 1rem;
+      line-height: 1;
+      width: 1.3rem;
+      text-align: center;
     }
 
     /* Banner HUD de Navegação (Estilo GPS / Waze) */
@@ -98,9 +147,20 @@
       animation: pulsoAlertaGPS 1s infinite alternate;
     }
 
+    .hud-navegacao.alerta-carona {
+      border-color: #38bdf8;
+      background: linear-gradient(135deg, #0c2b45 0%, #091b2c 100%);
+      animation: pulsoAlertaCarona 1s infinite alternate;
+    }
+
     @keyframes pulsoAlertaGPS {
       from { box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4); }
       to { box-shadow: 0 0 16px 4px rgba(245, 158, 11, 0.8); }
+    }
+
+    @keyframes pulsoAlertaCarona {
+      from { box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4); }
+      to { box-shadow: 0 0 16px 4px rgba(56, 189, 248, 0.8); }
     }
 
     .hud-icone-manobra {
@@ -120,6 +180,12 @@
     .hud-navegacao.alerta-curva .hud-icone-manobra {
       background-color: var(--cor-alerta-amarelo);
       color: #0f172a;
+      transform: scale(1.08);
+    }
+
+    .hud-navegacao.alerta-carona .hud-icone-manobra {
+      background-color: #0284c7;
+      color: #ffffff;
       transform: scale(1.08);
     }
 
@@ -244,7 +310,7 @@
     }
 
     .frase-item {
-      padding: 0.2rem 0.4rem;
+      padding: 0.25rem 0.45rem;
       border-radius: 6px;
       transition: background-color 0.2s ease, color 0.2s ease;
     }
@@ -262,10 +328,45 @@
       font-weight: 700;
     }
 
+    /* Barra de Velocidade da Simulação */
+    .barra-velocidade {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #1e293b;
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.75rem;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+    }
+
+    .botoes-velocidade {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .btn-speed {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f1f5f9;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 32px;
+    }
+
+    .btn-speed.ativo {
+      background-color: var(--cor-ssvp-azul);
+      border-color: #38bdf8;
+      color: #ffffff;
+    }
+
     /* Painel de Controles de Demonstração */
     .painel-controles {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
       gap: 0.65rem;
     }
 
@@ -283,6 +384,7 @@
       gap: 0.4rem;
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
       user-select: none;
+      min-height: 48px;
       transition: transform 0.1s ease, filter 0.2s ease;
     }
 
@@ -339,10 +441,32 @@
     <div class="topbar-titulo">
       <span>🚗</span> WebApp SSVP - Simulador de Carona &amp; Trânsito
     </div>
-    <span class="badge-versao">Teste T6 • v1.0</span>
+    <span class="badge-versao">T6 v1.2 • Malha OSRM Real</span>
   </header>
 
   <main class="simulador-container">
+
+    <!-- Card: Simulação do Uso Real no Dia a Dia Vicentino -->
+    <section class="card-contexto-carona" aria-label="Planejamento da Visita de Hoje">
+      <div class="contexto-header">
+        <span>Itinerário da Visita de Hoje</span>
+        <span style="color:#22c55e;">● 2 Paradas</span>
+      </div>
+      <div class="pontos-itinerario">
+        <div class="item-ponto">
+          <span class="icone-tag">⛪</span>
+          <span><strong>Origem:</strong> Paróquia N. Sra. da Saúde (Rua Domingos de Morais)</span>
+        </div>
+        <div class="item-ponto">
+          <span class="icone-tag">👤</span>
+          <span><strong>Carona (Parada 1):</strong> Confrade João (Rua Loefgren, 120)</span>
+        </div>
+        <div class="item-ponto">
+          <span class="icone-tag">🏠</span>
+          <span><strong>Assistido (Destino):</strong> Dona Marta / Família Silva (Rua Pedro de Toledo, 850)</span>
+        </div>
+      </div>
+    </section>
 
     <!-- 1. HUD Superior Estilo GPS (Atualização Dinâmica de Manobra) -->
     <section class="hud-navegacao" id="hudNavegacao" role="region" aria-label="Instrução do Trajeto">
@@ -351,12 +475,22 @@
       </div>
       <div class="hud-detalhes">
         <span class="hud-distancia" id="hudDistancia">Em trânsito</span>
-        <span class="hud-instrucao" id="hudInstrucao">Saindo da Paróquia N. Sra. da Saúde (Rua Domingos de Morais)</span>
+        <span class="hud-instrucao" id="hudInstrucao">Saindo da Paróquia N. Sra. da Saúde (Alameda das Boninas)</span>
       </div>
     </section>
 
     <!-- 2. Mapa Leaflet com a Rota e o Carrinho Animado -->
     <div id="mapaSimulador"></div>
+
+    <!-- Controle de Velocidade da Animação para a Apresentação -->
+    <div class="barra-velocidade">
+      <span>Velocidade de Deslocamento:</span>
+      <div class="botoes-velocidade" role="group" aria-label="Velocidade da simulação">
+        <button type="button" class="btn-speed" data-speed="1000">1x (Calmo)</button>
+        <button type="button" class="btn-speed ativo" data-speed="500">2x (Demo)</button>
+        <button type="button" class="btn-speed" data-speed="250">4x (Rápido)</button>
+      </div>
+    </div>
 
     <!-- 3. Painel de Reprodução do Relato com Fila Inteligente (Modo Ouvir) -->
     <section class="painel-relato" aria-label="Relatório Falado da Visita">
@@ -375,11 +509,11 @@
     <!-- 4. Painel de Controles de Demonstração (Para Apresentação no Telão) -->
     <section class="painel-controles">
       <button type="button" class="btn-controle btn-play" id="btnIniciarSimulacao">
-        <span>▶️</span> Iniciar Viagem com Áudio
+        <span>▶️</span> Iniciar Deslocamento
       </button>
 
       <button type="button" class="btn-controle btn-interromper" id="btnForcarInterrupcao">
-        <span>⚡</span> Simular Curva Agora
+        <span>⚡</span> Testar Corte GPS
       </button>
 
       <button type="button" class="btn-controle btn-reset" id="btnReiniciarSimulacao">
@@ -387,14 +521,16 @@
       </button>
 
       <button type="button" class="btn-controle btn-maps-externo" id="btnAbrirGoogleMapsReal">
-        <span>🗺️</span> Abrir Rota Oficial no App Google Maps (com Waypoints)
+        <span>🗺️</span> Abrir Rota Oficial no App Google Maps (Nativo)
       </button>
     </section>
 
     <!-- 5. Card Explicativo com Fundamentação Vicentina -->
     <article class="card-info-tecnica">
-      <strong>💡 Como funciona a interrupção inteligente para o motorista:</strong><br>
-      O texto do relato anterior é fatiado em frases curtas. Quando o carro se aproxima de uma curva ou do ponto de carona do <strong>Confrade João</strong>, o app toca um sinal sonoro suave (*earcon*), interrompe a narrativa sem travar e fala a manobra de trânsito. Em seguida, ele diz <em>"Continuando o relato:"</em> e <strong>repete a frase que foi cortada</strong> para que o motorista não perca a linha de raciocínio!
+      <strong>💡 Como os vicentinos utilizam esta tecnologia no dia a dia:</strong><br>
+      • <strong>Antes de sair:</strong> O motorista escolhe a carona (Confrade João) e a família assistida (Dona Marta). O WebApp traça a malha viária real pelas ruas da cidade.<br>
+      • <strong>No caminho:</strong> O vicentino ouve pelo som do carro os relatos anteriores. Sempre que há uma curva ou manobra (Rua Luís Góis, Afonso Celso, Loefgren), o áudio do relato pausa suavemente com um sinal sonoro, dá a instrução de trânsito e retoma a frase cortada.<br>
+      • <strong>No trânsito pesado:</strong> Com 1 toque em <em>"Abrir Rota Oficial"</em>, o celular abre o app nativo do Google Maps com as paradas já inseridas para guiar via GPS turn-by-turn.
     </article>
 
   </main>
@@ -406,54 +542,118 @@
 
   <script>
     // ==========================================================================
-    // 1. DADOS GEOGRÁFICOS REAIS DA REGIÃO DO CONSELHO CENTRAL SUDESTE (SP)
+    // 1. DADOS GEOGRÁFICOS REAIS (OSRM ROUTING ENGINE - 77 PONTOS DE MALHA URBANA)
+    // Rota: Paróquia N. Sra. Saúde -> Av. Jabaquara -> R. Luís Góis ->
+    //       R. Afonso Celso -> R. Loefgren (Carona) -> R. Embaú -> R. Pedro de Toledo
     // ==========================================================================
     
-    // Ponto A: Partida - Paróquia Nossa Senhora da Saúde (Vila Mariana / Saúde)
+    // Ponto A: Partida - Paróquia Nossa Senhora da Saúde
     const PONTO_PARTIDA = {
       nome: "Paróquia N. Sra. da Saúde",
-      coords: [-23.6062, -46.6385],
+      coords: [-23.606259, -46.638563],
       icone: "⛪"
     };
 
-    // Ponto B: Carona Solidária - Casa do Confrade João (Rua Santa Cruz)
+    // Ponto B: Carona Solidária - Confrade João (Rua Loefgren, 120)
     const PONTO_CARONA = {
-      nome: "Carona: Confrade João",
-      coords: [-23.5992, -46.6358],
+      nome: "Carona: Confrade João (R. Loefgren)",
+      coords: [-23.599637, -46.635810],
       icone: "👤"
     };
 
-    // Ponto C: Destino Final - Família Silva / Dona Marta (Rua Dr. Diogo de Faria)
+    // Ponto C: Destino Final - Dona Marta / Família Silva (Rua Pedro de Toledo)
     const PONTO_DESTINO = {
       nome: "Família Silva (Dona Marta)",
-      coords: [-23.5986, -46.6436],
+      coords: [-23.598345, -46.643577],
       icone: "🏠"
     };
 
-    // Trajetória interpolada suave (28 waypoints simulando ruas reais da Vila Mariana)
+    // 77 Coordenadas precisas calculadas pelo motor viário OSRM seguindo as ruas reais de SP
     const ROTA_COORDENADAS = [
-      [-23.6062, -46.6385], // 0: Partida
-      [-23.6050, -46.6380], // 1
-      [-23.6038, -46.6375], // 2
-      [-23.6025, -46.6370], // 3
-      [-23.6010, -46.6364], // 4
-      [-23.6000, -46.6360], // 5
-      [-23.5992, -46.6358], // 6: Ponto Carona (Confrade João)
-      [-23.5990, -46.6365], // 7: Saindo da carona
-      [-23.5988, -46.6375], // 8
-      [-23.5986, -46.6388], // 9
-      [-23.5982, -46.6398], // 10: Próximo à curva para Diogo de Faria
-      [-23.5978, -46.6405], // 11: Curva da Diogo de Faria
-      [-23.5980, -46.6415], // 12
-      [-23.5982, -46.6425], // 13
-      [-23.5986, -46.6436]  // 14: Destino Final (Dona Marta)
+      [-23.606259, -46.638563], // 0: Saída Paróquia (Al. das Boninas)
+      [-23.606365, -46.638444], // 1
+      [-23.606816, -46.637949], // 2
+      [-23.606983, -46.637739], // 3
+      [-23.607028, -46.637672], // 4: Curva Al. das Boninas -> Av. Jabaquara
+      [-23.607036, -46.637653], // 5
+      [-23.607041, -46.637634], // 6
+      [-23.607049, -46.637603], // 7
+      [-23.607053, -46.637581], // 8
+      [-23.607057, -46.637555], // 9
+      [-23.606103, -46.637239], // 10: Av. Jabaquara sentido centro
+      [-23.604983, -46.636869], // 11
+      [-23.604855, -46.636831], // 12
+      [-23.604536, -46.636738], // 13: Preparando curva Luís Góis
+      [-23.604345, -46.636700], // 14
+      [-23.604056, -46.636664], // 15: Curva para a Rua Luís Góis
+      [-23.604057, -46.636529], // 16: Rua Luís Góis
+      [-23.604059, -46.636287], // 17
+      [-23.604061, -46.635564], // 18: Preparando curva Afonso Celso
+      [-23.604062, -46.635153], // 19
+      [-23.604062, -46.635070], // 20: Curva para a Rua Afonso Celso
+      [-23.603434, -46.635046], // 21: Rua Afonso Celso
+      [-23.603345, -46.635043], // 22
+      [-23.602890, -46.635025], // 23
+      [-23.602817, -46.635023], // 24
+      [-23.602726, -46.635018], // 25
+      [-23.602131, -46.634987], // 26
+      [-23.601656, -46.634962], // 27
+      [-23.601544, -46.634956], // 28
+      [-23.601440, -46.634951], // 29
+      [-23.600893, -46.634925], // 30
+      [-23.600592, -46.634916], // 31: Preparando curva Loefgren
+      [-23.599749, -46.634867], // 32
+      [-23.599652, -46.634861], // 33: Curva para Rua Loefgren
+      [-23.599650, -46.634994], // 34
+      [-23.599638, -46.635744], // 35: Chegando no Confrade João
+      [-23.599637, -46.635810], // 36: PARADA 1 - CARONA CONFRADE JOÃO
+      [-23.599632, -46.636061], // 37: Partida com o Confrade João
+      [-23.599626, -46.636488], // 38: R. Loefgren
+      [-23.599624, -46.636609], // 39
+      [-23.599621, -46.636751], // 40
+      [-23.599621, -46.636893], // 41
+      [-23.599625, -46.637401], // 42
+      [-23.599626, -46.637532], // 43
+      [-23.599626, -46.637553], // 44
+      [-23.599627, -46.637655], // 45
+      [-23.599633, -46.638291], // 46
+      [-23.599634, -46.638396], // 47
+      [-23.599635, -46.638475], // 48
+      [-23.599640, -46.639112], // 49
+      [-23.599645, -46.639639], // 50
+      [-23.599646, -46.639761], // 51: Preparando curva R. Embaú
+      [-23.599647, -46.639873], // 52
+      [-23.599648, -46.639983], // 53
+      [-23.599651, -46.640438], // 54: Curva para a Rua Embaú
+      [-23.599580, -46.640499], // 55
+      [-23.599447, -46.640596], // 56
+      [-23.599354, -46.640653], // 57
+      [-23.599263, -46.640701], // 58
+      [-23.599116, -46.640768], // 59
+      [-23.599016, -46.640795], // 60
+      [-23.598904, -46.640823], // 61: Preparando curva Pedro de Toledo
+      [-23.598785, -46.640840], // 62
+      [-23.598582, -46.640853], // 63
+      [-23.598486, -46.640857], // 64: Curva para Rua Pedro de Toledo
+      [-23.598486, -46.640928], // 65: Rua Pedro de Toledo
+      [-23.598485, -46.641304], // 66
+      [-23.598484, -46.641399], // 67
+      [-23.598484, -46.641505], // 68
+      [-23.598477, -46.641667], // 69
+      [-23.598474, -46.641721], // 70
+      [-23.598467, -46.641841], // 71
+      [-23.598447, -46.642190], // 72
+      [-23.598414, -46.642688], // 73: Chegando na residência
+      [-23.598408, -46.642764], // 74
+      [-23.598403, -46.642814], // 75
+      [-23.598345, -46.643577]  // 76: DESTINO FINAL - DONA MARTA (FAMÍLIA SILVA)
     ];
 
     // ==========================================================================
     // 2. FRASES DO RELATO DA VISITA ANTERIOR (DIVIDIDAS PARA FILA DE ÁUDIO)
     // ==========================================================================
     const FRASES_RELATO = [
-      "Relatório da última visita à residência da Família Silva.",
+      "Relatório da última visita fraterna à residência da Família Silva.",
       "A Dona Marta nos acolheu com muita alegria e tomamos um café fraterno na sala.",
       "Ela nos contou que o neto mais velho começou o curso de panificação no Senai.",
       "A medicação para hipertensão da Dona Marta está no fim e precisaremos auxiliar na farmácia popular.",
@@ -481,24 +681,24 @@
         const g1 = audioCtx.createGain();
         osc1.type = 'sine';
         osc1.frequency.setValueAtTime(523.25, agora);
-        g1.gain.setValueAtTime(0.06, agora);
-        g1.gain.exponentialRampToValueAtTime(0.001, agora + 0.08);
+        g1.gain.setValueAtTime(0.08, agora);
+        g1.gain.exponentialRampToValueAtTime(0.001, agora + 0.09);
         osc1.connect(g1);
         g1.connect(audioCtx.destination);
         osc1.start(agora);
-        osc1.stop(agora + 0.08);
+        osc1.stop(agora + 0.09);
 
         // Tom 2: G5 (783.99 Hz)
         const osc2 = audioCtx.createOscillator();
         const g2 = audioCtx.createGain();
         osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(783.99, agora + 0.09);
-        g2.gain.setValueAtTime(0.07, agora + 0.09);
-        g2.gain.exponentialRampToValueAtTime(0.001, agora + 0.22);
+        osc2.frequency.setValueAtTime(783.99, agora + 0.10);
+        g2.gain.setValueAtTime(0.09, agora + 0.10);
+        g2.gain.exponentialRampToValueAtTime(0.001, agora + 0.24);
         osc2.connect(g2);
         g2.connect(audioCtx.destination);
-        osc2.start(agora + 0.09);
-        osc2.stop(agora + 0.22);
+        osc2.start(agora + 0.10);
+        osc2.stop(agora + 0.24);
       } catch (erro) {
         console.warn('[Áudio] Falha ao tocar chime:', erro);
       }
@@ -569,8 +769,8 @@
         utt.onend = () => {
           if (this.reproduzindo && !this.emInterrupcaoGPS) {
             this.indiceFraseAtual++;
-            // Pequena pausa natural de 400ms entre as frases
-            setTimeout(() => this.falarFraseAtual(), 400);
+            // Pequena pausa natural de 450ms entre as frases
+            setTimeout(() => this.falarFraseAtual(), 450);
           }
         };
 
@@ -586,7 +786,7 @@
         window.speechSynthesis.cancel();
         tocarChimeTransito();
 
-        this.atualizarStatusBadge('Pausado p/ GPS ⚠️', true);
+        this.atualizarStatusBadge('Pausado p/ Trânsito ⚠️', true);
         this.destacarFrase(this.indiceFraseAtual, 'interrompida');
 
         // 2. Fala a instrução de trânsito em tom ligeiramente mais rápido e enfático
@@ -619,7 +819,7 @@
             uttRetomada.onend = () => {
               this.emInterrupcaoGPS = false;
               this.indiceFraseAtual++;
-              setTimeout(() => this.falarFraseAtual(), 400);
+              setTimeout(() => this.falarFraseAtual(), 450);
             };
 
             window.speechSynthesis.speak(uttRetomada);
@@ -665,17 +865,27 @@
     let controladorAudio = null;
     let timerDeslocamento = null;
     let indiceRotaAtual = 0;
-    let disparouAlertaCarona = false;
-    let disparouAlertaCurva = false;
+    let velocidadeMs = 500; // Padrão 500ms por coordenada (Demo fluida)
+
+    // Flags de gatilho para evitar repetição do mesmo alerta
+    const gatilhosDisparados = {
+      curvaJabaquara: false,
+      curvaLuisGois: false,
+      curvaAfonsoCelso: false,
+      curvaLoefgren: false,
+      paradaCarona: false,
+      curvaEmbau: false,
+      curvaPedroToledo: false
+    };
 
     function inicializarMapa() {
-      // Centro na região da Vila Mariana / Saúde
+      // Centro aproximado entre a Paróquia e o destino final
       mapa = L.map('mapaSimulador', {
         zoomControl: true,
         attributionControl: false
-      }).setView([-23.6020, -46.6390], 15);
+      }).setView([-23.6025, -46.6385], 15);
 
-      // Camada de Mapa Estilizada Limpa (OpenStreetMap)
+      // OpenStreetMap Tiles
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
       }).addTo(mapa);
@@ -719,7 +929,7 @@
     }
 
     // ==========================================================================
-    // 6. MOTOR DE SIMULAÇÃO DE DESLOCAMENTO EM TEMPO REAL
+    // 6. MOTOR DE SIMULAÇÃO DE DESLOCAMENTO EM TEMPO REAL PELAS RUAS
     // ==========================================================================
     function iniciarDeslocamento() {
       if (timerDeslocamento) clearInterval(timerDeslocamento);
@@ -735,34 +945,87 @@
         indiceRotaAtual++;
         const pos = ROTA_COORDENADAS[indiceRotaAtual];
         marcadorCarro.setLatLng(pos);
-        mapa.panTo(pos, { animate: true, duration: 0.4 });
+        
+        // Pan suave para acompanhar o veículo
+        if (indiceRotaAtual % 3 === 0) {
+          mapa.panTo(pos, { animate: true, duration: (velocidadeMs / 1000) * 2 });
+        }
 
-        // GATILHO 1: Aproximação do Ponto de Carona (Índice 5/6)
-        if (indiceRotaAtual === 5 && !disparouAlertaCarona) {
-          disparouAlertaCarona = true;
-          atualizarHUD("alerta-curva", "⚠️", "Em 100 metros", "Pare à direita na Rua Santa Cruz para pegar o Confrade João.");
+        // ----------------------------------------------------------------------
+        // GATILHOS DE TRÂNSITO BASEADOS NAS RUAS REAIS
+        // ----------------------------------------------------------------------
 
+        // GATILHO 1: Curva para a Av. Jabaquara (Índice 3/4)
+        if (indiceRotaAtual === 3 && !gatilhosDisparados.curvaJabaquara) {
+          gatilhosDisparados.curvaJabaquara = true;
+          atualizarHUD("alerta-curva", "⬅️", "Em 50 metros", "Vire à esquerda na Avenida Jabaquara.");
+        }
+        if (indiceRotaAtual === 5) {
+          atualizarHUD("", "🚗", "Avenida Jabaquara", "Seguindo pela Avenida Jabaquara sentido centro.");
+        }
+
+        // GATILHO 2: Curva para a Rua Luís Góis (Índice 13)
+        if (indiceRotaAtual === 13 && !gatilhosDisparados.curvaLuisGois) {
+          gatilhosDisparados.curvaLuisGois = true;
+          atualizarHUD("alerta-curva", "➡️", "Em 100 metros", "Vire à direita na Rua Luís Góis.");
           controladorAudio.interromperComInstrucaoGPS(
-            "Em 100 metros, pare à direita na Rua Santa Cruz para pegar o Confrade João.",
+            "Em 100 metros, vire à direita na Rua Luís Góis.",
             () => {
-              atualizarHUD("", "🚗", "Carona Coletada!", "Confrade João embarcou. Seguindo rumo à casa da Dona Marta.");
+              atualizarHUD("", "🚗", "Rua Luís Góis", "Seguindo pela Rua Luís Góis.");
             }
           );
         }
 
-        // GATILHO 2: Curva de Entrada na Rua da Família (Índice 10/11)
-        if (indiceRotaAtual === 10 && !disparouAlertaCurva) {
-          disparouAlertaCurva = true;
-          atualizarHUD("alerta-curva", "➡️", "Em 100 metros", "Vire à direita na Rua Doutor Diogo de Faria.");
+        // GATILHO 3: Curva para a Rua Afonso Celso (Índice 18)
+        if (indiceRotaAtual === 18 && !gatilhosDisparados.curvaAfonsoCelso) {
+          gatilhosDisparados.curvaAfonsoCelso = true;
+          atualizarHUD("alerta-curva", "⬅️", "Em 80 metros", "Vire à esquerda na Rua Afonso Celso.");
+        }
+        if (indiceRotaAtual === 21) {
+          atualizarHUD("", "🚗", "Rua Afonso Celso", "Seguindo pela Rua Afonso Celso por 450 metros.");
+        }
 
+        // GATILHO 4: Aproximação do Ponto de Carona (Índice 31)
+        if (indiceRotaAtual === 31 && !gatilhosDisparados.curvaLoefgren) {
+          gatilhosDisparados.curvaLoefgren = true;
+          atualizarHUD("alerta-carona", "👤", "Em 100 metros", "Vire à esquerda na Rua Loefgren para a carona do Confrade João.");
           controladorAudio.interromperComInstrucaoGPS(
-            "Em 100 metros, vire à direita na Rua Doutor Diogo de Faria.",
+            "Atenção: Em 100 metros, vire à esquerda na Rua Loefgren para pegar o Confrade João.",
             () => {
-              atualizarHUD("", "🚗", "Rua do Destino", "Avançando pela Rua Doutor Diogo de Faria.");
+              atualizarHUD("alerta-carona", "👤", "Ponto de Carona", "Aguardando embarque na Rua Loefgren, 120.");
             }
           );
         }
-      }, 1200); // Passo de deslocamento a cada 1.2 segundos
+
+        // GATILHO 5: Chegada na Carona (Índice 36)
+        if (indiceRotaAtual === 36 && !gatilhosDisparados.paradaCarona) {
+          gatilhosDisparados.paradaCarona = true;
+          atualizarHUD("alerta-carona", "✅", "Carona a Bordo!", "Confrade João embarcou. Seguindo rumo à casa da Dona Marta.");
+          tocarChimeTransito();
+        }
+
+        // GATILHO 6: Curva para a Rua Embaú (Índice 51)
+        if (indiceRotaAtual === 51 && !gatilhosDisparados.curvaEmbau) {
+          gatilhosDisparados.curvaEmbau = true;
+          atualizarHUD("alerta-curva", "➡️", "Em 100 metros", "Vire à direita na Rua Embaú.");
+        }
+        if (indiceRotaAtual === 55) {
+          atualizarHUD("", "🚗", "Rua Embaú", "Avançando pela Rua Embaú.");
+        }
+
+        // GATILHO 7: Curva para a Rua Pedro de Toledo (Índice 62)
+        if (indiceRotaAtual === 62 && !gatilhosDisparados.curvaPedroToledo) {
+          gatilhosDisparados.curvaPedroToledo = true;
+          atualizarHUD("alerta-curva", "⬅️", "Em 100 metros", "Vire à esquerda na Rua Pedro de Toledo.");
+          controladorAudio.interromperComInstrucaoGPS(
+            "Em 100 metros, vire à esquerda na Rua Pedro de Toledo. A residência da Família Silva está próxima.",
+            () => {
+              atualizarHUD("", "🏠", "Rua Pedro de Toledo", "Aproximando-se do destino da Família Silva.");
+            }
+          );
+        }
+
+      }, velocidadeMs);
     }
 
     function atualizarHUD(classeExtra, icone, distancia, instrucao) {
@@ -780,15 +1043,16 @@
     function concluirViagem() {
       clearInterval(timerDeslocamento);
       timerDeslocamento = null;
-      atualizarHUD("", "🏠", "Chegamos!", "Residência da Família Silva (Dona Marta).");
+      atualizarHUD("", "🏠", "Chegamos ao Destino!", "Residência da Família Silva (Dona Marta) - Rua Pedro de Toledo.");
       
       tocarChimeTransito();
       
       setTimeout(() => {
-        const msgChegada = new SpeechSynthesisUtterance("Você chegou ao destino da Família Silva. Bom trabalho na visita fraterna!");
+        const msgChegada = new SpeechSynthesisUtterance("Você chegou à residência da Família Silva. Que São Vicente de Paulo abençoe esta visita fraterna!");
         msgChegada.lang = 'pt-BR';
+        msgChegada.rate = 0.95;
         window.speechSynthesis.speak(msgChegada);
-      }, 1000);
+      }, 800);
     }
 
     function resetarSimulador() {
@@ -797,13 +1061,12 @@
         timerDeslocamento = null;
       }
       indiceRotaAtual = 0;
-      disparouAlertaCarona = false;
-      disparouAlertaCurva = false;
+      Object.keys(gatilhosDisparados).forEach(k => gatilhosDisparados[k] = false);
 
       marcadorCarro.setLatLng(ROTA_COORDENADAS[0]);
-      mapa.setView(ROTA_COORDENADAS[0], 15);
+      mapa.setView([-23.6025, -46.6385], 15);
 
-      atualizarHUD("", "🚗", "Em trânsito", "Saindo da Paróquia N. Sra. da Saúde (Rua Domingos de Morais)");
+      atualizarHUD("", "🚗", "Em trânsito", "Saindo da Paróquia N. Sra. da Saúde (Alameda das Boninas)");
       controladorAudio.reiniciar();
     }
 
@@ -814,20 +1077,32 @@
       inicializarMapa();
       controladorAudio = new ControladorAudioNavegacao();
 
-      // Botão [Iniciar Viagem com Áudio]
+      // Botão [Iniciar Deslocamento]
       const btnPlay = document.getElementById('btnIniciarSimulacao');
       btnPlay.addEventListener('click', () => {
         iniciarDeslocamento();
       });
 
-      // Botão [Simular Curva Agora] (Gatilho Manual para Apresentação Rápida)
+      // Botões de Velocidade (1x, 2x, 4x)
+      document.querySelectorAll('.btn-speed').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('ativo'));
+          btn.classList.add('ativo');
+          velocidadeMs = parseInt(btn.dataset.speed, 10);
+          if (timerDeslocamento) {
+            iniciarDeslocamento(); // Reinicia o timer com o novo intervalo
+          }
+        });
+      });
+
+      // Botão [Testar Corte GPS] (Gatilho Manual para Apresentação no Telão)
       const btnForcar = document.getElementById('btnForcarInterrupcao');
       btnForcar.addEventListener('click', () => {
-        atualizarHUD("alerta-curva", "➡️", "Em 100 metros", "Vire à direita na Rua Doutor Diogo de Faria.");
+        atualizarHUD("alerta-curva", "➡️", "Em 100 metros", "Vire à direita na Rua Luís Góis.");
         controladorAudio.interromperComInstrucaoGPS(
-          "Atenção: Em 100 metros, vire à direita na Rua Doutor Diogo de Faria.",
+          "Atenção de trânsito: Em 100 metros, vire à direita na Rua Luís Góis.",
           () => {
-            atualizarHUD("", "🚗", "Curva Executada", "Continuando pela Rua Doutor Diogo de Faria.");
+            atualizarHUD("", "🚗", "Manobra Realizada", "Continuando pela Rua Luís Góis.");
           }
         );
       });
@@ -838,12 +1113,12 @@
         resetarSimulador();
       });
 
-      // Botão [Abrir Rota Oficial no App Google Maps]
+      // Botão [Abrir Rota Oficial no App Google Maps Nativo]
       const btnMaps = document.getElementById('btnAbrirGoogleMapsReal');
       btnMaps.addEventListener('click', () => {
-        const origem = encodeURIComponent("Rua Domingos de Morais, 2887, São Paulo, SP");
-        const waypoints = encodeURIComponent("Rua Santa Cruz, 1100, São Paulo, SP");
-        const destino = encodeURIComponent("Rua Dr. Diogo de Faria, 678, São Paulo, SP");
+        const origem = encodeURIComponent("Rua Domingos de Morais, 2887, Vila Mariana, São Paulo - SP");
+        const waypoints = encodeURIComponent("Rua Loefgren, 120, Vila Mariana, São Paulo - SP");
+        const destino = encodeURIComponent("Rua Pedro de Toledo, 850, Vila Clementino, São Paulo - SP");
         const urlMaps = `https://www.google.com/maps/dir/?api=1&origin=${origem}&destination=${destino}&waypoints=${waypoints}&travelmode=driving`;
         window.open(urlMaps, '_blank');
       });
