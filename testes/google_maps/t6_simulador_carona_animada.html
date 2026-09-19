@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,9 @@
   <!-- Fonte Montserrat e EB Garamond (Identidade SSVP) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <!-- Leaflet CSS para Mapa Interativo com Traçado de Rotas -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -154,13 +157,23 @@
     }
 
     @keyframes pulsoAlertaGPS {
-      from { box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4); }
-      to { box-shadow: 0 0 16px 4px rgba(245, 158, 11, 0.8); }
+      from {
+        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4);
+      }
+
+      to {
+        box-shadow: 0 0 16px 4px rgba(245, 158, 11, 0.8);
+      }
     }
 
     @keyframes pulsoAlertaCarona {
-      from { box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4); }
-      to { box-shadow: 0 0 16px 4px rgba(56, 189, 248, 0.8); }
+      from {
+        box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4);
+      }
+
+      to {
+        box-shadow: 0 0 16px 4px rgba(56, 189, 248, 0.8);
+      }
     }
 
     .hud-icone-manobra {
@@ -295,8 +308,15 @@
     }
 
     @keyframes animarBadgePausado {
-      from { transform: scale(1); opacity: 0.8; }
-      to { transform: scale(1.04); opacity: 1; }
+      from {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+
+      to {
+        transform: scale(1.04);
+        opacity: 1;
+      }
     }
 
     /* Visualização Karaoke / Frase Ativa */
@@ -434,6 +454,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- Barra Superior com Versão -->
@@ -441,7 +462,7 @@
     <div class="topbar-titulo">
       <span>🚗</span> WebApp SSVP - Simulador de Carona &amp; Trânsito
     </div>
-    <span class="badge-versao">T6 v1.2 • Malha OSRM Real</span>
+    <span class="badge-versao">T6 v1.2 • Malha OSRM Real.</span>
   </header>
 
   <main class="simulador-container">
@@ -528,9 +549,13 @@
     <!-- 5. Card Explicativo com Fundamentação Vicentina -->
     <article class="card-info-tecnica">
       <strong>💡 Como os vicentinos utilizam esta tecnologia no dia a dia:</strong><br>
-      • <strong>Antes de sair:</strong> O motorista escolhe a carona (Confrade João) e a família assistida (Dona Marta). O WebApp traça a malha viária real pelas ruas da cidade.<br>
-      • <strong>No caminho:</strong> O vicentino ouve pelo som do carro os relatos anteriores. Sempre que há uma curva ou manobra (Rua Luís Góis, Afonso Celso, Loefgren), o áudio do relato pausa suavemente com um sinal sonoro, dá a instrução de trânsito e retoma a frase cortada.<br>
-      • <strong>No trânsito pesado:</strong> Com 1 toque em <em>"Abrir Rota Oficial"</em>, o celular abre o app nativo do Google Maps com as paradas já inseridas para guiar via GPS turn-by-turn.
+      • <strong>Antes de sair:</strong> O motorista escolhe a carona (Confrade João) e a família assistida (Dona Marta).
+      O WebApp traça a malha viária real pelas ruas da cidade.<br>
+      • <strong>No caminho:</strong> O vicentino ouve pelo som do carro os relatos anteriores. Sempre que há uma curva
+      ou manobra (Rua Luís Góis, Afonso Celso, Loefgren), o áudio do relato pausa suavemente com um sinal sonoro, dá a
+      instrução de trânsito e retoma a frase cortada.<br>
+      • <strong>No trânsito pesado:</strong> Com 1 toque em <em>"Abrir Rota Oficial"</em>, o celular abre o app nativo
+      do Google Maps com as paradas já inseridas para guiar via GPS turn-by-turn.
     </article>
 
   </main>
@@ -546,7 +571,7 @@
     // Rota: Paróquia N. Sra. Saúde -> Av. Jabaquara -> R. Luís Góis ->
     //       R. Afonso Celso -> R. Loefgren (Carona) -> R. Embaú -> R. Pedro de Toledo
     // ==========================================================================
-    
+
     // Ponto A: Partida - Paróquia Nossa Senhora da Saúde
     const PONTO_PARTIDA = {
       nome: "Paróquia N. Sra. da Saúde",
@@ -945,7 +970,7 @@
         indiceRotaAtual++;
         const pos = ROTA_COORDENADAS[indiceRotaAtual];
         marcadorCarro.setLatLng(pos);
-        
+
         // Pan suave para acompanhar o veículo
         if (indiceRotaAtual % 3 === 0) {
           mapa.panTo(pos, { animate: true, duration: (velocidadeMs / 1000) * 2 });
@@ -1044,9 +1069,9 @@
       clearInterval(timerDeslocamento);
       timerDeslocamento = null;
       atualizarHUD("", "🏠", "Chegamos ao Destino!", "Residência da Família Silva (Dona Marta) - Rua Pedro de Toledo.");
-      
+
       tocarChimeTransito();
-      
+
       setTimeout(() => {
         const msgChegada = new SpeechSynthesisUtterance("Você chegou à residência da Família Silva. Que São Vicente de Paulo abençoe esta visita fraterna!");
         msgChegada.lang = 'pt-BR';
@@ -1125,4 +1150,5 @@
     });
   </script>
 </body>
+
 </html>
