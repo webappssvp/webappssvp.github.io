@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Rota com Carona e Áudio Dinâmico - Google Maps T6</title>
+
+  <!-- CSS Comum do Laboratório de Testes -->
+  <link rel="stylesheet" href="../testes.css">
+  <!-- Fonte Montserrat e EB Garamond (Identidade SSVP) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Leaflet CSS para Mapa Interativo com Traçado de Rotas -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root {
+      --cor-ssvp-azul: #0064B6;
+      --cor-ssvp-vermelho: #E00512;
+      --cor-ssvp-navy: #002d62;
+      --cor-alerta-amarelo: #f59e0b;
+      --cor-sucesso-verde: #15803d;
+      --altura-mapa: 320px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #0b0f19;
+      color: #f1f5f9;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Barra Superior com Identificação da Versão */
+    .topbar-versao {
+      background: linear-gradient(90deg, var(--cor-ssvp-navy) 0%, var(--cor-ssvp-azul) 100%);
+      color: #ffffff;
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .topbar-titulo {
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-versao {
+      font-size: 0.72rem;
+      font-weight: 800;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Container Principal */
+    .simulador-container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Banner HUD de Navegação (Estilo GPS / Waze) */
+    .hud-navegacao {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 2px solid var(--cor-ssvp-azul);
+      border-radius: 1rem;
+      padding: 0.85rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 4px 16px rgba(0, 100, 182, 0.25);
+      transition: all 0.25s ease;
+    }
+
+    .hud-navegacao.alerta-curva {
+      border-color: var(--cor-alerta-amarelo);
+      background: linear-gradient(135deg, #2a2208 0%, #1e1904 100%);
+      animation: pulsoAlertaGPS 1s infinite alternate;
+    }
+
+    @keyframes pulsoAlertaGPS {
+      from { box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4); }
+      to { box-shadow: 0 0 16px 4px rgba(245, 158, 11, 0.8); }
+    }
+
+    .hud-icone-manobra {
+      width: 3.2rem;
+      height: 3.2rem;
+      border-radius: 50%;
+      background-color: var(--cor-ssvp-azul);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .hud-navegacao.alerta-curva .hud-icone-manobra {
+      background-color: var(--cor-alerta-amarelo);
+      color: #0f172a;
+      transform: scale(1.08);
+    }
+
+    .hud-detalhes {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .hud-distancia {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .hud-navegacao.alerta-curva .hud-distancia {
+      color: #fcd34d;
+    }
+
+    .hud-instrucao {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      line-height: 1.3;
+    }
+
+    /* Container do Mapa Leaflet */
+    #mapaSimulador {
+      width: 100%;
+      height: var(--altura-mapa);
+      border-radius: 1rem;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+      z-index: 10;
+    }
+
+    /* Marcador do Carrinho Animado no Mapa */
+    .marcador-carro {
+      font-size: 1.7rem;
+      line-height: 1;
+      text-align: center;
+      transition: transform 0.2s linear;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+    }
+
+    .marcador-parada {
+      font-size: 1.3rem;
+      background: #1e293b;
+      border: 2px solid #38bdf8;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Painel do Relato de Visita em Execução (Modo Ouvir) */
+    .painel-relato {
+      background-color: #151d2f;
+      border: 1.5px solid rgba(56, 189, 248, 0.3);
+      border-radius: 1rem;
+      padding: 1.1rem;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .painel-relato-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.5rem;
+    }
+
+    .painel-relato-titulo {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .badge-status-audio {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      background-color: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .badge-status-audio.pausado-gps {
+      background-color: rgba(245, 158, 11, 0.2);
+      color: #fcd34d;
+      border-color: #f59e0b;
+      animation: animarBadgePausado 0.8s infinite alternate;
+    }
+
+    @keyframes animarBadgePausado {
+      from { transform: scale(1); opacity: 0.8; }
+      to { transform: scale(1.04); opacity: 1; }
+    }
+
+    /* Visualização Karaoke / Frase Ativa */
+    .caixa-frases-relato {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: #94a3b8;
+      max-height: 120px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .frase-item {
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .frase-item.ativa {
+      background-color: rgba(0, 100, 182, 0.35);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 0 8px rgba(0, 100, 182, 0.4);
+    }
+
+    .frase-item.interrompida {
+      background-color: rgba(245, 158, 11, 0.35);
+      color: #fef08a;
+      font-weight: 700;
+    }
+
+    /* Painel de Controles de Demonstração */
+    .painel-controles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .btn-controle {
+      padding: 0.75rem 0.9rem;
+      border-radius: 0.75rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+      user-select: none;
+      transition: transform 0.1s ease, filter 0.2s ease;
+    }
+
+    .btn-controle:active {
+      transform: scale(0.96);
+    }
+
+    .btn-play {
+      background: linear-gradient(135deg, #15803d 0%, #22c55e 100%);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-interromper {
+      background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+      color: #0f172a;
+      border-color: #fef08a;
+    }
+
+    .btn-reset {
+      background: rgba(30, 41, 59, 0.8);
+      color: #cbd5e1;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-maps-externo {
+      background: linear-gradient(135deg, var(--cor-ssvp-azul) 0%, #0284c7 100%);
+      color: #ffffff;
+      border-color: #38bdf8;
+      grid-column: 1 / -1;
+      padding: 0.85rem;
+    }
+
+    /* Card Explicativo de Arquitetura */
+    .card-info-tecnica {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 0.85rem;
+      padding: 0.85rem 1rem;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: #94a3b8;
+    }
+
+    .card-info-tecnica strong {
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra Superior com Versão -->
+  <header class="topbar-versao">
+    <div class="topbar-titulo">
+      <span>🚗</span> WebApp SSVP - Simulador de Carona &amp; Trânsito
+    </div>
+    <span class="badge-versao">Teste T6 • v1.0</span>
+  </header>
+
+  <main class="simulador-container">
+
+    <!-- 1. HUD Superior Estilo GPS (Atualização Dinâmica de Manobra) -->
+    <section class="hud-navegacao" id="hudNavegacao" role="region" aria-label="Instrução do Trajeto">
+      <div class="hud-icone-manobra" id="hudIconeManobra">
+        🚗
+      </div>
+      <div class="hud-detalhes">
+        <span class="hud-distancia" id="hudDistancia">Em trânsito</span>
+        <span class="hud-instrucao" id="hudInstrucao">Saindo da Paróquia N. Sra. da Saúde (Rua Domingos de Morais)</span>
+      </div>
+    </section>
+
+    <!-- 2. Mapa Leaflet com a Rota e o Carrinho Animado -->
+    <div id="mapaSimulador"></div>
+
+    <!-- 3. Painel de Reprodução do Relato com Fila Inteligente (Modo Ouvir) -->
+    <section class="painel-relato" aria-label="Relatório Falado da Visita">
+      <div class="painel-relato-header">
+        <span class="painel-relato-titulo">
+          <span>🔊</span> Relato Anterior: Família Silva (Dona Marta)
+        </span>
+        <span class="badge-status-audio" id="badgeStatusAudio">Pronto para Ouvir</span>
+      </div>
+
+      <div class="caixa-frases-relato" id="caixaFrasesRelato">
+        <!-- Renderizado dinamicamente com as frases divididas -->
+      </div>
+    </section>
+
+    <!-- 4. Painel de Controles de Demonstração (Para Apresentação no Telão) -->
+    <section class="painel-controles">
+      <button type="button" class="btn-controle btn-play" id="btnIniciarSimulacao">
+        <span>▶️</span> Iniciar Viagem com Áudio
+      </button>
+
+      <button type="button" class="btn-controle btn-interromper" id="btnForcarInterrupcao">
+        <span>⚡</span> Simular Curva Agora
+      </button>
+
+      <button type="button" class="btn-controle btn-reset" id="btnReiniciarSimulacao">
+        <span>🔄</span> Reiniciar
+      </button>
+
+      <button type="button" class="btn-controle btn-maps-externo" id="btnAbrirGoogleMapsReal">
+        <span>🗺️</span> Abrir Rota Oficial no App Google Maps (com Waypoints)
+      </button>
+    </section>
+
+    <!-- 5. Card Explicativo com Fundamentação Vicentina -->
+    <article class="card-info-tecnica">
+      <strong>💡 Como funciona a interrupção inteligente para o motorista:</strong><br>
+      O texto do relato anterior é fatiado em frases curtas. Quando o carro se aproxima de uma curva ou do ponto de carona do <strong>Confrade João</strong>, o app toca um sinal sonoro suave (*earcon*), interrompe a narrativa sem travar e fala a manobra de trânsito. Em seguida, ele diz <em>"Continuando o relato:"</em> e <strong>repete a frase que foi cortada</strong> para que o motorista não perca a linha de raciocínio!
+    </article>
+
+  </main>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Script dos Testes -->
+  <script src="../testes.js"></script>
+
+  <script>
+    // ==========================================================================
+    // 1. DADOS GEOGRÁFICOS REAIS DA REGIÃO DO CONSELHO CENTRAL SUDESTE (SP)
+    // ==========================================================================
+    
+    // Ponto A: Partida - Paróquia Nossa Senhora da Saúde (Vila Mariana / Saúde)
+    const PONTO_PARTIDA = {
+      nome: "Paróquia N. Sra. da Saúde",
+      coords: [-23.6062, -46.6385],
+      icone: "⛪"
+    };
+
+    // Ponto B: Carona Solidária - Casa do Confrade João (Rua Santa Cruz)
+    const PONTO_CARONA = {
+      nome: "Carona: Confrade João",
+      coords: [-23.5992, -46.6358],
+      icone: "👤"
+    };
+
+    // Ponto C: Destino Final - Família Silva / Dona Marta (Rua Dr. Diogo de Faria)
+    const PONTO_DESTINO = {
+      nome: "Família Silva (Dona Marta)",
+      coords: [-23.5986, -46.6436],
+      icone: "🏠"
+    };
+
+    // Trajetória interpolada suave (28 waypoints simulando ruas reais da Vila Mariana)
+    const ROTA_COORDENADAS = [
+      [-23.6062, -46.6385], // 0: Partida
+      [-23.6050, -46.6380], // 1
+      [-23.6038, -46.6375], // 2
+      [-23.6025, -46.6370], // 3
+      [-23.6010, -46.6364], // 4
+      [-23.6000, -46.6360], // 5
+      [-23.5992, -46.6358], // 6: Ponto Carona (Confrade João)
+      [-23.5990, -46.6365], // 7: Saindo da carona
+      [-23.5988, -46.6375], // 8
+      [-23.5986, -46.6388], // 9
+      [-23.5982, -46.6398], // 10: Próximo à curva para Diogo de Faria
+      [-23.5978, -46.6405], // 11: Curva da Diogo de Faria
+      [-23.5980, -46.6415], // 12
+      [-23.5982, -46.6425], // 13
+      [-23.5986, -46.6436]  // 14: Destino Final (Dona Marta)
+    ];
+
+    // ==========================================================================
+    // 2. FRASES DO RELATO DA VISITA ANTERIOR (DIVIDIDAS PARA FILA DE ÁUDIO)
+    // ==========================================================================
+    const FRASES_RELATO = [
+      "Relatório da última visita à residência da Família Silva.",
+      "A Dona Marta nos acolheu com muita alegria e tomamos um café fraterno na sala.",
+      "Ela nos contou que o neto mais velho começou o curso de panificação no Senai.",
+      "A medicação para hipertensão da Dona Marta está no fim e precisaremos auxiliar na farmácia popular.",
+      "A cesta de alimentos entregue no mês passado supriu todas as necessidades da casa.",
+      "Dona Marta pediu orações pela saúde da sua irmã mais nova que mora no interior.",
+      "Combinamos de verificar com a equipe de saúde o agendamento da consulta oftalmológica."
+    ];
+
+    // ==========================================================================
+    // 3. SINTETIZADOR DE CHIME EM 2 TONS (WEB AUDIO API - 100% OFFLINE)
+    // ==========================================================================
+    let audioCtx = null;
+
+    function tocarChimeTransito() {
+      try {
+        const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtxClass) return;
+        if (!audioCtx) audioCtx = new AudioCtxClass();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const agora = audioCtx.currentTime;
+
+        // Tom 1: C5 (523.25 Hz)
+        const osc1 = audioCtx.createOscillator();
+        const g1 = audioCtx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(523.25, agora);
+        g1.gain.setValueAtTime(0.06, agora);
+        g1.gain.exponentialRampToValueAtTime(0.001, agora + 0.08);
+        osc1.connect(g1);
+        g1.connect(audioCtx.destination);
+        osc1.start(agora);
+        osc1.stop(agora + 0.08);
+
+        // Tom 2: G5 (783.99 Hz)
+        const osc2 = audioCtx.createOscillator();
+        const g2 = audioCtx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(783.99, agora + 0.09);
+        g2.gain.setValueAtTime(0.07, agora + 0.09);
+        g2.gain.exponentialRampToValueAtTime(0.001, agora + 0.22);
+        osc2.connect(g2);
+        g2.connect(audioCtx.destination);
+        osc2.start(agora + 0.09);
+        osc2.stop(agora + 0.22);
+      } catch (erro) {
+        console.warn('[Áudio] Falha ao tocar chime:', erro);
+      }
+    }
+
+    // ==========================================================================
+    // 4. CONTROLADOR DE ÁUDIO PRIORITÁRIO (CORTE & RETOMADA COM CONTEXTO)
+    // ==========================================================================
+    class ControladorAudioNavegacao {
+      constructor() {
+        this.frases = [...FRASES_RELATO];
+        this.indiceFraseAtual = 0;
+        this.reproduzindo = false;
+        this.emInterrupcaoGPS = false;
+        this.renderizarListaFrases();
+      }
+
+      renderizarListaFrases() {
+        const container = document.getElementById('caixaFrasesRelato');
+        container.innerHTML = '';
+        this.frases.forEach((frase, idx) => {
+          const p = document.createElement('div');
+          p.className = `frase-item ${idx === this.indiceFraseAtual ? 'ativa' : ''}`;
+          p.id = `frase_${idx}`;
+          p.textContent = `${idx + 1}. ${frase}`;
+          container.appendChild(p);
+        });
+      }
+
+      destacarFrase(indice, tipo = 'ativa') {
+        document.querySelectorAll('.frase-item').forEach((el, idx) => {
+          el.className = 'frase-item';
+          if (idx === indice) {
+            el.classList.add(tipo);
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      }
+
+      iniciarLeituraRelato() {
+        if (!('speechSynthesis' in window)) {
+          alert('Seu navegador não suporta síntese de voz.');
+          return;
+        }
+
+        this.reproduzindo = true;
+        this.emInterrupcaoGPS = false;
+        this.atualizarStatusBadge('Lendo Relato...', false);
+        this.falarFraseAtual();
+      }
+
+      falarFraseAtual() {
+        if (!this.reproduzindo || this.emInterrupcaoGPS) return;
+
+        if (this.indiceFraseAtual >= this.frases.length) {
+          this.reproduzindo = false;
+          this.atualizarStatusBadge('Relato Concluído', false);
+          return;
+        }
+
+        this.destacarFrase(this.indiceFraseAtual, 'ativa');
+        const fraseTexto = this.frases[this.indiceFraseAtual];
+
+        const utt = new SpeechSynthesisUtterance(fraseTexto);
+        utt.lang = 'pt-BR';
+        utt.rate = 0.95; // Cadência calma de leitura vicentina
+
+        utt.onend = () => {
+          if (this.reproduzindo && !this.emInterrupcaoGPS) {
+            this.indiceFraseAtual++;
+            // Pequena pausa natural de 400ms entre as frases
+            setTimeout(() => this.falarFraseAtual(), 400);
+          }
+        };
+
+        window.speechSynthesis.speak(utt);
+      }
+
+      // CORTE PRIORITÁRIO DE TRÂNSITO (INSTRUÇÃO DO MAPA)
+      interromperComInstrucaoGPS(instrucaoTexto, callbackAposManobra) {
+        if (this.emInterrupcaoGPS) return;
+        this.emInterrupcaoGPS = true;
+
+        // 1. Cancela imediatamente a fala que estiver no ar
+        window.speechSynthesis.cancel();
+        tocarChimeTransito();
+
+        this.atualizarStatusBadge('Pausado p/ GPS ⚠️', true);
+        this.destacarFrase(this.indiceFraseAtual, 'interrompida');
+
+        // 2. Fala a instrução de trânsito em tom ligeiramente mais rápido e enfático
+        const uttGPS = new SpeechSynthesisUtterance(instrucaoTexto);
+        uttGPS.lang = 'pt-BR';
+        uttGPS.rate = 1.05;
+        uttGPS.pitch = 1.15;
+
+        uttGPS.onend = () => {
+          if (callbackAposManobra) callbackAposManobra();
+
+          // 3. Respiro de 800ms antes de retomar o relato para o motorista processar
+          setTimeout(() => {
+            if (!this.reproduzindo) {
+              this.emInterrupcaoGPS = false;
+              return;
+            }
+
+            // Fala o conector e repete a frase inteira do início
+            const fraseParaRepetir = this.frases[this.indiceFraseAtual] || '';
+            const textoRetomada = `Continuando: ${fraseParaRepetir}`;
+
+            this.destacarFrase(this.indiceFraseAtual, 'ativa');
+            this.atualizarStatusBadge('Retomando Relato...', false);
+
+            const uttRetomada = new SpeechSynthesisUtterance(textoRetomada);
+            uttRetomada.lang = 'pt-BR';
+            uttRetomada.rate = 0.95;
+
+            uttRetomada.onend = () => {
+              this.emInterrupcaoGPS = false;
+              this.indiceFraseAtual++;
+              setTimeout(() => this.falarFraseAtual(), 400);
+            };
+
+            window.speechSynthesis.speak(uttRetomada);
+          }, 800);
+        };
+
+        window.speechSynthesis.speak(uttGPS);
+      }
+
+      pararTudo() {
+        this.reproduzindo = false;
+        this.emInterrupcaoGPS = false;
+        window.speechSynthesis.cancel();
+        this.atualizarStatusBadge('Pausado', false);
+      }
+
+      reiniciar() {
+        this.pararTudo();
+        this.indiceFraseAtual = 0;
+        this.renderizarListaFrases();
+        this.atualizarStatusBadge('Pronto para Ouvir', false);
+      }
+
+      atualizarStatusBadge(texto, isAlerta) {
+        const badge = document.getElementById('badgeStatusAudio');
+        if (badge) {
+          badge.textContent = texto;
+          if (isAlerta) {
+            badge.classList.add('pausado-gps');
+          } else {
+            badge.classList.remove('pausado-gps');
+          }
+        }
+      }
+    }
+
+    // ==========================================================================
+    // 5. INICIALIZAÇÃO DO MAPA LEAFLET & ANIMAÇÃO DE DESLOCAMENTO
+    // ==========================================================================
+    let mapa = null;
+    let marcadorCarro = null;
+    let linhaRota = null;
+    let controladorAudio = null;
+    let timerDeslocamento = null;
+    let indiceRotaAtual = 0;
+    let disparouAlertaCarona = false;
+    let disparouAlertaCurva = false;
+
+    function inicializarMapa() {
+      // Centro na região da Vila Mariana / Saúde
+      mapa = L.map('mapaSimulador', {
+        zoomControl: true,
+        attributionControl: false
+      }).setView([-23.6020, -46.6390], 15);
+
+      // Camada de Mapa Estilizada Limpa (OpenStreetMap)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      }).addTo(mapa);
+
+      // Traçado da Rota em Azul SSVP Vibrante
+      linhaRota = L.polyline(ROTA_COORDENADAS, {
+        color: '#007fff',
+        weight: 6,
+        opacity: 0.85,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(mapa);
+
+      // Marcadores dos 3 Pontos Fixos
+      criarMarcadorPonto(PONTO_PARTIDA);
+      criarMarcadorPonto(PONTO_CARONA);
+      criarMarcadorPonto(PONTO_DESTINO);
+
+      // Marcador Móvel do Carro
+      const iconeCarro = L.divIcon({
+        className: 'marcador-carro',
+        html: '🚗',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+
+      marcadorCarro = L.marker(ROTA_COORDENADAS[0], { icon: iconeCarro }).addTo(mapa);
+    }
+
+    function criarMarcadorPonto(ponto) {
+      const iconePonto = L.divIcon({
+        className: 'marcador-parada',
+        html: ponto.icone,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      L.marker(ponto.coords, { icon: iconePonto })
+        .bindPopup(`<strong>${ponto.nome}</strong>`)
+        .addTo(mapa);
+    }
+
+    // ==========================================================================
+    // 6. MOTOR DE SIMULAÇÃO DE DESLOCAMENTO EM TEMPO REAL
+    // ==========================================================================
+    function iniciarDeslocamento() {
+      if (timerDeslocamento) clearInterval(timerDeslocamento);
+
+      controladorAudio.iniciarLeituraRelato();
+
+      timerDeslocamento = setInterval(() => {
+        if (indiceRotaAtual >= ROTA_COORDENADAS.length - 1) {
+          concluirViagem();
+          return;
+        }
+
+        indiceRotaAtual++;
+        const pos = ROTA_COORDENADAS[indiceRotaAtual];
+        marcadorCarro.setLatLng(pos);
+        mapa.panTo(pos, { animate: true, duration: 0.4 });
+
+        // GATILHO 1: Aproximação do Ponto de Carona (Índice 5/6)
+        if (indiceRotaAtual === 5 && !disparouAlertaCarona) {
+          disparouAlertaCarona = true;
+          atualizarHUD("alerta-curva", "⚠️", "Em 100 metros", "Pare à direita na Rua Santa Cruz para pegar o Confrade João.");
+
+          controladorAudio.interromperComInstrucaoGPS(
+            "Em 100 metros, pare à direita na Rua Santa Cruz para pegar o Confrade João.",
+            () => {
+              atualizarHUD("", "🚗", "Carona Coletada!", "Confrade João embarcou. Seguindo rumo à casa da Dona Marta.");
+            }
+          );
+        }
+
+        // GATILHO 2: Curva de Entrada na Rua da Família (Índice 10/11)
+        if (indiceRotaAtual === 10 && !disparouAlertaCurva) {
+          disparouAlertaCurva = true;
+          atualizarHUD("alerta-curva", "➡️", "Em 100 metros", "Vire à direita na Rua Doutor Diogo de Faria.");
+
+          controladorAudio.interromperComInstrucaoGPS(
+            "Em 100 metros, vire à direita na Rua Doutor Diogo de Faria.",
+            () => {
+              atualizarHUD("", "🚗", "Rua do Destino", "Avançando pela Rua Doutor Diogo de Faria.");
+            }
+          );
+        }
+      }, 1200); // Passo de deslocamento a cada 1.2 segundos
+    }
+
+    function atualizarHUD(classeExtra, icone, distancia, instrucao) {
+      const hud = document.getElementById('hudNavegacao');
+      const hudIcone = document.getElementById('hudIconeManobra');
+      const hudDist = document.getElementById('hudDistancia');
+      const hudInst = document.getElementById('hudInstrucao');
+
+      hud.className = `hud-navegacao ${classeExtra}`;
+      hudIcone.textContent = icone;
+      hudDist.textContent = distancia;
+      hudInst.textContent = instrucao;
+    }
+
+    function concluirViagem() {
+      clearInterval(timerDeslocamento);
+      timerDeslocamento = null;
+      atualizarHUD("", "🏠", "Chegamos!", "Residência da Família Silva (Dona Marta).");
+      
+      tocarChimeTransito();
+      
+      setTimeout(() => {
+        const msgChegada = new SpeechSynthesisUtterance("Você chegou ao destino da Família Silva. Bom trabalho na visita fraterna!");
+        msgChegada.lang = 'pt-BR';
+        window.speechSynthesis.speak(msgChegada);
+      }, 1000);
+    }
+
+    function resetarSimulador() {
+      if (timerDeslocamento) {
+        clearInterval(timerDeslocamento);
+        timerDeslocamento = null;
+      }
+      indiceRotaAtual = 0;
+      disparouAlertaCarona = false;
+      disparouAlertaCurva = false;
+
+      marcadorCarro.setLatLng(ROTA_COORDENADAS[0]);
+      mapa.setView(ROTA_COORDENADAS[0], 15);
+
+      atualizarHUD("", "🚗", "Em trânsito", "Saindo da Paróquia N. Sra. da Saúde (Rua Domingos de Morais)");
+      controladorAudio.reiniciar();
+    }
+
+    // ==========================================================================
+    // 7. INICIALIZAÇÃO E EVENTOS DOS BOTÕES
+    // ==========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      inicializarMapa();
+      controladorAudio = new ControladorAudioNavegacao();
+
+      // Botão [Iniciar Viagem com Áudio]
+      const btnPlay = document.getElementById('btnIniciarSimulacao');
+      btnPlay.addEventListener('click', () => {
+        iniciarDeslocamento();
+      });
+
+      // Botão [Simular Curva Agora] (Gatilho Manual para Apresentação Rápida)
+      const btnForcar = document.getElementById('btnForcarInterrupcao');
+      btnForcar.addEventListener('click', () => {
+        atualizarHUD("alerta-curva", "➡️", "Em 100 metros", "Vire à direita na Rua Doutor Diogo de Faria.");
+        controladorAudio.interromperComInstrucaoGPS(
+          "Atenção: Em 100 metros, vire à direita na Rua Doutor Diogo de Faria.",
+          () => {
+            atualizarHUD("", "🚗", "Curva Executada", "Continuando pela Rua Doutor Diogo de Faria.");
+          }
+        );
+      });
+
+      // Botão [Reiniciar]
+      const btnReset = document.getElementById('btnReiniciarSimulacao');
+      btnReset.addEventListener('click', () => {
+        resetarSimulador();
+      });
+
+      // Botão [Abrir Rota Oficial no App Google Maps]
+      const btnMaps = document.getElementById('btnAbrirGoogleMapsReal');
+      btnMaps.addEventListener('click', () => {
+        const origem = encodeURIComponent("Rua Domingos de Morais, 2887, São Paulo, SP");
+        const waypoints = encodeURIComponent("Rua Santa Cruz, 1100, São Paulo, SP");
+        const destino = encodeURIComponent("Rua Dr. Diogo de Faria, 678, São Paulo, SP");
+        const urlMaps = `https://www.google.com/maps/dir/?api=1&origin=${origem}&destination=${destino}&waypoints=${waypoints}&travelmode=driving`;
+        window.open(urlMaps, '_blank');
+      });
+    });
+  </script>
+</body>
+</html>

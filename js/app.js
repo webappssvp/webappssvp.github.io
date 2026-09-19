@@ -1,11 +1,62 @@
 /**
  * @fileoverview Ponto de Entrada Principal (Entry Point) da SPA WebApp SSVP.
- * Inicializa o ciclo de vida do PWA, monitoramento de conectividade, IndexedDB e autenticação.
+ * Inicializa o ciclo de vida do PWA, monitoramento de conectividade, IndexedDB,
+ * configurações M3 (Bottom Sheet), Central de Ajuda "O que é isso?", autenticação,
+ * voz (STT/TTS com Cápsula Dupla) e painel de visitas.
+ * Inclui sincronização dinâmica de altura útil (--vh) e compensação ergonômica inteligente
+ * de barras de sistema para Moto Z 1 (3 botões virtuais), Moto E7 (gestos) e iPhone 8.
  * Conformidade estrita com: dev/padroes/02_javascript_google.md
  */
 
 import { inicializarBanco } from './db.js';
+import { inicializarConfiguracoes } from './config.js';
+import { inicializarSistemaAjuda } from './ajuda.js';
 import { inicializarAuth } from './auth.js';
+import { inicializarModuloVoz } from './voz.js';
+import { inicializarVisitasUI } from './visitas_ui.js';
+
+/**
+ * Calcula e injeta a altura real visível da janela do navegador na variável CSS --vh
+ * e detecta se o dispositivo é um Android clássico com barra de navegação virtual de 3 botões.
+ * Resolve o conflito ergonômico entre Moto Z 1 (3 botões), Moto E7 (gestos) e iPhone 8.
+ * @return {void}
+ */
+export function ajustarAlturaRealViewport() {
+  // Altura visível real (prioriza visualViewport se disponível no navegador)
+  const alturaVisivel = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const vh = alturaVisivel * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+  // Detecção de barra virtual clássica do Android (ex: 3 botões do Moto Z 1)
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  let espacoBarraSistema = '0px';
+
+  if (isAndroid) {
+    // No Android com tela 16:9 clássica (proporção <= 1.90) e barra virtual de 3 botões de 48px
+    const ratio = window.screen.height / Math.max(window.screen.width, 1);
+    const diffTela = Math.abs(window.screen.height - window.innerHeight);
+
+    // Se o dispositivo tem proporção clássica e diferença de altura física para útil
+    if (ratio <= 1.92 && diffTela >= 36) {
+      espacoBarraSistema = '2.2rem'; // ~35px adicionais para afastar os botões da barra virtual
+      document.documentElement.classList.add('com-barra-sistema-antiga');
+    } else {
+      document.documentElement.classList.remove('com-barra-sistema-antiga');
+    }
+  } else {
+    document.documentElement.classList.remove('com-barra-sistema-antiga');
+  }
+
+  document.documentElement.style.setProperty('--espaco-barra-sistema', espacoBarraSistema);
+}
+
+// Vincula ouvintes para recalcular sempre que a janela for redimensionada ou rotacionada
+window.addEventListener('resize', ajustarAlturaRealViewport);
+window.addEventListener('orientationchange', ajustarAlturaRealViewport);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', ajustarAlturaRealViewport);
+}
+ajustarAlturaRealViewport();
 
 /**
  * Registra o Service Worker e monitora detecção de novas versões para atualização em 1 toque.
@@ -82,14 +133,29 @@ function inicializarEventosConectividade() {
  * Inicialização central quando o DOM estiver completamente carregado.
  */
 document.addEventListener('DOMContentLoaded', async () => {
+  // Garante que o cálculo de altura esteja sincronizado logo no DOM Ready
+  ajustarAlturaRealViewport();
+
   inicializarServiceWorker();
   inicializarEventosConectividade();
 
-  // Inicializa o banco de dados IndexedDB
+  // 1. Inicializa o banco de dados IndexedDB v3
   await inicializarBanco();
 
-  // Inicializa a camada de interface e autenticação
+  // 2. Inicializa as preferências do usuário e a Gaveta M3 (Bottom Sheet)
+  inicializarConfiguracoes();
+
+  // 3. Inicializa a Central de Ajuda Interativa "O que é isso?" (t5_barras_e_ajuda)
+  inicializarSistemaAjuda();
+
+  // 4. Inicializa o módulo de comando e leitura de voz universal (STT / TTS) com Cápsula Dupla
+  inicializarModuloVoz();
+
+  // 5. Inicializa a camada de autenticação e semáforo vicentino
   await inicializarAuth();
 
-  console.log('[WebApp SSVP] Aplicação inicializada com sucesso na versão modular.');
+  // 6. Inicializa o painel de famílias e visitas
+  await inicializarVisitasUI();
+
+  console.log('[WebApp SSVP] Aplicação inicializada com sucesso na versão modular v1.0.');
 });

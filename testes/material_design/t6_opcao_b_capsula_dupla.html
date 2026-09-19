@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Teste 6 - Opção B: Cápsula Dupla no Rodapé</title>
+
+  <!-- Google Fonts: Montserrat e EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. TOKENS E SISTEMA DE CORES SSVP BRASIL
+       ========================================================================== */
+    :root {
+      --ssvp-blue: #0064B6;
+      --ssvp-blue-glow: #38bdf8;
+      --ssvp-red: #DC2626;
+      --ssvp-red-glow: #ef4444;
+      --ssvp-navy: #0F172A;
+      --ssvp-white: #FFFFFF;
+
+      --bg-pagina: #0B0F19;
+      --bg-card: #151D2F;
+      --bg-card-interno: #1B263D;
+      --cor-texto: #F1F5F9;
+      --cor-texto-mutado: #94A3B8;
+
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-pagina);
+      color: var(--cor-texto);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================================================
+       2. BARRA SUPERIOR FIXA
+       ========================================================================== */
+    .bar-sup {
+      position: sticky;
+      top: 0;
+      background-color: #E00512;
+      padding-top: max(0.75rem, calc(0.5rem + var(--safe-top)));
+      padding-bottom: 0.65rem;
+      padding-left: 0.85rem;
+      padding-right: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      z-index: 100;
+    }
+
+    .bar-logo {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: #FFFFFF;
+      color: var(--ssvp-blue);
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    .status-centro {
+      text-align: center;
+      flex: 1;
+      padding: 0 0.5rem;
+    }
+
+    .status-titulo {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-sub {
+      font-size: 0.68rem;
+      color: rgba(255, 255, 255, 0.85);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .versao-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    /* Seletor de Opções para Teste no Smartphone */
+    .seletor-opcoes {
+      display: flex;
+      background: #111827;
+      padding: 0.4rem 0.6rem;
+      gap: 0.4rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 3.8rem;
+      z-index: 90;
+      overflow-x: auto;
+    }
+
+    .btn-opcao {
+      flex: 1;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      text-decoration: none;
+      text-align: center;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .btn-opcao.ativa {
+      background: var(--ssvp-blue);
+      color: #ffffff;
+      border-color: var(--ssvp-blue-glow);
+    }
+
+    /* ==========================================================================
+       3. ÁREA DE CONTEÚDO SCROLLÁVEL
+       ========================================================================== */
+    .area-conteudo {
+      flex: 1;
+      padding: 1rem 0.85rem 6.5rem 0.85rem;
+      max-width: 32rem;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .banner-explicativo {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 10px;
+      padding: 0.85rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .banner-titulo {
+      color: #38bdf8;
+      font-weight: 800;
+      font-size: 0.92rem;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Cartão da Família */
+    .card-lar {
+      background: var(--bg-card);
+      border-left: 4px solid var(--ssvp-blue);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-lar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.6rem;
+    }
+
+    .lar-nome {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .lar-endereco {
+      font-size: 0.82rem;
+      color: var(--cor-texto-mutado);
+    }
+
+    .tag-status {
+      background: #166534;
+      color: #86efac;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 9999px;
+    }
+
+    /* Bloco Interativo para Ouvir (Azul SSVP) */
+    .bloco-leitura {
+      background: var(--bg-card-interno);
+      border: 1.5px solid rgba(56, 189, 248, 0.3);
+      border-radius: 10px;
+      padding: 0.85rem;
+      margin: 0.85rem 0;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .bloco-leitura-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .bloco-leitura-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+    }
+
+    .bloco-leitura-texto {
+      font-size: 0.86rem;
+      color: #cbd5e1;
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    /* Formulário da Nova Visita */
+    .secao-formulario {
+      margin-top: 1rem;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 10px;
+      padding: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .form-titulo {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 0.75rem;
+    }
+
+    .grupo-campo {
+      margin-bottom: 0.85rem;
+    }
+
+    .campo-label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--cor-texto-mutado);
+      margin-bottom: 0.3rem;
+    }
+
+    .campo-input {
+      width: 100%;
+      background: rgba(11, 15, 25, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.75rem;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      transition: all 0.25s ease;
+    }
+
+    .campo-input:focus {
+      outline: none;
+    }
+
+    .btn-salvar {
+      width: 100%;
+      background: #15803d;
+      color: #ffffff;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 0.4rem;
+    }
+
+    /* ==========================================================================
+       4. ANIMAÇÕES DE PULSO CROMÁTICO SSVP
+       ========================================================================== */
+    .pulso-ouvir-azul {
+      border-color: #38bdf8 !important;
+      animation: animarPulsoAzul 1.8s infinite ease-in-out;
+    }
+
+    @keyframes animarPulsoAzul {
+      0%, 100% { box-shadow: 0 0 0 2px #0064B6, 0 0 8px rgba(0, 100, 182, 0.45); }
+      50% { box-shadow: 0 0 0 3px #38bdf8, 0 0 18px rgba(56, 189, 248, 0.75); }
+    }
+
+    .pulso-falar-vermelho {
+      border-color: #EF4444 !important;
+      animation: animarPulsoVermelho 1.8s infinite ease-in-out;
+    }
+
+    @keyframes animarPulsoVermelho {
+      0%, 100% { box-shadow: 0 0 0 2px #DC2626, 0 0 8px rgba(220, 38, 38, 0.45); }
+      50% { box-shadow: 0 0 0 3px #EF4444, 0 0 18px rgba(239, 68, 68, 0.75); }
+    }
+
+    .pulso-gravando-ativo {
+      background-color: #DC2626 !important;
+      color: #FFFFFF !important;
+      border-color: #EF4444 !important;
+      animation: animarGravando 1s infinite ease-in-out;
+    }
+
+    @keyframes animarGravando {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 2px #DC2626; }
+      50% { transform: scale(1.03); box-shadow: 0 0 0 5px #EF4444, 0 0 18px rgba(239, 68, 68, 0.85); }
+    }
+
+    .tocando-audio-ativo {
+      background-color: #15803d !important;
+      color: #FFFFFF !important;
+      border-color: #86efac !important;
+      box-shadow: 0 0 0 2px #15803d, 0 0 12px rgba(34, 197, 94, 0.5) !important;
+    }
+
+    /* ==========================================================================
+       5. BARRA INFERIOR FIXA - OPÇÃO B (CÁPSULA DUPLA)
+       ========================================================================== */
+    .bar-inf {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding-top: 0.5rem;
+      padding-bottom: max(1.5rem, calc(0.5rem + var(--safe-bottom)));
+      padding-left: 0.85rem;
+      padding-right: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.45rem;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+
+    .btn-nav {
+      min-height: 3.35rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background-color: rgba(15, 23, 42, 0.75);
+      color: var(--ssvp-white);
+      font-family: inherit;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+      cursor: pointer;
+      user-select: none;
+      flex: 1;
+      max-width: 5.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav:active {
+      transform: scale(0.95);
+    }
+
+    .btn-nav-icone {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .btn-nav-texto {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    /* Botão Central Normal (Ouvir) */
+    .btn-central-simples {
+      flex: 1.8;
+      max-width: 10rem;
+      background-color: var(--ssvp-navy);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+    }
+
+    /* Container Cápsula Dupla (Surge quando um campo de texto é focado) */
+    .capsula-dupla-container {
+      display: none;
+      flex: 2.2;
+      background: rgba(11, 15, 25, 0.9);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 0.2rem;
+      gap: 0.25rem;
+    }
+
+    .capsula-dupla-container.visivel {
+      display: flex;
+    }
+
+    .btn-capsula {
+      flex: 1;
+      min-height: 3.1rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--ssvp-white);
+      font-family: inherit;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.15rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-capsula:active {
+      transform: scale(0.95);
+    }
+
+    .btn-capsula-falar {
+      background: rgba(220, 38, 38, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-capsula-teclado {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-capsula-teclado.teclado-ativo {
+      background: var(--ssvp-blue) !important;
+      border-color: var(--ssvp-blue-glow) !important;
+      box-shadow: 0 0 10px rgba(0, 100, 182, 0.5);
+    }
+
+    /* Toast Flutuante */
+    .toast-msg {
+      position: fixed;
+      bottom: 5.8rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 0.6rem 1.2rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+      z-index: 1000;
+      border: 1px solid #38bdf8;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .toast-msg.visivel {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Barra Superior -->
+  <header class="bar-sup">
+    <div class="bar-logo">SS</div>
+    <div class="status-centro">
+      <div class="status-titulo">Santa Dulce dos Pobres</div>
+      <div class="status-sub">Conferência Ativa</div>
+    </div>
+    <span class="versao-badge">Opção B: Cápsula Dupla</span>
+  </header>
+
+  <!-- Seletor de Opções para Teste no Smartphone -->
+  <nav class="seletor-opcoes" aria-label="Alternar protótipos de teste">
+    <a href="t6_opcao_a_barra_contextual.html" class="btn-opcao">Opção A (Contextual)</a>
+    <a href="t6_opcao_b_capsula_dupla.html" class="btn-opcao ativa">Opção B (Cápsula Dupla)</a>
+    <a href="t6_opcao_c_toggle_central.html" class="btn-opcao">Opção C (Toggle Central)</a>
+  </nav>
+
+  <!-- Conteúdo Principal -->
+  <main class="area-conteudo">
+
+    <section class="banner-explicativo">
+      <div class="banner-titulo">✨ Opção B: Como funciona no Smartphone?</div>
+      <p>1. O botão <strong>[ ⚙️ Conexão ]</strong> na esquerda permanece sempre intacto.</p>
+      <p>2. Ao focar em um campo de texto, o botão central se divide em uma <strong>Cápsula Dupla</strong>: <strong>[ 🎙️ Falar ]</strong> e <strong>[ ⌨️ Teclado ]</strong> lado a lado.</p>
+      <p>3. Toque em <strong>Falar</strong> para ditar no microfone, ou em <strong>Teclado</strong> para abrir a digitação manual.</p>
+    </section>
+
+    <!-- Card da Família -->
+    <article class="card-lar">
+      <div class="card-lar-header">
+        <div>
+          <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Lar Assistido</span>
+          <h2 class="lar-nome">Neuza Pereira dos Santos</h2>
+          <div class="lar-endereco">📍 Rua das Flores, 120 - Vila Esperança</div>
+        </div>
+        <span class="tag-status">ATIVA</span>
+      </div>
+
+      <!-- Relato Anterior (Modo Ouvir - Azul SSVP) -->
+      <div class="bloco-leitura" id="cardRelatoAnterior" role="button" tabindex="0" aria-label="Toque para ouvir o relato">
+        <div class="bloco-leitura-header">
+          <span style="font-size: 0.75rem; color: #38bdf8; font-weight: 700;">📅 Última Visita: 07/09/2026</span>
+          <span class="bloco-leitura-tag">🔵 Toque p/ Ouvir</span>
+        </div>
+        <p class="bloco-leitura-texto" id="txtRelato">
+          "Vitória fraterna celebrada! Dona Neuza deixou o neto Lucas com a vizinha Rosa e conseguiu marcar a consulta cardiológica no posto de saúde. Muito alegre e motivada."
+        </p>
+      </div>
+
+      <!-- Formulário da Nova Visita -->
+      <div class="secao-formulario">
+        <div class="form-titulo">✍️ Registrar Nova Visita (Hoje)</div>
+
+        <!-- Campo 1: Relato da Visita -->
+        <div class="grupo-campo">
+          <label for="campoRelato" class="campo-label">Relato da Visita:</label>
+          <textarea id="campoRelato" class="campo-input" rows="3" placeholder="Toque aqui e use a cápsula embaixo..." inputmode="none"></textarea>
+        </div>
+
+        <!-- Campo 2: Auxílio -->
+        <div class="grupo-campo">
+          <label for="campoAuxilio" class="campo-label">Auxílio ou Cesta Entregue:</label>
+          <input type="text" id="campoAuxilio" class="campo-input" placeholder="Ex: Cesta básica mensal..." inputmode="none">
+        </div>
+
+        <!-- Campo 3: Nova Meta -->
+        <div class="grupo-campo">
+          <label for="campoMeta" class="campo-label">Nova Meta Pactuada:</label>
+          <input type="text" id="campoMeta" class="campo-input" placeholder="Ex: Caminhada de 15 min 3x por semana..." inputmode="none">
+        </div>
+
+        <button type="button" class="btn-salvar" id="btnSalvarVisita">
+          💾 Salvar Visita no Celular
+        </button>
+      </div>
+
+    </article>
+
+  </main>
+
+  <!-- Toast Flutuante -->
+  <div class="toast-msg" id="toast">Feedback</div>
+
+  <!-- Barra Inferior Fixa - Opção B (Cápsula Dupla) -->
+  <footer class="bar-inf" role="contentinfo">
+    
+    <!-- Botão Esquerdo Permanente (Conexão) -->
+    <button type="button" class="btn-nav" id="btnConexao" title="Configurações de Conexão">
+      <span class="btn-nav-icone">⚙️</span>
+      <span class="btn-nav-texto">Conexão</span>
+    </button>
+
+    <!-- ESTADO 1: Botão Central Simples (Modo Ouvir) -->
+    <button type="button" class="btn-nav btn-central-simples" id="btnOuvirSimples" title="Ouvir Relato">
+      <span class="btn-nav-icone" id="iconeOuvir">🔊</span>
+      <span class="btn-nav-texto" id="textoOuvir">Ouvir</span>
+    </button>
+
+    <!-- ESTADO 2: Cápsula Dupla (Surge quando um campo está focado) -->
+    <div class="capsula-dupla-container" id="capsulaDupla">
+      <button type="button" class="btn-capsula btn-capsula-falar" id="btnCapsulaFalar" title="Falar no Microfone">
+        <span class="btn-nav-icone" id="iconeCapsulaFalar">🎙️</span>
+        <span class="btn-nav-texto" id="textoCapsulaFalar">Falar</span>
+      </button>
+
+      <button type="button" class="btn-capsula btn-capsula-teclado" id="btnCapsulaTeclado" title="Abrir Teclado Virtual">
+        <span class="btn-nav-icone">⌨️</span>
+        <span class="btn-nav-texto">Teclado</span>
+      </button>
+    </div>
+
+    <!-- Botão Direito (Ajuda) -->
+    <button type="button" class="btn-nav" id="btnAjuda" title="Ajuda">
+      <span class="btn-nav-icone">❓</span>
+      <span class="btn-nav-texto">Ajuda</span>
+    </button>
+
+  </footer>
+
+  <!-- Lógica do Protótipo Opção B -->
+  <script>
+    // Referências do DOM
+    const cardRelato = document.getElementById('cardRelatoAnterior');
+    const txtRelato = document.getElementById('txtRelato').textContent.trim();
+    const camposFormulario = [
+      document.getElementById('campoRelato'),
+      document.getElementById('campoAuxilio'),
+      document.getElementById('campoMeta')
+    ];
+
+    const btnOuvirSimples = document.getElementById('btnOuvirSimples');
+    const iconeOuvir = document.getElementById('iconeOuvir');
+    const textoOuvir = document.getElementById('textoOuvir');
+
+    const capsulaDupla = document.getElementById('capsulaDupla');
+    const btnCapsulaFalar = document.getElementById('btnCapsulaFalar');
+    const iconeCapsulaFalar = document.getElementById('iconeCapsulaFalar');
+    const textoCapsulaFalar = document.getElementById('textoCapsulaFalar');
+    const btnCapsulaTeclado = document.getElementById('btnCapsulaTeclado');
+
+    const btnConexao = document.getElementById('btnConexao');
+    const btnAjuda = document.getElementById('btnAjuda');
+    const toast = document.getElementById('toast');
+
+    // Estados
+    let campoAtivo = null;
+    let tecladoAberto = false;
+    let estaGravando = false;
+    let estaOuvindoAudio = false;
+
+    function exibirToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('visivel');
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => toast.classList.remove('visivel'), 2500);
+    }
+
+    // 1. MODO OUVIR (Ao tocar no card de relato)
+    cardRelato.addEventListener('click', () => {
+      desfocarCampos();
+      limparPulsos();
+
+      cardRelato.classList.add('pulso-ouvir-azul');
+      exibirModoOuvir();
+      btnOuvirSimples.classList.add('pulso-ouvir-azul');
+
+      exibirToast('Card selecionado. Aperte [Ouvir] abaixo.');
+    });
+
+    // 2. MODO FALAR (Ao tocar em qualquer campo de texto)
+    camposFormulario.forEach((campo) => {
+      campo.addEventListener('focus', () => {
+        campoAtivo = campo;
+        limparPulsos();
+
+        campo.classList.add('pulso-falar-vermelho');
+        exibirModoCapsula();
+
+        btnCapsulaFalar.classList.add('pulso-falar-vermelho');
+        btnCapsulaTeclado.classList.toggle('teclado-ativo', tecladoAberto);
+
+        if (!tecladoAberto) {
+          campo.setAttribute('inputmode', 'none');
+          exibirToast('Cápsula ativa: Fale no microfone ou aperte Teclado.');
+        }
+      });
+    });
+
+    // 3. AÇÃO DO BOTÃO TECLADO NA CÁPSULA
+    btnCapsulaTeclado.addEventListener('click', () => {
+      if (!campoAtivo) return;
+
+      tecladoAberto = !tecladoAberto;
+      if (tecladoAberto) {
+        campoAtivo.setAttribute('inputmode', 'text');
+        campoAtivo.focus();
+        btnCapsulaTeclado.classList.add('teclado-ativo');
+        exibirToast('Teclado nativo aberto');
+      } else {
+        campoAtivo.setAttribute('inputmode', 'none');
+        campoAtivo.blur();
+        btnCapsulaTeclado.classList.remove('teclado-ativo');
+        exibirToast('Teclado recolhido');
+      }
+    });
+
+    // 4. AÇÃO DO BOTÃO FALAR NA CÁPSULA
+    btnCapsulaFalar.addEventListener('click', () => {
+      if (estaGravando) {
+        pararGravacao();
+      } else {
+        iniciarGravacao();
+      }
+    });
+
+    // 5. AÇÃO DO BOTÃO OUVIR SIMPLES
+    btnOuvirSimples.addEventListener('click', () => {
+      if (estaOuvindoAudio) {
+        window.speechSynthesis?.cancel();
+        estaOuvindoAudio = false;
+        iconeOuvir.textContent = '🔊';
+        textoOuvir.textContent = 'Ouvir';
+        btnOuvirSimples.classList.remove('tocando-audio-ativo');
+        btnOuvirSimples.classList.add('pulso-ouvir-azul');
+        cardRelato.classList.remove('tocando-audio-ativo');
+        cardRelato.classList.add('pulso-ouvir-azul');
+        exibirToast('Áudio interrompido');
+      } else {
+        iniciarLeituraAudio();
+      }
+    });
+
+    function iniciarLeituraAudio() {
+      if (!('speechSynthesis' in window)) {
+        exibirToast('Sem suporte a áudio');
+        return;
+      }
+
+      estaOuvindoAudio = true;
+      btnOuvirSimples.classList.remove('pulso-ouvir-azul');
+      btnOuvirSimples.classList.add('tocando-audio-ativo');
+      iconeOuvir.textContent = '⏹️';
+      textoOuvir.textContent = 'Parar';
+
+      cardRelato.classList.remove('pulso-ouvir-azul');
+      cardRelato.classList.add('tocando-audio-ativo');
+
+      const fala = new SpeechSynthesisUtterance(txtRelato);
+      fala.lang = 'pt-BR';
+      fala.rate = 0.95;
+
+      fala.onend = () => {
+        estaOuvindoAudio = false;
+        btnOuvirSimples.classList.remove('tocando-audio-ativo');
+        btnOuvirSimples.classList.add('pulso-ouvir-azul');
+        iconeOuvir.textContent = '🔊';
+        textoOuvir.textContent = 'Ouvir';
+        cardRelato.classList.remove('tocando-audio-ativo');
+        cardRelato.classList.add('pulso-ouvir-azul');
+      };
+
+      window.speechSynthesis.speak(fala);
+      exibirToast('Lendo relato da visita...');
+    }
+
+    let recognition = null;
+    function iniciarGravacao() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        exibirToast('Reconhecimento de voz indisponível');
+        return;
+      }
+
+      try {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.interimResults = false;
+        recognition.continuous = false;
+
+        const textoAnterior = campoAtivo.value;
+
+        recognition.onstart = () => {
+          estaGravando = true;
+          btnCapsulaFalar.classList.remove('pulso-falar-vermelho');
+          btnCapsulaFalar.classList.add('pulso-gravando-ativo');
+          iconeCapsulaFalar.textContent = '🔴';
+          textoCapsulaFalar.textContent = 'Gravando';
+          exibirToast('Pode falar agora...');
+        };
+
+        recognition.onresult = (e) => {
+          const resultado = e.results[0][0].transcript.trim();
+          const espaco = (textoAnterior.length > 0 && !textoAnterior.match(/\s$/)) ? ' ' : '';
+          campoAtivo.value = textoAnterior + espaco + resultado;
+          exibirToast('Texto inserido!');
+        };
+
+        recognition.onend = () => {
+          pararGravacao();
+        };
+
+        recognition.onerror = () => {
+          pararGravacao();
+          exibirToast('Gravação encerrada.');
+        };
+
+        recognition.start();
+      } catch (err) {
+        exibirToast('Erro ao abrir microfone.');
+        pararGravacao();
+      }
+    }
+
+    function pararGravacao() {
+      estaGravando = false;
+      btnCapsulaFalar.classList.remove('pulso-gravando-ativo');
+      btnCapsulaFalar.classList.add('pulso-falar-vermelho');
+      iconeCapsulaFalar.textContent = '🎙️';
+      textoCapsulaFalar.textContent = 'Falar';
+      if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+      }
+    }
+
+    function exibirModoCapsula() {
+      btnOuvirSimples.style.display = 'none';
+      capsulaDupla.classList.add('visivel');
+    }
+
+    function exibirModoOuvir() {
+      capsulaDupla.classList.remove('visivel');
+      btnOuvirSimples.style.display = 'inline-flex';
+      campoAtivo = null;
+      tecladoAberto = false;
+    }
+
+    function limparPulsos() {
+      cardRelato.classList.remove('pulso-ouvir-azul', 'tocando-audio-ativo');
+      camposFormulario.forEach(c => c.classList.remove('pulso-falar-vermelho'));
+      btnOuvirSimples.classList.remove('pulso-ouvir-azul', 'tocando-audio-ativo');
+      btnCapsulaFalar.classList.remove('pulso-falar-vermelho', 'pulso-gravando-ativo');
+    }
+
+    function desfocarCampos() {
+      camposFormulario.forEach(c => {
+        c.setAttribute('inputmode', 'none');
+        c.blur();
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      const dentroDeCampo = camposFormulario.some(c => c.contains(e.target));
+      const dentroDaBarra = document.querySelector('.bar-inf').contains(e.target);
+      const noCard = cardRelato.contains(e.target);
+
+      if (!dentroDeCampo && !dentroDaBarra && !noCard) {
+        exibirModoOuvir();
+        limparPulsos();
+      }
+    });
+
+    btnConexao.addEventListener('click', () => {
+      exibirToast('Abrir modal de conexão...');
+    });
+
+    btnAjuda.addEventListener('click', () => {
+      alert('Teste 6 - Opção B: Cápsula Dupla\n\n- O botão [Conexão] nunca sai do lugar.\n- Ao focar no campo, o botão central divide-se em [Falar] e [Teclado].');
+    });
+
+    document.getElementById('btnSalvarVisita').addEventListener('click', () => {
+      exibirToast('🎉 Visita salva com sucesso!');
+    });
+  </script>
+
+</body>
+
+</html>

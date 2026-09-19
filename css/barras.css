@@ -1,6 +1,7 @@
 /* ==========================================================================
-   WebApp SSVP - Barras Superior e Inferior (Navegação e Semáforo)
+   WebApp SSVP - Barras Superior e Inferior (Navegação, Semáforo e Voz)
    Diretrizes: dev/padroes/01_marca_ssvp.md e 05_acessibilidade_ergonomia.md
+   Opção B: Cápsula Dupla no Rodapé com Proteção de Viewport Equilibrada (Moto Z 1, Moto E7 & iPhone 8)
    ========================================================================== */
 
 /* ==========================================================================
@@ -22,7 +23,7 @@
   flex-shrink: 0;
 }
 
-/* Círculos das Extremidades */
+/* Círculos das Extremidades da Barra Superior */
 .bar-circle {
   width: var(--raio-cantos);
   height: var(--raio-cantos);
@@ -111,54 +112,260 @@
 }
 
 /* ==========================================================================
-   Barra Inferior Fixa (Footer de Acessibilidade 60+)
+   Barra Inferior Fixa (Footer Ergonômico 60+ com Cápsula Dupla Reativa)
    ========================================================================== */
 .bar-inf {
   position: relative;
   background-color: var(--cor-barra-inf);
   padding-top: var(--padding-vertical-barras);
-  /* Garante no mínimo 1.5rem (~24px) de margem inferior para não sobrepor a barra de gestos ou 3 botões do Android */
-  padding-bottom: max(1.5rem, calc(var(--padding-vertical-barras) + env(safe-area-inset-bottom, 0px)));
-  padding-left: 1rem;
-  padding-right: 1rem;
+  /* Fallback padrão */
+  padding-bottom: 1rem;
+  /* Margem de segurança dinâmica que atende Moto E7 (1rem), iPhone (env) e Moto Z 1 (+espaco-barra-sistema) */
+  padding-bottom: max(1rem, calc(var(--padding-vertical-barras) + env(safe-area-inset-bottom, 0px) + var(--espaco-barra-sistema, 0px)));
+  padding-left: 0.85rem;
+  padding-right: 0.85rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
   z-index: 100;
   flex-shrink: 0;
 }
 
-/* Botão Central de Áudio / Voz (Destaque Ergonômico) */
-.audio-circle {
-  width: var(--raio-audio);
-  height: var(--raio-audio);
-  border-radius: 50%;
-  background-color: var(--ssvp-white);
-  color: var(--ssvp-navy);
-  display: flex;
+/* Botões Retangulares Padrão da Barra Inferior (Ícone em Cima, Texto Embaixo) */
+.btn-barra-inf {
+  min-height: 3.35rem; /* ~54px de área de toque confortável 60+ */
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.625rem; /* 10px */
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background-color: rgba(15, 23, 42, 0.75);
+  color: var(--ssvp-white);
+  font-family: 'Montserrat', sans-serif;
+  display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  gap: 0.2rem;
   cursor: pointer;
-  border: none;
-  transition: transform 0.1s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  user-select: none;
+  flex: 1;
+  max-width: 6.5rem;
+  transition: transform 0.1s ease, border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
 }
 
-.audio-circle:active {
+.btn-barra-inf:active {
+  transform: scale(0.96);
+}
+
+.btn-barra-icone {
+  font-size: 1.35rem;
+  line-height: 1;
+  display: block;
+}
+
+.btn-barra-texto {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* Botão Central Simples (Estado 1: Modo Ouvir / Repouso) */
+.btn-barra-central {
+  flex: 1.8;
+  max-width: 10rem;
+  background-color: var(--ssvp-navy);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  padding: 0.35rem 0.9rem;
+}
+
+.btn-barra-central .btn-barra-icone {
+  font-size: 1.45rem;
+}
+
+.btn-barra-central .btn-barra-texto {
+  font-size: 0.76rem;
+}
+
+/* ==========================================================================
+   Cápsula Dupla (Estado 2: Surge quando um campo de texto é focado)
+   ========================================================================== */
+.capsula-dupla-container {
+  display: none;
+  flex: 2.2;
+  max-width: 14rem;
+  background: rgba(11, 15, 25, 0.95);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  padding: 0.2rem;
+  gap: 0.35rem;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.capsula-dupla-container.visivel {
+  display: flex;
+}
+
+.btn-capsula {
+  flex: 1;
+  min-height: 3.1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ssvp-white);
+  font-family: inherit;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.btn-capsula:active {
   transform: scale(0.95);
 }
 
-.audio-circle svg {
-  width: 1.8rem;
-  height: 1.8rem;
+.btn-capsula-icone {
+  font-size: 1.25rem;
+  line-height: 1;
+  display: block;
 }
 
-.canto-circle {
+.btn-capsula-texto {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Sub-botão Falar da Cápsula */
+.btn-capsula-falar {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* Sub-botão Teclado da Cápsula */
+.btn-capsula-teclado {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-capsula-teclado.teclado-ativo {
+  background: var(--ssvp-blue) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 10px rgba(0, 100, 182, 0.5);
+}
+
+/* ==========================================================================
+   Linguagem Cromática SSVP Sincronizada (Azul = Ouvir, Vermelho = Falar)
+   ========================================================================== */
+
+/* 1. MODO OUVIR (AZUL SSVP) - Borda Suave Pulsante */
+.pulso-ouvir-azul {
+  border-color: #38bdf8 !important;
+  animation: animarPulsoAzulSSVP 1.8s infinite ease-in-out;
+}
+
+@keyframes animarPulsoAzulSSVP {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px #0064B6, 0 0 8px rgba(0, 100, 182, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 3px #38bdf8, 0 0 18px rgba(56, 189, 248, 0.75);
+  }
+}
+
+/* 2. MODO FALAR (VERMELHO SSVP) - Borda Suave Pulsante */
+.pulso-falar-vermelho {
+  border-color: #EF4444 !important;
+  animation: animarPulsoVermelhoSSVP 1.8s infinite ease-in-out;
+}
+
+@keyframes animarPulsoVermelhoSSVP {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px #DC2626, 0 0 8px rgba(220, 38, 38, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 3px #EF4444, 0 0 18px rgba(239, 68, 68, 0.75);
+  }
+}
+
+/* 3. MODO GRAVANDO VOZ (VERMELHO VIVO ATIVO) */
+.pulso-gravando-ativo {
+  background-color: #DC2626 !important;
+  color: #FFFFFF !important;
+  border-color: #EF4444 !important;
+  animation: animarGravandoAtivo 1.0s infinite ease-in-out;
+}
+
+@keyframes animarGravandoAtivo {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 2px #DC2626, 0 0 8px rgba(220, 38, 38, 0.6);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 5px #EF4444, 0 0 20px rgba(239, 68, 68, 0.9);
+  }
+}
+
+/* 4. MODO TOCANDO ÁUDIO (VERDE ESMERALDA EM REPRODUÇÃO) */
+.tocando-audio-ativo {
+  background-color: #15803d !important;
+  color: #FFFFFF !important;
+  border-color: #86efac !important;
+  box-shadow: 0 0 0 2px #15803d, 0 0 12px rgba(34, 197, 94, 0.5) !important;
+}
+
+/* ==========================================================================
+   Controle de Teclado Virtual nos Campos de Formulário
+   ========================================================================== */
+.barra-acao-campo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.btn-abrir-teclado {
+  background-color: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #cbd5e1;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  user-select: none;
+  touch-action: manipulation;
+  transition: all 0.2s ease;
 }
 
-.canto-circle:active {
+.btn-abrir-teclado:hover {
+  background-color: rgba(0, 100, 182, 0.2);
+  border-color: #38bdf8;
+}
+
+.btn-abrir-teclado:active {
   transform: scale(0.95);
+}
+
+.btn-abrir-teclado.ativo {
+  background-color: #0064B6 !important;
+  color: #FFFFFF !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 10px rgba(0, 100, 182, 0.5);
 }

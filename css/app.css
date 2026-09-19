@@ -1,6 +1,8 @@
 /* ==========================================================================
    WebApp SSVP - App CSS & Design System Principal
    Diretrizes: dev/padroes/ (01_marca_ssvp.md a 07_diretrizes_unidades_medida.md)
+   Resiliência Móvel Multiplataforma: Moto Z 1, Moto E7 e iPhone 8
+   Suporte a Acessibilidade M3: Tema Claro, Fonte Grande, Daltonismo e Central de Ajuda
    ========================================================================== */
 
 :root {
@@ -9,6 +11,7 @@
   --raio-audio: 3.8rem;
   --padding-vertical-barras: 0.55rem;
   --toque-minimo: 3rem; /* 48x48px */
+  --espaco-barra-sistema: 0px;
 
   /* Paleta Oficial da Marca SSVP */
   --ssvp-navy: #002d62;
@@ -46,19 +49,139 @@ html {
   background-color: var(--ssvp-bg);
   color: var(--ssvp-text);
   height: 100%;
+  transition: font-size 0.2s ease;
+}
+
+/* Acessibilidade Universal 60+: Fonte Grande */
+html.fonte-grande {
+  font-size: 118% !important;
+}
+
+/* ==========================================================================
+   Simulação de Percepção Visual (Daltonismo & Acessibilidade WCAG 1.4.1)
+   ========================================================================== */
+html.simular-deuteranopia {
+  filter: url(#filtro-deuteranopia);
+  -webkit-filter: url(#filtro-deuteranopia);
+}
+
+html.simular-protanopia {
+  filter: url(#filtro-protanopia);
+  -webkit-filter: url(#filtro-protanopia);
+}
+
+html.simular-tritanopia {
+  filter: url(#filtro-tritanopia);
+  -webkit-filter: url(#filtro-tritanopia);
+}
+
+html.simular-monocromia {
+  filter: grayscale(100%);
+  -webkit-filter: grayscale(100%);
+}
+
+html.simular-alto-contraste {
+  filter: contrast(150%);
+  -webkit-filter: contrast(150%);
 }
 
 body {
   min-height: 100%;
-  height: 100vh;   /* Fallback para navegadores sem suporte a novas unidades */
-  height: 100svh;  /* Viewport com barras de navegação do Android ativas */
-  height: 100dvh;  /* Viewport dinâmico moderno */
+  height: 100%;
+  /* Fallback dinâmico exato via JavaScript para navegadores sem dvh/svh (ex: Moto Z 1) */
+  height: calc(var(--vh, 1vh) * 100);
   display: flex;
   flex-direction: column;
   background-color: var(--ssvp-bg);
   color: var(--ssvp-text);
   overflow: hidden;
   position: relative;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Acessibilidade: Reduzir Animações para Celulares Lentos */
+body.sem-animacoes,
+body.sem-animacoes * {
+  animation-duration: 0.001s !important;
+  transition-duration: 0.001s !important;
+}
+
+/* Modo Claro: Uso sob Sol Forte ao Ar Livre */
+body.tema-claro {
+  --ssvp-bg: #f8fafc;
+  --ssvp-card-bg: rgba(255, 255, 255, 0.98);
+  --ssvp-card-border: rgba(0, 0, 0, 0.12);
+  --ssvp-text: #0f172a;
+  --ssvp-text-muted: #475569;
+  --cor-barra-inf: #1e293b;
+  background-color: var(--ssvp-bg);
+  color: var(--ssvp-text);
+}
+
+body.tema-claro .card-explicativo {
+  background-color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+body.tema-claro .card-explicativo-titulo {
+  color: #0064b6;
+}
+
+body.tema-claro .bottom-sheet {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.2);
+}
+
+body.tema-claro .sheet-config-header,
+body.tema-claro .sheet-config-footer {
+  background-color: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.tema-claro .sheet-config-title,
+body.tema-claro .switch-title {
+  color: #0f172a;
+}
+
+body.tema-claro .switch-desc {
+  color: #64748b;
+}
+
+body.tema-claro .m3-switch-row {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.tema-claro .m3-switch-track {
+  background-color: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+body.tema-claro .m3-switch-thumb {
+  background-color: #64748b;
+}
+
+body.tema-claro .card-login {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+body.tema-claro .card-login-titulo {
+  color: #0f172a;
+}
+
+body.tema-claro .form-label {
+  color: #475569;
+}
+
+body.tema-claro .form-select,
+body.tema-claro .form-input {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
 }
 
 /* ==========================================================================
@@ -99,6 +222,155 @@ body {
 }
 
 /* ==========================================================================
+   Central de Ajuda: Banner Superior do Modo "O que é isso?" (t5)
+   ========================================================================== */
+.banner-modo-ajuda {
+  background-color: #d97706; /* Âmbar */
+  color: #ffffff;
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  z-index: 120;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  animation: descerBannerAjuda 0.22s ease forwards;
+  flex-shrink: 0;
+}
+
+.banner-modo-ajuda.visivel {
+  display: flex;
+}
+
+@keyframes descerBannerAjuda {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.btn-sair-ajuda {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: none;
+  padding: 0.28rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.76rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
+}
+
+.btn-sair-ajuda:active {
+  transform: scale(0.95);
+}
+
+/* Borda Destacada nos Elementos Explicáveis quando o Modo Ajuda está ativo */
+body.modo-ajuda-ativo .ajuda-alvo {
+  outline: 2.5px dashed #f59e0b !important;
+  outline-offset: 3px;
+  cursor: help !important;
+  position: relative;
+}
+
+body.modo-ajuda-ativo .ajuda-alvo:active {
+  outline-color: #ffffff !important;
+  transform: scale(0.98);
+}
+
+/* ==========================================================================
+   Modal Explicativo do Modo Ajuda ("O que é isso?")
+   ========================================================================== */
+.modal-ajuda-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.modal-ajuda-overlay.visivel {
+  display: flex;
+}
+
+.modal-ajuda-card {
+  background-color: #1a2333;
+  border: 2px solid #f59e0b;
+  border-radius: 1.25rem;
+  padding: 1.35rem;
+  width: min(100%, 24rem);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: surgirModalAjuda 0.22s ease forwards;
+}
+
+@keyframes surgirModalAjuda {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-ajuda-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-ajuda-icone {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.modal-ajuda-titulo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.modal-ajuda-bloco {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.btn-entendi-ajuda {
+  background-color: #f59e0b;
+  color: #0f172a;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: transform 0.1s ease;
+}
+
+.btn-entendi-ajuda:active {
+  transform: scale(0.97);
+}
+
+/* ==========================================================================
    Área Central Scrollável (Display Area)
    ========================================================================== */
 .display-area {
@@ -127,6 +399,7 @@ body {
   flex-direction: column;
   gap: 0.5rem;
   backdrop-filter: blur(8px);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .card-explicativo-titulo {

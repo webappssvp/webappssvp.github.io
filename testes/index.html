@@ -116,6 +116,17 @@
       outline: none;
     }
 
+    .card-destaque {
+      border: 2px solid #38bdf8;
+      background: linear-gradient(135deg, rgba(0, 100, 182, 0.3) 0%, rgba(17, 27, 45, 0.98) 100%);
+      box-shadow: 0 12px 26px rgba(0, 100, 182, 0.35);
+    }
+
+    .card-destaque:hover {
+      border-color: #60a5fa;
+      box-shadow: 0 14px 30px rgba(56, 189, 248, 0.45);
+    }
+
     .empty-card {
       opacity: 0.75;
       background: rgba(17,27,45,0.7);
@@ -174,54 +185,72 @@
     </header>
 
     <nav class="grid" aria-label="Itens desta pasta">
-      <a class="card" href="./api/index.html">
-        <span class="card-title">api</span>
-        <span class="card-meta">Subpasta</span>
+      <!-- Novo Destaque: T6 Simulador de Rota & Carona Animada -->
+      <a class="card card-destaque" href="./google_maps/t6_simulador_carona_animada.html">
+        <span class="card-title">🚗 Google Maps: Carona &amp; Trânsito</span>
+        <span class="card-meta">Novo Teste T6 (Áudio e rota animada)</span>
       </a>
+
+      <a class="card" href="./google_maps/index.html">
+        <span class="card-title">🗺️ google_maps</span>
+        <span class="card-meta">9 testes (Rotas, Leaflet, T6 Carona)</span>
+      </a>
+
+      <a class="card" href="./material_design/index.html">
+        <span class="card-title">🎨 material_design</span>
+        <span class="card-meta">Testes M3, Barras, Voz e Cápsula</span>
+      </a>
+
       <a class="card" href="./compartilhar/t1_compartilhar.html">
         <span class="card-title">📸 Compartilhar Fotos</span>
         <span class="card-meta">Teste funcional</span>
       </a>
+
+      <a class="card" href="./api/index.html">
+        <span class="card-title">api</span>
+        <span class="card-meta">Subpasta</span>
+      </a>
+
       <a class="card" href="./gmaps_e_app/index.html">
         <span class="card-title">gmaps_e_app</span>
         <span class="card-meta">Subpasta</span>
       </a>
-      <a class="card" href="./google_maps/index.html">
-        <span class="card-title">google_maps</span>
-        <span class="card-meta">Subpasta</span>
-      </a>
+
       <a class="card" href="./google_sheets/index.html">
         <span class="card-title">google_sheets</span>
         <span class="card-meta">Subpasta</span>
       </a>
+
       <a class="card" href="./internet/index.html">
         <span class="card-title">internet</span>
         <span class="card-meta">Subpasta</span>
       </a>
-      <a class="card" href="./material_design/index.html">
-        <span class="card-title">material_design</span>
-        <span class="card-meta">Subpasta</span>
-      </a>
+
       <a class="card" href="./open_street_maps/index.html">
         <span class="card-title">open_street_maps</span>
         <span class="card-meta">Subpasta</span>
       </a>
+
       <a class="card" href="./pwa/index.html">
         <span class="card-title">pwa</span>
         <span class="card-meta">Subpasta</span>
       </a>
+
       <a class="card" href="./spa/index.html">
         <span class="card-title">spa</span>
         <span class="card-meta">Subpasta</span>
       </a>
+
       <a class="card" href="./ux/index.html">
         <span class="card-title">ux</span>
         <span class="card-meta">Subpasta</span>
       </a>
+
       <a class="card" href="./voz/index.html">
         <span class="card-title">voz</span>
         <span class="card-meta">Subpasta</span>
       </a>
+
       <a class="card" href="./teste_padrao.html">
         <span class="card-title">teste_padrao.html</span>
         <span class="card-meta">Arquivo HTML</span>

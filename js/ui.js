@@ -1,6 +1,6 @@
 /**
  * @fileoverview Módulo de Gerenciamento da Interface de Usuário (UI).
- * Controla os estados visuais do Semáforo na Barra Superior, a manipulação do Modal,
+ * Controla os estados visuais do Semáforo na Barra Superior, a manipulação do Modal de Conexão,
  * a renderização de selects e alertas de feedback.
  * Conformidade com: dev/padroes/02_javascript_google.md
  */
@@ -67,15 +67,10 @@ export function inicializarUI(eventos) {
 
   dom.lblUrlAtiva = document.getElementById('lblUrlAtiva');
   dom.btnAlterarUrl = document.getElementById('btnAlterarUrl');
-  dom.btnConfigRodape = document.getElementById('btn_config');
 
   // Vinculação de eventos do usuário
   if (dom.statusHeaderBtn) {
     dom.statusHeaderBtn.addEventListener('click', () => eventos.aoAbrirModal());
-  }
-
-  if (dom.btnConfigRodape) {
-    dom.btnConfigRodape.addEventListener('click', () => eventos.aoAbrirModal());
   }
 
   if (dom.btnFecharModal) {
