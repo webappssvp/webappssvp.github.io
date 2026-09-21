@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Teste OSRM T3 - Rotas com Carro, A Pé e Bicicleta (Conselho Central Sudeste)</title>
+
+  <!-- CSS Comum do Laboratório de Testes -->
+  <link rel="stylesheet" href="../testes.css">
+  <!-- Fonte Montserrat e EB Garamond (Identidade SSVP) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cor-ssvp-azul: #0064B6;
+      --cor-ssvp-vermelho: #E00512;
+      --cor-ssvp-navy: #002d62;
+      --cor-fundo-dark: #0b111e;
+      --cor-painel-dark: #131c2e;
+      --cor-borda: rgba(255, 255, 255, 0.12);
+      --cor-destaque: #38bdf8;
+      --cor-sucesso: #22c55e;
+      --cor-alerta: #f59e0b;
+      --altura-mapa: 420px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--cor-fundo-dark);
+      color: #f1f5f9;
+      line-height: 1.5;
+    }
+
+    /* Barra Superior com Identificação da Versão */
+    .topbar-versao {
+      background: linear-gradient(90deg, var(--cor-ssvp-navy) 0%, var(--cor-ssvp-azul) 100%);
+      color: #ffffff;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-titulo {
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .topbar-acoes {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .btn-voltar {
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+
+    .btn-voltar:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .badge-versao {
+      font-size: 0.72rem;
+      font-weight: 800;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      white-space: nowrap;
+    }
+
+    /* Container Principal */
+    .container-rotas {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 1.2rem 1rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    /* Card de Cabeçalho com Contexto do Conselho Central Sudeste */
+    .card-contexto-cc {
+      background: linear-gradient(135deg, #101c30 0%, #0d1524 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.28);
+      border-radius: 1rem;
+      padding: 1.1rem 1.2rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .contexto-titulo {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 0 0.4rem 0;
+    }
+
+    .contexto-descricao {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Card do Formulário de Seleção */
+    .card-selecao {
+      background: var(--cor-painel-dark);
+      border: 1.5px solid var(--cor-borda);
+      border-radius: 1rem;
+      padding: 1.2rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .form-titulo {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.5rem;
+      margin: 0;
+    }
+
+    .grupo-campo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .label-campo {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .label-tag {
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    /* Seletor de Modos com os Ícones SVG de Topo (car_top, walk_top, bike_top) */
+    .seletor-modos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+    }
+
+    .btn-modo-transporte {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      border-radius: 0.85rem;
+      padding: 0.75rem 0.5rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      min-height: 68px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .btn-modo-transporte:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-modo-transporte.ativo {
+      background: linear-gradient(135deg, var(--cor-ssvp-navy) 0%, var(--cor-ssvp-azul) 100%);
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+      transform: scale(1.02);
+    }
+
+    /* Ícones SVG em /img/ */
+    .icone-svg-modal {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+
+    .icone-svg-modal img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: brightness(0) invert(1); /* Deixa os SVGs brancos nítidos */
+    }
+
+    .btn-modo-transporte.ativo .icone-svg-modal {
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+    }
+
+    .texto-modal {
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* Selects de Endereço */
+    .select-endereco {
+      width: 100%;
+      background-color: #0b111e;
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 0.75rem;
+      padding: 0.8rem 0.9rem;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 1rem; /* >= 16px previne auto-zoom no Safari iOS */
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2338bdf8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: calc(100% - 1rem) center;
+      background-size: 14px;
+      padding-right: 2.5rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .select-endereco:focus {
+      outline: none;
+      border-color: var(--cor-destaque);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+
+    .select-endereco option {
+      background-color: #0d1527;
+      color: #f1f5f9;
+      padding: 0.5rem;
+    }
+
+    .detalhe-endereco {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      padding-left: 0.25rem;
+    }
+
+    /* Botão Inverter */
+    .btn-inverter {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #cbd5e1;
+      padding: 0.5rem 0.8rem;
+      border-radius: 0.65rem;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      min-height: 40px;
+    }
+
+    .btn-inverter:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+
+    /* Botão Principal Mostrar Rota */
+    .btn-mostrar-rota {
+      background: linear-gradient(135deg, #15803d 0%, #22c55e 100%);
+      color: #ffffff;
+      border: 2px solid #86efac;
+      border-radius: 0.85rem;
+      padding: 0.95rem 1.2rem;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.4);
+      min-height: 48px;
+      user-select: none;
+      transition: transform 0.1s, filter 0.2s;
+    }
+
+    .btn-mostrar-rota:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-mostrar-rota:active {
+      transform: scale(0.98);
+    }
+
+    /* Card do Mapa Google Maps Embutido */
+    .card-mapa {
+      display: none;
+      background: var(--cor-painel-dark);
+      border: 1.5px solid var(--cor-destaque);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(0, 100, 182, 0.35);
+      animation: animarEntradaMapa 0.35s ease;
+    }
+
+    @keyframes animarEntradaMapa {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .mapa-header {
+      background: linear-gradient(90deg, #131c2e 0%, #0c2b45 100%);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mapa-titulo {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mapa-iframe-wrapper {
+      width: 100%;
+      height: var(--altura-mapa);
+      position: relative;
+      background-color: #0b111e;
+    }
+
+    .mapa-iframe-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .mapa-footer {
+      padding: 0.85rem 1rem;
+      background: #0f172a;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .itinerario-resumo {
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .btn-maps-app {
+      background: linear-gradient(135deg, var(--cor-ssvp-azul) 0%, #0284c7 100%);
+      color: #ffffff;
+      border: 1.5px solid #38bdf8;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 48px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      transition: filter 0.2s, transform 0.1s;
+    }
+
+    .btn-maps-app:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-maps-app:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topo com Identificação da Versão -->
+  <header class="topbar-versao">
+    <div class="topbar-titulo">
+      <span>📍</span> Teste OSRM T3 • Carro, A Pé &amp; Bicicleta (CC Sudeste)
+    </div>
+    <div class="topbar-acoes">
+      <a href="./index.html" class="btn-voltar">← OSRM</a>
+      <span class="badge-versao">v1.0</span>
+    </div>
+  </header>
+
+  <main class="container-rotas">
+
+    <!-- 1. Contexto dos Endereços ao redor do Conselho Central Sudeste -->
+    <section class="card-contexto-cc" aria-label="Locais da Região do Conselho Central">
+      <h1 class="contexto-titulo">
+        <span>⛪</span> Conselho Central Sudeste de São Paulo (SSVP)
+      </h1>
+      <p class="contexto-descricao">
+        Selecione abaixo os pontos de partida e destino perto da sede do <strong>Conselho Central Sudeste</strong> (Rua Francisco Gomes da Silva Prado, 52) e os principais pontos de apoio (farmácias e padarias). Escolha se deseja a rota de <strong>Carro</strong>, <strong>A Pé</strong> ou de <strong>Bicicleta</strong>.
+      </p>
+    </section>
+
+    <!-- 2. Formulário de Seleção dos Endereços e Modo de Transporte -->
+    <section class="card-selecao" aria-label="Seleção de Trajeto">
+      <h2 class="form-titulo">
+        <span>🗺️ Configurar Rota Multimodal</span>
+        <span style="font-size:0.75rem; font-weight:600; color:#94a3b8;">7 Locais • 3 Modos</span>
+      </h2>
+
+      <!-- Seletor dos 3 Modos de Transporte (Carro, A Pé, Bicicleta) com os Ícones SVG de Topo -->
+      <div class="grupo-campo">
+        <span class="label-campo">
+          <span>Modo de Deslocamento:</span>
+          <span class="label-tag" id="tagModo">🚗 De Carro (driving)</span>
+        </span>
+
+        <div class="seletor-modos-grid" role="group" aria-label="Selecione o meio de transporte">
+          
+          <!-- Botão 1: Carro (car_top.svg) -->
+          <button type="button" class="btn-modo-transporte ativo" data-modo="driving" id="btnModoCarro">
+            <div class="icone-svg-modal">
+              <img src="../../img/car_top.svg" alt="Ícone de carro visto de cima">
+            </div>
+            <span class="texto-modal">De Carro</span>
+          </button>
+
+          <!-- Botão 2: A Pé (walk_top.svg) -->
+          <button type="button" class="btn-modo-transporte" data-modo="walking" id="btnModoPe">
+            <div class="icone-svg-modal">
+              <img src="../../img/walk_top.svg" alt="Ícone de pedestre visto de cima">
+            </div>
+            <span class="texto-modal">A Pé</span>
+          </button>
+
+          <!-- Botão 3: Bicicleta (bike_top.svg) -->
+          <button type="button" class="btn-modo-transporte" data-modo="bicycling" id="btnModoBike">
+            <div class="icone-svg-modal">
+              <img src="../../img/bike_top.svg" alt="Ícone de bicicleta visto de cima">
+            </div>
+            <span class="texto-modal">Bicicleta</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Select 1: Endereço Inicial (Origem) -->
+      <div class="grupo-campo">
+        <label for="selectOrigem" class="label-campo">
+          <span>1. Endereço Inicial (Origem):</span>
+          <span class="label-tag">Partida</span>
+        </label>
+        <select id="selectOrigem" class="select-endereco" aria-label="Selecione o endereço de partida"></select>
+        <span class="detalhe-endereco" id="detalheOrigem"></span>
+      </div>
+
+      <!-- Botão Rápido para Inverter Pontos -->
+      <div>
+        <button type="button" class="btn-inverter" id="btnInverter">
+          <span>⇄</span> Inverter Partida e Destino
+        </button>
+      </div>
+
+      <!-- Select 2: Endereço Final (Destino) -->
+      <div class="grupo-campo">
+        <label for="selectDestino" class="label-campo">
+          <span>2. Endereço Final (Destino):</span>
+          <span class="label-tag">Chegada</span>
+        </label>
+        <select id="selectDestino" class="select-endereco" aria-label="Selecione o endereço de destino"></select>
+        <span class="detalhe-endereco" id="detalheDestino"></span>
+      </div>
+
+      <!-- Botão Principal: Mostrar Rota no Google Maps -->
+      <div style="margin-top: 0.3rem;">
+        <button type="button" class="btn-mostrar-rota" id="btnMostrarRota">
+          <span class="icone-svg-modal" style="width:22px; height:22px;" id="iconeBtnRota">
+            <img src="../../img/car_top.svg" alt="Modal selecionado">
+          </span>
+          <span id="textoBtnRota">Mostrar Rota de Carro no Google Maps</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. Card do Mapa Google Maps Embutido com a Rota -->
+    <section class="card-mapa" id="cardMapa" aria-label="Mapa da Rota Traçada">
+      <div class="mapa-header">
+        <span class="mapa-titulo">
+          <span class="icone-svg-modal" style="width:20px; height:20px;" id="iconeHeaderMapa">
+            <img src="../../img/car_top.svg" alt="Ícone do modo">
+          </span>
+          <span id="tituloHeaderMapa">Google Maps • Rota Traçada</span>
+        </span>
+        <span id="badgeModoMapa" style="font-size:0.75rem; font-weight:700; color:#38bdf8;">Modo: De Carro</span>
+      </div>
+
+      <div class="mapa-iframe-wrapper" id="containerIframe">
+        <!-- O iframe do Google Maps com saddr, daddr e dirflg é inserido aqui -->
+      </div>
+
+      <div class="mapa-footer">
+        <div class="itinerario-resumo" id="resumoItinerario">
+          <!-- Detalhes do itinerário -->
+        </div>
+
+        <a href="#" target="_blank" rel="noopener noreferrer" class="btn-maps-app" id="btnAbrirMapsApp">
+          <span>📱</span> Abrir no App Google Maps Oficial (<span id="textoLinkApp">Navegação GPS</span>)
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Script dos Testes SSVP -->
+  <script src="../testes.js"></script>
+
+  <script>
+    // ==========================================================================
+    // LISTA OFICIAL DE ENDEREÇOS DO CONSELHO CENTRAL SUDESTE E PROXIMIDADES
+    // Baseado no arquivo testes/osrm/privado/enderecos_próximos_do_cc
+    // ==========================================================================
+    const LOCAIS_CC = [
+      {
+        id: "cc_sudeste",
+        nome: "Conselho Central Sudeste (SSVP)",
+        tipo: "Sede Vicentina",
+        icone: "⛪",
+        endereco: "Rua Francisco Gomes da Silva Prado, 52 - Cursino, São Paulo - SP",
+        busca: "Rua Francisco Gomes da Silva Prado, 52, Cursino, São Paulo - SP"
+      },
+      {
+        id: "farmacia_farmelhor",
+        nome: "Farmácia FarMelhor",
+        tipo: "Farmácia",
+        icone: "💊",
+        endereco: "Rua Tiquatira, 473 – Bosque da Saúde, São Paulo - SP",
+        busca: "Rua Tiquatira, 473, Bosque da Saúde, São Paulo - SP"
+      },
+      {
+        id: "drogaria_bosque",
+        nome: "Drogaria Bosque da Saúde",
+        tipo: "Drogaria",
+        icone: "💊",
+        endereco: "Avenida Bosque da Saúde, 1777 – Vila da Saúde, São Paulo - SP",
+        busca: "Avenida Bosque da Saúde, 1777, Vila da Saúde, São Paulo - SP"
+      },
+      {
+        id: "drogasil_cursino",
+        nome: "Drogasil (Av. do Cursino)",
+        tipo: "Drogaria",
+        icone: "💊",
+        endereco: "Avenida do Cursino, 1537 – Vila da Saúde, São Paulo - SP",
+        busca: "Avenida do Cursino, 1537, Vila da Saúde, São Paulo - SP"
+      },
+      {
+        id: "padaria_gold",
+        nome: "Padaria Gold",
+        tipo: "Padaria",
+        icone: "🍞",
+        endereco: "Rua Tiquatira, 579 – Bosque da Saúde, São Paulo - SP",
+        busca: "Rua Tiquatira, 579, Bosque da Saúde, São Paulo - SP"
+      },
+      {
+        id: "padaria_porto_maria",
+        nome: "Padaria Porto Maria",
+        tipo: "Padaria",
+        icone: "🍞",
+        endereco: "Avenida Bosque da Saúde, 1028 – Vila da Saúde, São Paulo - SP",
+        busca: "Avenida Bosque da Saúde, 1028, Vila da Saúde, São Paulo - SP"
+      },
+      {
+        id: "padaria_bella_cursino",
+        nome: "Padaria Bella Cursino",
+        tipo: "Padaria",
+        icone: "🍞",
+        endereco: "Avenida do Cursino, 1623 – Vila da Saúde, São Paulo - SP",
+        busca: "Avenida do Cursino, 1623, Vila da Saúde, São Paulo - SP"
+      }
+    ];
+
+    // Modo ativo: 'driving' (carro), 'walking' (a pé), 'bicycling' (bicicleta)
+    let modoSelecionado = 'driving';
+
+    /**
+     * Preenche os elementos <select> com as opções de locais
+     */
+    function popularSelects() {
+      const selectOrigem = document.getElementById('selectOrigem');
+      const selectDestino = document.getElementById('selectDestino');
+
+      selectOrigem.innerHTML = '';
+      selectDestino.innerHTML = '';
+
+      LOCAIS_CC.forEach((local) => {
+        const optOrigem = document.createElement('option');
+        optOrigem.value = local.id;
+        optOrigem.textContent = `${local.icone} ${local.nome}`;
+        selectOrigem.appendChild(optOrigem);
+
+        const optDestino = document.createElement('option');
+        optDestino.value = local.id;
+        optDestino.textContent = `${local.icone} ${local.nome}`;
+        selectDestino.appendChild(optDestino);
+      });
+
+      // Padrão: Origem = Conselho Central Sudeste
+      selectOrigem.selectedIndex = 0;
+      // Padrão: Destino = Padaria Bella Cursino
+      selectDestino.selectedIndex = 6;
+
+      atualizarDetalhesTexto();
+    }
+
+    /**
+     * Atualiza o texto explicativo abaixo de cada select
+     */
+    function atualizarDetalhesTexto() {
+      const selectOrigem = document.getElementById('selectOrigem');
+      const selectDestino = document.getElementById('selectDestino');
+      const detalheOrigem = document.getElementById('detalheOrigem');
+      const detalheDestino = document.getElementById('detalheDestino');
+
+      const localOrigem = LOCAIS_CC.find(l => l.id === selectOrigem.value);
+      const localDestino = LOCAIS_CC.find(l => l.id === selectDestino.value);
+
+      if (localOrigem) {
+        detalheOrigem.textContent = `📍 ${localOrigem.endereco}`;
+      }
+      if (localDestino) {
+        detalheDestino.textContent = `📍 ${localDestino.endereco}`;
+      }
+    }
+
+    /**
+     * Altera o modo de transporte ativo e atualiza os botões e ícones
+     * @param {'driving'|'walking'|'bicycling'} modo
+     */
+    function alternarModo(modo) {
+      modoSelecionado = modo;
+
+      const btnCarro = document.getElementById('btnModoCarro');
+      const btnPe = document.getElementById('btnModoPe');
+      const btnBike = document.getElementById('btnModoBike');
+      const tagModo = document.getElementById('tagModo');
+      const iconeBtnRota = document.getElementById('iconeBtnRota');
+      const textoBtnRota = document.getElementById('textoBtnRota');
+
+      btnCarro.classList.remove('ativo');
+      btnPe.classList.remove('ativo');
+      btnBike.classList.remove('ativo');
+
+      if (modo === 'walking') {
+        btnPe.classList.add('ativo');
+        tagModo.textContent = '🚶 A Pé (walking)';
+        iconeBtnRota.innerHTML = '<img src="../../img/walk_top.svg" alt="A pé">';
+        textoBtnRota.textContent = 'Mostrar Rota A Pé no Google Maps';
+      } else if (modo === 'bicycling') {
+        btnBike.classList.add('ativo');
+        tagModo.textContent = '🚲 Bicicleta (bicycling)';
+        iconeBtnRota.innerHTML = '<img src="../../img/bike_top.svg" alt="Bicicleta">';
+        textoBtnRota.textContent = 'Mostrar Rota de Bicicleta no Google Maps';
+      } else {
+        btnCarro.classList.add('ativo');
+        tagModo.textContent = '🚗 De Carro (driving)';
+        iconeBtnRota.innerHTML = '<img src="../../img/car_top.svg" alt="Carro">';
+        textoBtnRota.textContent = 'Mostrar Rota de Carro no Google Maps';
+      }
+
+      // Se o mapa já estiver aberto na tela, recarrega com o novo modal
+      const cardMapa = document.getElementById('cardMapa');
+      if (cardMapa.style.display === 'block') {
+        carregarRotaGoogleMaps();
+      }
+    }
+
+    /**
+     * Monta a rota e exibe o Google Maps no iframe
+     */
+    function carregarRotaGoogleMaps() {
+      const selectOrigem = document.getElementById('selectOrigem');
+      const selectDestino = document.getElementById('selectDestino');
+      const cardMapa = document.getElementById('cardMapa');
+      const containerIframe = document.getElementById('containerIframe');
+      const resumoItinerario = document.getElementById('resumoItinerario');
+      const btnAbrirMapsApp = document.getElementById('btnAbrirMapsApp');
+      const badgeModoMapa = document.getElementById('badgeModoMapa');
+      const iconeHeaderMapa = document.getElementById('iconeHeaderMapa');
+      const textoLinkApp = document.getElementById('textoLinkApp');
+
+      const localOrigem = LOCAIS_CC.find(l => l.id === selectOrigem.value);
+      const localDestino = LOCAIS_CC.find(l => l.id === selectDestino.value);
+
+      if (!localOrigem || !localDestino) {
+        alert('Por favor, selecione os locais de partida e destino.');
+        return;
+      }
+
+      if (localOrigem.id === localDestino.id) {
+        alert('O endereço inicial e final são iguais. Escolha locais diferentes para traçar a rota.');
+        return;
+      }
+
+      const origemParam = encodeURIComponent(localOrigem.busca);
+      const destinoParam = encodeURIComponent(localDestino.busca);
+
+      // Parâmetros de direção do Google Maps:
+      // dirflg: 'd' (driving/carro), 'w' (walking/a pé), 'b' (bicycling/bicicleta)
+      let dirflgParam = 'd';
+      let rotuloModo = 'De Carro';
+      let iconeSvgSrc = '../../img/car_top.svg';
+
+      if (modoSelecionado === 'walking') {
+        dirflgParam = 'w';
+        rotuloModo = 'A Pé';
+        iconeSvgSrc = '../../img/walk_top.svg';
+      } else if (modoSelecionado === 'bicycling') {
+        dirflgParam = 'b';
+        rotuloModo = 'Bicicleta';
+        iconeSvgSrc = '../../img/bike_top.svg';
+      }
+
+      // URL de embed do Google Maps com os parâmetros de rota e modo
+      const urlEmbed = `https://maps.google.com/maps?saddr=${origemParam}&daddr=${destinoParam}&dirflg=${dirflgParam}&output=embed`;
+
+      // Insere o iframe
+      containerIframe.innerHTML = `
+        <iframe 
+          src="${urlEmbed}" 
+          width="100%" 
+          height="100%" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Rota do Google Maps (${rotuloModo})">
+        </iframe>
+      `;
+
+      // Atualiza o cabeçalho do mapa
+      iconeHeaderMapa.innerHTML = `<img src="${iconeSvgSrc}" alt="${rotuloModo}">`;
+      badgeModoMapa.textContent = `Modo: ${rotuloModo}`;
+
+      // Atualiza o resumo do itinerário
+      resumoItinerario.innerHTML = `
+        <div><strong>Origem:</strong> ${localOrigem.icone} ${localOrigem.nome} — <span style="color:#94a3b8;">${localOrigem.endereco}</span></div>
+        <div><strong>Destino:</strong> ${localDestino.icone} ${localDestino.nome} — <span style="color:#94a3b8;">${localDestino.endereco}</span></div>
+        <div><strong>Modalidade:</strong> <span style="color:#38bdf8; font-weight:700;">${rotuloModo}</span></div>
+      `;
+
+      // URL para o App Oficial Google Maps
+      const urlAppMaps = `https://www.google.com/maps/dir/?api=1&origin=${origemParam}&destination=${destinoParam}&travelmode=${modoSelecionado}`;
+      btnAbrirMapsApp.href = urlAppMaps;
+      textoLinkApp.textContent = `Modo ${rotuloModo}`;
+
+      // Exibe o card e faz scroll suave até o mapa
+      cardMapa.style.display = 'block';
+      cardMapa.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ==========================================================================
+    // INICIALIZAÇÃO DE EVENTOS
+    // ==========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      popularSelects();
+
+      // Atualiza detalhes ao trocar o select
+      document.getElementById('selectOrigem').addEventListener('change', atualizarDetalhesTexto);
+      document.getElementById('selectDestino').addEventListener('change', atualizarDetalhesTexto);
+
+      // Botão Inverter Partida e Destino
+      document.getElementById('btnInverter').addEventListener('click', () => {
+        const selectOrigem = document.getElementById('selectOrigem');
+        const selectDestino = document.getElementById('selectDestino');
+
+        const tempIdx = selectOrigem.selectedIndex;
+        selectOrigem.selectedIndex = selectDestino.selectedIndex;
+        selectDestino.selectedIndex = tempIdx;
+
+        atualizarDetalhesTexto();
+
+        const cardMapa = document.getElementById('cardMapa');
+        if (cardMapa.style.display === 'block') {
+          carregarRotaGoogleMaps();
+        }
+      });
+
+      // Modos de Transporte (Carro, A Pé, Bicicleta)
+      document.getElementById('btnModoCarro').addEventListener('click', () => alternarModo('driving'));
+      document.getElementById('btnModoPe').addEventListener('click', () => alternarModo('walking'));
+      document.getElementById('btnModoBike').addEventListener('click', () => alternarModo('bicycling'));
+
+      // Botão Mostrar Rota no Google Maps
+      document.getElementById('btnMostrarRota').addEventListener('click', carregarRotaGoogleMaps);
+    });
+  </script>
+</body>
+</html>
