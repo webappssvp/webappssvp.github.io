@@ -4,35 +4,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Teste 6 - Opção B: Cápsula Dupla no Rodapé</title>
+  <title>Material Design SSVP - Teste 6: Opções de Entrada</title>
 
-  <!-- Google Fonts: Montserrat e EB Garamond -->
+  <!-- Google Fonts: Montserrat (Interface) e EB Garamond (Identidade Institucional SSVP) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     /* ==========================================================================
-       1. TOKENS E SISTEMA DE CORES SSVP BRASIL
+       1. TOKENS DO SISTEMA DE CORES E ELEVAÇÃO M3 (SSVP)
        ========================================================================== */
     :root {
+      /* Cores Institucionais do Manual da Marca SSVP Brasil */
       --ssvp-blue: #0064B6;
       --ssvp-blue-glow: #38bdf8;
-      --ssvp-red: #DC2626;
+      --ssvp-red: #E00512;
       --ssvp-red-glow: #ef4444;
-      --ssvp-navy: #0F172A;
-      --ssvp-white: #FFFFFF;
+      --md-secondary: #007fff;
+      --md-error: #d32f2f;
+      --md-success: #15803d;
+      --md-amber: #d97706;
+      --md-amber-bg: rgba(217, 119, 6, 0.15);
 
-      --bg-pagina: #0B0F19;
-      --bg-card: #151D2F;
-      --bg-card-interno: #1B263D;
-      --cor-texto: #F1F5F9;
-      --cor-texto-mutado: #94A3B8;
+      /* Modo Escuro (Padrão de Campo) */
+      --md-surface-0: #0b0f19;
+      --md-surface-1: #151d2f;
+      --md-surface-2: #1b263d;
+      --md-surface-3: #22304d;
 
+      --md-on-surface: #f1f5f9;
+      --md-on-surface-variant: #94a3b8;
+      --md-border-subtle: rgba(255, 255, 255, 0.08);
+      --md-border-soft: rgba(255, 255, 255, 0.14);
+      --md-border-strong: rgba(255, 255, 255, 0.22);
+
+      /* Switches */
+      --md-switch-track-off: #334155;
+      --md-switch-thumb-off: #94a3b8;
+      --md-switch-border-off: #475569;
+
+      /* Sombras e Elevação M3 */
+      --md-elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
+      --md-elevation-2: 0 4px 8px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+      --md-elevation-3: 0 12px 24px -4px rgba(0, 0, 0, 0.45), 0 4px 8px -2px rgba(0, 0, 0, 0.3);
+
+      /* Safe Areas */
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+      /* Dimensões Ergonômicas */
+      --touch-target-min: 3rem;
+      --footer-height: 4.9rem;
+      --sheet-duracao: 0.35s;
+
+      /* Tipografias */
+      --font-ui: 'Montserrat', Arial, sans-serif;
+      --font-brand: 'EB Garamond', Georgia, serif;
     }
 
+    /* TEMA CLARO */
+    body.tema-claro {
+      --md-surface-0: #f8fafc;
+      --md-surface-1: #ffffff;
+      --md-surface-2: #f1f5f9;
+      --md-surface-3: #e2e8f0;
+      --md-on-surface: #0f172a;
+      --md-on-surface-variant: #475569;
+      --md-border-subtle: rgba(0, 0, 0, 0.08);
+      --md-border-soft: rgba(0, 0, 0, 0.14);
+      --md-border-strong: rgba(0, 0, 0, 0.22);
+      --md-switch-track-off: #cbd5e1;
+      --md-switch-thumb-off: #64748b;
+      --md-switch-border-off: #94a3b8;
+      --md-amber-bg: #fef3c7;
+    }
+
+    /* FONTE GRANDE (Acessibilidade para Terceira Idade 60+) */
+    html.fonte-grande {
+      font-size: 118%;
+    }
+
+    /* REDUZIR ANIMAÇÕES */
+    body.sem-animacoes {
+      --sheet-duracao: 0.01s !important;
+      animation-duration: 0.01s !important;
+      transition-duration: 0.01s !important;
+    }
+
+    /* SIMULAÇÃO DE DALTONISMO VIA FILTROS SVG */
+    html.simular-deuteranopia {
+      filter: url(#filtro-deuteranopia);
+      -webkit-filter: url(#filtro-deuteranopia);
+    }
+
+    html.simular-protanopia {
+      filter: url(#filtro-protanopia);
+      -webkit-filter: url(#filtro-protanopia);
+    }
+
+    html.simular-tritanopia {
+      filter: url(#filtro-tritanopia);
+      -webkit-filter: url(#filtro-tritanopia);
+    }
+
+    html.simular-monocromia {
+      filter: grayscale(100%);
+      -webkit-filter: grayscale(100%);
+    }
+
+    html.simular-alto-contraste {
+      filter: contrast(150%);
+      -webkit-filter: contrast(150%);
+    }
+
+    /* PULSO SINCRONIZADO: CAMPO EM FOCO + BOTÃO OUVIR */
+    @keyframes pulsoFocoSincronizado {
+      0%, 100% {
+        border-color: #0064B6;
+        box-shadow: 0 0 0 2px #0064B6, 0 0 8px rgba(0, 100, 182, 0.4);
+      }
+      50% {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 4.5px #38bdf8, 0 0 22px rgba(56, 189, 248, 0.75);
+      }
+    }
+
+    .campo-formulario.pulso-sincronizado {
+      animation: pulsoFocoSincronizado 1.4s infinite ease-in-out !important;
+    }
+
+    .btn-audio-central.pulso-sincronizado {
+      animation: pulsoFocoSincronizado 1.4s infinite ease-in-out !important;
+      border-color: #38bdf8 !important;
+    }
+
+    /* RESET BÁSICO */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -41,535 +148,1212 @@
     }
 
     body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: var(--bg-pagina);
-      color: var(--cor-texto);
-      min-height: 100vh;
+      background-color: var(--md-surface-0);
+      color: var(--md-on-surface);
+      font-family: var(--font-ui);
+      height: 100vh;
+      height: 100dvh;
+      width: 100vw;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Prevenção de Zoom no iPhone */
+    input,
+    textarea,
+    select,
+    button {
+      font-family: var(--font-ui);
+      font-size: 1rem;
+    }
+
+    input,
+    textarea {
+      -webkit-user-select: text;
+      user-select: text;
     }
 
     /* ==========================================================================
-       2. BARRA SUPERIOR FIXA
+       2. BARRA SUPERIOR INSTITUCIONAL (PADRÃO T5 COM LOGO, CONFERÊNCIA E 3 PONTOS)
        ========================================================================== */
-    .bar-sup {
-      position: sticky;
-      top: 0;
-      background-color: #E00512;
-      padding-top: max(0.75rem, calc(0.5rem + var(--safe-top)));
-      padding-bottom: 0.65rem;
-      padding-left: 0.85rem;
-      padding-right: 0.85rem;
+    .app-header {
+      position: relative;
+      background-color: var(--md-surface-2);
+      border-bottom: 1px solid var(--md-border-subtle);
+      padding-top: calc(0.55rem + var(--safe-top));
+      padding-bottom: 0.55rem;
+      padding-left: 0.9rem;
+      padding-right: 0.75rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-      z-index: 100;
+      gap: 0.75rem;
+      box-shadow: var(--md-elevation-2);
+      z-index: 60;
+      flex-shrink: 0;
     }
 
-    .bar-logo {
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 50%;
-      background: #FFFFFF;
-      color: var(--ssvp-blue);
-      font-weight: 800;
-      font-size: 1rem;
+    /* Logotipo Oficial SSVP */
+    .header-logo-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      flex-shrink: 0;
+      width: 2.6rem;
+      height: 2.6rem;
     }
 
-    .status-centro {
-      text-align: center;
+    .header-logo-img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+    }
+
+    /* Nome da Conferência e Subtítulo */
+    .header-title-area {
       flex: 1;
-      padding: 0 0.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
     }
 
-    .status-titulo {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: #FFFFFF;
+    .header-conf-name {
+      font-family: var(--font-brand);
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.01em;
+    }
+
+    body.tema-claro .header-conf-name {
+      color: var(--ssvp-blue);
+    }
+
+    .header-sub-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-top: 0.15rem;
+    }
+
+    .header-cp-name {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--md-on-surface-variant);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .status-sub {
-      font-size: 0.68rem;
-      color: rgba(255, 255, 255, 0.85);
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .versao-badge {
-      font-size: 0.72rem;
+    .header-version-pill {
+      font-size: 0.65rem;
       font-weight: 700;
-      color: #FFFFFF;
-      background: rgba(0, 0, 0, 0.25);
-      padding: 0.25rem 0.5rem;
-      border-radius: 9999px;
-      white-space: nowrap;
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--md-secondary);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      flex-shrink: 0;
     }
 
-    /* Seletor de Opções para Teste no Smartphone */
-    .seletor-opcoes {
+    /* Botão de 3 Pontos Verticais (Overflow M3 - Exatamente como em T5) */
+    .btn-header-overflow {
+      width: 3rem;
+      height: 3rem;
+      background: transparent;
+      border: none;
+      color: var(--md-on-surface);
       display: flex;
-      background: #111827;
-      padding: 0.4rem 0.6rem;
-      gap: 0.4rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      position: sticky;
-      top: 3.8rem;
-      z-index: 90;
-      overflow-x: auto;
-    }
-
-    .btn-opcao {
-      flex: 1;
-      padding: 0.4rem 0.6rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #94a3b8;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 6px;
-      text-decoration: none;
-      text-align: center;
-      white-space: nowrap;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
       cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.15s ease, transform 0.1s ease;
     }
 
-    .btn-opcao.ativa {
-      background: var(--ssvp-blue);
-      color: #ffffff;
-      border-color: var(--ssvp-blue-glow);
+    .btn-header-overflow:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-header-overflow:active {
+      transform: scale(0.92);
+      background-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .btn-header-overflow svg {
+      width: 1.55rem;
+      height: 1.55rem;
+      fill: currentColor;
+    }
+
+    /* Modo Canhoto: inverte elementos */
+    body.layout-canhoto .app-header {
+      flex-direction: row-reverse;
     }
 
     /* ==========================================================================
-       3. ÁREA DE CONTEÚDO SCROLLÁVEL
+       3. NAVEGAÇÃO DE TESTE RÁPIDA (SUB-BARRA SUPERIOR)
        ========================================================================== */
-    .area-conteudo {
-      flex: 1;
-      padding: 1rem 0.85rem 6.5rem 0.85rem;
-      max-width: 32rem;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .banner-explicativo {
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      border-radius: 10px;
-      padding: 0.85rem;
-      margin-bottom: 1.25rem;
-      font-size: 0.82rem;
-      line-height: 1.45;
-    }
-
-    .banner-titulo {
-      color: #38bdf8;
-      font-weight: 800;
-      font-size: 0.92rem;
-      margin-bottom: 0.35rem;
+    .subbar-teste {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-    }
-
-    /* Cartão da Família */
-    .card-lar {
-      background: var(--bg-card);
-      border-left: 4px solid var(--ssvp-blue);
-      border-radius: 10px;
-      padding: 1rem;
-      margin-bottom: 1.25rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .card-lar-header {
-      display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.6rem;
+      background-color: var(--md-surface-1);
+      border-bottom: 1px solid var(--md-border-subtle);
+      padding: 0.4rem 0.9rem;
+      font-size: 0.74rem;
+      color: var(--md-on-surface-variant);
+      z-index: 55;
+      flex-shrink: 0;
     }
 
-    .lar-nome {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #ffffff;
-    }
-
-    .lar-endereco {
-      font-size: 0.82rem;
-      color: var(--cor-texto-mutado);
-    }
-
-    .tag-status {
-      background: #166534;
-      color: #86efac;
-      font-size: 0.68rem;
+    .subbar-link {
+      color: var(--md-secondary);
+      text-decoration: none;
       font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
       padding: 0.2rem 0.5rem;
-      border-radius: 9999px;
+      border-radius: 6px;
+      background-color: rgba(0, 127, 255, 0.08);
+      transition: background-color 0.15s ease;
     }
 
-    /* Bloco Interativo para Ouvir (Azul SSVP) */
-    .bloco-leitura {
-      background: var(--bg-card-interno);
-      border: 1.5px solid rgba(56, 189, 248, 0.3);
-      border-radius: 10px;
-      padding: 0.85rem;
-      margin: 0.85rem 0;
-      cursor: pointer;
-      transition: all 0.25s ease;
+    .subbar-link:hover {
+      background-color: rgba(0, 127, 255, 0.18);
     }
 
-    .bloco-leitura-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.4rem;
-    }
-
-    .bloco-leitura-tag {
-      font-size: 0.72rem;
+    .subbar-badge {
       font-weight: 700;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.15);
-      padding: 0.15rem 0.5rem;
+      background-color: rgba(0, 100, 182, 0.2);
+      color: var(--ssvp-blue-glow);
+      padding: 0.18rem 0.5rem;
       border-radius: 9999px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
     }
 
-    .bloco-leitura-texto {
-      font-size: 0.86rem;
-      color: #cbd5e1;
-      font-style: italic;
-      line-height: 1.45;
-    }
-
-    /* Formulário da Nova Visita */
-    .secao-formulario {
-      margin-top: 1rem;
-      background: rgba(15, 23, 42, 0.6);
-      border-radius: 10px;
+    /* ==========================================================================
+       4. ÁREA CENTRAL DE CONTEÚDO SCROLLÁVEL
+       ========================================================================== */
+    .display-area {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       padding: 0.85rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: calc(5.8rem + var(--safe-bottom));
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* BOTÃO TOGGLE DE MODO DE ENTRADA (USADO NA GAVETA TOP SHEET) */
+    .btn-toggle-modo {
+      flex: 1;
+      min-height: 2.6rem;
+      border-radius: 8px;
+      border: 1px solid var(--md-border-strong);
+      background: var(--md-surface-1);
+      color: var(--md-on-surface-variant);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.18s ease;
+    }
+
+    .btn-toggle-modo svg {
+      width: 1.15rem;
+      height: 1.15rem;
+      fill: currentColor;
+    }
+
+    .btn-toggle-modo.ativo {
+      background-color: var(--md-secondary);
+      color: #ffffff;
+      border-color: #60a5fa;
+      box-shadow: 0 2px 6px rgba(0, 127, 255, 0.35);
+    }
+
+    /* CARD DO LAR ASSISTIDO */
+    .md-card {
+      background-color: var(--md-surface-1);
+      border: 1px solid var(--md-border-soft);
+      border-radius: 14px;
+      padding: 0.9rem;
+      box-shadow: var(--md-elevation-1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .chip-status {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      background-color: rgba(21, 128, 61, 0.2);
+      color: #86efac;
+      border: 1px solid rgba(134, 239, 172, 0.4);
+    }
+
+    .card-titulo-pessoa {
+      font-family: var(--font-brand);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--md-on-surface);
+      line-height: 1.2;
+    }
+
+    .card-endereco-row {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      color: var(--md-on-surface-variant);
+    }
+
+    .card-endereco-row img {
+      width: 1rem;
+      height: 1rem;
+      filter: opacity(0.8);
+    }
+
+    /* BLOCO DO RELATO ANTERIOR (TOQUE PARA SELECIONAR E OUVIR) */
+    .bloco-relato-anterior {
+      background-color: var(--md-surface-2);
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 10px;
+      padding: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .bloco-relato-anterior:hover {
+      border-color: var(--ssvp-blue-glow);
+      background-color: var(--md-surface-3);
+    }
+
+    .bloco-relato-anterior:active {
+      transform: scale(0.98);
+    }
+
+    .bloco-relato-anterior.em-reproducao {
+      border-color: #86efac !important;
+      background-color: rgba(21, 128, 61, 0.18) !important;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.45);
+    }
+
+    .relato-anterior-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .relato-data {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--ssvp-blue-glow);
+    }
+
+    .relato-texto {
+      font-size: 0.85rem;
+      line-height: 1.45;
+      font-style: italic;
+      color: var(--md-on-surface);
+    }
+
+    /* SEÇÃO DO FORMULÁRIO DE VISITA COM FAROL DE FOCO */
+    .secao-formulario-visita {
+      background-color: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--md-border-subtle);
+      border-radius: 12px;
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    body.tema-claro .secao-formulario-visita {
+      background-color: rgba(241, 245, 249, 0.6);
+    }
+
+    .form-titulo-area {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .form-titulo {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #38bdf8;
-      margin-bottom: 0.75rem;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--md-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
 
+    /* GRUPOS DE CAMPOS E FAROL VISUAL */
     .grupo-campo {
-      margin-bottom: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      position: relative;
     }
 
-    .campo-label {
-      display: block;
-      font-size: 0.76rem;
-      font-weight: 600;
-      color: var(--cor-texto-mutado);
-      margin-bottom: 0.3rem;
+    .label-campo {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--md-on-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .campo-input {
+    .badge-foco-ativo {
+      display: none;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #38bdf8;
+      background-color: rgba(56, 189, 248, 0.15);
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .grupo-campo.ativo .badge-foco-ativo {
+      display: inline-block;
+    }
+
+    .campo-wrapper {
+      position: relative;
       width: 100%;
-      background: rgba(11, 15, 25, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      padding: 0.75rem;
-      color: #ffffff;
+    }
+
+    .campo-formulario {
+      width: 100%;
+      background-color: var(--md-surface-0);
+      border: 1.5px solid var(--md-border-strong);
+      border-radius: 10px;
+      padding: 0.75rem 0.85rem;
+      color: var(--md-on-surface);
+      line-height: 1.4;
       font-family: inherit;
-      font-size: 0.88rem;
-      transition: all 0.25s ease;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     }
 
-    .campo-input:focus {
+    textarea.campo-formulario {
+      resize: vertical;
+      min-height: 4.8rem;
+    }
+
+    /* ESTADO DE FOCO MARCANTE: Farol de Acessibilidade */
+    .campo-formulario.em-foco,
+    .campo-formulario:focus {
       outline: none;
+      border-color: var(--md-secondary) !important;
+      border-left: 5px solid var(--md-secondary) !important;
+      background-color: var(--md-surface-2) !important;
+      box-shadow: 0 0 0 3px rgba(0, 127, 255, 0.25) !important;
     }
 
-    .btn-salvar {
+    .btn-salvar-visita {
       width: 100%;
-      background: #15803d;
+      min-height: 3rem;
+      background-color: var(--md-success);
       color: #ffffff;
       border: none;
-      padding: 0.85rem;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       cursor: pointer;
-      margin-top: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: var(--md-elevation-1);
+      transition: background-color 0.15s ease, transform 0.1s ease;
+      margin-top: 0.2rem;
+    }
+
+    .btn-salvar-visita:hover {
+      background-color: #166534;
+    }
+
+    .btn-salvar-visita:active {
+      transform: scale(0.98);
     }
 
     /* ==========================================================================
-       4. ANIMAÇÕES DE PULSO CROMÁTICO SSVP
+       5. BARRA INFERIOR NO POLEGAR (MENU + ESPAÇAMENTO SEGURO + CENTRO DINÂMICO + SAIR)
        ========================================================================== */
-    .pulso-ouvir-azul {
-      border-color: #38bdf8 !important;
-      animation: animarPulsoAzul 1.8s infinite ease-in-out;
-    }
-
-    @keyframes animarPulsoAzul {
-      0%, 100% { box-shadow: 0 0 0 2px #0064B6, 0 0 8px rgba(0, 100, 182, 0.45); }
-      50% { box-shadow: 0 0 0 3px #38bdf8, 0 0 18px rgba(56, 189, 248, 0.75); }
-    }
-
-    .pulso-falar-vermelho {
-      border-color: #EF4444 !important;
-      animation: animarPulsoVermelho 1.8s infinite ease-in-out;
-    }
-
-    @keyframes animarPulsoVermelho {
-      0%, 100% { box-shadow: 0 0 0 2px #DC2626, 0 0 8px rgba(220, 38, 38, 0.45); }
-      50% { box-shadow: 0 0 0 3px #EF4444, 0 0 18px rgba(239, 68, 68, 0.75); }
-    }
-
-    .pulso-gravando-ativo {
-      background-color: #DC2626 !important;
-      color: #FFFFFF !important;
-      border-color: #EF4444 !important;
-      animation: animarGravando 1s infinite ease-in-out;
-    }
-
-    @keyframes animarGravando {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 0 2px #DC2626; }
-      50% { transform: scale(1.03); box-shadow: 0 0 0 5px #EF4444, 0 0 18px rgba(239, 68, 68, 0.85); }
-    }
-
-    .tocando-audio-ativo {
-      background-color: #15803d !important;
-      color: #FFFFFF !important;
-      border-color: #86efac !important;
-      box-shadow: 0 0 0 2px #15803d, 0 0 12px rgba(34, 197, 94, 0.5) !important;
-    }
-
-    /* ==========================================================================
-       5. BARRA INFERIOR FIXA - OPÇÃO B (CÁPSULA DUPLA)
-       ========================================================================== */
-    .bar-inf {
+    .app-footer {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      background-color: rgba(15, 23, 42, 0.96);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background-color: var(--md-surface-2);
+      border-top: 1px solid var(--md-border-subtle);
       padding-top: 0.5rem;
-      padding-bottom: max(1.5rem, calc(0.5rem + var(--safe-bottom)));
-      padding-left: 0.85rem;
-      padding-right: 0.85rem;
+      padding-bottom: calc(0.5rem + var(--safe-bottom));
+      padding-left: 1.15rem;
+      padding-right: 1.15rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.45rem;
-      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.5);
-      z-index: 100;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+      z-index: 60;
+      min-height: var(--footer-height);
     }
 
-    .btn-nav {
-      min-height: 3.35rem;
-      padding: 0.35rem 0.5rem;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      background-color: rgba(15, 23, 42, 0.75);
-      color: var(--ssvp-white);
-      font-family: inherit;
-      display: inline-flex;
+    /* MODO CANHOTO: Inverte Menu e Sair no rodapé */
+    body.layout-canhoto .app-footer {
+      flex-direction: row-reverse;
+    }
+
+    /* BOTÃO LATERAL MENU (EXATAMENTE COMO EM T5 COM SVG VETORIAL) */
+    .btn-footer-lateral {
+      background-color: rgba(255, 255, 255, 0.04);
+      border: 1.5px solid var(--md-border-soft);
+      color: var(--md-on-surface);
+      display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0.2rem;
+      min-width: 4.4rem;
+      height: 3.5rem;
+      padding: 0.35rem 0.55rem;
+      border-radius: 0.9rem;
       cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
       user-select: none;
-      flex: 1;
-      max-width: 5.5rem;
-      transition: all 0.2s ease;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      flex-shrink: 0;
     }
 
-    .btn-nav:active {
-      transform: scale(0.95);
+    body.tema-claro .btn-footer-lateral {
+      background-color: #ffffff;
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
-    .btn-nav-icone {
-      font-size: 1.3rem;
+    .btn-footer-lateral:hover {
+      background-color: rgba(255, 255, 255, 0.09);
+      border-color: var(--md-secondary);
+    }
+
+    body.tema-claro .btn-footer-lateral:hover {
+      background-color: #f1f5f9;
+      border-color: var(--ssvp-blue);
+    }
+
+    .btn-footer-lateral:active {
+      transform: scale(0.94);
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-footer-lateral svg {
+      width: 1.45rem;
+      height: 1.45rem;
+      fill: currentColor;
+    }
+
+    .footer-btn-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--md-on-surface-variant);
+      pointer-events: none;
       line-height: 1;
     }
 
-    .btn-nav-texto {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      white-space: nowrap;
+    /* BOTÃO LATERAL SAIR COM GRADIENTE VERMELHO INSTITUCIONAL E PROTEÇÃO LGPD */
+    .btn-sair-lateral {
+      background: linear-gradient(135deg, #b91c1c 0%, var(--ssvp-red) 100%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4) !important;
     }
 
-    /* Botão Central Normal (Ouvir) */
-    .btn-central-simples {
-      flex: 1.8;
-      max-width: 10rem;
-      background-color: var(--ssvp-navy);
-      border: 1.5px solid rgba(255, 255, 255, 0.35);
+    body.tema-claro .btn-sair-lateral {
+      background: linear-gradient(135deg, #b91c1c 0%, var(--ssvp-red) 100%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3) !important;
     }
 
-    /* Container Cápsula Dupla (Surge quando um campo de texto é focado) */
-    .capsula-dupla-container {
-      display: none;
-      flex: 2.2;
-      background: rgba(11, 15, 25, 0.9);
-      border: 1.5px solid rgba(255, 255, 255, 0.25);
-      border-radius: 12px;
-      padding: 0.2rem;
-      gap: 0.25rem;
+    .btn-sair-lateral:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.55) !important;
     }
 
-    .capsula-dupla-container.visivel {
-      display: flex;
+    .btn-sair-lateral:active {
+      transform: scale(0.94);
+      background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%) !important;
     }
 
-    .btn-capsula {
+    .btn-sair-lateral .footer-btn-label,
+    .btn-sair-lateral svg {
+      color: #ffffff !important;
+      fill: #ffffff !important;
+    }
+
+    /* CENTRO DINÂMICO DA BARRA INFERIOR (COM ZONA DE SEGURANÇA CONTRA TOQUES ACIDENTAIS) */
+    .footer-centro-container {
       flex: 1;
-      min-height: 3.1rem;
-      border-radius: 8px;
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--ssvp-white);
-      font-family: inherit;
-      display: inline-flex;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 290px;
+      margin: 0 1.25rem; /* ZONA DE AMORTECIMENTO ANTI-TOQUE ACIDENTAL */
+      min-width: 0;
+    }
+
+    /* BOTÃO CENTRAL: OUVIR / PARAR */
+    .btn-audio-central {
+      position: relative;
+      margin: 0;
+      background: linear-gradient(135deg, var(--ssvp-blue) 0%, var(--md-secondary) 100%);
+      color: #ffffff;
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      min-width: 5.8rem;
+      height: 3.5rem;
+      border-radius: 0.95rem;
+      display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0.15rem;
       cursor: pointer;
-      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 100, 182, 0.35);
+      flex-shrink: 0;
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      transition: transform 0.12s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      width: 100%;
+      max-width: 13rem;
     }
 
-    .btn-capsula:active {
-      transform: scale(0.95);
+    .btn-audio-central:hover {
+      background: linear-gradient(135deg, #005299 0%, #006ee6 100%);
+      box-shadow: 0 4px 12px rgba(0, 100, 182, 0.5);
     }
 
-    .btn-capsula-falar {
-      background: rgba(220, 38, 38, 0.2);
-      border-color: rgba(239, 68, 68, 0.4);
+    .btn-audio-central:active {
+      transform: scale(0.96);
     }
 
-    .btn-capsula-teclado {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.15);
+    /* ESTADO QUANDO ESTÁ FALANDO: BOTÃO STOP / PARAR EM VERMELHO */
+    .btn-audio-central.falando-ativo {
+      background: linear-gradient(135deg, #b91c1c 0%, var(--ssvp-red) 100%) !important;
+      border-color: #fca5a5 !important;
+      box-shadow: 0 0 14px rgba(220, 38, 38, 0.6) !important;
     }
 
-    .btn-capsula-teclado.teclado-ativo {
-      background: var(--ssvp-blue) !important;
-      border-color: var(--ssvp-blue-glow) !important;
-      box-shadow: 0 0 10px rgba(0, 100, 182, 0.5);
+    .audio-central-icon {
+      width: 1.45rem;
+      height: 1.45rem;
+      display: block;
+      pointer-events: none;
+      fill: #ffffff;
     }
 
-    /* Toast Flutuante */
-    .toast-msg {
-      position: fixed;
-      bottom: 5.8rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0F172A;
-      color: #FFFFFF;
-      padding: 0.6rem 1.2rem;
-      border-radius: 9999px;
-      font-size: 0.85rem;
+    .audio-central-label {
+      font-size: 0.74rem;
       font-weight: 700;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
-      z-index: 1000;
-      border: 1px solid #38bdf8;
+      letter-spacing: 0.02em;
+      line-height: 1;
+    }
+
+    /* ==========================================================================
+       6. GAVETAS FLUTUANTES (TOP SHEET CONFIGURAÇÕES & BOTTOM SHEET NAVEGAÇÃO)
+       ========================================================================== */
+    /* SCRIM OVERLAY */
+    .scrim-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 150;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: opacity var(--sheet-duracao) ease;
+      display: flex;
+    }
+
+    .scrim-overlay.aberto {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* TOP SHEET (Configurações) */
+    .scrim-top {
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .top-sheet {
+      width: calc(100% - 1.5rem);
+      max-width: 500px;
+      max-height: 85vh;
+      background-color: var(--md-surface-3);
+      border-radius: 1.25rem;
+      border: 1px solid var(--md-border-strong);
+      box-shadow: var(--md-elevation-3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin-top: calc(3.6rem + var(--safe-top));
+      transform: translateY(calc(-100% - 4rem));
+      transition: transform var(--sheet-duracao) cubic-bezier(0.05, 0.7, 0.1, 1.0);
+    }
+
+    .scrim-top.aberto .top-sheet {
+      transform: translateY(0);
+    }
+
+    .sheet-header {
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid var(--md-border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .sheet-tabs-container {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--md-on-surface-variant);
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn.ativo {
+      background-color: rgba(0, 127, 255, 0.18);
+      color: var(--md-secondary);
+    }
+
+    .btn-fechar-sheet {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      border: 1px solid var(--md-border-soft);
+      background-color: var(--md-surface-2);
+      color: var(--md-on-surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-fechar-sheet svg {
+      width: 1.2rem;
+      height: 1.2rem;
+      fill: currentColor;
+    }
+
+    .btn-fechar-sheet:hover {
+      background-color: var(--md-surface-1);
+    }
+
+    .sheet-body {
+      padding: 0.85rem 1.2rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .modulo-secao {
+      display: none;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .modulo-secao.ativo {
+      display: flex;
+    }
+
+    .sheet-card-box {
+      background-color: var(--md-surface-2);
+      border: 1px solid var(--md-border-subtle);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .sheet-card-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--md-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sheet-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--md-on-surface-variant);
+    }
+
+    .sheet-row strong {
+      color: var(--md-on-surface);
+    }
+
+    .badge-status-nuvem {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+    }
+
+    .btn-acao-gaveta {
+      width: 100%;
+      min-height: 2.75rem;
+      background-color: var(--md-secondary);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-acao-gaveta:active {
+      transform: scale(0.97);
+    }
+
+    /* SWITCHES MATERIAL DESIGN 3 */
+    .m3-switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 3rem;
+      padding: 0.35rem 0.1rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--md-border-subtle);
+      user-select: none;
+    }
+
+    .m3-switch-row:last-child {
+      border-bottom: none;
+    }
+
+    .m3-switch-label-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding-right: 0.85rem;
+    }
+
+    .m3-switch-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--md-on-surface);
+    }
+
+    .m3-switch-desc {
+      font-size: 0.74rem;
+      color: var(--md-on-surface-variant);
+      line-height: 1.35;
+    }
+
+    .m3-switch {
+      position: relative;
+      width: 3.2rem;
+      height: 1.95rem;
+      flex-shrink: 0;
+    }
+
+    .m3-switch input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .m3-switch-track {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--md-switch-track-off);
+      border: 2px solid var(--md-switch-border-off);
+      border-radius: 1rem;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .m3-switch-thumb {
+      position: absolute;
+      top: 50%;
+      left: 0.25rem;
+      transform: translateY(-50%);
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      background-color: var(--md-switch-thumb-off);
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .m3-switch input:checked + .m3-switch-track {
+      background-color: var(--md-secondary);
+      border-color: var(--md-secondary);
+    }
+
+    .m3-switch input:checked + .m3-switch-track .m3-switch-thumb {
+      left: calc(100% - 1.55rem);
+      width: 1.35rem;
+      height: 1.35rem;
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    }
+
+    .m3-select-box {
+      width: 100%;
+      background-color: var(--md-surface-2);
+      border: 1.5px solid var(--md-border-strong);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      color: var(--md-on-surface);
+      font-size: 0.84rem;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 0.35rem;
+    }
+
+    /* BOTTOM SHEET (Navegação de Telas) */
+    .scrim-bottom {
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .bottom-sheet {
+      width: calc(100% - 1.5rem);
+      max-width: 500px;
+      background-color: var(--md-surface-3);
+      border-radius: 1.25rem;
+      border: 1px solid var(--md-border-strong);
+      box-shadow: var(--md-elevation-3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin-bottom: calc(5.4rem + var(--safe-bottom));
+      transform: translateY(calc(100% + 5rem));
+      transition: transform var(--sheet-duracao) cubic-bezier(0.05, 0.7, 0.1, 1.0);
+    }
+
+    .scrim-bottom.aberto .bottom-sheet {
+      transform: translateY(0);
+    }
+
+    .sheet-nav-body {
+      padding: 0.85rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .nav-item-btn {
+      width: 100%;
+      min-height: 3.4rem;
+      background-color: var(--md-surface-1);
+      border: 1.5px solid var(--md-border-subtle);
+      border-radius: 12px;
+      padding: 0.65rem 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      color: var(--md-on-surface);
+    }
+
+    .nav-item-btn:hover {
+      background-color: var(--md-surface-2);
+      border-color: rgba(0, 127, 255, 0.4);
+    }
+
+    .nav-item-btn:active {
+      transform: scale(0.98);
+    }
+
+    .nav-item-btn.ativo {
+      background-color: rgba(0, 127, 255, 0.12);
+      border-color: var(--md-secondary);
+    }
+
+    .nav-item-icon-box {
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 50%;
+      background-color: var(--md-surface-2);
+      color: var(--md-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .nav-item-icon-box img {
+      width: 1.3rem;
+      height: 1.3rem;
+    }
+
+    .nav-item-btn.ativo .nav-item-icon-box {
+      background-color: var(--md-secondary);
+      color: #ffffff;
+    }
+
+    .nav-item-btn.ativo .nav-item-icon-box img {
+      filter: brightness(0) invert(1);
+    }
+
+    .nav-item-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .nav-item-nome {
+      font-size: 0.92rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .nav-item-desc {
+      font-size: 0.74rem;
+      color: var(--md-on-surface-variant);
+      line-height: 1.3;
+    }
+
+    .nav-item-badge {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background-color: var(--md-secondary);
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    /* TOAST FLUTUANTE */
+    .toast-msg {
+      position: fixed;
+      bottom: calc(6rem + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--md-surface-2);
+      color: var(--md-on-surface);
+      padding: 0.6rem 1.2rem;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      box-shadow: var(--md-elevation-3);
+      border: 1px solid var(--md-secondary);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 200;
       white-space: nowrap;
     }
 
     .toast-msg.visivel {
       opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
     }
   </style>
 </head>
 
 <body>
 
-  <!-- Barra Superior -->
-  <header class="bar-sup">
-    <div class="bar-logo">SS</div>
-    <div class="status-centro">
-      <div class="status-titulo">Santa Dulce dos Pobres</div>
-      <div class="status-sub">Conferência Ativa</div>
+  <!-- ========================================================================
+       1. BARRA SUPERIOR INSTITUCIONAL (PADRÃO T5 COM LOGO, CONFERÊNCIA E 3 PONTOS)
+       ======================================================================== -->
+  <header class="app-header" id="appHeader">
+    <!-- Logotipo Oficial SSVP -->
+    <div class="header-logo-container" title="Sociedade de São Vicente de Paulo">
+      <img src="../../img/marca_ssvp.svg" alt="SSVP" class="header-logo-img">
     </div>
-    <span class="versao-badge">Opção B: Cápsula Dupla</span>
+
+    <!-- Nome da Conferência e Subtítulo -->
+    <div class="header-title-area">
+      <h1 class="header-conf-name" id="confName">Santa Dulce dos Pobres</h1>
+      <div class="header-sub-row">
+        <span class="header-cp-name">CP Vila Mariana</span>
+        <span class="header-version-pill">T6 • Opções de Entrada v2.1</span>
+      </div>
+    </div>
+
+    <!-- Botão de 3 Pontos Verticais (Overflow M3 - Como em T5) -->
+    <button type="button" class="btn-header-overflow" id="btnOverflow" onclick="abrirTopSheet()" title="Mais Opções (Configurações, Conexão, Ajuda)">
+      <svg viewBox="0 -960 960 960">
+        <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/>
+      </svg>
+    </button>
   </header>
 
-  <!-- Seletor de Opções para Teste no Smartphone -->
-  <nav class="seletor-opcoes" aria-label="Alternar protótipos de teste">
-    <a href="t6_opcao_a_barra_contextual.html" class="btn-opcao">Opção A (Contextual)</a>
-    <a href="t6_opcao_b_capsula_dupla.html" class="btn-opcao ativa">Opção B (Cápsula Dupla)</a>
-    <a href="t6_opcao_c_toggle_central.html" class="btn-opcao">Opção C (Toggle Central)</a>
+  <!-- Sub-barra com Atalho para a Lista de Testes -->
+  <nav class="subbar-teste" aria-label="Navegação do Protótipo">
+    <a href="index.html" class="subbar-link" title="Voltar ao Catálogo de Testes">
+      <span>← Voltar ao Índice</span>
+    </a>
+    <span class="subbar-badge">Opções de Entrada</span>
   </nav>
 
-  <!-- Conteúdo Principal -->
-  <main class="area-conteudo">
+  <!-- ========================================================================
+       2. CONTEÚDO PRINCIPAL: LAR ASSISTIDO E FORMULÁRIO COM FAROL DE FOCO
+       ======================================================================== -->
+  <main class="display-area" id="mainConteudo">
 
-    <section class="banner-explicativo">
-      <div class="banner-titulo">✨ Opção B: Como funciona no Smartphone?</div>
-      <p>1. O botão <strong>[ ⚙️ Conexão ]</strong> na esquerda permanece sempre intacto.</p>
-      <p>2. Ao focar em um campo de texto, o botão central se divide em uma <strong>Cápsula Dupla</strong>: <strong>[ 🎙️ Falar ]</strong> e <strong>[ ⌨️ Teclado ]</strong> lado a lado.</p>
-      <p>3. Toque em <strong>Falar</strong> para ditar no microfone, ou em <strong>Teclado</strong> para abrir a digitação manual.</p>
-    </section>
-
-    <!-- Card da Família -->
-    <article class="card-lar">
-      <div class="card-lar-header">
-        <div>
-          <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Lar Assistido</span>
-          <h2 class="lar-nome">Neuza Pereira dos Santos</h2>
-          <div class="lar-endereco">📍 Rua das Flores, 120 - Vila Esperança</div>
-        </div>
-        <span class="tag-status">ATIVA</span>
+    <!-- Card da Família / Lar Assistido -->
+    <article class="md-card" id="cardLarAssistido">
+      <div class="card-header-row">
+        <span class="chip-status">Família Ativa</span>
+        <span style="font-size: 0.74rem; color: var(--md-secondary); font-weight: 700;">Visita Quinzenal</span>
       </div>
 
-      <!-- Relato Anterior (Modo Ouvir - Azul SSVP) -->
-      <div class="bloco-leitura" id="cardRelatoAnterior" role="button" tabindex="0" aria-label="Toque para ouvir o relato">
-        <div class="bloco-leitura-header">
-          <span style="font-size: 0.75rem; color: #38bdf8; font-weight: 700;">📅 Última Visita: 07/09/2026</span>
-          <span class="bloco-leitura-tag">🔵 Toque p/ Ouvir</span>
+      <div>
+        <h2 class="card-titulo-pessoa">Neuza Pereira dos Santos</h2>
+        <div class="card-endereco-row">
+          <img src="../../img/location_on.svg" alt="Localização">
+          <span>Rua das Flores, 120 - Vila Esperança</span>
         </div>
-        <p class="bloco-leitura-texto" id="txtRelato">
-          "Vitória fraterna celebrada! Dona Neuza deixou o neto Lucas com a vizinha Rosa e conseguiu marcar a consulta cardiológica no posto de saúde. Muito alegre e motivada."
+      </div>
+
+      <!-- Relato da Última Visita (Toque para Selecionar e Ouvir no Rodapé) -->
+      <div class="bloco-relato-anterior" id="blocoRelatoAnterior" role="button" tabindex="0" onclick="selecionarRelatoAnterior()" title="Toque para selecionar o relato e ouvir no botão abaixo">
+        <div class="relato-anterior-header">
+          <span class="relato-data">📅 Última Visita: 07/09/2026</span>
+        </div>
+        <p class="relato-texto" id="textoRelatoAnterior">
+          "Vitória fraterna celebrada! Dona Neuza conseguiu marcar a consulta cardiológica no posto de saúde com o apoio da vizinha Rosa. Relatou melhora na pressão e agradeceu a cesta reforçada com leite desnatado."
         </p>
       </div>
 
       <!-- Formulário da Nova Visita -->
-      <div class="secao-formulario">
-        <div class="form-titulo">✍️ Registrar Nova Visita (Hoje)</div>
+      <div class="secao-formulario-visita">
+        <div class="form-titulo-area">
+          <span class="form-titulo">
+            <img src="../../img/description.svg" alt="" style="width: 1.1rem; height: 1.1rem;">
+            <span>Anotações da Visita de Hoje</span>
+          </span>
+        </div>
 
         <!-- Campo 1: Relato da Visita -->
-        <div class="grupo-campo">
-          <label for="campoRelato" class="campo-label">Relato da Visita:</label>
-          <textarea id="campoRelato" class="campo-input" rows="3" placeholder="Toque aqui e use a cápsula embaixo..." inputmode="none"></textarea>
+        <div class="grupo-campo" id="grupoRelato">
+          <label class="label-campo" for="campoRelato">
+            <span>1. Relato da Visita &amp; Conversa:</span>
+            <span class="badge-foco-ativo" id="badgeRelato">Pronto</span>
+          </label>
+          <div class="campo-wrapper">
+            <textarea id="campoRelato" class="campo-formulario" rows="3" placeholder="Toque aqui para focar o campo..."
+              onfocus="registrarFocoCampo(this, 'grupoRelato')"
+              onclick="registrarFocoCampo(this, 'grupoRelato')"></textarea>
+          </div>
         </div>
 
-        <!-- Campo 2: Auxílio -->
-        <div class="grupo-campo">
-          <label for="campoAuxilio" class="campo-label">Auxílio ou Cesta Entregue:</label>
-          <input type="text" id="campoAuxilio" class="campo-input" placeholder="Ex: Cesta básica mensal..." inputmode="none">
+        <!-- Campo 2: Auxílio ou Cesta -->
+        <div class="grupo-campo" id="grupoAuxilio">
+          <label class="label-campo" for="campoAuxilio">
+            <span>2. Cesta ou Auxílio Emergencial:</span>
+            <span class="badge-foco-ativo" id="badgeAuxilio">Pronto</span>
+          </label>
+          <div class="campo-wrapper">
+            <input type="text" id="campoAuxilio" class="campo-formulario" placeholder="Ex: Cesta básica tipo B + pacote de fraldas G"
+              onfocus="registrarFocoCampo(this, 'grupoAuxilio')"
+              onclick="registrarFocoCampo(this, 'grupoAuxilio')">
+          </div>
         </div>
 
-        <!-- Campo 3: Nova Meta -->
-        <div class="grupo-campo">
-          <label for="campoMeta" class="campo-label">Nova Meta Pactuada:</label>
-          <input type="text" id="campoMeta" class="campo-input" placeholder="Ex: Caminhada de 15 min 3x por semana..." inputmode="none">
+        <!-- Campo 3: Nova Meta Pactuada -->
+        <div class="grupo-campo" id="grupoMeta">
+          <label class="label-campo" for="campoMeta">
+            <span>3. Nova Meta Pactuada (Promoção):</span>
+            <span class="badge-foco-ativo" id="badgeMeta">Pronto</span>
+          </label>
+          <div class="campo-wrapper">
+            <input type="text" id="campoMeta" class="campo-formulario" placeholder="Ex: Acompanhar realização de exames laboratoriais na UBS"
+              onfocus="registrarFocoCampo(this, 'grupoMeta')"
+              onclick="registrarFocoCampo(this, 'grupoMeta')">
+          </div>
         </div>
 
-        <button type="button" class="btn-salvar" id="btnSalvarVisita">
-          💾 Salvar Visita no Celular
+        <button type="button" class="btn-salvar-visita" id="btnSalvarVisita" onclick="salvarVisitaLocal()">
+          <span>💾 Salvar Relato no Celular (Rascunho)</span>
         </button>
       </div>
 
@@ -577,300 +1361,894 @@
 
   </main>
 
-  <!-- Toast Flutuante -->
-  <div class="toast-msg" id="toast">Feedback</div>
+  <!-- ========================================================================
+       3. BARRA INFERIOR NO POLEGAR (MENU + ESPAÇAMENTO SEGURO + BOTÃO OUVIR/PARAR + SAIR)
+       ======================================================================== -->
+  <footer class="app-footer" id="appFooter">
 
-  <!-- Barra Inferior Fixa - Opção B (Cápsula Dupla) -->
-  <footer class="bar-inf" role="contentinfo">
-    
-    <!-- Botão Esquerdo Permanente (Conexão) -->
-    <button type="button" class="btn-nav" id="btnConexao" title="Configurações de Conexão">
-      <span class="btn-nav-icone">⚙️</span>
-      <span class="btn-nav-texto">Conexão</span>
+    <!-- 1. Botão Menu (Exatamente como em T5 com SVG Vetorial) -->
+    <button type="button" class="btn-footer-lateral" id="btnFooterMenu" onclick="abrirBottomNav()" title="Navegar entre Páginas (Menu)">
+      <svg viewBox="0 -960 960 960">
+        <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
+      </svg>
+      <span class="footer-btn-label">Menu</span>
     </button>
 
-    <!-- ESTADO 1: Botão Central Simples (Modo Ouvir) -->
-    <button type="button" class="btn-nav btn-central-simples" id="btnOuvirSimples" title="Ouvir Relato">
-      <span class="btn-nav-icone" id="iconeOuvir">🔊</span>
-      <span class="btn-nav-texto" id="textoOuvir">Ouvir</span>
-    </button>
+    <!-- 2. Centro Dinâmico com Zona de Respiro Anti-Toque Acidental -->
+    <div class="footer-centro-container">
 
-    <!-- ESTADO 2: Cápsula Dupla (Surge quando um campo está focado) -->
-    <div class="capsula-dupla-container" id="capsulaDupla">
-      <button type="button" class="btn-capsula btn-capsula-falar" id="btnCapsulaFalar" title="Falar no Microfone">
-        <span class="btn-nav-icone" id="iconeCapsulaFalar">🎙️</span>
-        <span class="btn-nav-texto" id="textoCapsulaFalar">Falar</span>
+      <!-- BOTÃO OUVIR / PARAR: Recebe pulso sincronizado com o campo e só fala ao tocar -->
+      <button type="button" class="btn-audio-central" id="btnAudioHub" onclick="lidarCliqueBotaoOuvirParar()" title="Toque para ouvir a leitura do campo focado">
+        <!-- Ícone 1: Ouvir (Alto-falante) -->
+        <svg viewBox="0 -960 960 960" class="audio-central-icon" id="svgSpeaker">
+          <path d="M560-131v-82q90-26 145-100t55-167q0-93-55-167T560-747v-82q124 28 202 125.5T840-480q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-320q46 17 73 57.5t27 92.5q0 52-27 92.5T560-320ZM400-606l-86 86H200v80h114l86 86v-252ZM300-480Z"/>
+        </svg>
+
+        <!-- Ícone 2: Parar (Stop - Exibido quando começa a falar) -->
+        <svg viewBox="0 -960 960 960" class="audio-central-icon" id="svgStop" style="display: none;">
+          <path d="M240-240v-480h480v480H240Z"/>
+        </svg>
+
+        <span class="audio-central-label" id="lblHubAudio">Ouvir</span>
       </button>
 
-      <button type="button" class="btn-capsula btn-capsula-teclado" id="btnCapsulaTeclado" title="Abrir Teclado Virtual">
-        <span class="btn-nav-icone">⌨️</span>
-        <span class="btn-nav-texto">Teclado</span>
-      </button>
     </div>
 
-    <!-- Botão Direito (Ajuda) -->
-    <button type="button" class="btn-nav" id="btnAjuda" title="Ajuda">
-      <span class="btn-nav-icone">❓</span>
-      <span class="btn-nav-texto">Ajuda</span>
+    <!-- 3. Botão Sair (Vermelho Oficial SSVP - Proteção LGPD e Logout) -->
+    <button type="button" class="btn-footer-lateral btn-sair-lateral" id="btnFooterSair" onclick="executarLogoutProtegido()" title="Sair imediatamente e proteger dados da família (LGPD)">
+      <svg viewBox="0 -960 960 960">
+        <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
+      </svg>
+      <span class="footer-btn-label">Sair</span>
     </button>
 
   </footer>
 
-  <!-- Lógica do Protótipo Opção B -->
+  <!-- ========================================================================
+       4. GAVETA SUPERIOR: CONFIGURAÇÕES E ERGONOMIA (TOP SHEET M3 COM TODAS AS OPÇÕES DE T4)
+       ======================================================================== -->
+  <div class="scrim-overlay scrim-top" id="scrimTop" onclick="fecharTopSheetPorOverlay(event)">
+    <div class="top-sheet" id="topSheet" onclick="event.stopPropagation()">
+      
+      <!-- Cabeçalho da Gaveta com Abas -->
+      <div class="sheet-header">
+        <div class="sheet-tabs-container">
+          <button type="button" class="tab-btn ativo" id="tabBtnConfig" onclick="mudarAbaGaveta('config')">
+            <span>⚙️ Ajustes</span>
+          </button>
+          <button type="button" class="tab-btn" id="tabBtnSinc" onclick="mudarAbaGaveta('sinc')">
+            <span>📡 Conexão</span>
+          </button>
+          <button type="button" class="tab-btn" id="tabBtnAjuda" onclick="mudarAbaGaveta('ajuda')">
+            <span>❓ Ajuda</span>
+          </button>
+        </div>
+        <button type="button" class="btn-fechar-sheet" onclick="fecharTopSheet()" title="Fechar">
+          <svg viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+        </button>
+      </div>
+
+      <!-- Corpo da Gaveta com as Seções -->
+      <div class="sheet-body">
+
+        <!-- MÓDULO 1: CONFIGURAÇÕES E ACESSIBILIDADE DE T4 -->
+        <section class="modulo-secao ativo" id="moduloConfig">
+
+          <span class="sheet-card-title">Método de Digitação Preferido (IndexedDB)</span>
+
+          <!-- Seletor no Top Sheet -->
+          <div class="sheet-card-box">
+            <span style="font-size: 0.82rem; font-weight: 700; color: var(--md-on-surface);">Como você prefere preencher campos?</span>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+              <button type="button" class="btn-toggle-modo ativo" id="btnConfigVoz" onclick="selecionarModoEntrada('voz')">
+                🎙️ Por Voz
+              </button>
+              <button type="button" class="btn-toggle-modo" id="btnConfigTeclado" onclick="selecionarModoEntrada('teclado')">
+                ⌨️ Por Teclado
+              </button>
+            </div>
+          </div>
+
+          <span class="sheet-card-title" style="margin-top: 0.4rem;">Visual &amp; Acessibilidade (T4)</span>
+
+          <!-- 1. Modo Escuro / Tema Claro -->
+          <label class="m3-switch-row" for="switchModoEscuro">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Modo Escuro</span>
+              <span class="m3-switch-desc">Ativo: alto contraste noturno; Desativo: tema claro para sol</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchModoEscuro" onchange="alterarConfig('modoEscuro', this.checked)" checked>
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 2. Fonte Grande (60+) -->
+          <label class="m3-switch-row" for="switchFonteGrande">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Fonte Grande (Idosos 60+)</span>
+              <span class="m3-switch-desc">Amplia letras para leitura confortável sem óculos</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchFonteGrande" onchange="alterarConfig('fonteGrande', this.checked)">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 3. Modo Destro / Canhoto -->
+          <label class="m3-switch-row" for="switchDestro">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Modo Destro</span>
+              <span class="m3-switch-desc">Desative para canhoto: inverte Menu e Sair no rodapé</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchDestro" onchange="alterarConfig('destro', this.checked)" checked>
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 4. Reduzir Animações -->
+          <label class="m3-switch-row" for="switchReduzirAnim">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Reduzir Animações</span>
+              <span class="m3-switch-desc">Transição instantânea para economizar bateria e fluidez</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchReduzirAnim" onchange="alterarConfig('reduzirAnimacoes', this.checked)">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 5. Simulação de Daltonismo (WCAG) -->
+          <div class="m3-switch-row" style="flex-direction: column; align-items: flex-start; gap: 0.35rem;">
+            <div class="m3-switch-label-group" style="width: 100%;">
+              <span class="m3-switch-title">👁️ Simulação Visual (Daltonismo)</span>
+              <span class="m3-switch-desc">Filtro cromático para testes de contraste</span>
+            </div>
+            <select id="selectDaltonismo" class="m3-select-box" onchange="aplicarSimulacaoDaltonismo(this.value)">
+              <option value="normal">🟢 Normal (Cores Reais)</option>
+              <option value="deuteranopia">🟡 Deuteranopia (Verde-Vermelho)</option>
+              <option value="protanopia">🔴 Protanopia (Ausência de Vermelho)</option>
+              <option value="tritanopia">🔵 Tritanopia (Azul-Amarelo / Idosos)</option>
+              <option value="monocromia">⚫ Monocromia (Preto e Branco)</option>
+              <option value="alto-contraste">⚡ Alto Contraste (+50%)</option>
+            </select>
+          </div>
+
+          <span class="sheet-card-title" style="margin-top: 0.4rem;">Operação em Campo (T4)</span>
+
+          <!-- 6. Vibração Tátil ao Tocar -->
+          <label class="m3-switch-row" for="switchVibracao">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Vibração ao Tocar</span>
+              <span class="m3-switch-desc">Confirmação física ao ditar ou tocar botões</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchVibracao" onchange="alterarConfig('vibracaoAtiva', this.checked)" checked>
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 7. Som Harmônico ao Tocar -->
+          <label class="m3-switch-row" for="switchSom">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Som ao Tocar</span>
+              <span class="m3-switch-desc">Confirmação sonora harmônica (Web Audio)</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchSom" onchange="alterarConfig('somAtivo', this.checked)" checked>
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 8. Sincronizar em Wi-Fi -->
+          <label class="m3-switch-row" for="switchWifi">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Sincronizar em Wi-Fi</span>
+              <span class="m3-switch-desc">Economiza dados móveis 3G/4G durante as visitas</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchWifi" onchange="alterarConfig('somenteWifi', this.checked)">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+        </section>
+
+        <!-- MÓDULO 2: CONEXÃO E NUVEM -->
+        <section class="modulo-secao" id="moduloSinc">
+          <div class="sheet-card-box">
+            <span class="sheet-card-title">📡 Estado da Conexão</span>
+            <div class="sheet-row">
+              <span>Rede Detectada:</span>
+              <span class="badge-status-nuvem" id="badgeRede">🟢 Wi-Fi Online</span>
+            </div>
+            <div class="sheet-row">
+              <span>Nuvem Google Sheets:</span>
+              <strong style="color: #86efac;">Conectada</strong>
+            </div>
+          </div>
+
+          <div class="sheet-card-box">
+            <span class="sheet-card-title">📦 Cofre Local (IndexedDB)</span>
+            <div class="sheet-row">
+              <span>Famílias Baixadas:</span>
+              <strong>14 no celular</strong>
+            </div>
+            <div class="sheet-row">
+              <span>Preferência de Entrada:</span>
+              <strong id="lblIndexedDBModo" style="color: var(--ssvp-blue-glow);">Voz</strong>
+            </div>
+          </div>
+
+          <button type="button" class="btn-acao-gaveta" onclick="sincronizarComNuvem()">
+            <span>🔄 Sincronizar Agora com a Nuvem</span>
+          </button>
+        </section>
+
+        <!-- MÓDULO 3: AJUDA -->
+        <section class="modulo-secao" id="moduloAjuda">
+          <div class="sheet-card-box">
+            <span class="sheet-card-title">📖 Guia da Interação e Acessibilidade</span>
+            <p style="font-size: 0.8rem; line-height: 1.45; color: var(--md-on-surface-variant);">
+              • <strong>Foco Sincronizado:</strong> Ao tocar em qualquer campo de texto ou no relato anterior, o elemento e o botão <strong>[ Ouvir ]</strong> acendem juntos com uma borda pulsante azul.<br>
+              • <strong>Leitura Controlada:</strong> O áudio não começa sozinho. Ao tocar no botão <strong>[ Ouvir ]</strong>, o app começa a falar e o botão passa a exibir o ícone de <strong>Stop</strong> e o texto <strong>"Parar"</strong>.<br>
+              • <strong>Interrupção:</strong> Toque em [ Parar ] para interromper imediatamente a fala.<br>
+              • <strong>Preferência no IndexedDB:</strong> Você pode alternar entre digitar por Voz ou Teclado na aba de Ajustes. Sua escolha fica salva permanentemente no aparelho.
+            </p>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       5. GAVETA INFERIOR DE TELAS (BOTTOM SHEET DE NAVEGAÇÃO)
+       ======================================================================== -->
+  <div class="scrim-overlay scrim-bottom" id="scrimBottom" onclick="fecharBottomNavPorOverlay(event)">
+    <div class="bottom-sheet" id="bottomSheet" onclick="event.stopPropagation()">
+      
+      <div class="sheet-header">
+        <span class="sheet-card-title" style="font-size: 0.95rem;">Navegar para Página</span>
+        <button type="button" class="btn-fechar-sheet" onclick="fecharBottomNav()" title="Fechar">
+          <svg viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+        </button>
+      </div>
+
+      <div class="sheet-nav-body">
+        <!-- 1. Visitas -->
+        <button type="button" class="nav-item-btn ativo" onclick="selecionarPagina('Visitas Domiciliares')">
+          <div class="nav-item-icon-box">
+            <img src="../../img/home.svg" alt="Visitas">
+          </div>
+          <div class="nav-item-text">
+            <span class="nav-item-nome">
+              <span>Visitas Domiciliares</span>
+              <span class="nav-item-badge">Atual</span>
+            </span>
+            <span class="nav-item-desc">Anotações e relatos em tempo real</span>
+          </div>
+        </button>
+
+        <!-- 2. Famílias -->
+        <button type="button" class="nav-item-btn" onclick="selecionarPagina('Famílias Assistidas')">
+          <div class="nav-item-icon-box">
+            <img src="../../img/person.svg" alt="Famílias">
+          </div>
+          <div class="nav-item-text">
+            <span class="nav-item-nome">Famílias Assistidas</span>
+            <span class="nav-item-desc">Cadastro de assistidos e composição familiar</span>
+          </div>
+        </button>
+
+        <!-- 3. Metas -->
+        <button type="button" class="nav-item-btn" onclick="selecionarPagina('Metas & Promoção')">
+          <div class="nav-item-icon-box">
+            <img src="../../img/target.svg" alt="Metas">
+          </div>
+          <div class="nav-item-text">
+            <span class="nav-item-nome">Metas de Promoção Social</span>
+            <span class="nav-item-desc">Autonomia, saúde e trabalho da família</span>
+          </div>
+        </button>
+
+        <!-- 4. Pastoral -->
+        <button type="button" class="nav-item-btn" onclick="selecionarPagina('Pastoral de Rua')">
+          <div class="nav-item-icon-box">
+            <img src="../../img/groups.svg" alt="Pastoral">
+          </div>
+          <div class="nav-item-text">
+            <span class="nav-item-nome">Pastoral &amp; População de Rua</span>
+            <span class="nav-item-desc">Atendimentos fraternos noturnos</span>
+          </div>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Flutuante de Alerta e Feedback -->
+  <div class="toast-msg" id="toastMsg">Feedback do Sistema</div>
+
+  <!-- ========================================================================
+       6. FILTROS SVG CIENTÍFICOS PARA SIMULAÇÃO DE DALTONISMO (WCAG 1.4.1)
+       ======================================================================== -->
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;" aria-hidden="true">
+    <defs>
+      <!-- Deuteranopia (Verde-Vermelho / + comum) -->
+      <filter id="filtro-deuteranopia">
+        <feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0" />
+      </filter>
+      <!-- Protanopia (Ausência de Vermelho) -->
+      <filter id="filtro-protanopia">
+        <feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0" />
+      </filter>
+      <!-- Tritanopia (Azul-Amarelo / Envelhecimento visual) -->
+      <filter id="filtro-tritanopia">
+        <feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- ========================================================================
+       7. LÓGICA JAVASCRIPT COMPLETA COM INDEXEDDB E CONTROLE DE VOZ
+       ======================================================================== -->
   <script>
-    // Referências do DOM
-    const cardRelato = document.getElementById('cardRelatoAnterior');
-    const txtRelato = document.getElementById('txtRelato').textContent.trim();
-    const camposFormulario = [
-      document.getElementById('campoRelato'),
-      document.getElementById('campoAuxilio'),
-      document.getElementById('campoMeta')
-    ];
+    /**
+     * @fileoverview Lógica do Teste 6: Persistência no IndexedDB do modo de entrada
+     * (Voz vs Teclado), Borda Pulsante sincronizada no campo e no botão Ouvir,
+     * e alternância controlada do botão Ouvir para Stop/Parar ao falar.
+     */
 
-    const btnOuvirSimples = document.getElementById('btnOuvirSimples');
-    const iconeOuvir = document.getElementById('iconeOuvir');
-    const textoOuvir = document.getElementById('textoOuvir');
+    // --- CONFIGURAÇÃO E ESTADO GLOBAL UNIFICADO ---
+    const CONFIG_PADRAO = {
+      id: "app_estado_t6",
+      modoEscuro: true,
+      fonteGrande: false,
+      destro: true,
+      reduzirAnimacoes: false,
+      vibracaoAtiva: true,
+      somAtivo: true,
+      somenteWifi: false,
+      daltonismo: "normal",
+      modoEntrada: "voz" // 'voz' ou 'teclado' (Persistido no IndexedDB)
+    };
 
-    const capsulaDupla = document.getElementById('capsulaDupla');
-    const btnCapsulaFalar = document.getElementById('btnCapsulaFalar');
-    const iconeCapsulaFalar = document.getElementById('iconeCapsulaFalar');
-    const textoCapsulaFalar = document.getElementById('textoCapsulaFalar');
-    const btnCapsulaTeclado = document.getElementById('btnCapsulaTeclado');
+    let configAtual = { ...CONFIG_PADRAO };
 
-    const btnConexao = document.getElementById('btnConexao');
-    const btnAjuda = document.getElementById('btnAjuda');
-    const toast = document.getElementById('toast');
+    // --- BANCO DE DADOS INDEXEDDB NATIVO ---
+    const DB_NAME = "SSVP_MaterialDesign_DB";
+    const DB_VERSION = 1;
+    const STORE_PREFERENCIAS = "preferencias_usuario";
 
-    // Estados
-    let campoAtivo = null;
-    let tecladoAberto = false;
-    let estaGravando = false;
-    let estaOuvindoAudio = false;
-
-    function exibirToast(msg) {
-      toast.textContent = msg;
-      toast.classList.add('visivel');
-      clearTimeout(toast.timer);
-      toast.timer = setTimeout(() => toast.classList.remove('visivel'), 2500);
+    function abrirIndexedDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_PREFERENCIAS)) {
+            db.createObjectStore(STORE_PREFERENCIAS, { keyPath: "chave" });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
     }
 
-    // 1. MODO OUVIR (Ao tocar no card de relato)
-    cardRelato.addEventListener('click', () => {
-      desfocarCampos();
-      limparPulsos();
+    async function salvarPreferenciaIndexedDB(chave, valor) {
+      try {
+        const db = await abrirIndexedDB();
+        const tx = db.transaction(STORE_PREFERENCIAS, "readwrite");
+        tx.objectStore(STORE_PREFERENCIAS).put({
+          chave: chave,
+          valor: valor,
+          atualizadoEm: new Date().toISOString()
+        });
+      } catch (err) {
+        console.warn("IndexedDB fallback para localStorage:", err);
+        localStorage.setItem(`ssvp_${chave}`, JSON.stringify(valor));
+      }
+    }
 
-      cardRelato.classList.add('pulso-ouvir-azul');
-      exibirModoOuvir();
-      btnOuvirSimples.classList.add('pulso-ouvir-azul');
+    async function carregarPreferenciaIndexedDB(chave, valorPadrao) {
+      try {
+        const db = await abrirIndexedDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(STORE_PREFERENCIAS, "readonly");
+          const req = tx.objectStore(STORE_PREFERENCIAS).get(chave);
+          req.onsuccess = () => {
+            if (req.result && req.result.valor !== undefined) {
+              resolve(req.result.valor);
+            } else {
+              resolve(valorPadrao);
+            }
+          };
+          req.onerror = () => resolve(valorPadrao);
+        });
+      } catch (err) {
+        const salvo = localStorage.getItem(`ssvp_${chave}`);
+        return salvo ? JSON.parse(salvo) : valorPadrao;
+      }
+    }
 
-      exibirToast('Card selecionado. Aperte [Ouvir] abaixo.');
-    });
+    // --- ELEMENTOS DO DOM ---
+    const scrimTop = document.getElementById("scrimTop");
+    const scrimBottom = document.getElementById("scrimBottom");
+    const toastMsg = document.getElementById("toastMsg");
 
-    // 2. MODO FALAR (Ao tocar em qualquer campo de texto)
-    camposFormulario.forEach((campo) => {
-      campo.addEventListener('focus', () => {
-        campoAtivo = campo;
-        limparPulsos();
+    const blocoRelatoAnterior = document.getElementById("blocoRelatoAnterior");
+    const textoRelatoAnterior = document.getElementById("textoRelatoAnterior").textContent.trim();
 
-        campo.classList.add('pulso-falar-vermelho');
-        exibirModoCapsula();
+    const campoRelato = document.getElementById("campoRelato");
+    const campoAuxilio = document.getElementById("campoAuxilio");
+    const campoMeta = document.getElementById("campoMeta");
+    const todosCampos = [campoRelato, campoAuxilio, campoMeta];
 
-        btnCapsulaFalar.classList.add('pulso-falar-vermelho');
-        btnCapsulaTeclado.classList.toggle('teclado-ativo', tecladoAberto);
+    const grupoRelato = document.getElementById("grupoRelato");
+    const grupoAuxilio = document.getElementById("grupoAuxilio");
+    const grupoMeta = document.getElementById("grupoMeta");
+    const todosGrupos = [grupoRelato, grupoAuxilio, grupoMeta];
 
-        if (!tecladoAberto) {
-          campo.setAttribute('inputmode', 'none');
-          exibirToast('Cápsula ativa: Fale no microfone ou aperte Teclado.');
+    const btnAudioHub = document.getElementById("btnAudioHub");
+    const svgSpeaker = document.getElementById("svgSpeaker");
+    const svgStop = document.getElementById("svgStop");
+    const lblHubAudio = document.getElementById("lblHubAudio");
+
+    const btnConfigVoz = document.getElementById("btnConfigVoz");
+    const btnConfigTeclado = document.getElementById("btnConfigTeclado");
+    const lblIndexedDBModo = document.getElementById("lblIndexedDBModo");
+
+    // Switches
+    const switchModoEscuro = document.getElementById("switchModoEscuro");
+    const switchFonteGrande = document.getElementById("switchFonteGrande");
+    const switchDestro = document.getElementById("switchDestro");
+    const switchReduzirAnim = document.getElementById("switchReduzirAnim");
+    const switchVibracao = document.getElementById("switchVibracao");
+    const switchSom = document.getElementById("switchSom");
+    const switchWifi = document.getElementById("switchWifi");
+    const selectDaltonismo = document.getElementById("selectDaltonismo");
+
+    // Estado da Execução
+    let elementoFocadoAtual = null; // campo de texto ou o card de relato
+    let estaFalando = false;
+    let sintetizadorFala = window.speechSynthesis || null;
+
+    // --- INICIALIZAÇÃO COM CARREGAMENTO DO INDEXEDDB ---
+    async function inicializarApp() {
+      // 1. Carrega o modo de entrada gravado no IndexedDB
+      const modoSalvo = await carregarPreferenciaIndexedDB("modo_entrada_preferido", "voz");
+      configAtual.modoEntrada = modoSalvo;
+
+      // 2. Carrega as preferências visuais
+      const configSalva = await carregarPreferenciaIndexedDB("config_geral", null);
+      if (configSalva) {
+        configAtual = { ...configAtual, ...configSalva, modoEntrada: modoSalvo };
+      }
+
+      aplicarTodasConfiguracoes();
+      aplicarModoEntradaNosCampos();
+      atualizarStatusRede();
+    }
+
+    // --- SELEÇÃO E GRAVAÇÃO DO MODO DE ENTRADA (VOZ VS TECLADO) ---
+    async function selecionarModoEntrada(modo) {
+      configAtual.modoEntrada = modo;
+      dispararFeedbackTabil(35);
+      dispararFeedbackSonoro(modo === "voz" ? 880 : 523.25);
+
+      // Salva no IndexedDB
+      await salvarPreferenciaIndexedDB("modo_entrada_preferido", modo);
+
+      // Atualiza interface
+      aplicarModoEntradaNosCampos();
+      mostrarToast(`Preferência salva no celular: Modo ${modo === "voz" ? "Voz" : "Teclado"}`);
+    }
+
+    function aplicarModoEntradaNosCampos() {
+      const modoVozAtivo = configAtual.modoEntrada === "voz";
+
+      if (btnConfigVoz) btnConfigVoz.classList.toggle("ativo", modoVozAtivo);
+      if (btnConfigTeclado) btnConfigTeclado.classList.toggle("ativo", !modoVozAtivo);
+      if (lblIndexedDBModo) lblIndexedDBModo.textContent = modoVozAtivo ? "Voz" : "Teclado";
+
+      // Configura os campos
+      todosCampos.forEach((c) => {
+        if (modoVozAtivo) {
+          c.setAttribute("inputmode", "none"); // Não abre o teclado compulsivamente
+        } else {
+          c.removeAttribute("inputmode");
+          c.setAttribute("inputmode", "text"); // Permite teclado nativo
         }
       });
-    });
+    }
 
-    // 3. AÇÃO DO BOTÃO TECLADO NA CÁPSULA
-    btnCapsulaTeclado.addEventListener('click', () => {
-      if (!campoAtivo) return;
+    // --- APLICAÇÃO DINÂMICA DAS CONFIGURAÇÕES GERAIS ---
+    function aplicarTodasConfiguracoes() {
+      // 1. Modo Escuro vs. Tema Claro
+      document.body.classList.toggle("tema-claro", !configAtual.modoEscuro);
+      if (switchModoEscuro) switchModoEscuro.checked = configAtual.modoEscuro;
 
-      tecladoAberto = !tecladoAberto;
-      if (tecladoAberto) {
-        campoAtivo.setAttribute('inputmode', 'text');
-        campoAtivo.focus();
-        btnCapsulaTeclado.classList.add('teclado-ativo');
-        exibirToast('Teclado nativo aberto');
-      } else {
-        campoAtivo.setAttribute('inputmode', 'none');
-        campoAtivo.blur();
-        btnCapsulaTeclado.classList.remove('teclado-ativo');
-        exibirToast('Teclado recolhido');
+      // 2. Fonte Grande (60+)
+      document.documentElement.classList.toggle("fonte-grande", configAtual.fonteGrande);
+      if (switchFonteGrande) switchFonteGrande.checked = configAtual.fonteGrande;
+
+      // 3. Modo Destro / Canhoto
+      document.body.classList.toggle("layout-canhoto", !configAtual.destro);
+      if (switchDestro) switchDestro.checked = configAtual.destro;
+
+      // 4. Reduzir Animações
+      document.body.classList.toggle("sem-animacoes", configAtual.reduzirAnimacoes);
+      if (switchReduzirAnim) switchReduzirAnim.checked = configAtual.reduzirAnimacoes;
+
+      // 5. Switches simples
+      if (switchVibracao) switchVibracao.checked = configAtual.vibracaoAtiva;
+      if (switchSom) switchSom.checked = configAtual.somAtivo;
+      if (switchWifi) switchWifi.checked = configAtual.somenteWifi;
+
+      // 6. Daltonismo
+      aplicarSimulacaoDaltonismo(configAtual.daltonismo, false);
+      if (selectDaltonismo) selectDaltonismo.value = configAtual.daltonismo;
+    }
+
+    async function alterarConfig(chave, valor) {
+      configAtual[chave] = valor;
+      dispararFeedbackTabil(35);
+      dispararFeedbackSonoro(659.25);
+      aplicarTodasConfiguracoes();
+      await salvarPreferenciaIndexedDB("config_geral", configAtual);
+    }
+
+    function aplicarSimulacaoDaltonismo(tipo, salvar = true) {
+      document.documentElement.classList.remove(
+        "simular-deuteranopia",
+        "simular-protanopia",
+        "simular-tritanopia",
+        "simular-monocromia",
+        "simular-alto-contraste"
+      );
+
+      if (tipo !== "normal") {
+        document.documentElement.classList.add(`simular-${tipo}`);
       }
-    });
 
-    // 4. AÇÃO DO BOTÃO FALAR NA CÁPSULA
-    btnCapsulaFalar.addEventListener('click', () => {
-      if (estaGravando) {
-        pararGravacao();
-      } else {
-        iniciarGravacao();
+      if (salvar) {
+        configAtual.daltonismo = tipo;
+        salvarPreferenciaIndexedDB("config_geral", configAtual);
       }
-    });
+    }
 
-    // 5. AÇÃO DO BOTÃO OUVIR SIMPLES
-    btnOuvirSimples.addEventListener('click', () => {
-      if (estaOuvindoAudio) {
-        window.speechSynthesis?.cancel();
-        estaOuvindoAudio = false;
-        iconeOuvir.textContent = '🔊';
-        textoOuvir.textContent = 'Ouvir';
-        btnOuvirSimples.classList.remove('tocando-audio-ativo');
-        btnOuvirSimples.classList.add('pulso-ouvir-azul');
-        cardRelato.classList.remove('tocando-audio-ativo');
-        cardRelato.classList.add('pulso-ouvir-azul');
-        exibirToast('Áudio interrompido');
-      } else {
-        iniciarLeituraAudio();
+    // --- FEEDBACK TÁTIL E SONORO ---
+    function dispararFeedbackTabil(duracao = 35) {
+      if (configAtual.vibracaoAtiva && navigator.vibrate) {
+        try { navigator.vibrate(duracao); } catch (e) {}
       }
-    });
+    }
 
-    function iniciarLeituraAudio() {
-      if (!('speechSynthesis' in window)) {
-        exibirToast('Sem suporte a áudio');
+    function dispararFeedbackSonoro(frequencia = 659.25) {
+      if (!configAtual.somAtivo) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(frequencia, ctx.currentTime);
+        gain.gain.setValueAtTime(0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+
+        osc.start();
+        osc.stop(ctx.currentTime + 0.12);
+      } catch (e) {}
+    }
+
+    function mostrarToast(mensagem) {
+      toastMsg.textContent = mensagem;
+      toastMsg.classList.add("visivel");
+      setTimeout(() => {
+        toastMsg.classList.remove("visivel");
+      }, 2600);
+    }
+
+    // --- REQUISITO: BORDA PULSANTE NO CAMPO E NO BOTÃO OUVIR ---
+    function registrarFocoCampo(campo, idGrupo) {
+      // Se estava falando ao trocar de campo, encerra a leitura anterior
+      if (estaFalando) pararLeituraVoz();
+
+      elementoFocadoAtual = campo;
+      dispararFeedbackTabil(25);
+
+      // Limpa destaques anteriores
+      blocoRelatoAnterior.classList.remove("em-reproducao", "pulso-sincronizado");
+      todosGrupos.forEach((g) => g.classList.remove("ativo"));
+      todosCampos.forEach((c) => {
+        c.classList.remove("em-foco", "pulso-sincronizado");
+      });
+
+      // Ativa farol visual no grupo e BORDA PULSANTE no campo
+      const grupo = document.getElementById(idGrupo);
+      if (grupo) grupo.classList.add("ativo");
+      campo.classList.add("em-foco", "pulso-sincronizado");
+
+      // APLICA BORDA PULSANTE SINCRONIZADA NO BOTÃO OUVIR!
+      btnAudioHub.classList.add("pulso-sincronizado");
+
+      // Se o usuário prefere teclado, abre o teclado virtual
+      if (configAtual.modoEntrada === "teclado") {
+        campo.removeAttribute("inputmode");
+        campo.setAttribute("inputmode", "text");
+        campo.focus();
+      } else {
+        campo.setAttribute("inputmode", "none");
+      }
+    }
+
+    function selecionarRelatoAnterior() {
+      if (estaFalando) {
+        pararLeituraVoz();
         return;
       }
 
-      estaOuvindoAudio = true;
-      btnOuvirSimples.classList.remove('pulso-ouvir-azul');
-      btnOuvirSimples.classList.add('tocando-audio-ativo');
-      iconeOuvir.textContent = '⏹️';
-      textoOuvir.textContent = 'Parar';
+      elementoFocadoAtual = blocoRelatoAnterior;
+      dispararFeedbackTabil(30);
 
-      cardRelato.classList.remove('pulso-ouvir-azul');
-      cardRelato.classList.add('tocando-audio-ativo');
+      // Limpa campos
+      todosGrupos.forEach((g) => g.classList.remove("ativo"));
+      todosCampos.forEach((c) => c.classList.remove("em-foco", "pulso-sincronizado"));
 
-      const fala = new SpeechSynthesisUtterance(txtRelato);
-      fala.lang = 'pt-BR';
-      fala.rate = 0.95;
+      // Destaque pulsante no card do relato e no botão Ouvir
+      blocoRelatoAnterior.classList.add("em-reproducao", "pulso-sincronizado");
+      btnAudioHub.classList.add("pulso-sincronizado");
 
-      fala.onend = () => {
-        estaOuvindoAudio = false;
-        btnOuvirSimples.classList.remove('tocando-audio-ativo');
-        btnOuvirSimples.classList.add('pulso-ouvir-azul');
-        iconeOuvir.textContent = '🔊';
-        textoOuvir.textContent = 'Ouvir';
-        cardRelato.classList.remove('tocando-audio-ativo');
-        cardRelato.classList.add('pulso-ouvir-azul');
+      mostrarToast("Relato selecionado. Toque em [ Ouvir ] para escutar.");
+    }
+
+    // Fecha o pulso se o usuário clicar fora do formulário
+    document.addEventListener("pointerdown", (e) => {
+      const dentroForm = e.target.closest(".secao-formulario-visita");
+      const dentroFooter = e.target.closest(".app-footer");
+      const dentroCard = e.target.closest(".bloco-relato-anterior");
+      const dentroSheet = e.target.closest(".top-sheet") || e.target.closest(".bottom-sheet");
+
+      if (!dentroForm && !dentroFooter && !dentroCard && !dentroSheet && elementoFocadoAtual) {
+        removerPulsosDeFoco();
+      }
+    });
+
+    function removerPulsosDeFoco() {
+      elementoFocadoAtual = null;
+      blocoRelatoAnterior.classList.remove("em-reproducao", "pulso-sincronizado");
+      todosGrupos.forEach((g) => g.classList.remove("ativo"));
+      todosCampos.forEach((c) => c.classList.remove("em-foco", "pulso-sincronizado"));
+      btnAudioHub.classList.remove("pulso-sincronizado");
+      if (estaFalando) pararLeituraVoz();
+    }
+
+    // --- REQUISITO: SÓ FALA AO TOCAR NO BOTÃO OUVIR; AO FALAR VIRA PARAR ---
+    function lidarCliqueBotaoOuvirParar() {
+      dispararFeedbackTabil(35);
+
+      // Se já está falando: PARA imediatamente
+      if (estaFalando) {
+        pararLeituraVoz();
+        mostrarToast("⏹️ Leitura interrompida.");
+        return;
+      }
+
+      // Se nenhum campo ou card estiver focado, adota o relato anterior como padrão
+      if (!elementoFocadoAtual) {
+        selecionarRelatoAnterior();
+      }
+
+      // Prepara o texto para falar
+      let textoParaFalar = "";
+      if (elementoFocadoAtual === blocoRelatoAnterior) {
+        textoParaFalar = textoRelatoAnterior;
+      } else if (elementoFocadoAtual && elementoFocadoAtual.tagName) {
+        const nomeCampo = elementoFocadoAtual.id === "campoRelato" ? "Relato da Visita" : (elementoFocadoAtual.id === "campoAuxilio" ? "Cesta ou Auxílio" : "Nova Meta Pactuada");
+        const valorDigitado = elementoFocadoAtual.value.trim();
+
+        if (valorDigitado) {
+          textoParaFalar = `Campo ${nomeCampo}. Texto registrado: ${valorDigitado}`;
+        } else {
+          textoParaFalar = `Campo ${nomeCampo}. O campo está em branco. Toque para preencher.`;
+        }
+      } else {
+        textoParaFalar = textoRelatoAnterior;
+      }
+
+      // Inicia a fala
+      iniciarFalaComBotaoParar(textoParaFalar);
+    }
+
+    function iniciarFalaComBotaoParar(texto) {
+      if (!sintetizadorFala) {
+        mostrarToast("Síntese de voz indisponível neste navegador.");
+        return;
+      }
+
+      sintetizadorFala.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = "pt-BR";
+      utterance.rate = 0.95; // Cadência ideal para vicentinos da terceira idade
+
+      utterance.onstart = () => {
+        estaFalando = true;
+
+        // QUANDO COMEÇA A FALAR: O BOTÃO PASSA A EXIBIR O ÍCONE DE STOP E O TEXTO PARAR!
+        svgSpeaker.style.display = "none";
+        svgStop.style.display = "block";
+        lblHubAudio.textContent = "Parar";
+        btnAudioHub.classList.add("falando-ativo");
+
+        dispararFeedbackSonoro(784);
       };
 
-      window.speechSynthesis.speak(fala);
-      exibirToast('Lendo relato da visita...');
+      utterance.onend = () => {
+        finalizarEstadoFala();
+      };
+
+      utterance.onerror = () => {
+        finalizarEstadoFala();
+      };
+
+      sintetizadorFala.speak(utterance);
     }
 
-    let recognition = null;
-    function iniciarGravacao() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        exibirToast('Reconhecimento de voz indisponível');
+    function pararLeituraVoz() {
+      if (sintetizadorFala) {
+        try { sintetizadorFala.cancel(); } catch (e) {}
+      }
+      finalizarEstadoFala();
+    }
+
+    function finalizarEstadoFala() {
+      estaFalando = false;
+
+      // RETORNA AO ESTADO NORMAL: ÍCONE DE ALTO-FALANTE E TEXTO OUVIR
+      svgSpeaker.style.display = "block";
+      svgStop.style.display = "none";
+      lblHubAudio.textContent = "Ouvir";
+      btnAudioHub.classList.remove("falando-ativo");
+    }
+
+    // --- SALVAR VISITA LOCALMENTE ---
+    function salvarVisitaLocal() {
+      dispararFeedbackTabil(45);
+      dispararFeedbackSonoro(880);
+
+      const relato = campoRelato.value.trim();
+      const auxilio = campoAuxilio.value.trim();
+      const meta = campoMeta.value.trim();
+
+      if (!relato && !auxilio && !meta) {
+        mostrarToast("Preencha ao menos um campo antes de salvar.");
         return;
       }
 
-      try {
-        recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.interimResults = false;
-        recognition.continuous = false;
+      mostrarToast("✅ Relato salvo no celular (Rascunho)!");
+      removerPulsosDeFoco();
+    }
 
-        const textoAnterior = campoAtivo.value;
+    // --- BOTÃO SAIR (PROTEÇÃO LGPD) ---
+    function executarLogoutProtegido() {
+      dispararFeedbackTabil(60);
+      dispararFeedbackSonoro(440);
 
-        recognition.onstart = () => {
-          estaGravando = true;
-          btnCapsulaFalar.classList.remove('pulso-falar-vermelho');
-          btnCapsulaFalar.classList.add('pulso-gravando-ativo');
-          iconeCapsulaFalar.textContent = '🔴';
-          textoCapsulaFalar.textContent = 'Gravando';
-          exibirToast('Pode falar agora...');
-        };
+      const rascunho = {
+        relato: campoRelato.value,
+        auxilio: campoAuxilio.value,
+        meta: campoMeta.value,
+        data: new Date().toISOString()
+      };
+      localStorage.setItem("ssvp_t6_rascunho_emergencia", JSON.stringify(rascunho));
 
-        recognition.onresult = (e) => {
-          const resultado = e.results[0][0].transcript.trim();
-          const espaco = (textoAnterior.length > 0 && !textoAnterior.match(/\s$/)) ? ' ' : '';
-          campoAtivo.value = textoAnterior + espaco + resultado;
-          exibirToast('Texto inserido!');
-        };
+      mostrarToast("🔒 Sessão encerrada e dados protegidos (LGPD)!");
+      removerPulsosDeFoco();
+    }
 
-        recognition.onend = () => {
-          pararGravacao();
-        };
+    // --- GAVETA SUPERIOR: TOP SHEET (CONFIGURAÇÕES) ---
+    function abrirTopSheet() {
+      dispararFeedbackTabil(35);
+      dispararFeedbackSonoro(659.25);
+      fecharBottomNav();
+      scrimTop.classList.add("aberto");
+    }
 
-        recognition.onerror = () => {
-          pararGravacao();
-          exibirToast('Gravação encerrada.');
-        };
+    function fecharTopSheet() {
+      dispararFeedbackTabil(35);
+      scrimTop.classList.remove("aberto");
+    }
 
-        recognition.start();
-      } catch (err) {
-        exibirToast('Erro ao abrir microfone.');
-        pararGravacao();
+    function fecharTopSheetPorOverlay(e) {
+      if (e.target === scrimTop) fecharTopSheet();
+    }
+
+    function mudarAbaGaveta(aba) {
+      dispararFeedbackTabil(30);
+
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("ativo"));
+      document.querySelectorAll(".modulo-secao").forEach((s) => s.classList.remove("ativo"));
+
+      if (aba === "config") {
+        document.getElementById("tabBtnConfig").classList.add("ativo");
+        document.getElementById("moduloConfig").classList.add("ativo");
+      } else if (aba === "sinc") {
+        document.getElementById("tabBtnSinc").classList.add("ativo");
+        document.getElementById("moduloSinc").classList.add("ativo");
+      } else if (aba === "ajuda") {
+        document.getElementById("tabBtnAjuda").classList.add("ativo");
+        document.getElementById("moduloAjuda").classList.add("ativo");
       }
     }
 
-    function pararGravacao() {
-      estaGravando = false;
-      btnCapsulaFalar.classList.remove('pulso-gravando-ativo');
-      btnCapsulaFalar.classList.add('pulso-falar-vermelho');
-      iconeCapsulaFalar.textContent = '🎙️';
-      textoCapsulaFalar.textContent = 'Falar';
-      if (recognition) {
-        try { recognition.stop(); } catch(e) {}
+    function sincronizarComNuvem() {
+      dispararFeedbackTabil(45);
+      dispararFeedbackSonoro(784);
+      mostrarToast("🔄 Sincronizando com Google Sheets...");
+      setTimeout(() => {
+        mostrarToast("✅ Nuvem e dados locais 100% sincronizados!");
+      }, 1400);
+    }
+
+    // --- GAVETA INFERIOR: BOTTOM SHEET (NAVEGAÇÃO) ---
+    function abrirBottomNav() {
+      dispararFeedbackTabil(35);
+      dispararFeedbackSonoro(659.25);
+      fecharTopSheet();
+      scrimBottom.classList.add("aberto");
+    }
+
+    function fecharBottomNav() {
+      dispararFeedbackTabil(35);
+      scrimBottom.classList.remove("aberto");
+    }
+
+    function fecharBottomNavPorOverlay(e) {
+      if (e.target === scrimBottom) fecharBottomNav();
+    }
+
+    function selecionarPagina(nomePagina) {
+      dispararFeedbackTabil(40);
+      dispararFeedbackSonoro(784);
+      fecharBottomNav();
+      mostrarToast(`Navegando para: ${nomePagina}`);
+    }
+
+    // --- MONITORAMENTO DE REDE DO DISPOSITIVO ---
+    function atualizarStatusRede() {
+      const badgeRede = document.getElementById("badgeRede");
+      if (!badgeRede) return;
+      if (navigator.onLine) {
+        badgeRede.textContent = "🟢 Online";
+        badgeRede.style.color = "#86efac";
+      } else {
+        badgeRede.textContent = "🔴 Offline (Cofre Ativo)";
+        badgeRede.style.color = "#fca5a5";
       }
     }
 
-    function exibirModoCapsula() {
-      btnOuvirSimples.style.display = 'none';
-      capsulaDupla.classList.add('visivel');
-    }
-
-    function exibirModoOuvir() {
-      capsulaDupla.classList.remove('visivel');
-      btnOuvirSimples.style.display = 'inline-flex';
-      campoAtivo = null;
-      tecladoAberto = false;
-    }
-
-    function limparPulsos() {
-      cardRelato.classList.remove('pulso-ouvir-azul', 'tocando-audio-ativo');
-      camposFormulario.forEach(c => c.classList.remove('pulso-falar-vermelho'));
-      btnOuvirSimples.classList.remove('pulso-ouvir-azul', 'tocando-audio-ativo');
-      btnCapsulaFalar.classList.remove('pulso-falar-vermelho', 'pulso-gravando-ativo');
-    }
-
-    function desfocarCampos() {
-      camposFormulario.forEach(c => {
-        c.setAttribute('inputmode', 'none');
-        c.blur();
-      });
-    }
-
-    document.addEventListener('click', (e) => {
-      const dentroDeCampo = camposFormulario.some(c => c.contains(e.target));
-      const dentroDaBarra = document.querySelector('.bar-inf').contains(e.target);
-      const noCard = cardRelato.contains(e.target);
-
-      if (!dentroDeCampo && !dentroDaBarra && !noCard) {
-        exibirModoOuvir();
-        limparPulsos();
-      }
+    window.addEventListener("online", () => {
+      atualizarStatusRede();
+      mostrarToast("Conexão com a internet restabelecida");
     });
 
-    btnConexao.addEventListener('click', () => {
-      exibirToast('Abrir modal de conexão...');
+    window.addEventListener("offline", () => {
+      atualizarStatusRede();
+      mostrarToast("Trabalhando offline: relatos salvos localmente");
     });
 
-    btnAjuda.addEventListener('click', () => {
-      alert('Teste 6 - Opção B: Cápsula Dupla\n\n- O botão [Conexão] nunca sai do lugar.\n- Ao focar no campo, o botão central divide-se em [Falar] e [Teclado].');
-    });
-
-    document.getElementById('btnSalvarVisita').addEventListener('click', () => {
-      exibirToast('🎉 Visita salva com sucesso!');
+    // --- INICIALIZAÇÃO AO CARREGAR O DOM ---
+    window.addEventListener("DOMContentLoaded", () => {
+      inicializarApp();
     });
   </script>
-
 </body>
 
 </html>
