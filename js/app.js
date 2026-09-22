@@ -1,7 +1,7 @@
 /**
  * @fileoverview Ponto de Entrada Principal (Entry Point) da SPA WebApp SSVP.
- * Inicializa o ciclo de vida do PWA, monitoramento de conectividade, IndexedDB,
- * configurações M3 (Bottom Sheet), Central de Ajuda "O que é isso?", autenticação,
+ * Inicializa o ciclo de vida do PWA, monitoramento de conectividade, IndexedDB v3,
+ * configurações M3 (Bottom Sheet), Central de Ajuda "O que é isso?", autenticação hierárquica,
  * voz (STT/TTS com Cápsula Dupla) e painel de visitas.
  * Inclui sincronização dinâmica de altura útil (--vh) e compensação ergonômica inteligente
  * de barras de sistema para Moto Z 1 (3 botões virtuais), Moto E7 (gestos) e iPhone 8.
@@ -32,7 +32,7 @@ export function ajustarAlturaRealViewport() {
   let espacoBarraSistema = '0px';
 
   if (isAndroid) {
-    // No Android com tela 16:9 clássica (proporção <= 1.90) e barra virtual de 3 botões de 48px
+    // No Android com tela 16:9 clássica (proporção <= 1.92) e barra virtual de 3 botões
     const ratio = window.screen.height / Math.max(window.screen.width, 1);
     const diffTela = Math.abs(window.screen.height - window.innerHeight);
 
@@ -130,10 +130,11 @@ function inicializarEventosConectividade() {
 }
 
 /**
- * Inicialização central quando o DOM estiver completamente carregado.
+ * Inicialização central resiliente da aplicação.
+ * @return {Promise<void>}
  */
-document.addEventListener('DOMContentLoaded', async () => {
-  // Garante que o cálculo de altura esteja sincronizado logo no DOM Ready
+async function inicializarAplicacao() {
+  // Garante que o cálculo de altura esteja sincronizado logo no início
   ajustarAlturaRealViewport();
 
   inicializarServiceWorker();
@@ -158,4 +159,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   await inicializarVisitasUI();
 
   console.log('[WebApp SSVP] Aplicação inicializada com sucesso na versão modular v1.0.');
-});
+}
+
+// Inicialização segura que contempla DOMContentLoaded ou execução quando o documento já estiver pronto
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', inicializarAplicacao);
+} else {
+  inicializarAplicacao();
+}

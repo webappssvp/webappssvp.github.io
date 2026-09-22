@@ -1,6 +1,8 @@
 /**
  * @fileoverview Orquestrador da Lógica de Autenticação e Hierarquia SSVP.
- * Integra a camada de UI com o cliente de API e o banco de dados IndexedDB.
+ * Integra a camada de UI com o cliente de API e o banco de dados IndexedDB v3.
+ * Suporta fluxo hierárquico em 3 etapas (Conselho Central ➔ Particular ➔ Conferência ➔ E-mail/Senha).
+ * Valida credenciais consultando a aba 'pessoas' na planilha da Conferência via Google Apps Script.
  * Conformidade com: dev/padroes/02_javascript_google.md
  */
 
@@ -13,9 +15,11 @@ import * as ui from './ui.js';
  */
 let sessaoAtiva = {
   conectado: false,
+  conselho_metropolitano: 'São Paulo',
   id_cc: null,
   nome_cc: null,
   id_cp: null,
+  nome_cp: null,
   id_ssvp: null,
   nome_cf: null,
   nome_pessoa: null,
@@ -52,7 +56,8 @@ export async function inicializarAuth() {
     aoTrocarCC: tratarTrocaCC,
     aoTrocarCP: tratarTrocaCP,
     aoTrocarCF: tratarTrocaCF,
-    aoSubmeterLogin: tratarSubmissaoLogin,
+    aoAvancarParaSenha: tratarAvancoParaSenha,
+    aoSubmeterLogin: tratarSubmissaoConexao,
     aoSolicitarLogout: tratarLogout
   });
 
@@ -70,7 +75,7 @@ async function restaurarSessaoPersistida() {
   if (registro && registro.id_ssvp) {
     sessaoAtiva = { ...sessaoAtiva, ...registro };
 
-    if (sessaoAtiva.conectado && sessaoAtiva.nome_pessoa) {
+    if (sessaoAtiva.conectado) {
       ui.atualizarSemaforo(ui.EstadosSemaforo.LOGADO, sessaoAtiva);
     } else {
       ui.atualizarSemaforo(ui.EstadosSemaforo.NAO_LOGADO, sessaoAtiva);
@@ -89,9 +94,9 @@ function tratarAberturaModal() {
   ui.abrirModal();
 
   if (sessaoAtiva.conectado) {
-    ui.mostrarSecaoSessaoAtiva(sessaoAtiva);
+    ui.mostrarSecaoConectado(sessaoAtiva);
   } else if (sessaoAtiva.id_ssvp) {
-    ui.mostrarSecaoLogin(sessaoAtiva.nome_cf || sessaoAtiva.id_ssvp);
+    ui.mostrarSecaoSenha(sessaoAtiva.nome_cf || sessaoAtiva.id_ssvp);
   } else {
     ui.mostrarSecaoSelects();
     carregarListaConselhosCentrais();
@@ -99,13 +104,15 @@ function tratarAberturaModal() {
 }
 
 /**
- * Retorna da tela de login para a seleção de conferência.
+ * Retorna da tela de credenciais para a seleção de conferência.
  * @return {void}
  * @private
  */
 function tratarVoltarParaSelects() {
   ui.mostrarSecaoSelects();
-  carregarListaConselhosCentrais();
+  if (!cacheEstruturaCC.id_cc) {
+    carregarListaConselhosCentrais();
+  }
 }
 
 /**
@@ -140,6 +147,8 @@ async function carregarListaConselhosCentrais() {
 async function tratarTrocaCC(idCc) {
   if (!idCc) {
     cacheEstruturaCC = { id_cc: null, nome_cc: null, conselhos_particulares: [], conferencias: [] };
+    ui.desabilitarSelectConselhoParticular();
+    ui.desabilitarSelectConferencias();
     return;
   }
 
@@ -158,7 +167,7 @@ async function tratarTrocaCC(idCc) {
 
     ui.popularSelectConselhosParticulares(cacheEstruturaCC.conselhos_particulares);
   } catch (erro) {
-    ui.exibirFeedback(`Falha ao ler índice do Conselho: ${erro.message}`, 'erro');
+    ui.exibirFeedback(`Falha ao ler estrutura do Conselho: ${erro.message}`, 'erro');
   }
 }
 
@@ -171,7 +180,7 @@ async function tratarTrocaCC(idCc) {
  */
 function tratarTrocaCP(idCp, dataset = {}) {
   if (!idCp) {
-    ui.ocultarSelectConferencias();
+    ui.desabilitarSelectConferencias();
     return;
   }
 
@@ -185,16 +194,24 @@ function tratarTrocaCP(idCp, dataset = {}) {
     const cfSsvp = String(cf.id_ssvp || '').trim().toUpperCase();
 
     // 1. Vínculo exato por id_ssvp do CP (ex: cfCp === "SPCAPA")
-    if (cfCp && cfCp === cpVal) return true;
+    if (cfCp && cfCp === cpVal) {
+      return true;
+    }
 
     // 2. Vínculo por código local do CP (ex: cfCp === "PA")
-    if (idConselho && cfCp === idConselho) return true;
+    if (idConselho && cfCp === idConselho) {
+      return true;
+    }
 
     // 3. Vínculo pelo nome do CP
-    if (nomeCp && cfCp.toLowerCase() === nomeCp) return true;
+    if (nomeCp && cfCp.toLowerCase() === nomeCp) {
+      return true;
+    }
 
     // 4. Vínculo hierárquico cumulativo: o id_ssvp da CF começa com o id_ssvp do CP (ex: "SPCAPAFA".startsWith("SPCAPA"))
-    if (cpVal.length >= 4 && cfSsvp.startsWith(cpVal)) return true;
+    if (cpVal.length >= 4 && cfSsvp.startsWith(cpVal)) {
+      return true;
+    }
 
     return false;
   });
@@ -203,14 +220,36 @@ function tratarTrocaCP(idCp, dataset = {}) {
 }
 
 /**
- * Trata a escolha da Conferência pelo vicentino.
+ * Trata a alteração de seleção da Conferência no dropdown.
+ * @param {string} idSsvp Código SSVP da Conferência.
+ * @param {string} nomeCf Nome da Conferência.
+ * @return {void}
+ * @private
+ */
+function tratarTrocaCF(idSsvp, nomeCf) {
+  if (!idSsvp) {
+    return;
+  }
+
+  sessaoAtiva.conselho_metropolitano = 'São Paulo';
+  sessaoAtiva.id_cc = cacheEstruturaCC.id_cc;
+  sessaoAtiva.nome_cc = cacheEstruturaCC.nome_cc;
+  sessaoAtiva.id_ssvp = idSsvp;
+  sessaoAtiva.nome_cf = nomeCf;
+}
+
+/**
+ * Trata o avanço da Etapa 1 (Selects) para a Etapa 2 (E-mail e Senha).
  * @param {string} idSsvp Código SSVP da Conferência.
  * @param {string} nomeCf Nome da Conferência.
  * @return {Promise<void>}
  * @private
  */
-async function tratarTrocaCF(idSsvp, nomeCf) {
-  if (!idSsvp) return;
+async function tratarAvancoParaSenha(idSsvp, nomeCf) {
+  if (!idSsvp) {
+    ui.exibirFeedback('Selecione uma Conferência antes de avançar.', 'erro');
+    return;
+  }
 
   sessaoAtiva.conselho_metropolitano = 'São Paulo';
   sessaoAtiva.id_cc = cacheEstruturaCC.id_cc;
@@ -229,32 +268,46 @@ async function tratarTrocaCF(idSsvp, nomeCf) {
   });
 
   ui.atualizarSemaforo(ui.EstadosSemaforo.NAO_LOGADO, sessaoAtiva);
-  ui.mostrarSecaoLogin(nomeCf);
+  ui.mostrarSecaoSenha(nomeCf);
 }
 
 /**
- * Executa a submissão de credenciais na API para validação de login.
- * @param {string} email
- * @param {string} senha
+ * Trata a validação das credenciais de login (e-mail e senha) na Conferência.
+ * Consulta a planilha da Conferência via API (aba 'pessoas') para verificar a existência do cadastro.
+ * @param {string} email E-mail informado pelo vicentino.
+ * @param {string} senha Senha informada pelo vicentino.
  * @return {Promise<void>}
  * @private
  */
-async function tratarSubmissaoLogin(email, senha) {
+async function tratarSubmissaoConexao(email, senha) {
   if (!email || !senha) {
-    ui.exibirFeedback('Preencha seu e-mail e sua senha.', 'erro');
+    ui.exibirFeedback('Preencha seu e-mail e sua senha para entrar.', 'erro');
     return;
   }
 
-  ui.definirCarregandoLogin(true);
+  if (!sessaoAtiva.id_cc || !sessaoAtiva.id_ssvp) {
+    ui.exibirFeedback('Selecione uma Conferência antes de entrar.', 'erro');
+    return;
+  }
+
+  ui.definirCarregandoConexao(true);
   ui.ocultarFeedback();
 
   try {
-    const dados = await api.autenticarPessoa(sessaoAtiva.id_cc, sessaoAtiva.id_ssvp, email, senha);
+    const resposta = await api.autenticarPessoa(
+      sessaoAtiva.id_cc,
+      sessaoAtiva.id_ssvp,
+      email,
+      senha
+    );
 
-    if (dados.sucesso && dados.dados) {
+    if (resposta && resposta.sucesso && resposta.dados) {
       sessaoAtiva.conectado = true;
-      sessaoAtiva.nome_pessoa = dados.dados.nome_pessoa || 'Vicentino(a)';
-      sessaoAtiva.email_pessoa = dados.dados.email_pessoa || email;
+      sessaoAtiva.nome_pessoa = resposta.dados.nome_pessoa || 'Vicentino(a)';
+      sessaoAtiva.email_pessoa = resposta.dados.email_pessoa || email;
+      if (resposta.dados.nome_cf) {
+        sessaoAtiva.nome_cf = resposta.dados.nome_cf;
+      }
 
       await db.salvarSessao({
         ...sessaoAtiva,
@@ -262,20 +315,20 @@ async function tratarSubmissaoLogin(email, senha) {
       });
 
       ui.atualizarSemaforo(ui.EstadosSemaforo.LOGADO, sessaoAtiva);
-      ui.exibirFeedback(`Olá, ${sessaoAtiva.nome_pessoa}! Login efetuado com sucesso.`, 'sucesso');
+      ui.exibirFeedback(`🎉 Olá, ${sessaoAtiva.nome_pessoa}! Conectado(a) com sucesso.`, 'sucesso');
 
       setTimeout(() => {
         ui.fecharModal();
       }, 1200);
     } else {
-      const msg = dados.erro?.mensagem || 'Pessoa não encontrada';
-      ui.atualizarSemaforo(ui.EstadosSemaforo.NAO_LOGADO, { nome_cf: 'Pessoa não encontrada' });
-      ui.exibirFeedback(`❌ ${msg}. Confira suas credenciais.`, 'erro');
+      const msgErro = resposta?.erro?.mensagem || 'Pessoa não encontrada na aba pessoas da Conferência ou senha incorreta.';
+      ui.atualizarSemaforo(ui.EstadosSemaforo.NAO_LOGADO, { nome_cf: sessaoAtiva.nome_cf || 'Credenciais inválidas' });
+      ui.exibirFeedback(msgErro, 'erro');
     }
   } catch (erro) {
-    ui.exibirFeedback(`Falha ao consultar a API do WebApp: ${erro.message}`, 'erro');
+    ui.exibirFeedback(`Erro de autenticação: ${erro.message}`, 'erro');
   } finally {
-    ui.definirCarregandoLogin(false);
+    ui.definirCarregandoConexao(false);
   }
 }
 
@@ -290,9 +343,11 @@ async function tratarLogout() {
 
     sessaoAtiva = {
       conectado: false,
+      conselho_metropolitano: 'São Paulo',
       id_cc: null,
       nome_cc: null,
       id_cp: null,
+      nome_cp: null,
       id_ssvp: null,
       nome_cf: null,
       nome_pessoa: null,

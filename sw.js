@@ -1,16 +1,28 @@
 /**
- * Service Worker Oficial do WebApp SSVP
+ * @fileoverview Service Worker Oficial do WebApp SSVP.
+ * Responsável pelo cache offline-first do App Shell e resiliência em campo.
  * Padrão: dev/padroes/04_pwa_e_performance.md
  */
 
-const VERSAO_CACHE = 'ssvp-shell-v1.0.0';
+const VERSAO_CACHE = 'ssvp-shell-v1.0.2';
 
 const ARQUIVOS_APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
   './css/base.css',
+  './css/app.css',
+  './css/barras.css',
+  './css/modal.css',
   './js/app.js',
+  './js/db.js',
+  './js/config.js',
+  './js/ajuda.js',
+  './js/auth.js',
+  './js/voz.js',
+  './js/visitas_ui.js',
+  './js/ui.js',
+  './js/api.js',
   './img/home_app_logo.svg',
   './img/marca_ssvp.svg'
 ];

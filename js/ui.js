@@ -1,8 +1,9 @@
 /**
  * @fileoverview Módulo de Gerenciamento da Interface de Usuário (UI).
- * Controla os estados visuais do Semáforo na Barra Superior, a manipulação do Modal de Conexão,
+ * Controla os estados visuais do Semáforo na Barra Superior, a manipulação do Modal de Conexão
+ * em 3 etapas (Seleção Hierárquica, Validação de E-mail/Senha na Conferência e Sessão Ativa),
  * a renderização de selects e alertas de feedback.
- * Conformidade com: dev/padroes/02_javascript_google.md
+ * Conformidade com: dev/padroes/02_javascript_google.md e dev/padroes/05_acessibilidade_ergonomia.md
  */
 
 import { obterUrlApi, definirUrlApi } from './api.js';
@@ -32,58 +33,80 @@ const dom = {};
  * @param {Function} eventos.aoTrocarCC
  * @param {Function} eventos.aoTrocarCP
  * @param {Function} eventos.aoTrocarCF
- * @param {Function} eventos.aoSubmeterLogin
+ * @param {Function} eventos.aoAvancarParaSenha
+ * @param {function(string, string): void} eventos.aoSubmeterLogin
  * @param {Function} eventos.aoSolicitarLogout
  * @return {void}
  */
 export function inicializarUI(eventos) {
+  // Barra Superior (Header Reativo / Semáforo)
   dom.barraSuperior = document.getElementById('barraSuperior');
   dom.txtStatusPrincipal = document.getElementById('txtStatusPrincipal');
   dom.txtStatusSub = document.getElementById('txtStatusSub');
   dom.statusHeaderBtn = document.getElementById('statusHeaderBtn');
 
+  // Modal Principal
   dom.overlayModal = document.getElementById('overlayModal');
   dom.btnFecharModal = document.getElementById('btnFecharModal');
   dom.msgFeedback = document.getElementById('msgFeedback');
 
+  // ETAPA 1: Cascata de Seleção (CM -> CC -> CP -> CF)
   dom.secaoSelects = document.getElementById('secaoSelects');
+  dom.selConselhoMetropolitano = document.getElementById('selConselhoMetropolitano');
   dom.selConselhoCentral = document.getElementById('selConselhoCentral');
-  dom.grupoCP = document.getElementById('grupoCP');
   dom.selConselhoParticular = document.getElementById('selConselhoParticular');
-  dom.grupoCF = document.getElementById('grupoCF');
   dom.selConferencia = document.getElementById('selConferencia');
+  dom.btnAvancarParaSenha = document.getElementById('btnAvancarParaSenha');
 
-  dom.secaoFormLogin = document.getElementById('secaoFormLogin');
-  dom.txtNomeCfaSelecionada = document.getElementById('txtNomeCfaSelecionada');
+  // ETAPA 2: Validação de E-mail e Senha do Vicentino
+  dom.secaoSenha = document.getElementById('secaoSenha');
+  dom.txtConfSelecionada = document.getElementById('txtConfSelecionada');
+  dom.inputEmail = document.getElementById('inputEmail');
+  dom.inputSenha = document.getElementById('inputSenha');
+  dom.btnToggleSenha = document.getElementById('btnToggleSenha');
   dom.btnVoltarSelects = document.getElementById('btnVoltarSelects');
-  dom.iptEmail = document.getElementById('iptEmail');
-  dom.iptSenha = document.getElementById('iptSenha');
-  dom.btnLogin = document.getElementById('btnLogin');
+  dom.btnVoltarSelectsBottom = document.getElementById('btnVoltarSelectsBottom');
+  dom.btnConfirmarConexao = document.getElementById('btnConfirmarConexao');
 
-  dom.secaoSessaoAtiva = document.getElementById('secaoSessaoAtiva');
+  // ETAPA 3: Sessão Ativa (Já Conectado)
+  dom.secaoConectado = document.getElementById('secaoConectado');
   dom.txtBoasVindas = document.getElementById('txtBoasVindas');
   dom.txtDetalhesSessao = document.getElementById('txtDetalhesSessao');
   dom.btnDesconectar = document.getElementById('btnDesconectar');
 
+  // Configuração Manual do Endpoint de API
   dom.lblUrlAtiva = document.getElementById('lblUrlAtiva');
   dom.btnAlterarUrl = document.getElementById('btnAlterarUrl');
 
   // Vinculação de eventos do usuário
   if (dom.statusHeaderBtn) {
-    dom.statusHeaderBtn.addEventListener('click', () => eventos.aoAbrirModal());
+    dom.statusHeaderBtn.addEventListener('click', () => {
+      eventos.aoAbrirModal();
+    });
   }
 
   if (dom.btnFecharModal) {
-    dom.btnFecharModal.addEventListener('click', () => eventos.aoFecharModal());
+    dom.btnFecharModal.addEventListener('click', () => {
+      eventos.aoFecharModal();
+    });
   }
 
-  if (dom.btnVoltarSelects) {
-    dom.btnVoltarSelects.addEventListener('click', () => eventos.aoVoltarParaSelects());
+  // Fechar ao clicar no overlay escurecido fora do card
+  if (dom.overlayModal) {
+    dom.overlayModal.addEventListener('click', (e) => {
+      if (e.target === dom.overlayModal) {
+        eventos.aoFecharModal();
+      }
+    });
   }
 
   if (dom.selConselhoCentral) {
     dom.selConselhoCentral.addEventListener('change', (e) => {
-      const idCc = /** @type {HTMLSelectElement} */ (e.target).value;
+      const select = /** @type {HTMLSelectElement} */ (e.target);
+      const idCc = select.value;
+      if (dom.btnAvancarParaSenha) {
+        dom.btnAvancarParaSenha.disabled = true;
+      }
       eventos.aoTrocarCC(idCc);
     });
   }
@@ -93,6 +116,9 @@ export function inicializarUI(eventos) {
       const select = /** @type {HTMLSelectElement} */ (e.target);
       const idCp = select.value;
       const opt = select.options[select.selectedIndex];
+      if (dom.btnAvancarParaSenha) {
+        dom.btnAvancarParaSenha.disabled = true;
+      }
       eventos.aoTrocarCP(idCp, opt?.dataset);
     });
   }
@@ -103,25 +129,90 @@ export function inicializarUI(eventos) {
       const idSsvp = select.value;
       const opt = select.options[select.selectedIndex];
       const nomeCf = opt?.dataset?.nomeCf || opt?.textContent || '';
-      eventos.aoTrocarCF(idSsvp, nomeCf);
+
+      if (idSsvp) {
+        if (dom.btnAvancarParaSenha) {
+          dom.btnAvancarParaSenha.disabled = false;
+        }
+        eventos.aoTrocarCF(idSsvp, nomeCf);
+      } else {
+        if (dom.btnAvancarParaSenha) {
+          dom.btnAvancarParaSenha.disabled = true;
+        }
+      }
     });
   }
 
-  if (dom.secaoFormLogin) {
-    dom.secaoFormLogin.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = dom.iptEmail?.value || '';
-      const senha = dom.iptSenha?.value || '';
+  if (dom.btnAvancarParaSenha) {
+    dom.btnAvancarParaSenha.addEventListener('click', () => {
+      const select = /** @type {HTMLSelectElement|null} */ (dom.selConferencia);
+      if (!select || !select.value) {
+        exibirFeedback('Selecione uma Conferência para avançar.', 'erro');
+        return;
+      }
+      const idSsvp = select.value;
+      const opt = select.options[select.selectedIndex];
+      const nomeCf = opt?.dataset?.nomeCf || opt?.textContent || '';
+      eventos.aoAvancarParaSenha(idSsvp, nomeCf);
+    });
+  }
+
+  if (dom.btnVoltarSelects) {
+    dom.btnVoltarSelects.addEventListener('click', () => {
+      eventos.aoVoltarParaSelects();
+    });
+  }
+
+  if (dom.btnVoltarSelectsBottom) {
+    dom.btnVoltarSelectsBottom.addEventListener('click', () => {
+      eventos.aoVoltarParaSelects();
+    });
+  }
+
+  if (dom.btnToggleSenha && dom.inputSenha) {
+    dom.btnToggleSenha.addEventListener('click', () => {
+      const input = /** @type {HTMLInputElement} */ (dom.inputSenha);
+      const estaOculta = input.type === 'password';
+      input.type = estaOculta ? 'text' : 'password';
+      dom.btnToggleSenha.textContent = estaOculta ? '🙈' : '👁️';
+    });
+  }
+
+  if (dom.btnConfirmarConexao) {
+    dom.btnConfirmarConexao.addEventListener('click', () => {
+      const email = (dom.inputEmail ? /** @type {HTMLInputElement} */ (dom.inputEmail).value : '').trim();
+      const senha = (dom.inputSenha ? /** @type {HTMLInputElement} */ (dom.inputSenha).value : '').trim();
       eventos.aoSubmeterLogin(email, senha);
     });
   }
 
+  const dispararLoginComEnter = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const email = (dom.inputEmail ? /** @type {HTMLInputElement} */ (dom.inputEmail).value : '').trim();
+      const senha = (dom.inputSenha ? /** @type {HTMLInputElement} */ (dom.inputSenha).value : '').trim();
+      eventos.aoSubmeterLogin(email, senha);
+    }
+  };
+
+  if (dom.inputEmail) {
+    dom.inputEmail.addEventListener('keydown', dispararLoginComEnter);
+  }
+
+  if (dom.inputSenha) {
+    dom.inputSenha.addEventListener('keydown', dispararLoginComEnter);
+  }
+
   if (dom.btnDesconectar) {
-    dom.btnDesconectar.addEventListener('click', () => eventos.aoSolicitarLogout());
+    dom.btnDesconectar.addEventListener('click', () => {
+      eventos.aoSolicitarLogout();
+    });
   }
 
   if (dom.btnAlterarUrl) {
-    dom.btnAlterarUrl.addEventListener('click', () => configurarUrlManual());
+    dom.btnAlterarUrl.addEventListener('click', () => {
+      configurarUrlManual();
+    });
   }
 
   atualizarLabelUrlAtiva();
@@ -213,42 +304,74 @@ export function fecharModal() {
 }
 
 /**
- * Alterna a visualização para a Seção de Selects em Cascata.
+ * Alterna a visualização para a Seção de Selects em Cascata (Etapa 1).
  * @return {void}
  */
 export function mostrarSecaoSelects() {
-  if (dom.secaoSelects) dom.secaoSelects.style.display = 'flex';
-  if (dom.secaoFormLogin) dom.secaoFormLogin.style.display = 'none';
-  if (dom.secaoSessaoAtiva) dom.secaoSessaoAtiva.style.display = 'none';
+  if (dom.secaoSelects) {
+    dom.secaoSelects.style.display = 'flex';
+  }
+  if (dom.secaoSenha) {
+    dom.secaoSenha.style.display = 'none';
+  }
+  if (dom.secaoConectado) {
+    dom.secaoConectado.style.display = 'none';
+  }
 }
 
 /**
- * Alterna a visualização para o Formulário de Login.
+ * Alterna a visualização para o Formulário de E-mail e Senha da Conferência (Etapa 2).
  * @param {string} nomeCf Nome da conferência selecionada.
  * @return {void}
  */
-export function mostrarSecaoLogin(nomeCf) {
-  if (dom.secaoSelects) dom.secaoSelects.style.display = 'none';
-  if (dom.secaoFormLogin) dom.secaoFormLogin.style.display = 'flex';
-  if (dom.secaoSessaoAtiva) dom.secaoSessaoAtiva.style.display = 'none';
-
-  if (dom.txtNomeCfaSelecionada) {
-    dom.txtNomeCfaSelecionada.textContent = nomeCf;
+export function mostrarSecaoSenha(nomeCf) {
+  if (dom.secaoSelects) {
+    dom.secaoSelects.style.display = 'none';
   }
-  if (dom.iptEmail) {
-    dom.iptEmail.focus();
+  if (dom.secaoSenha) {
+    dom.secaoSenha.style.display = 'flex';
+  }
+  if (dom.secaoConectado) {
+    dom.secaoConectado.style.display = 'none';
+  }
+
+  if (dom.txtConfSelecionada) {
+    dom.txtConfSelecionada.textContent = nomeCf || '-';
+  }
+  if (dom.inputEmail) {
+    const inputEmailEl = /** @type {HTMLInputElement} */ (dom.inputEmail);
+    inputEmailEl.value = '';
+  }
+  if (dom.inputSenha) {
+    const inputSenhaEl = /** @type {HTMLInputElement} */ (dom.inputSenha);
+    inputSenhaEl.value = '';
+    inputSenhaEl.type = 'password';
+    if (dom.btnToggleSenha) {
+      dom.btnToggleSenha.textContent = '👁️';
+    }
+  }
+  if (dom.inputEmail) {
+    dom.inputEmail.focus();
+  } else if (dom.inputSenha) {
+    dom.inputSenha.focus();
   }
 }
 
 /**
- * Alterna a visualização para o Card de Vicentino Conectado/Logado.
+ * Alterna a visualização para o Card de Vicentino Conectado/Logado (Etapa 3).
  * @param {{nome_pessoa?: string, nome_cf?: string, id_ssvp?: string}} sessaoAtiva
  * @return {void}
  */
-export function mostrarSecaoSessaoAtiva(sessaoAtiva) {
-  if (dom.secaoSelects) dom.secaoSelects.style.display = 'none';
-  if (dom.secaoFormLogin) dom.secaoFormLogin.style.display = 'none';
-  if (dom.secaoSessaoAtiva) dom.secaoSessaoAtiva.style.display = 'flex';
+export function mostrarSecaoConectado(sessaoAtiva) {
+  if (dom.secaoSelects) {
+    dom.secaoSelects.style.display = 'none';
+  }
+  if (dom.secaoSenha) {
+    dom.secaoSenha.style.display = 'none';
+  }
+  if (dom.secaoConectado) {
+    dom.secaoConectado.style.display = 'flex';
+  }
 
   if (dom.txtBoasVindas) {
     dom.txtBoasVindas.textContent = `Olá, ${sessaoAtiva.nome_pessoa || 'Vicentino(a)'}!`;
@@ -264,7 +387,9 @@ export function mostrarSecaoSessaoAtiva(sessaoAtiva) {
  * @return {void}
  */
 export function popularSelectConselhosCentrais(lista) {
-  if (!dom.selConselhoCentral) return;
+  if (!dom.selConselhoCentral) {
+    return;
+  }
 
   dom.selConselhoCentral.innerHTML = '<option value="">Selecione o Conselho Central...</option>';
   lista.forEach((cc) => {
@@ -274,8 +399,9 @@ export function popularSelectConselhosCentrais(lista) {
     dom.selConselhoCentral.appendChild(opt);
   });
   dom.selConselhoCentral.disabled = false;
-  if (dom.grupoCP) dom.grupoCP.style.display = 'none';
-  if (dom.grupoCF) dom.grupoCF.style.display = 'none';
+
+  desabilitarSelectConselhoParticular();
+  desabilitarSelectConferencias();
 }
 
 /**
@@ -283,11 +409,14 @@ export function popularSelectConselhosCentrais(lista) {
  * @return {void}
  */
 export function definirCarregandoConselhosCentrais() {
-  if (!dom.selConselhoCentral) return;
-  dom.selConselhoCentral.innerHTML = '<option value="">Carregando conselhos...</option>';
+  if (!dom.selConselhoCentral) {
+    return;
+  }
+  dom.selConselhoCentral.innerHTML = '<option value="">⏳ Buscando Conselhos no Google Drive...</option>';
   dom.selConselhoCentral.disabled = true;
-  if (dom.grupoCP) dom.grupoCP.style.display = 'none';
-  if (dom.grupoCF) dom.grupoCF.style.display = 'none';
+
+  desabilitarSelectConselhoParticular();
+  desabilitarSelectConferencias();
 }
 
 /**
@@ -296,7 +425,9 @@ export function definirCarregandoConselhosCentrais() {
  * @return {void}
  */
 export function popularSelectConselhosParticulares(lista) {
-  if (!dom.selConselhoParticular || !dom.grupoCP) return;
+  if (!dom.selConselhoParticular) {
+    return;
+  }
 
   dom.selConselhoParticular.innerHTML = '<option value="">Selecione o Conselho Particular...</option>';
   lista.forEach((cp) => {
@@ -310,8 +441,8 @@ export function popularSelectConselhosParticulares(lista) {
     dom.selConselhoParticular.appendChild(opt);
   });
 
-  dom.grupoCP.style.display = 'flex';
-  if (dom.grupoCF) dom.grupoCF.style.display = 'none';
+  dom.selConselhoParticular.disabled = false;
+  desabilitarSelectConferencias();
 }
 
 /**
@@ -319,10 +450,24 @@ export function popularSelectConselhosParticulares(lista) {
  * @return {void}
  */
 export function definirCarregandoCPs() {
-  if (!dom.selConselhoParticular || !dom.grupoCP) return;
-  dom.selConselhoParticular.innerHTML = '<option value="">Carregando CPs...</option>';
-  dom.grupoCP.style.display = 'flex';
-  if (dom.grupoCF) dom.grupoCF.style.display = 'none';
+  if (!dom.selConselhoParticular) {
+    return;
+  }
+  dom.selConselhoParticular.innerHTML = '<option value="">⏳ Conectando ao Google Drive... (aguarde)</option>';
+  dom.selConselhoParticular.disabled = true;
+  desabilitarSelectConferencias();
+}
+
+/**
+ * Redefine o select de Conselhos Particulares para o estado desabilitado.
+ * @return {void}
+ */
+export function desabilitarSelectConselhoParticular() {
+  if (!dom.selConselhoParticular) {
+    return;
+  }
+  dom.selConselhoParticular.innerHTML = '<option value="">Selecione o Conselho Central primeiro</option>';
+  dom.selConselhoParticular.disabled = true;
 }
 
 /**
@@ -331,7 +476,9 @@ export function definirCarregandoCPs() {
  * @return {void}
  */
 export function popularSelectConferencias(lista) {
-  if (!dom.selConferencia || !dom.grupoCF) return;
+  if (!dom.selConferencia) {
+    return;
+  }
 
   dom.selConferencia.innerHTML = '<option value="">Selecione a Conferência...</option>';
   lista.forEach((cf) => {
@@ -342,27 +489,54 @@ export function popularSelectConferencias(lista) {
     dom.selConferencia.appendChild(opt);
   });
 
-  dom.grupoCF.style.display = 'flex';
+  dom.selConferencia.disabled = false;
+  if (dom.btnAvancarParaSenha) {
+    dom.btnAvancarParaSenha.disabled = true;
+  }
 }
 
 /**
- * Oculta o seletor de Conferências.
+ * Define estado de carregamento do select de Conferências.
  * @return {void}
  */
-export function ocultarSelectConferencias() {
-  if (dom.grupoCF) dom.grupoCF.style.display = 'none';
+export function definirCarregandoConferencias() {
+  if (!dom.selConferencia) {
+    return;
+  }
+  dom.selConferencia.innerHTML = '<option value="">⏳ Filtrando Conferências...</option>';
+  dom.selConferencia.disabled = true;
+  if (dom.btnAvancarParaSenha) {
+    dom.btnAvancarParaSenha.disabled = true;
+  }
+}
+
+/**
+ * Redefine o select de Conferências para o estado desabilitado.
+ * @return {void}
+ */
+export function desabilitarSelectConferencias() {
+  if (!dom.selConferencia) {
+    return;
+  }
+  dom.selConferencia.innerHTML = '<option value="">Selecione o Conselho Particular primeiro</option>';
+  dom.selConferencia.disabled = true;
+  if (dom.btnAvancarParaSenha) {
+    dom.btnAvancarParaSenha.disabled = true;
+  }
 }
 
 /**
  * Exibe mensagem de feedback visual no modal.
  * @param {string} texto Mensagem explicativa.
- * @param {'erro'|'sucesso'} tipo Tipo do feedback visual.
+ * @param {'erro'|'sucesso'|'info'} tipo Tipo do feedback visual.
  * @return {void}
  */
 export function exibirFeedback(texto, tipo) {
-  if (!dom.msgFeedback) return;
+  if (!dom.msgFeedback) {
+    return;
+  }
   dom.msgFeedback.textContent = texto;
-  dom.msgFeedback.className = `feedback-msg feedback-${tipo}`;
+  dom.msgFeedback.className = `feedback-msg ${tipo}`;
   dom.msgFeedback.style.display = 'block';
 }
 
@@ -377,18 +551,20 @@ export function ocultarFeedback() {
 }
 
 /**
- * Atualiza o botão de login para estado de carregamento ou normal.
+ * Atualiza o botão de confirmação de conexão para estado de carregamento ou normal.
  * @param {boolean} carregando
  * @return {void}
  */
-export function definirCarregandoLogin(carregando) {
-  if (!dom.btnLogin) return;
+export function definirCarregandoConexao(carregando) {
+  if (!dom.btnConfirmarConexao) {
+    return;
+  }
 
   if (carregando) {
-    dom.btnLogin.disabled = true;
-    dom.btnLogin.innerHTML = '<span class="spinner"></span> Validando credenciais...';
+    dom.btnConfirmarConexao.disabled = true;
+    dom.btnConfirmarConexao.innerHTML = '<span class="spinner"></span> Verificando...';
   } else {
-    dom.btnLogin.disabled = false;
-    dom.btnLogin.innerHTML = '<span>Entrar no WebApp</span>';
+    dom.btnConfirmarConexao.disabled = false;
+    dom.btnConfirmarConexao.innerHTML = '<span>Entrar no WebApp</span>';
   }
 }

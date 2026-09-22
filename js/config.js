@@ -266,7 +266,10 @@ export async function abrirBottomSheetConfig() {
   const txtNome = document.getElementById('txtSheetNomeConferencia');
   if (txtNome) {
     const sessao = await lerSessao();
-    if (sessao && sessao.nome_conferencia) {
+    if (sessao && sessao.nome_cf) {
+      txtNome.textContent = sessao.nome_cf;
+      txtNome.style.color = '#86efac';
+    } else if (sessao && sessao.nome_conferencia) {
       txtNome.textContent = sessao.nome_conferencia;
       txtNome.style.color = '#86efac';
     } else {
@@ -332,16 +335,21 @@ export function inicializarConfiguracoes() {
     });
   }
 
-  // 3. Botão "Conectar / Trocar" dentro da gaveta (Abre o modal de seleção hierárquica)
+  // 3. Botão "Conectar / Trocar" dentro da gaveta (Aciona o modal com fluxo coordenado)
   const btnConectarSheet = document.getElementById('btnAbrirModalConexaoSheet');
   if (btnConectarSheet) {
     btnConectarSheet.addEventListener('click', (evento) => {
       evento.preventDefault();
       fecharBottomSheetConfig();
 
-      const modalConexao = document.getElementById('overlayModal');
-      if (modalConexao) {
-        modalConexao.classList.add('ativo');
+      const btnStatus = document.getElementById('statusHeaderBtn');
+      if (btnStatus) {
+        btnStatus.click();
+      } else {
+        const modalConexao = document.getElementById('overlayModal');
+        if (modalConexao) {
+          modalConexao.classList.add('ativo');
+        }
       }
     });
   }

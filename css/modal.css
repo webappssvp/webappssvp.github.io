@@ -226,6 +226,67 @@
   }
 }
 
+/* Card Expansível de Aviso: Por que demora no início? */
+.aviso-expansivel-demora {
+  background-color: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 0.65rem;
+  overflow: hidden;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.aviso-expansivel-demora[open] {
+  background-color: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.aviso-expansivel-header {
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #7dd3fc;
+  user-select: none;
+  list-style: none;
+  min-height: 2.75rem;
+}
+
+.aviso-expansivel-header::-webkit-details-marker {
+  display: none;
+}
+
+.aviso-expansivel-header:hover {
+  color: #bae6fd;
+}
+
+.aviso-expansivel-header .icone-seta {
+  font-size: 0.85rem;
+  transition: transform 0.2s ease;
+}
+
+.aviso-expansivel-demora[open] .icone-seta {
+  transform: rotate(180deg);
+}
+
+.aviso-expansivel-corpo {
+  padding: 0 0.85rem 0.75rem 0.85rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border-top: 1px dashed rgba(56, 189, 248, 0.18);
+  padding-top: 0.55rem;
+}
+
+.aviso-expansivel-corpo p {
+  margin: 0;
+}
+
 /* ==========================================================================
    2. Gaveta Inferior Flutuante M3: Configurações e Acessibilidade (Bottom Sheet)
    ========================================================================== */

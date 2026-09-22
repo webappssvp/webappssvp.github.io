@@ -164,73 +164,63 @@
       data-ajuda-texto="Garante que nas visitas domiciliares de domingo você possa registrar relatos e metas mesmo onde não houver sinal de celular (3G/4G).">
       <h2 class="card-explicativo-titulo">📱 Pronto para Visitas no Domingo</h2>
       <p class="card-explicativo-corpo">
-        Após fazer login uma única vez, o aplicativo grava a sua conferência na <strong>memória segura do celular (IndexedDB)</strong>.
-        Assim, nas visitas semanais, você pode trabalhar com tranquilidade mesmo em locais onde o sinal de celular for fraco ou ausente.
-      </p>
-    </article>
-
-    <!-- Card 4: Configuração da API (Avançado) -->
-    <article class="card-explicativo ajuda-alvo" style="opacity: 0.85;"
-      data-ajuda-titulo="Endereço da Planilha Google"
-      data-ajuda-texto="Permite aos coordenadores de comunicação e informática vincular a planilha oficial da Conferência no Google Drive.">
-      <h2 class="card-explicativo-titulo" style="font-size: 0.9rem;">⚙️ Endpoint do Google Apps Script</h2>
-      <p class="card-explicativo-corpo" style="font-size: 0.78rem;">
-        URL da API WebApp: <span id="lblUrlAtiva" style="color: #60a5fa; word-break: break-all;">AKfycb...</span><br>
-        <button type="button" id="btnAlterarUrl" style="background: none; border: none; color: #38bdf8; font-weight: bold; cursor: pointer; text-decoration: underline; padding-top: 4px;">
-          Alterar ou Testar Outra URL
-        </button>
+        Após conectar sua conferência uma única vez, o aplicativo salva as informações de forma segura na
+        <strong>memória do seu aparelho</strong>. Durante as visitas de domingo com a dupla vicentina, você pode registrar
+        relatos e consultar metas com total tranquilidade, mesmo sem internet.
       </p>
     </article>
 
   </main>
 
   <!-- ========================================================================
-       Gaveta Inferior Flutuante: Configurações e Acessibilidade (Bottom Sheet M3)
+       Gaveta Inferior Flutuante (Bottom Sheet M3) - Preferências e Configurações
        ======================================================================== -->
-  <div class="scrim-overlay-bottom" id="scrimBottomSheetConfig" role="dialog" aria-modal="true" aria-labelledby="tituloSheetConfig">
-    <div class="bottom-sheet" id="bottomSheetConfig" onclick="event.stopPropagation()">
+  <div class="scrim-overlay-bottom" id="scrimSheetConfig" role="dialog" aria-modal="true" aria-labelledby="tituloSheetConfig">
+    <div class="bottom-sheet" id="bottomSheetConfig">
 
       <!-- Cabeçalho da Gaveta -->
       <div class="sheet-config-header">
-        <h3 class="sheet-config-title" id="tituloSheetConfig">⚙️ Configurações</h3>
+        <h3 class="sheet-config-title" id="tituloSheetConfig">
+          <span>⚙️</span> Configurações
+        </h3>
         <button type="button" class="btn-fechar" id="btnFecharSheetConfig" aria-label="Fechar configurações">✕</button>
       </div>
 
-      <!-- Corpo da Gaveta com Rolagem Independente -->
+      <!-- Corpo com Rolagem Interna -->
       <div class="sheet-config-body">
 
-        <!-- Card de Conexão com Conferência -->
+        <!-- Card da Conferência Conectada -->
         <div class="card-conferencia-sheet">
           <div class="card-conferencia-info">
-            <span class="card-conferencia-label">Conferência Vicentina</span>
-            <strong class="card-conferencia-nome" id="txtSheetNomeConferencia">Não conectado</strong>
+            <span class="card-conferencia-label">Conferência Vinculada</span>
+            <span class="card-conferencia-nome" id="txtSheetNomeConferencia">Nenhuma conectada</span>
           </div>
           <button type="button" class="btn-trocar-conferencia" id="btnAbrirModalConexaoSheet">
             Conectar / Trocar
           </button>
         </div>
 
-        <!-- Seção 1: Aparência e Ergonomia -->
-        <span class="sheet-secao-titulo">Aparência &amp; Ergonomia</span>
+        <!-- Seção 1: Visual e Conforto (Ergonomia 60+) -->
+        <span class="sheet-secao-titulo">Visual &amp; Acessibilidade</span>
         <div class="sheet-lista-config">
 
           <!-- Switch 1: Modo Escuro -->
           <label class="m3-switch-row" for="switchModoEscuro">
             <div class="switch-info">
               <span class="switch-title">Modo Escuro</span>
-              <span class="switch-desc">Fundo noturno (OLED) / Desligue sob sol forte</span>
+              <span class="switch-desc">Fundo escuro para descansar a visão à noite</span>
             </div>
             <div class="m3-switch">
-              <input type="checkbox" id="switchModoEscuro">
+              <input type="checkbox" id="switchModoEscuro" checked>
               <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
             </div>
           </label>
 
-          <!-- Switch 2: Fonte Grande -->
+          <!-- Switch 2: Fonte Grande (60+) -->
           <label class="m3-switch-row" for="switchFonteGrande">
             <div class="switch-info">
-              <span class="switch-title">Fonte Grande</span>
-              <span class="switch-desc">Amplia letras para leitura confortável de idosos</span>
+              <span class="switch-title">Fonte Grande (60+)</span>
+              <span class="switch-desc">Aumenta o tamanho das letras para leitura confortável</span>
             </div>
             <div class="m3-switch">
               <input type="checkbox" id="switchFonteGrande">
@@ -238,14 +228,14 @@
             </div>
           </label>
 
-          <!-- Switch 3: Reduzir Animações -->
-          <label class="m3-switch-row" for="switchReduzirAnim">
+          <!-- Switch 3: Modo Leitura Silenciosa -->
+          <label class="m3-switch-row" for="switchModoLeitura">
             <div class="switch-info">
-              <span class="switch-title">Reduzir Animações</span>
-              <span class="switch-desc">Acelera a navegação em celulares mais simples</span>
+              <span class="switch-title">Modo Leitura Silenciosa</span>
+              <span class="switch-desc">Oculta botões secundários durante o estudo de relatos</span>
             </div>
             <div class="m3-switch">
-              <input type="checkbox" id="switchReduzirAnim">
+              <input type="checkbox" id="switchModoLeitura">
               <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
             </div>
           </label>
@@ -359,6 +349,22 @@
       <!-- ETAPA 1: Cascata de Seleção (CM ➔ CC ➔ CP ➔ CF) -->
       <div id="secaoSelects" style="display: flex; flex-direction: column; gap: 0.9rem;">
 
+        <!-- Card Expansível Explicativo: Por que demora no início? -->
+        <details class="aviso-expansivel-demora">
+          <summary class="aviso-expansivel-header">
+            <span>⏳ Por que demora no início?</span>
+            <span class="icone-seta" aria-hidden="true">▾</span>
+          </summary>
+          <div class="aviso-expansivel-corpo">
+            <p>
+              Para proteger a privacidade e os dados das <strong>famílias assistidas</strong> (LGPD), o WebApp não guarda informações confidenciais em servidores públicos.
+            </p>
+            <p>
+              A cada nova conexão, o sistema precisa localizar e abrir com segurança as planilhas oficiais da SSVP guardadas no Google Drive do seu Conselho Central. Esse primeiro acesso pode levar entre <strong>5 e 15 segundos</strong>.
+            </p>
+          </div>
+        </details>
+
         <!-- Select 0: Conselho Metropolitano (Fixo) -->
         <div class="form-grupo">
           <label for="selConselhoMetropolitano" class="form-label">Conselho Metropolitano:</label>
@@ -392,33 +398,43 @@
         </div>
 
         <button type="button" class="btn-submit" id="btnAvancarParaSenha" disabled>
-          Avançar
+          Avançar para Login
         </button>
 
       </div>
 
-      <!-- ETAPA 2: Validação de Senha da Conferência -->
-      <div id="secaoSenha" style="display: none; flex-direction: column; gap: 1rem;">
+      <!-- ETAPA 2: Validação de E-mail e Senha do Vicentino na Conferência -->
+      <div id="secaoSenha" style="display: none; flex-direction: column; gap: 0.9rem;">
         
-        <div style="background-color: rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: 0.5rem;">
-          <span style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Conferência Selecionada:</span>
-          <div id="txtConfSelecionada" style="font-weight: bold; color: #38bdf8; font-size: 0.95rem;">-</div>
+        <div style="background-color: rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Conferência Selecionada:</span>
+            <div id="txtConfSelecionada" style="font-weight: bold; color: #38bdf8; font-size: 0.95rem;">-</div>
+          </div>
+          <button type="button" id="btnVoltarSelects" style="background: none; border: none; font-size: 0.8rem; color: #38bdf8; text-decoration: underline; cursor: pointer; padding: 0.2rem 0.5rem;" aria-label="Trocar conferência selecionada">
+            Trocar
+          </button>
         </div>
 
         <div class="form-grupo">
-          <label for="inputSenha" class="form-label">Senha da Conferência (PIN de 4 dígitos):</label>
+          <label for="inputEmail" class="form-label">E-mail do Vicentino:</label>
+          <input type="email" id="inputEmail" class="form-input" placeholder="exemplo@gmail.com" required autocomplete="username">
+        </div>
+
+        <div class="form-grupo">
+          <label for="inputSenha" class="form-label">Senha:</label>
           <div class="input-senha-wrapper">
-            <input type="password" id="inputSenha" class="form-input" placeholder="Digite 4 números" maxlength="8" pattern="[0-9]*" inputmode="numeric">
+            <input type="password" id="inputSenha" class="form-input" placeholder="Digite sua senha" required autocomplete="current-password">
             <button type="button" class="btn-toggle-senha" id="btnToggleSenha" aria-label="Mostrar ou ocultar senha">👁️</button>
           </div>
         </div>
 
-        <div style="display: flex; gap: 0.5rem;">
-          <button type="button" class="btn-submit" id="btnVoltarSelects" style="background-color: #334155; flex: 1;">
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.35rem;">
+          <button type="button" class="btn-submit" id="btnVoltarSelectsBottom" style="background-color: #334155; flex: 1;">
             Voltar
           </button>
           <button type="button" class="btn-submit" id="btnConfirmarConexao" style="flex: 2;">
-            Conectar
+            Entrar no WebApp
           </button>
         </div>
 
