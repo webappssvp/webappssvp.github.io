@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>t1_login - Seleção e Autenticação SSVP</title>
+
+  <!-- Google Fonts: Montserrat e EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Estilos Modulares -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/views.css">
+</head>
+
+<body>
+
+  <!-- Barra Superior com Identificador de Versão do Protótipo -->
+  <header class="bar-sup" id="barraSuperior">
+    <a href="index.html" class="bar-circle" title="Voltar ao Hub de Views" aria-label="Voltar">
+      ←
+    </a>
+
+    <div class="status-header-container" id="statusHeaderBtn">
+      <span class="status-texto-principal pulsar" id="txtStatusPrincipal">Não conectado</span>
+      <span class="status-subtexto" id="txtStatusSub">Toque para conectar</span>
+    </div>
+
+    <div class="bar-circle" style="background-color: transparent; box-shadow: none; cursor: default;">
+      <span class="versao-badge" id="lblVersaoTopo">t1_login v1.0</span>
+    </div>
+  </header>
+
+  <!-- Área Central com o Card de Conexão e Login -->
+  <main class="display-area" role="main" style="align-items: center; justify-content: center;">
+
+    <div class="card-login" style="max-width: 440px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
+      
+      <div class="card-login-header">
+        <h2 class="card-login-titulo">Conectar Conferência</h2>
+        <span style="font-size: 0.8rem; color: #38bdf8; font-weight: 700;">Etapa 1 &amp; 2</span>
+      </div>
+
+      <!-- Feedback de Erro ou Sucesso -->
+      <div class="feedback-msg" id="msgFeedback" role="status"></div>
+
+      <!-- Card Expansível: Por que demora no início? -->
+      <details class="aviso-expansivel-demora">
+        <summary class="aviso-expansivel-header">
+          <span>⏳ Por que demora no início?</span>
+          <span class="icone-seta" aria-hidden="true">▾</span>
+        </summary>
+        <div class="aviso-expansivel-corpo">
+          <p>
+            Para proteger a privacidade e os dados das <strong>famílias assistidas</strong> (LGPD), o WebApp não guarda informações confidenciais em servidores públicos.
+          </p>
+          <p>
+            A cada nova conexão, o sistema precisa localizar e abrir com segurança as planilhas oficiais da SSVP guardadas no Google Drive do seu Conselho Central. Esse primeiro acesso pode levar entre <strong>5 e 15 segundos</strong>.
+          </p>
+        </div>
+      </details>
+
+      <!-- ETAPA 1: Cascata de Seleção (CM ➔ CC ➔ CP ➔ CF) -->
+      <div id="secaoSelects" style="display: flex; flex-direction: column; gap: 0.9rem;">
+
+        <!-- Select 0: CM (Fixo) -->
+        <div class="form-grupo">
+          <label for="selCM" class="form-label">Conselho Metropolitano:</label>
+          <select id="selCM" class="form-select" disabled style="opacity: 0.8; cursor: not-allowed; background-color: rgba(255, 255, 255, 0.03); border-style: dashed;">
+            <option value="SP" selected>São Paulo (SP)</option>
+          </select>
+        </div>
+
+        <!-- Select 1: CC -->
+        <div class="form-grupo">
+          <label for="selCC" class="form-label">Conselho Central:</label>
+          <select id="selCC" class="form-select">
+            <option value="">Carregando conselhos...</option>
+          </select>
+        </div>
+
+        <!-- Select 2: CP -->
+        <div class="form-grupo">
+          <label for="selCP" class="form-label">Conselho Particular:</label>
+          <select id="selCP" class="form-select" disabled>
+            <option value="">Selecione o Conselho Central primeiro</option>
+          </select>
+        </div>
+
+        <!-- Select 3: CF -->
+        <div class="form-grupo">
+          <label for="selCF" class="form-label">Conferência Vicentina:</label>
+          <select id="selCF" class="form-select" disabled>
+            <option value="">Selecione o Conselho Particular primeiro</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn-submit" id="btnAvancar" disabled>
+          Avançar para Credenciais
+        </button>
+
+      </div>
+
+      <!-- ETAPA 2: Credenciais (E-mail e Senha na Conferência) -->
+      <div id="secaoCredenciais" style="display: none; flex-direction: column; gap: 0.9rem;">
+        
+        <div style="background-color: rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Conferência Selecionada:</span>
+            <div id="txtConfSelecionada" style="font-weight: bold; color: #38bdf8; font-size: 0.95rem;">-</div>
+          </div>
+          <button type="button" id="btnTrocarConf" style="background: none; border: none; font-size: 0.8rem; color: #38bdf8; text-decoration: underline; cursor: pointer;">
+            Trocar
+          </button>
+        </div>
+
+        <div class="form-grupo">
+          <label for="iptEmail" class="form-label">E-mail do Vicentino:</label>
+          <input type="email" id="iptEmail" class="form-input" placeholder="exemplo@gmail.com" required autocomplete="username">
+        </div>
+
+        <div class="form-grupo">
+          <label for="iptSenha" class="form-label">Senha:</label>
+          <input type="password" id="iptSenha" class="form-input" placeholder="Digite sua senha" required autocomplete="current-password">
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.35rem;">
+          <button type="button" class="btn-submit" id="btnVoltarSelects" style="background-color: #334155; flex: 1;">
+            Voltar
+          </button>
+          <button type="button" class="btn-submit" id="btnEntrar" style="flex: 2;">
+            Entrar no WebApp
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ETAPA 3: Sucesso / Conectado -->
+      <div id="secaoConectado" style="display: none; flex-direction: column; gap: 1rem; text-align: center; padding: 0.5rem 0;">
+        <div style="font-size: 2.5rem;">🎉</div>
+        <h3 style="color: #86efac; font-size: 1.2rem;" id="txtBoasVindas">Conectado com Sucesso!</h3>
+        <p style="font-size: 0.9rem; color: #cbd5e1;" id="txtDetalhesSessao">Sua conferência foi salva no IndexedDB v3.</p>
+
+        <a href="t2_vicentinos.html" class="btn-submit" style="margin-top: 0.5rem; text-decoration: none;">
+          Ir para View t2_vicentinos ➔
+        </a>
+
+        <button type="button" class="btn-submit" id="btnDesconectar" style="background-color: #334155;">
+          Desconectar / Trocar
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Barra Inferior -->
+  <footer class="bar-inf" role="contentinfo">
+    <a href="index.html" class="btn-barra-inf" title="Hub de Views">
+      <span class="btn-barra-icone">📱</span>
+      <span class="btn-barra-texto">Views</span>
+    </a>
+
+    <button type="button" class="btn-barra-inf btn-barra-central" id="btn_voz" title="Áudio">
+      <span class="btn-barra-icone">🔊</span>
+      <span class="btn-barra-texto">Ouvir</span>
+    </button>
+
+    <a href="t2_vicentinos.html" class="btn-barra-inf" title="Próxima View: Vicentinos">
+      <span class="btn-barra-icone">👥</span>
+      <span class="btn-barra-texto">Vicentinos</span>
+    </a>
+  </footer>
+
+  <!-- Lógica da View t1_login com ES Modules -->
+  <script type="module">
+    import * as api from './js/api.js';
+    import * as auth from './js/auth.js';
+    import { inicializarShellComum } from './js/ui_comum.js';
+
+    let cacheEstruturaCC = { id_cc: null, nome_cc: null, conselhos_particulares: [], conferencias: [] };
+    let confSelecionada = { id_ssvp: '', nome_cf: '', id_cc: '', nome_cc: '' };
+
+    const secaoSelects = document.getElementById('secaoSelects');
+    const secaoCredenciais = document.getElementById('secaoCredenciais');
+    const secaoConectado = document.getElementById('secaoConectado');
+    const selCC = document.getElementById('selCC');
+    const selCP = document.getElementById('selCP');
+    const selCF = document.getElementById('selCF');
+    const btnAvancar = document.getElementById('btnAvancar');
+    const btnTrocarConf = document.getElementById('btnTrocarConf');
+    const btnVoltarSelects = document.getElementById('btnVoltarSelects');
+    const btnEntrar = document.getElementById('btnEntrar');
+    const btnDesconectar = document.getElementById('btnDesconectar');
+    const iptEmail = document.getElementById('iptEmail');
+    const iptSenha = document.getElementById('iptSenha');
+    const txtConfSelecionada = document.getElementById('txtConfSelecionada');
+    const txtBoasVindas = document.getElementById('txtBoasVindas');
+    const txtDetalhesSessao = document.getElementById('txtDetalhesSessao');
+    const msgFeedback = document.getElementById('msgFeedback');
+
+    function exibirFeedback(texto, tipo) {
+      msgFeedback.textContent = texto;
+      msgFeedback.className = `feedback-msg ${tipo}`;
+      msgFeedback.style.display = 'block';
+    }
+
+    function ocultarFeedback() {
+      msgFeedback.style.display = 'none';
+    }
+
+    async function carregarConselhosCentrais() {
+      selCC.innerHTML = '<option value="">⏳ Buscando Conselhos no Google Drive...</option>';
+      selCC.disabled = true;
+      selCP.innerHTML = '<option value="">Selecione o Conselho Central primeiro</option>';
+      selCP.disabled = true;
+      selCF.innerHTML = '<option value="">Selecione o Conselho Particular primeiro</option>';
+      selCF.disabled = true;
+      btnAvancar.disabled = true;
+
+      try {
+        const lista = await api.buscarConselhosCentrais();
+        selCC.innerHTML = '<option value="">Selecione o Conselho Central...</option>';
+        lista.forEach(cc => {
+          const opt = document.createElement('option');
+          opt.value = cc.id_cc;
+          opt.textContent = cc.nome_cc || cc.id_cc;
+          selCC.appendChild(opt);
+        });
+        selCC.disabled = false;
+      } catch (err) {
+        exibirFeedback(`Erro ao carregar Conselhos Centrais: ${err.message}`, 'erro');
+      }
+    }
+
+    selCC.addEventListener('change', async (e) => {
+      const idCc = e.target.value;
+      if (!idCc) {
+        selCP.innerHTML = '<option value="">Selecione o Conselho Central primeiro</option>';
+        selCP.disabled = true;
+        selCF.innerHTML = '<option value="">Selecione o Conselho Particular primeiro</option>';
+        selCF.disabled = true;
+        btnAvancar.disabled = true;
+        return;
+      }
+
+      selCP.innerHTML = '<option value="">⏳ Conectando ao Google Drive... (aguarde)</option>';
+      selCP.disabled = true;
+      selCF.innerHTML = '<option value="">Selecione o Conselho Particular primeiro</option>';
+      selCF.disabled = true;
+      btnAvancar.disabled = true;
+      ocultarFeedback();
+
+      try {
+        const dados = await api.buscarEstruturaCC(idCc);
+        cacheEstruturaCC = {
+          id_cc: idCc,
+          nome_cc: dados.nome_cc,
+          conselhos_particulares: dados.conselhos_particulares || [],
+          conferencias: dados.conferencias || []
+        };
+
+        selCP.innerHTML = '<option value="">Selecione o Conselho Particular...</option>';
+        cacheEstruturaCC.conselhos_particulares.forEach(cp => {
+          const opt = document.createElement('option');
+          const cod = cp.id_ssvp || cp.id_cp;
+          opt.value = cod;
+          opt.textContent = cp.nome_cp ? `${cp.nome_cp} (${cod})` : cod;
+          opt.dataset.idConselho = cp.id_conselho || '';
+          opt.dataset.idSsvp = cp.id_ssvp || '';
+          opt.dataset.nomeCp = cp.nome_cp || '';
+          selCP.appendChild(opt);
+        });
+        selCP.disabled = false;
+      } catch (err) {
+        exibirFeedback(`Falha ao ler índice do Conselho: ${err.message}`, 'erro');
+      }
+    });
+
+    selCP.addEventListener('change', (e) => {
+      const idCp = e.target.value;
+      if (!idCp) {
+        selCF.innerHTML = '<option value="">Selecione o Conselho Particular primeiro</option>';
+        selCF.disabled = true;
+        btnAvancar.disabled = true;
+        return;
+      }
+
+      const optSel = selCP.options[selCP.selectedIndex];
+      const idConselho = optSel ? (optSel.dataset.idConselho || '').trim().toUpperCase() : '';
+      const nomeCp = optSel ? (optSel.dataset.nomeCp || '').trim().toLowerCase() : '';
+      const cpVal = String(idCp).trim().toUpperCase();
+
+      const cfsFiltradas = cacheEstruturaCC.conferencias.filter(cf => {
+        const cfCp = String(cf.id_cp || '').trim().toUpperCase();
+        const cfSsvp = String(cf.id_ssvp || '').trim().toUpperCase();
+        if (cfCp && cfCp === cpVal) return true;
+        if (idConselho && cfCp === idConselho) return true;
+        if (nomeCp && cfCp.toLowerCase() === nomeCp) return true;
+        if (cpVal.length >= 4 && cfSsvp.startsWith(cpVal)) return true;
+        return false;
+      });
+
+      selCF.innerHTML = '<option value="">Selecione a Conferência...</option>';
+      cfsFiltradas.forEach(cf => {
+        const opt = document.createElement('option');
+        opt.value = cf.id_ssvp;
+        opt.textContent = cf.nome_cf ? `${cf.nome_cf} (${cf.id_ssvp})` : cf.id_ssvp;
+        opt.dataset.nomeCf = cf.nome_cf || cf.id_ssvp;
+        selCF.appendChild(opt);
+      });
+      selCF.disabled = false;
+      btnAvancar.disabled = true;
+    });
+
+    selCF.addEventListener('change', (e) => {
+      const idSsvp = e.target.value;
+      if (idSsvp) {
+        const optSel = selCF.options[selCF.selectedIndex];
+        confSelecionada = {
+          id_ssvp: idSsvp,
+          nome_cf: optSel.dataset.nomeCf || optSel.textContent,
+          id_cc: cacheEstruturaCC.id_cc,
+          nome_cc: cacheEstruturaCC.nome_cc
+        };
+        btnAvancar.disabled = false;
+      } else {
+        btnAvancar.disabled = true;
+      }
+    });
+
+    btnAvancar.addEventListener('click', () => {
+      txtConfSelecionada.textContent = confSelecionada.nome_cf;
+      secaoSelects.style.display = 'none';
+      secaoCredenciais.style.display = 'flex';
+      iptEmail.focus();
+    });
+
+    btnTrocarConf.addEventListener('click', () => {
+      secaoCredenciais.style.display = 'none';
+      secaoSelects.style.display = 'flex';
+    });
+
+    btnVoltarSelects.addEventListener('click', () => {
+      secaoCredenciais.style.display = 'none';
+      secaoSelects.style.display = 'flex';
+    });
+
+    btnEntrar.addEventListener('click', async () => {
+      const email = iptEmail.value.trim();
+      const senha = iptSenha.value.trim();
+
+      if (!email || !senha) {
+        exibirFeedback('Preencha seu e-mail e sua senha para entrar.', 'erro');
+        return;
+      }
+
+      btnEntrar.disabled = true;
+      btnEntrar.innerHTML = '<span class="spinner"></span> Verificando...';
+      ocultarFeedback();
+
+      try {
+        const resposta = await api.autenticarPessoa(confSelecionada.id_cc, confSelecionada.id_ssvp, email, senha);
+
+        if (resposta && resposta.sucesso && resposta.dados) {
+          const nomePessoa = resposta.dados.nome_pessoa || 'Vicentino(a)';
+          await auth.salvarSessaoAutenticada({
+            conectado: true,
+            id_cc: confSelecionada.id_cc,
+            nome_cc: confSelecionada.nome_cc,
+            id_ssvp: confSelecionada.id_ssvp,
+            nome_cf: resposta.dados.nome_cf || confSelecionada.nome_cf,
+            nome_pessoa: nomePessoa,
+            email_pessoa: resposta.dados.email_pessoa || email
+          });
+
+          txtBoasVindas.textContent = `Olá, ${nomePessoa}!`;
+          txtDetalhesSessao.textContent = `Conferência: ${confSelecionada.nome_cf} salva no IndexedDB.`;
+          secaoCredenciais.style.display = 'none';
+          secaoConectado.style.display = 'flex';
+          exibirFeedback('🎉 Autenticado com sucesso!', 'sucesso');
+        } else {
+          exibirFeedback(resposta?.erro?.mensagem || 'Credenciais inválidas na aba pessoas.', 'erro');
+        }
+      } catch (err) {
+        exibirFeedback(`Erro de autenticação: ${err.message}`, 'erro');
+      } finally {
+        btnEntrar.disabled = false;
+        btnEntrar.innerHTML = '<span>Entrar no WebApp</span>';
+      }
+    });
+
+    btnDesconectar.addEventListener('click', async () => {
+      await auth.desconectarSessao();
+      secaoConectado.style.display = 'none';
+      secaoSelects.style.display = 'flex';
+      carregarConselhosCentrais();
+    });
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await inicializarShellComum('t1_login v1.0');
+      const sessao = auth.obterSessaoAtiva();
+
+      if (sessao.conectado) {
+        txtBoasVindas.textContent = `Olá, ${sessao.nome_pessoa}!`;
+        txtDetalhesSessao.textContent = `Conferência: ${sessao.nome_cf} ativa no IndexedDB.`;
+        secaoSelects.style.display = 'none';
+        secaoCredenciais.style.display = 'none';
+        secaoConectado.style.display = 'flex';
+      } else {
+        await carregarConselhosCentrais();
+      }
+    });
+  </script>
+
+</body>
+
+</html>

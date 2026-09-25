@@ -1,0 +1,364 @@
+/* ==========================================================================
+   WebApp SSVP - Estilos dos Componentes das Views
+   Módulo: testes/app/css/views.css
+   Conformidade com: dev/padroes/03_html_css_google.md e 05_acessibilidade_ergonomia.md
+   ========================================================================== */
+
+/* ==========================================================================
+   1. Formulários e Controles (Usados em t1_login e cadastros)
+   ========================================================================== */
+.form-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ssvp-text-muted);
+}
+
+.form-select,
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.6rem;
+  background-color: var(--ssvp-surface-elevated);
+  border: 1px solid var(--ssvp-border);
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-select:focus,
+.form-input:focus,
+.form-textarea:focus {
+  border-color: var(--ssvp-border-focus);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+}
+
+.form-select:disabled,
+.form-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-submit {
+  background-color: var(--ssvp-blue);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 100, 182, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  text-decoration: none;
+}
+
+.btn-submit:hover {
+  background-color: var(--ssvp-blue-hover);
+}
+
+.btn-submit:active {
+  transform: scale(0.98);
+}
+
+.btn-submit:disabled {
+  background-color: #334155;
+  color: var(--ssvp-text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Feedback Visual (Alertas) */
+.feedback-msg {
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.6rem;
+  font-size: 0.88rem;
+  display: none;
+  line-height: 1.4;
+}
+
+.feedback-msg.erro {
+  display: block;
+  background-color: rgba(211, 47, 47, 0.15);
+  border: 1px solid rgba(211, 47, 47, 0.4);
+  color: #fca5a5;
+}
+
+.feedback-msg.sucesso {
+  display: block;
+  background-color: rgba(21, 128, 61, 0.15);
+  border: 1px solid rgba(21, 128, 61, 0.4);
+  color: #86efac;
+}
+
+.feedback-msg.info {
+  display: block;
+  background-color: rgba(0, 100, 182, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #7dd3fc;
+}
+
+/* Spinner */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: girarSpinner 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes girarSpinner {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   2. Cartões de Vicentinos (View: t2_vicentinos)
+   ========================================================================== */
+.lista-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.card-vicentino {
+  background-color: var(--ssvp-surface-card);
+  border: 1px solid var(--ssvp-border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+}
+
+.card-vicentino:hover {
+  border-color: var(--ssvp-border-focus);
+}
+
+.card-vicentino-info {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.avatar-circulo {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background-color: var(--ssvp-navy);
+  border: 2px solid var(--ssvp-blue);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.dados-vicentino {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.nome-vicentino {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cargo-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 1rem;
+  display: inline-block;
+  width: fit-content;
+  background-color: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.cargo-badge.diretoria {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+  border-color: rgba(234, 179, 8, 0.35);
+}
+
+.btn-ouvir-card {
+  background: none;
+  border: 1px solid var(--ssvp-border);
+  border-radius: 50%;
+  width: 2.8rem;
+  height: 2.8rem;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-ouvir-card:active {
+  transform: scale(0.92);
+  background-color: var(--ssvp-blue);
+}
+
+/* ==========================================================================
+   3. Cartões de Famílias (View: t3_familias)
+   ========================================================================== */
+.card-familia {
+  background-color: var(--ssvp-surface-card);
+  border: 1px solid var(--ssvp-border);
+  border-radius: 0.9rem;
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.card-familia:hover {
+  border-color: var(--ssvp-border-focus);
+}
+
+.card-familia-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.familia-nome-responsavel {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.familia-status-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+}
+
+.familia-status-badge.ativa {
+  background-color: rgba(21, 128, 61, 0.2);
+  color: #86efac;
+  border: 1px solid rgba(21, 128, 61, 0.4);
+}
+
+.familia-status-badge.triagem {
+  background-color: rgba(234, 179, 8, 0.2);
+  color: #fde047;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+}
+
+.familia-detalhes-linha {
+  font-size: 0.85rem;
+  color: var(--ssvp-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ==========================================================================
+   4. Cartões de Visitas e Metas (View: t4_visitas)
+   ========================================================================== */
+.card-visita {
+  background-color: var(--ssvp-surface-card);
+  border: 1px solid var(--ssvp-border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-relato-box {
+  background-color: rgba(0, 100, 182, 0.08);
+  border-left: 4px solid var(--ssvp-blue);
+  border-radius: 0.5rem;
+  padding: 0.8rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+/* ==========================================================================
+   5. Hub de Navegação (index.html)
+   ========================================================================== */
+.grid-hub-testes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.card-hub-view {
+  background-color: var(--ssvp-surface-card);
+  border: 1px solid var(--ssvp-border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.card-hub-view:hover {
+  transform: translateY(-2px);
+  border-color: var(--ssvp-border-focus);
+}
+
+.card-hub-titulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-hub-desc {
+  font-size: 0.85rem;
+  color: var(--ssvp-text-muted);
+  line-height: 1.45;
+}
+
+.card-hub-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  width: fit-content;
+}

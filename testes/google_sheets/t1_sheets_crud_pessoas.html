@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,14 +17,14 @@
       gap: 12px;
       margin-bottom: 12px;
     }
-    
+
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
       width: 100%;
     }
-    
+
     .form-label {
       font-size: 0.8rem;
       font-weight: 700;
@@ -31,8 +32,10 @@
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
-    
-    input[type="text"], input[type="email"], input[type="tel"] {
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
       width: 100%;
       padding: 0 12px;
       border: 1px solid var(--ssvp-gray-border);
@@ -45,11 +48,13 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    
-    input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus {
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus {
       border-color: var(--ssvp-blue);
     }
-    
+
     form.modo-edicao {
       background-color: #f0f7ff;
       border: 2px solid var(--ssvp-blue);
@@ -62,6 +67,7 @@
     form.modo-edicao #btnSubmit {
       background-color: var(--ssvp-success);
     }
+
     form.modo-edicao #btnSubmit:hover {
       background-color: #0f9f6e;
     }
@@ -73,7 +79,7 @@
       margin-top: 8px;
       width: 100%;
     }
-    
+
     .actions-btn button {
       flex: 1;
       min-width: 130px;
@@ -97,36 +103,52 @@
       justify-content: center;
       gap: 0.5rem;
     }
-    
-    button:hover { background-color: #0066cc; }
-    button:active { transform: scale(0.98); }
-    button:disabled { background-color: var(--ssvp-text-muted); cursor: not-allowed; }
-    
+
+    button:hover {
+      background-color: #0066cc;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background-color: var(--ssvp-text-muted);
+      cursor: not-allowed;
+    }
+
     .btn-secondary {
-      background-color: #f59e0b; /* Amarelo Ouro Acessível */
+      background-color: #f59e0b;
+      /* Amarelo Ouro Acessível */
       color: var(--ssvp-navy);
     }
-    .btn-secondary:hover { background-color: #d97706; }
+
+    .btn-secondary:hover {
+      background-color: #d97706;
+    }
 
     .btn-delete {
       background-color: var(--ssvp-red);
     }
-    .btn-delete:hover { background-color: #b91c1c; }
+
+    .btn-delete:hover {
+      background-color: #b91c1c;
+    }
 
     .linha-selecionavel {
       cursor: pointer;
       transition: background-color 0.2s;
     }
-    
+
     .linha-selecionavel:hover {
       background-color: var(--ssvp-light-blue);
     }
-    
+
     .linha-selecionavel.selecionada {
       background-color: #cce3ff !important;
       outline: 2px solid var(--ssvp-blue);
     }
-    
+
     .section-title {
       font-size: 1.1rem;
       font-weight: 700;
@@ -138,7 +160,7 @@
       justify-content: space-between;
       align-items: center;
     }
-    
+
     /* Tabela Responsiva com rolagem lateral no mobile */
     .tabela-responsiva {
       width: 100%;
@@ -148,32 +170,36 @@
       border-radius: 8px;
       margin-top: 12px;
     }
-    
+
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 500px; /* Garante estrutura legível na rolagem lateral */
+      min-width: 500px;
+      /* Garante estrutura legível na rolagem lateral */
     }
-    
-    th, td {
+
+    th,
+    td {
       text-align: left;
       padding: 12px;
       border-bottom: 1px solid var(--ssvp-gray-border);
       font-size: var(--table-font-size, 14px);
     }
-    
+
     th {
       background-color: var(--ssvp-light-blue);
       color: var(--ssvp-navy);
       font-weight: 700;
     }
-    
+
     tr:last-child td {
       border-bottom: none;
     }
-    
-    tr:hover { background-color: var(--ssvp-gray-light); }
-    
+
+    tr:hover {
+      background-color: var(--ssvp-gray-light);
+    }
+
     .status-msg {
       margin-top: 12px;
       padding: 10px;
@@ -183,17 +209,33 @@
       text-align: center;
       display: none;
     }
-    .status-msg.sucesso { background-color: #c6f6d5; color: #22543d; display: block; }
-    .status-msg.erro { background-color: #fed7d7; color: #742a2a; display: block; }
-    
-    .empty-state { text-align: center; padding: 24px; color: var(--ssvp-text-muted); font-style: italic; }
+
+    .status-msg.sucesso {
+      background-color: #c6f6d5;
+      color: #22543d;
+      display: block;
+    }
+
+    .status-msg.erro {
+      background-color: #fed7d7;
+      color: #742a2a;
+      display: block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 24px;
+      color: var(--ssvp-text-muted);
+      font-style: italic;
+    }
   </style>
 </head>
+
 <body>
 
   <!-- Área dedicada para o Teste Específico (CRUD Planilha) -->
   <main class="teste-container">
-    
+
     <!-- Formulário de Cadastro -->
     <form id="personForm">
       <input type="hidden" id="personId" value="">
@@ -269,6 +311,7 @@
     });
 
     // API real do Google Apps Script de Produção para o CRUD de Pessoas
+
     const URL_API = "https://script.google.com/macros/s/AKfycbzCb6_U5FHSRztf3Twrqr-6qGec7La4t1paGb7qIpmk1ZzICVQWVvxLZ_9KrzJWk0z5/exec";
 
     const form = document.getElementById('personForm');
@@ -329,7 +372,7 @@
     }
 
     // Preencher formulário para Edição
-    window.setupEdit = function(id) {
+    window.setupEdit = function (id) {
       const item = listData.find(p => String(p.id) === String(id));
       if (!item) return;
 
@@ -451,4 +494,5 @@
     loadData();
   </script>
 </body>
+
 </html>

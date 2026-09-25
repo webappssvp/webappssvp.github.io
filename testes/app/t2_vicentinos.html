@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>t2_vicentinos - Equipe Vicentina e Diretoria</title>
+
+  <!-- Google Fonts: Montserrat e EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Estilos Modulares -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/views.css">
+</head>
+
+<body>
+
+  <!-- Barra Superior com Identificador de Versão do Protótipo -->
+  <header class="bar-sup" id="barraSuperior">
+    <a href="index.html" class="bar-circle" title="Voltar ao Hub de Views" aria-label="Voltar">
+      ←
+    </a>
+
+    <div class="status-header-container" id="statusHeaderBtn">
+      <span class="status-texto-principal pulsar" id="txtStatusPrincipal">Não conectado</span>
+      <span class="status-subtexto" id="txtStatusSub">Toque para conectar</span>
+    </div>
+
+    <div class="bar-circle" style="background-color: transparent; box-shadow: none; cursor: default;">
+      <span class="versao-badge" id="lblVersaoTopo">t2_vicentinos v1.0</span>
+    </div>
+  </header>
+
+  <!-- Área Central: Lista de Vicentinos da Conferência Ativa -->
+  <main class="display-area" role="main">
+
+    <!-- Cabeçalho da View -->
+    <section style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ssvp-border); padding-bottom: 0.75rem;">
+      <div>
+        <h1 class="titulo-garamond" style="font-size: 1.45rem; color: #ffffff;">Membros da Conferência</h1>
+        <p style="font-size: 0.85rem; color: var(--ssvp-text-muted);" id="txtSubtituloConferencia">
+          Carregando dados do IndexedDB...
+        </p>
+      </div>
+      <button type="button" class="btn-submit" id="btnRecarregarDados" style="min-height: 2.4rem; padding: 0.35rem 0.75rem; font-size: 0.8rem; background-color: var(--ssvp-surface-elevated);">
+        🔄 Atualizar
+      </button>
+    </section>
+
+    <!-- Alerta caso não esteja conectado -->
+    <div id="avisoNaoConectado" style="display: none; background-color: rgba(211, 47, 47, 0.15); border: 1px solid rgba(211, 47, 47, 0.4); border-radius: 0.85rem; padding: 1.25rem; text-align: center; flex-direction: column; gap: 0.75rem;">
+      <span style="font-size: 2rem;">⚠️</span>
+      <h2 style="font-size: 1.15rem; color: #fca5a5;">Nenhuma Conferência Conectada</h2>
+      <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.45;">
+        Para visualizar a lista de vicentinos e a diretoria, selecione sua conferência no IndexedDB.
+      </p>
+      <a href="t1_login.html" class="btn-submit" style="text-decoration: none; align-self: center; margin-top: 0.25rem;">
+        Ir para Login e Conexão (t1_login)
+      </a>
+    </div>
+
+    <!-- Lista de Cartões de Vicentinos -->
+    <section class="lista-cards-grid" id="containerVicentinos">
+      <!-- Inserido dinamicamente via JS a partir do IndexedDB -->
+    </section>
+
+  </main>
+
+  <!-- Barra Inferior com Ações de Áudio e Navegação -->
+  <footer class="bar-inf" role="contentinfo">
+    <a href="t1_login.html" class="btn-barra-inf" title="Ir para Login">
+      <span class="btn-barra-icone">🔑</span>
+      <span class="btn-barra-texto">Login</span>
+    </a>
+
+    <button type="button" class="btn-barra-inf btn-barra-central" id="btn_voz" title="Ouvir Resumo dos Membros">
+      <span class="btn-barra-icone">🔊</span>
+      <span class="btn-barra-texto">Ouvir</span>
+    </button>
+
+    <a href="index.html" class="btn-barra-inf" title="Hub de Views">
+      <span class="btn-barra-icone">📱</span>
+      <span class="btn-barra-texto">Views</span>
+    </a>
+  </footer>
+
+  <!-- Lógica da View t2_vicentinos -->
+  <script type="module">
+    import * as db from './js/db.js';
+    import * as auth from './js/auth.js';
+    import { lerTextoEmVozAlta } from './voz.js';
+    import { inicializarShellComum } from './js/ui_comum.js';
+
+    const containerVicentinos = document.getElementById('containerVicentinos');
+    const avisoNaoConectado = document.getElementById('avisoNaoConectado');
+    const txtSubtituloConferencia = document.getElementById('txtSubtituloConferencia');
+    const btnRecarregarDados = document.getElementById('btnRecarregarDados');
+    const btnVozCentral = document.getElementById('btn_voz');
+
+    let listaVicentinosMemoria = [];
+
+    function obterIniciais(nome) {
+      if (!nome) return 'VI';
+      const partes = nome.trim().split(' ');
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    async function carregarListaVicentinos() {
+      const sessao = auth.obterSessaoAtiva();
+
+      if (!sessao.id_ssvp) {
+        avisoNaoConectado.style.display = 'flex';
+        containerVicentinos.innerHTML = '';
+        txtSubtituloConferencia.textContent = 'Conferência não selecionada';
+        return;
+      }
+
+      avisoNaoConectado.style.display = 'none';
+      txtSubtituloConferencia.textContent = `Conferência: ${sessao.nome_cf || sessao.id_ssvp}`;
+
+      // Provisiona dados de teste caso a store esteja vazia para a conferência conectada
+      await db.provisionarDadosDemonstracaoVicentinos(sessao.id_ssvp, sessao.nome_cf || 'Conferência');
+
+      const todasPessoas = await db.obterTodos(db.STORES.PESSOAS);
+      // Filtra vicentinos vinculados à conferência ou sem id_familia
+      listaVicentinosMemoria = todasPessoas.filter(p => !p.id_familia || p.papel === 'Vicentino');
+
+      renderizarCardsVicentinos(listaVicentinosMemoria);
+    }
+
+    function renderizarCardsVicentinos(lista) {
+      containerVicentinos.innerHTML = '';
+
+      if (lista.length === 0) {
+        containerVicentinos.innerHTML = `
+          <div style="padding: 1.5rem; text-align: center; color: var(--ssvp-text-muted); background-color: var(--ssvp-surface-card); border-radius: 0.75rem;">
+            Nenhum vicentino encontrado no IndexedDB para esta conferência.
+          </div>
+        `;
+        return;
+      }
+
+      lista.forEach((vicentino) => {
+        const card = document.createElement('article');
+        card.className = 'card-vicentino';
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+
+        const iniciais = obterIniciais(vicentino.nome_completo || vicentino.nome_exibicao);
+        const cargo = vicentino.cargo || 'Membro Ativo';
+        const ehDiretoria = ['Presidente', 'Vice-Presidente', 'Tesoureiro', 'Secretária', 'Secretário'].includes(cargo);
+
+        card.innerHTML = `
+          <div class="card-vicentino-info">
+            <div class="avatar-circulo" aria-hidden="true">${iniciais}</div>
+            <div class="dados-vicentino">
+              <span class="nome-vicentino">${vicentino.nome_completo || vicentino.nome_exibicao}</span>
+              <span class="cargo-badge ${ehDiretoria ? 'diretoria' : ''}">${cargo}</span>
+              <span style="font-size: 0.75rem; color: var(--ssvp-text-muted);">${vicentino.email || 'Sem e-mail'}</span>
+            </div>
+          </div>
+          <button type="button" class="btn-ouvir-card" aria-label="Ouvir dados de ${vicentino.nome_completo}">
+            🔊
+          </button>
+        `;
+
+        const textoFala = `${vicentino.nome_completo || vicentino.nome_exibicao}, cargo: ${cargo}, conferência ativa.`;
+
+        // Toque no botão de áudio ou no próprio cartão para síntese de voz (TTS)
+        const btnOuvir = card.querySelector('.btn-ouvir-card');
+        btnOuvir.addEventListener('click', (e) => {
+          e.stopPropagation();
+          lerTextoEmVozAlta(textoFala, card);
+        });
+
+        card.addEventListener('click', () => {
+          lerTextoEmVozAlta(textoFala, card);
+        });
+
+        containerVicentinos.appendChild(card);
+      });
+    }
+
+    // Leitura geral de todos os membros ao clicar no botão central de áudio
+    if (btnVozCentral) {
+      btnVozCentral.addEventListener('click', () => {
+        if (listaVicentinosMemoria.length === 0) {
+          lerTextoEmVozAlta('Nenhum membro vicentino cadastrado na conferência ativa.');
+          return;
+        }
+
+        const nomesCargos = listaVicentinosMemoria.map(v => `${v.nome_completo}, ${v.cargo || 'Membro'}`).join('. ');
+        lerTextoEmVozAlta(`Membros da conferência ativa: ${nomesCargos}.`);
+      });
+    }
+
+    if (btnRecarregarDados) {
+      btnRecarregarDados.addEventListener('click', async () => {
+        btnRecarregarDados.textContent = '⏳ Lendo...';
+        await carregarListaVicentinos();
+        btnRecarregarDados.textContent = '🔄 Atualizar';
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await inicializarShellComum('t2_vicentinos v1.0');
+      await carregarListaVicentinos();
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Material Design SSVP - Teste 7: Padrões Visuais (TTS Verde / STT Azul + Pílula Dupla)</title>
+
+  <!-- Google Fonts Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. Tokens do Sistema de Cores e Elevação M3 (Adaptado à SSVP)
+       ========================================================================== */
+    :root {
+      /* Cores Institucionais SSVP */
+      --md-primary: #002d62;          /* Azul Marinho SSVP */
+      --md-on-primary: #ffffff;
+      --md-secondary: #007fff;        /* Azul Royal Ação */
+      --md-on-secondary: #ffffff;
+      --md-error: #d32f2f;            /* Vermelho Alerta SSVP */
+      --md-on-error: #ffffff;
+      --md-success: #15803d;          /* Verde Confirmação */
+
+      /* MODO ESCURO (Padrão de Campo) */
+      --md-surface-0: #0b0f19;        /* Nível 0: Canvas de Fundo */
+      --md-surface-1: #151d2f;        /* Nível 1: Cards e Itens de Lista */
+      --md-surface-2: #1b263d;        /* Nível 2: Barras Fixas e Elementos Flutuantes */
+      --md-surface-3: #22304d;        /* Nível 3: Modais, Dialogs e Sheets */
+      
+      --md-on-surface: #f1f5f9;       /* Texto Principal */
+      --md-on-surface-variant: #94a3b8; /* Texto Secundário / Muted */
+      --md-border-subtle: rgba(255, 255, 255, 0.08);
+      --md-border-strong: rgba(255, 255, 255, 0.18);
+      --md-border-soft: rgba(255, 255, 255, 0.12);
+
+      /* TOKENS DEDICADOS DE ÁUDIO & ACESSIBILIDADE T7 */
+      --ritmo-pulso: 1.5s;            /* Ciclo unificado e harmônico de pulso */
+      
+      /* Modo Text-to-Speech (TTS - Verde) */
+      --cor-tts: #22c55e;
+      --cor-tts-escuro: #15803d;
+      --fundo-btn-tts: rgba(34, 197, 94, 0.22);
+      --texto-btn-tts: #4ade80;
+
+      /* Modo Speech-to-Text (STT - Azul) */
+      --cor-stt: #007fff;
+      --cor-stt-escuro: #00529b;
+      --fundo-btn-stt: rgba(0, 127, 255, 0.22);
+      --texto-btn-stt: #60a5fa;
+
+      /* Sombras de Elevação M3 */
+      --md-elevation-0: none;
+      --md-elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
+      --md-elevation-2: 0 4px 8px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+      --md-elevation-3: 0 16px 36px -4px rgba(0, 0, 0, 0.6), 0 6px 14px -2px rgba(0, 0, 0, 0.4);
+
+      /* Dimensões e Ergonomia */
+      --touch-target-min: 3rem;       /* 48px mínimo para dedos de idosos */
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --font-family: 'Montserrat', Arial, sans-serif;
+      --header-height: 4.2rem;
+      --footer-height: 4.5rem;
+      --sheet-duracao: 0.3s;
+    }
+
+    /* MODO CLARO (Sol Forte / Leitura Diurna) */
+    body.tema-claro {
+      --md-surface-0: #f8fafc;
+      --md-surface-1: #ffffff;
+      --md-surface-2: #f1f5f9;
+      --md-surface-3: #ffffff;
+
+      --md-on-surface: #0f172a;
+      --md-on-surface-variant: #475569;
+      --md-border-subtle: rgba(0, 0, 0, 0.08);
+      --md-border-strong: rgba(0, 0, 0, 0.22);
+      --md-border-soft: rgba(0, 0, 0, 0.12);
+
+      /* Adaptação de Alto Contraste para Sol Forte */
+      --fundo-btn-tts: #dcfce7;
+      --texto-btn-tts: #15803d;
+      --fundo-btn-stt: #dbeafe;
+      --texto-btn-stt: #00529b;
+
+      --md-elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+      --md-elevation-2: 0 4px 6px -1px rgba(0, 0, 0, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+      --md-elevation-3: 0 16px 32px -4px rgba(0, 0, 0, 0.22), 0 6px 12px -2px rgba(0, 0, 0, 0.08);
+    }
+
+    /* FONTE GRANDE (Acessibilidade Universal 60+) */
+    html {
+      transition: font-size 0.2s ease;
+    }
+
+    html.fonte-grande {
+      font-size: 118%;
+    }
+
+    /* REDUZIR ANIMAÇÕES */
+    body.sem-animacoes * {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    /* Reset Geral */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--md-surface-0);
+      color: var(--md-on-surface);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==========================================================================
+       2. ANIMAÇÕES DE PULSO SINCRONIZADO (MESMO RITMO DE 1.5s)
+       ========================================================================== */
+    @keyframes pulsoVerdeSincronizado {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
+      }
+      50% {
+        box-shadow: 0 0 18px 5px rgba(34, 197, 94, 0.8);
+      }
+    }
+
+    @keyframes pulsoAzulSincronizado {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(0, 127, 255, 0.45);
+      }
+      50% {
+        box-shadow: 0 0 18px 5px rgba(0, 127, 255, 0.8);
+      }
+    }
+
+    /* ==========================================================================
+       3. BARRA SUPERIOR FIXA (APP-HEADER)
+       ========================================================================== */
+    .app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background-color: var(--md-surface-2);
+      border-bottom: 1px solid var(--md-border-subtle);
+      box-shadow: var(--md-elevation-2);
+      z-index: 60;
+      padding: 0 1rem;
+      padding-top: var(--safe-top);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    body.layout-canhoto .app-header {
+      flex-direction: row-reverse;
+    }
+
+    .header-logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-logo-img {
+      width: 2.2rem;
+      height: 2.2rem;
+      object-fit: contain;
+    }
+
+    .header-title-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header-conf-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--md-on-surface);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-sub-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-cp-name {
+      font-size: 0.75rem;
+      color: var(--md-on-surface-variant);
+      white-space: nowrap;
+    }
+
+    .header-version-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      background-color: rgba(0, 127, 255, 0.15);
+      color: var(--md-secondary);
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .btn-header-overflow {
+      width: var(--touch-target-min);
+      height: var(--touch-target-min);
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--md-on-surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-header-overflow:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-header-overflow svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      fill: currentColor;
+    }
+
+    /* Sub-barra de Navegação do Protótipo */
+    .subbar-teste {
+      margin-top: calc(var(--header-height) + var(--safe-top));
+      background-color: var(--md-surface-1);
+      border-bottom: 1px solid var(--md-border-subtle);
+      padding: 0.55rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      z-index: 40;
+    }
+
+    .link-voltar-testes {
+      color: var(--md-secondary);
+      text-decoration: none;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .link-voltar-testes:hover {
+      text-decoration: underline;
+    }
+
+    .badge-teste-atual {
+      background-color: rgba(255, 255, 255, 0.06);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      color: var(--md-on-surface-variant);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       4. CONTEÚDO PRINCIPAL (ÁREA DE VISITA COM 4 BLOCOS ALTERNADOS)
+       ========================================================================== */
+    .display-area {
+      flex: 1;
+      padding: 1rem;
+      padding-bottom: calc(var(--footer-height) + var(--safe-bottom) + 1.5rem);
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .md-card {
+      background-color: var(--md-surface-1);
+      border-radius: 1.35rem;
+      border: 1px solid var(--md-border-subtle);
+      padding: 1.15rem;
+      box-shadow: var(--md-elevation-1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--md-border-subtle);
+      padding-bottom: 0.65rem;
+    }
+
+    .chip-status {
+      background-color: rgba(21, 128, 61, 0.18);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      border-radius: 999px;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .card-titulo-pessoa {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--md-on-surface);
+      line-height: 1.25;
+    }
+
+    .card-endereco-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      color: var(--md-on-surface-variant);
+      margin-top: 0.2rem;
+    }
+
+    /* Instrução Visual de Guia */
+    .instrucao-visual-box {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(0, 127, 255, 0.08) 100%);
+      border: 1px solid var(--md-border-strong);
+      border-radius: 12px;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: var(--md-on-surface);
+    }
+
+    .instrucao-visual-box strong.tts-tag {
+      color: #22c55e;
+    }
+
+    .instrucao-visual-box strong.stt-tag {
+      color: #007fff;
+    }
+
+    /* ==========================================================================
+       5. OS 4 BLOCOS ALTERNADOS (TEXTO, TEXTFIELD, TEXTO, TEXTFIELD)
+       - Todos padronizados com altura equivalente a 3 LINHAS
+       - Borda grossa de 3.5px nos 4 lados quando em foco
+       - Pulso na mesma cadência (1.5s)
+       ========================================================================== */
+    .container-blocos-alternados {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* 5.1. BLOCOS DE LEITURA (TEXTO 1 E TEXTO 2 - TEXT-TO-SPEECH) */
+    .bloco-leitura {
+      background-color: var(--md-surface-2);
+      border: 2px solid var(--md-border-strong);
+      border-radius: 1.15rem;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      position: relative;
+      user-select: none;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .bloco-leitura:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Borda Grossa nos 4 Lados + Pulso Verde quando Focado */
+    .bloco-leitura.foco-ativo-tts {
+      border: 3.5px solid var(--cor-tts) !important;
+      animation: pulsoVerdeSincronizado var(--ritmo-pulso) infinite ease-in-out;
+      background-color: rgba(34, 197, 94, 0.06);
+    }
+
+    .bloco-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .badge-tipo-bloco {
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .badge-tipo-bloco.badge-tts {
+      color: #4ade80;
+    }
+
+    body.tema-claro .badge-tipo-bloco.badge-tts {
+      color: #15803d;
+    }
+
+    .badge-tipo-bloco.badge-stt {
+      color: #60a5fa;
+    }
+
+    body.tema-claro .badge-tipo-bloco.badge-stt {
+      color: #00529b;
+    }
+
+    /* O Texto de 3 Linhas (Calibrado com Line-Height: 1.45 e Min-Height) */
+    .texto-conteudo-3l {
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: var(--md-on-surface);
+      font-style: italic;
+      min-height: calc(3 * 0.95rem * 1.45);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* 5.2. BLOCOS DE ENTRADA (TEXTFIELD 1 E TEXTFIELD 2 - SPEECH-TO-TEXT) */
+    .grupo-campo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .label-campo {
+      cursor: pointer;
+    }
+
+    .campo-wrapper {
+      border-radius: 1.15rem;
+      border: 2px solid var(--md-border-strong);
+      background-color: var(--md-surface-2);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Borda Grossa nos 4 Lados + Pulso Azul quando Focado */
+    .grupo-campo.foco-ativo-stt .campo-wrapper {
+      border: 3.5px solid var(--cor-stt) !important;
+      animation: pulsoAzulSincronizado var(--ritmo-pulso) infinite ease-in-out;
+      background-color: rgba(0, 127, 255, 0.05);
+    }
+
+    .campo-formulario {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0.85rem 1rem;
+      color: var(--md-on-surface);
+      font-family: inherit;
+      font-size: 1rem; /* Mínimo de 16px para prevenir zoom no Safari iOS */
+      line-height: 1.45;
+      resize: none;
+      min-height: calc(3 * 1rem * 1.45 + 1.7rem);
+      box-sizing: border-box;
+    }
+
+    .campo-formulario::placeholder {
+      color: var(--md-on-surface-variant);
+      opacity: 0.7;
+    }
+
+    /* ==========================================================================
+       6. BARRA INFERIOR (PÍLULA DUPLA [FALAR | DIGITAR] + BOTÃO CONTEXTUAL OUVIR)
+       - Falar e Digitar agora com o mesmo padrão do botão Ouvir, só que em azul!
+       ========================================================================== */
+    .app-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(var(--footer-height) + var(--safe-bottom));
+      background-color: var(--md-surface-2);
+      border-top: 1px solid var(--md-border-subtle);
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.35);
+      z-index: 60;
+      padding: 0 1rem;
+      padding-bottom: var(--safe-bottom);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    body.layout-canhoto .app-footer {
+      flex-direction: row-reverse;
+    }
+
+    .btn-footer-lateral {
+      min-width: 4rem;
+      height: 3.2rem;
+      border-radius: 14px;
+      border: 1px solid var(--md-border-soft);
+      background-color: var(--md-surface-1);
+      color: var(--md-on-surface);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-footer-lateral:active {
+      transform: scale(0.96);
+    }
+
+    .btn-footer-lateral svg {
+      width: 1.3rem;
+      height: 1.3rem;
+      fill: currentColor;
+    }
+
+    .btn-sair-lateral {
+      border-color: rgba(211, 47, 47, 0.4);
+      color: #ef5350;
+    }
+
+    .btn-sair-lateral:hover {
+      background-color: rgba(211, 47, 47, 0.12);
+    }
+
+    /* CONTÊINER CENTRAL DA BARRA */
+    .footer-centro-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 290px;
+    }
+
+    /* 6.1. PÍLULA DUPLA (SEGMENTED BUTTON M3: [ 🎙️ Falar | ⌨️ Digitar ])
+       Padronizada com visual e métricas idênticas ao botão Ouvir, mas no tema azul */
+    .pilula-dupla-container {
+      display: flex;
+      align-items: center;
+      background-color: var(--md-surface-1);
+      border: 1.5px solid var(--md-border-strong);
+      border-radius: 999px;
+      padding: 4px;
+      height: 3.4rem;
+      width: 100%;
+      box-shadow: var(--md-elevation-1);
+      transition: all 0.2s ease;
+      position: relative;
+      gap: 4px;
+    }
+
+    .btn-pilula-item {
+      flex: 1;
+      height: 100%;
+      border: 2px solid transparent;
+      background: transparent;
+      color: var(--md-on-surface-variant);
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0 0.75rem;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .btn-pilula-item:active {
+      transform: scale(0.97);
+    }
+
+    .btn-pilula-item svg {
+      width: 1.3rem;
+      height: 1.3rem;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Lado Falar Ativo (STT - Padrão do botão Ouvir em Azul) */
+    .btn-pilula-item.ativo-falar {
+      background-color: var(--fundo-btn-stt) !important;
+      color: var(--texto-btn-stt) !important;
+      border: 2px solid var(--cor-stt) !important;
+    }
+
+    /* Pulso Azul Sincronizado na Pílula quando o campo está focado e em modo Falar */
+    .pilula-dupla-container.pulso-ativo-stt .btn-pilula-item.ativo-falar {
+      animation: pulsoAzulSincronizado var(--ritmo-pulso) infinite ease-in-out;
+    }
+
+    /* Lado Digitar Ativo (Teclado - Padrão do botão Ouvir em Azul) */
+    .btn-pilula-item.ativo-digitar {
+      background-color: var(--fundo-btn-stt) !important;
+      color: var(--texto-btn-stt) !important;
+      border: 2px solid var(--cor-stt) !important;
+    }
+
+    /* Pulso Azul Sincronizado na Pílula quando o campo está focado e em modo Digitar */
+    .pilula-dupla-container.pulso-ativo-stt .btn-pilula-item.ativo-digitar {
+      animation: pulsoAzulSincronizado var(--ritmo-pulso) infinite ease-in-out;
+    }
+
+    /* Estado de Gravação do Microfone (Gravando / Parar - Igual ao estado Parar do Ouvir) */
+    .btn-pilula-item.em-execucao-gravacao {
+      background-color: rgba(239, 68, 68, 0.25) !important;
+      border: 2px solid #ef4444 !important;
+      color: #fca5a5 !important;
+      animation: pulsoAzulSincronizado 0.8s infinite ease-in-out !important;
+    }
+
+    .btn-pilula-item.em-execucao-gravacao svg {
+      fill: #fca5a5 !important;
+    }
+
+    /* 6.2. BOTÃO CONTEXTUAL DE ÁUDIO (EXIBIDO QUANDO UM TEXTO DE LEITURA É FOCADO) */
+    .btn-audio-central {
+      width: 100%;
+      height: 3.4rem;
+      border-radius: 999px;
+      border: 2px solid var(--cor-tts);
+      background-color: var(--fundo-btn-tts);
+      color: var(--texto-btn-tts);
+      cursor: pointer;
+      display: none; /* Exibido contextualmente pela Opção A */
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      font-size: 1rem;
+      font-weight: 800;
+      transition: all 0.2s ease;
+      padding: 0 1.25rem;
+      box-shadow: var(--md-elevation-1);
+      animation: pulsoVerdeSincronizado var(--ritmo-pulso) infinite ease-in-out;
+    }
+
+    .btn-audio-central:active {
+      transform: scale(0.97);
+    }
+
+    .btn-audio-central svg {
+      width: 1.4rem;
+      height: 1.4rem;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Estado Falando (Parar) */
+    .btn-audio-central.em-execucao-fala {
+      background-color: rgba(239, 68, 68, 0.25) !important;
+      border-color: #ef4444 !important;
+      color: #fca5a5 !important;
+    }
+
+    .btn-audio-central.em-execucao-fala svg {
+      fill: #fca5a5;
+    }
+
+    /* ==========================================================================
+       7. MODAIS E GAVETAS M3 (CENTRALIZADOS COM MARGENS RIGOROSAMENTE IGUAIS)
+       ========================================================================== */
+    .scrim-overlay {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--sheet-duracao) ease;
+      display: flex;
+      box-sizing: border-box;
+    }
+
+    .scrim-overlay.aberto {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* TOP SHEET: Configurações com margens exatamente iguais nos 4 lados */
+    .scrim-top {
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .top-sheet {
+      width: 100%;
+      max-width: 480px;
+      max-height: calc(100dvh - 2.5rem);
+      background-color: var(--md-surface-3);
+      border-radius: 1.5rem;
+      border: 1px solid var(--md-border-strong);
+      box-shadow: var(--md-elevation-3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin: 0;
+      transform: scale(0.95) translateY(-10px);
+      transition: transform var(--sheet-duracao) cubic-bezier(0.05, 0.7, 0.1, 1.0), opacity 0.3s ease;
+    }
+
+    .scrim-top.aberto .top-sheet {
+      transform: scale(1) translateY(0);
+    }
+
+    .sheet-header {
+      padding: 0.85rem 1.2rem;
+      border-bottom: 1px solid var(--md-border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background-color: var(--md-surface-3);
+    }
+
+    .sheet-tabs-container {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--md-on-surface-variant);
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn.ativo {
+      background-color: rgba(0, 127, 255, 0.18);
+      color: var(--md-secondary);
+    }
+
+    .btn-fechar-sheet {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      border: 1px solid var(--md-border-soft);
+      background-color: var(--md-surface-2);
+      color: var(--md-on-surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-fechar-sheet svg {
+      width: 1.2rem;
+      height: 1.2rem;
+      fill: currentColor;
+    }
+
+    .sheet-body {
+      flex: 1;
+      padding: 0.85rem 1.2rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* Rodapé Fixo do Modal de Configurações (Padrão t3) */
+    .sheet-config-footer {
+      padding: 0.75rem 1.2rem 1.15rem 1.2rem;
+      border-top: 1px solid var(--md-border-subtle);
+      background-color: var(--md-surface-3);
+      flex-shrink: 0;
+    }
+
+    .btn-m3-filled {
+      width: 100%;
+      min-height: var(--touch-target-min, 3rem);
+      background-color: var(--md-primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 1rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-m3-filled:hover {
+      background-color: #001f44;
+    }
+
+    .btn-m3-filled:active {
+      transform: scale(0.98);
+    }
+
+    .modulo-secao {
+      display: none;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .modulo-secao.ativo {
+      display: flex;
+    }
+
+    .sheet-card-box {
+      background-color: var(--md-surface-2);
+      border: 1px solid var(--md-border-subtle);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .sheet-card-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--md-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sheet-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+    }
+
+    /* Switches Material Design 3 */
+    .m3-switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 3rem;
+      padding: 0.4rem 0.2rem;
+      border-bottom: 1px solid var(--md-border-subtle);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .m3-switch-row:last-child {
+      border-bottom: none;
+    }
+
+    .m3-switch-label-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding-right: 0.75rem;
+    }
+
+    .m3-switch-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--md-on-surface);
+    }
+
+    .m3-switch-desc {
+      font-size: 0.75rem;
+      color: var(--md-on-surface-variant);
+      line-height: 1.25;
+    }
+
+    .m3-switch {
+      position: relative;
+      width: 3.25rem;
+      height: 2rem;
+      flex-shrink: 0;
+    }
+
+    .m3-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .m3-switch-track {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.14);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .m3-switch-thumb {
+      position: absolute;
+      top: 0.25rem;
+      left: 0.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      background-color: #cbd5e1;
+      border-radius: 50%;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s ease;
+    }
+
+    .m3-switch input:checked + .m3-switch-track {
+      background-color: var(--md-secondary);
+      border-color: var(--md-secondary);
+    }
+
+    .m3-switch input:checked + .m3-switch-track .m3-switch-thumb {
+      transform: translateX(1.25rem);
+      background-color: #ffffff;
+    }
+
+    /* BOTTOM SHEET: Menu de Navegação */
+    .scrim-bottom {
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .bottom-sheet {
+      width: 100%;
+      max-width: 520px;
+      background-color: var(--md-surface-2);
+      border-top-left-radius: 1.5rem;
+      border-top-right-radius: 1.5rem;
+      box-shadow: var(--md-elevation-3);
+      border-top: 1px solid var(--md-border-strong);
+      padding: 1.25rem;
+      padding-bottom: calc(1.5rem + var(--safe-bottom));
+      transform: translateY(100%);
+      transition: transform var(--sheet-duracao) cubic-bezier(0.05, 0.7, 0.1, 1.0);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .scrim-bottom.aberto .bottom-sheet {
+      transform: translateY(0);
+    }
+
+    .nav-grid-opcoes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .btn-nav-opcao {
+      background-color: var(--md-surface-1);
+      border: 1px solid var(--md-border-subtle);
+      border-radius: 12px;
+      padding: 0.85rem;
+      color: var(--md-on-surface);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .btn-nav-opcao:hover {
+      background-color: rgba(0, 127, 255, 0.12);
+      border-color: var(--md-secondary);
+    }
+
+    /* Toast Flutuante */
+    .toast-flutuante {
+      position: fixed;
+      bottom: calc(var(--footer-height) + var(--safe-bottom) + 1rem);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: var(--md-surface-3);
+      color: var(--md-on-surface);
+      border: 1px solid var(--md-border-strong);
+      border-radius: 999px;
+      padding: 0.55rem 1.15rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: var(--md-elevation-2);
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 90;
+      white-space: nowrap;
+    }
+
+    .toast-flutuante.visivel {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ========================================================================
+       1. BARRA SUPERIOR FIXA
+       ======================================================================== -->
+  <header class="app-header" id="appHeader">
+    <!-- Logotipo Oficial SSVP -->
+    <div class="header-logo-container" title="Sociedade de São Vicente de Paulo">
+      <img src="../../img/marca_ssvp.svg" alt="SSVP" class="header-logo-img">
+    </div>
+
+    <!-- Nome da Conferência e Subtítulo -->
+    <div class="header-title-area">
+      <h1 class="header-conf-name" id="confName">Santa Dulce dos Pobres</h1>
+      <div class="header-sub-row">
+        <span class="header-cp-name">CP Vila Mariana</span>
+        <span class="header-version-pill">T7 • Padrões Visuais v1.2</span>
+      </div>
+    </div>
+
+    <!-- Botão de 3 Pontos Verticais (Configurações) -->
+    <button type="button" class="btn-header-overflow" id="btnOverflow" onclick="abrirTopSheet()" title="Mais Opções (Configurações, Conexão, Ajuda)">
+      <svg viewBox="0 -960 960 960">
+        <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Sub-barra com Atalho para a Lista de Testes -->
+  <nav class="subbar-teste" aria-label="Navegação do Protótipo">
+    <a href="index.html" class="link-voltar-testes">← Ver Todos os Testes</a>
+    <span class="badge-teste-atual">Teste 7: Padrões Visuais &amp; Pílula Dupla</span>
+  </nav>
+
+  <!-- ========================================================================
+       2. CONTEÚDO PRINCIPAL (CARD COM OS 4 BLOCOS ALTERNADOS)
+       ======================================================================== -->
+  <main class="display-area" id="mainConteudo">
+
+    <article class="md-card" id="cardLarAssistido">
+      
+      <!-- Cabeçalho do Lar -->
+      <div class="card-header-row">
+        <span class="chip-status">Família Acompanhada</span>
+        <span style="font-size: 0.74rem; color: var(--md-secondary); font-weight: 700;">Visita Quinzenal</span>
+      </div>
+
+      <div>
+        <h2 class="card-titulo-pessoa">Neuza Pereira dos Santos</h2>
+        <div class="card-endereco-row">
+          <img src="../../img/location_on.svg" alt="Localização" style="width: 1rem; height: 1rem;">
+          <span>Rua das Flores, 120 - Vila Esperança</span>
+        </div>
+      </div>
+
+      <!-- Guia Visual Rápido -->
+      <div class="instrucao-visual-box">
+        💡 <strong>Padrões de Foco &amp; Barra Inferior:</strong><br>
+        • <strong class="tts-tag">Texto (Verde):</strong> Ao tocar nos blocos 1 e 3, a barra exibe o botão verde <strong>[ Ouvir / Parar ]</strong> (TTS).<br>
+        • <strong class="stt-tag">TextField (Azul):</strong> Ao tocar nos campos 2 e 4, a barra exibe a <strong>Pílula Dupla [ Falar | Digitar ]</strong> em azul.<br>
+        • <strong>Comportamento dos Botões:</strong> Tanto <strong>Falar</strong> quanto <strong>Digitar</strong> têm a mesma ergonomia do botão Ouvir: fundo azul claro, borda azul, pulso sincronizado e alternância direta de estado.
+      </div>
+
+      <!-- OS 4 BLOCOS ALTERNADOS DE 3 LINHAS (TEXT, TEXTFIELD, TEXT, TEXTFIELD) -->
+      <section class="container-blocos-alternados" aria-label="Formulário Alternado">
+
+        <!-- 1. TEXTO 1 (LEITURA / TTS - VERDE) -->
+        <div class="bloco-leitura foco-ativo-tts" id="blocoTexto1" role="button" tabindex="0" onclick="selecionarTextoLeitura(1)" title="Relato da última visita">
+          <div class="bloco-card-header">
+            <span class="badge-tipo-bloco badge-tts">📖 1. Relato Anterior (Leitura • TTS)</span>
+          </div>
+          <p class="texto-conteudo-3l" id="conteudoTexto1">
+            Dona Neuza relatou estabilidade na pressão arterial com o início dos medicamentos fornecidos pela UBS. Recebeu a cesta básica com leite desnatado e combinou de manter a caminhada matinal diária com a vizinha Rosa.
+          </p>
+        </div>
+
+        <!-- 2. TEXTFIELD 1 (ENTRADA / STT - AZUL) -->
+        <div class="grupo-campo" id="grupoCampo1">
+          <div class="label-row">
+            <label class="label-campo" for="campo1" onclick="document.getElementById('campo1').focus()">
+              <span class="badge-tipo-bloco badge-stt">✍️ 2. Anotação da Visita Atual (Entrada • STT)</span>
+            </label>
+          </div>
+          <div class="campo-wrapper">
+            <textarea id="campo1" class="campo-formulario" rows="3" placeholder="Toque aqui para interagir com o campo..."
+              onfocus="registrarFocoCampo(this, 'grupoCampo1')"
+              onclick="registrarFocoCampo(this, 'grupoCampo1')"></textarea>
+          </div>
+        </div>
+
+        <!-- 3. TEXTO 2 (LEITURA / TTS - VERDE) -->
+        <div class="bloco-leitura" id="blocoTexto2" role="button" tabindex="0" onclick="selecionarTextoLeitura(2)" title="Parecer e metas vicentinas">
+          <div class="bloco-card-header">
+            <span class="badge-tipo-bloco badge-tts">📖 3. Parecer e Metas Vicentinas (Leitura • TTS)</span>
+          </div>
+          <p class="texto-conteudo-3l" id="conteudoTexto2">
+            A conferência aprovou o subsídio emergencial para óculos de grau do neto Lucas. Recomendamos verificar a frequência escolar no próximo bimestre e orientar a família sobre o cadastro atualizado no CadÚnico.
+          </p>
+        </div>
+
+        <!-- 4. TEXTFIELD 2 (ENTRADA / STT - AZUL) -->
+        <div class="grupo-campo" id="grupoCampo2">
+          <div class="label-row">
+            <label class="label-campo" for="campo2" onclick="document.getElementById('campo2').focus()">
+              <span class="badge-tipo-bloco badge-stt">✍️ 4. Providências e Demandas (Entrada • STT)</span>
+            </label>
+          </div>
+          <div class="campo-wrapper">
+            <textarea id="campo2" class="campo-formulario" rows="3" placeholder="Toque aqui para interagir com o campo..."
+              onfocus="registrarFocoCampo(this, 'grupoCampo2')"
+              onclick="registrarFocoCampo(this, 'grupoCampo2')"></textarea>
+          </div>
+        </div>
+
+      </section>
+
+    </article>
+
+  </main>
+
+  <!-- ========================================================================
+       3. BARRA INFERIOR (PÍLULA DUPLA [FALAR | DIGITAR] + BOTÃO CONTEXTUAL OUVIR)
+       ======================================================================== -->
+  <footer class="app-footer" id="appFooter">
+
+    <!-- 1. Botão Menu Lateral -->
+    <button type="button" class="btn-footer-lateral" id="btnFooterMenu" onclick="abrirBottomNav()" title="Navegar entre Páginas (Menu)">
+      <svg viewBox="0 -960 960 960">
+        <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
+      </svg>
+      <span>Menu</span>
+    </button>
+
+    <!-- 2. Centro Dinâmico Dual: Alterna entre Pílula Dupla [Falar|Digitar] e Botão [Ouvir] -->
+    <div class="footer-centro-container">
+      
+      <!-- 2.1. PÍLULA DUPLA: Exibida em campos de texto (STT/Digitação) no padrão Ouvir em Azul -->
+      <div class="pilula-dupla-container" id="pilulaDuplaHub" role="radiogroup" aria-label="Modo de Entrada">
+        
+        <!-- Opção Falar (Voz - STT Azul com toggle Falar / Parar) -->
+        <button type="button" class="btn-pilula-item ativo-falar" id="btnPilulaFalar" onclick="lidarCliquePilulaFalar()" title="Modo Falar: Toque para gravar ou parar gravação">
+          <!-- Ícone Microfone (Idle) -->
+          <svg viewBox="0 -960 960 960" id="svgMic">
+            <path d="M480-400q-50 0-85-35t-35-85v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q0 50-35 85t-85 35Zm0-240Zm-40 520v-123q-104-14-172-93t-68-184h80q0 83 58.5 141.5T480-320q83 0 141.5-58.5T680-520h80q0 105-68 184t-172 93v123h-80Zm40-360q17 0 28.5-11.5T520-520v-240q0-17-11.5-28.5T480-800q-17 0-28.5 11.5T440-760v240q0 17 11.5 28.5T480-480Z"/>
+          </svg>
+          <!-- Ícone Parar (Gravando) -->
+          <svg viewBox="0 -960 960 960" id="svgMicStop" style="display: none;">
+            <path d="M240-240v-480h480v480H240Z"/>
+          </svg>
+          <span id="lblPilulaFalar">Falar</span>
+        </button>
+
+        <!-- Opção Digitar (Teclado - STT Azul com foco direto) -->
+        <button type="button" class="btn-pilula-item" id="btnPilulaDigitar" onclick="lidarCliquePilulaDigitar()" title="Modo Digitar: Exibe o teclado ao tocar no campo">
+          <svg viewBox="0 -960 960 960" id="svgKeyboard">
+            <path d="M160-200q-33 0-56.5-23.5T80-280v-400q0-33 23.5-56.5T160-760h640q33 0 56.5 23.5T880-680v400q0 33-23.5 56.5T800-200H160Zm0-80h640v-400H160v400Zm80-80h80v-80h-80v80Zm160 0h160v-80H400v80Zm240 0h80v-80h-80v80ZM240-480h80v-80h-80v80Zm160 0h80v-80h-80v80Zm160 0h80v-80h-80v80Zm160 0h80v-80h-80v80ZM320-600h80v-80h-80v80Zm160 0h80v-80h-80v80Zm160 0h80v-80h-80v80ZM160-280v-400 400Z"/>
+          </svg>
+          <span id="lblPilulaDigitar">Digitar</span>
+        </button>
+
+      </div>
+
+      <!-- 2.2. BOTÃO CONTEXTUAL OUVIR: Exibido quando um texto de leitura (1 ou 3) está focado -->
+      <button type="button" class="btn-audio-central" id="btnAudioHub" onclick="lidarCliqueBotaoOuvir()" title="Ouvir leitura em voz alta">
+        <svg viewBox="0 -960 960 960" id="svgSpeaker">
+          <path d="M560-131v-82q90-26 145-100t55-167q0-93-55-167T560-747v-82q124 28 202 125.5T840-480q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-320q46 17 73 57.5t27 92.5q0 52-27 92.5T560-320ZM400-606l-86 86H200v80h114l86 86v-252ZM300-480Z"/>
+        </svg>
+        <svg viewBox="0 -960 960 960" id="svgStop" style="display: none;">
+          <path d="M240-240v-480h480v480H240Z"/>
+        </svg>
+        <span id="lblHubAudio">Ouvir</span>
+      </button>
+
+    </div>
+
+    <!-- 3. Botão Sair Seguro (LGPD) -->
+    <button type="button" class="btn-footer-lateral btn-sair-lateral" id="btnFooterSair" onclick="executarLogoutProtegido()" title="Sair imediatamente e proteger dados da família (LGPD)">
+      <svg viewBox="0 -960 960 960">
+        <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
+      </svg>
+      <span>Sair</span>
+    </button>
+
+  </footer>
+
+  <!-- ========================================================================
+       4. GAVETA SUPERIOR: CONFIGURAÇÕES E ERGONOMIA (COM MARGENS IGUAIS)
+       ======================================================================== -->
+  <div class="scrim-overlay scrim-top" id="scrimTop" onclick="fecharTopSheetPorOverlay(event)">
+    <div class="top-sheet" id="topSheet" onclick="event.stopPropagation()">
+      
+      <!-- Cabeçalho com Abas -->
+      <div class="sheet-header">
+        <div class="sheet-tabs-container">
+          <button type="button" class="tab-btn ativo" id="tabBtnConfig" onclick="mudarAbaGaveta('config')">
+            <span>⚙️ Ajustes</span>
+          </button>
+          <button type="button" class="tab-btn" id="tabBtnSinc" onclick="mudarAbaGaveta('sinc')">
+            <span>📡 Conexão</span>
+          </button>
+          <button type="button" class="tab-btn" id="tabBtnAjuda" onclick="mudarAbaGaveta('ajuda')">
+            <span>❓ Ajuda</span>
+          </button>
+        </div>
+        <button type="button" class="btn-fechar-sheet" onclick="fecharTopSheet()" title="Fechar">
+          <svg viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+        </button>
+      </div>
+
+      <!-- Corpo da Gaveta com as Seções -->
+      <div class="sheet-body">
+
+        <!-- MÓDULO 1: AJUSTES -->
+        <section class="modulo-secao ativo" id="moduloConfig">
+
+          <span class="sheet-card-title">Preenchimento de Campos (IndexedDB)</span>
+
+          <!-- Seletor do Modo de Entrada no Modal -->
+          <div class="sheet-card-box">
+            <span style="font-size: 0.82rem; font-weight: 700; color: var(--md-on-surface);">Método preferido ao tocar nos campos:</span>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.35rem;">
+              <button type="button" class="btn-m3-filled" id="btnModalFalar" style="background-color: var(--md-secondary); font-size: 0.85rem;" onclick="alternarModoEntrada('falar')">
+                🎙️ Falar (Sem teclado)
+              </button>
+              <button type="button" class="btn-m3-filled" id="btnModalDigitar" style="background-color: var(--md-surface-1); color: var(--md-on-surface); border: 1px solid var(--md-border-strong); font-size: 0.85rem;" onclick="alternarModoEntrada('digitar')">
+                ⌨️ Digitar (Com teclado)
+              </button>
+            </div>
+          </div>
+
+          <span class="sheet-card-title" style="margin-top: 0.4rem;">Aparência &amp; Acessibilidade</span>
+
+          <!-- 1. Modo Escuro / Claro -->
+          <label class="m3-switch-row" for="switchModoEscuro">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Modo Escuro</span>
+              <span class="m3-switch-desc">Ativo: alto contraste noturno; Desativo: tema claro para sol forte</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchModoEscuro" onchange="alterarConfig('modoEscuro', this.checked)">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 2. Fonte Grande -->
+          <label class="m3-switch-row" for="switchFonteGrande">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Fonte Grande (118%)</span>
+              <span class="m3-switch-desc">Amplia letras para leitura confortável de idosos</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchFonteGrande" onchange="alterarConfig('fonteGrande', this.checked)">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 3. Modo Destro / Canhoto -->
+          <label class="m3-switch-row" for="switchDestro">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Modo Destro</span>
+              <span class="m3-switch-desc">Menu à esquerda e sair à direita; inverta para canhoto</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchDestro" onchange="alterarConfig('destro', this.checked)">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 4. Reduzir Animações (Acessibilidade Vestibular) -->
+          <label class="m3-switch-row" for="switchReduzirAnim">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Reduzir Animações</span>
+              <span class="m3-switch-desc">Congela os pulsos para conforto visual e celulares lentos</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchReduzirAnim" onchange="alterarConfig('reduzirAnimacoes', this.checked)">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- 5. Som e Vibração ao Tocar -->
+          <label class="m3-switch-row" for="switchSom">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Retorno Sonoro e Vibração</span>
+              <span class="m3-switch-desc">Confirmação física imediata ao interagir na tela</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchSom" onchange="alterarConfig('somAtivo', this.checked)">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+        </section>
+
+        <!-- MÓDULO 2: CONEXÃO E NUVEM -->
+        <section class="modulo-secao" id="moduloSinc">
+          <div class="sheet-card-box">
+            <span class="sheet-card-title">📡 Estado da Conexão</span>
+            <div class="sheet-row">
+              <span>Rede Detectada:</span>
+              <span style="color: #4ade80; font-weight: 700;">🟢 Wi-Fi Online</span>
+            </div>
+            <div class="sheet-row">
+              <span>Nuvem Google Sheets:</span>
+              <strong style="color: #86efac;">Conectada</strong>
+            </div>
+          </div>
+
+          <div class="sheet-card-box">
+            <span class="sheet-card-title">📦 Cofre Local (IndexedDB)</span>
+            <div class="sheet-row">
+              <span>Modo Salvo no Aparelho:</span>
+              <strong id="lblIndexedDBModo" style="color: var(--md-secondary);">Falar</strong>
+            </div>
+            <div class="sheet-row">
+              <span>Famílias Baixadas:</span>
+              <strong>14 no celular</strong>
+            </div>
+          </div>
+        </section>
+
+        <!-- MÓDULO 3: AJUDA -->
+        <section class="modulo-secao" id="moduloAjuda">
+          <div class="sheet-card-box">
+            <span class="sheet-card-title">📖 Guia da Pílula Dupla e Áudio</span>
+            <p style="font-size: 0.8rem; line-height: 1.45; color: var(--md-on-surface-variant);">
+              • <strong style="color: var(--md-secondary);">Modo Falar:</strong> Ao focar nos campos 2 e 4, o teclado virtual não é exibido. O botão [ Falar ] pulsa em azul; toque nele para ditar (transforma-se em [ Parar ] durante o ditado).<br>
+              • <strong>Modo Digitar:</strong> Ao focar nos campos, o botão [ Digitar ] fica ativo em azul e o teclado virtual é aberto normalmente para digitação manual.<br>
+              • <strong style="color: #4ade80;">Modo Ouvir (Verde):</strong> Ao tocar nos textos 1 e 3, a barra inferior se transforma no botão verde [ Ouvir / Parar ] para ler em voz alta.
+            </p>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Rodapé Fixo da Gaveta de Configurações (Padrão t3) -->
+      <div class="sheet-config-footer">
+        <button type="button" class="btn-m3-filled" onclick="fecharTopSheet()">
+          Fechar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       5. GAVETA INFERIOR DE TELAS (BOTTOM SHEET DE NAVEGAÇÃO)
+       ======================================================================== -->
+  <div class="scrim-overlay scrim-bottom" id="scrimBottom" onclick="fecharBottomNavPorOverlay(event)">
+    <div class="bottom-sheet" id="bottomSheet" onclick="event.stopPropagation()">
+      
+      <div class="sheet-header">
+        <span class="sheet-card-title" style="font-size: 0.95rem;">Navegar no Protótipo</span>
+        <button type="button" class="btn-fechar-sheet" onclick="fecharBottomNav()" title="Fechar">
+          <svg viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+        </button>
+      </div>
+
+      <div class="nav-grid-opcoes">
+        <a class="btn-nav-opcao" href="index.html">
+          <span>🏠 Todos os Testes</span>
+        </a>
+        <a class="btn-nav-opcao" href="t6_opcoes_de_entrada.html">
+          <span>T6 • Entrada</span>
+        </a>
+        <a class="btn-nav-opcao" href="t5_barras_e_ajuda.html">
+          <span>T5 • Barras</span>
+        </a>
+        <a class="btn-nav-opcao" href="t4_botoes_e_voz.html">
+          <span>T4 • Voz</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Flutuante -->
+  <div class="toast-flutuante" id="toastFlutuante">Mensagem rápida</div>
+
+  <!-- ========================================================================
+       6. SCRIPTS JAVASCRIPT: INDEXEDDB, PÍLULA DUPLA E CONTROLE DE TECLADO
+       ======================================================================== -->
+  <script>
+    // --- ESTADO GERAL E ELEMENTOS DOM ---
+    const htmlElement = document.documentElement;
+    const bodyElement = document.body;
+
+    // Modais e Gavetas
+    const scrimTop = document.getElementById("scrimTop");
+    const scrimBottom = document.getElementById("scrimBottom");
+    const toastFlutuante = document.getElementById("toastFlutuante");
+
+    // Elementos de Conteúdo Alternado
+    const blocoTexto1 = document.getElementById("blocoTexto1");
+    const blocoTexto2 = document.getElementById("blocoTexto2");
+    const grupoCampo1 = document.getElementById("grupoCampo1");
+    const grupoCampo2 = document.getElementById("grupoCampo2");
+    const campo1 = document.getElementById("campo1");
+    const campo2 = document.getElementById("campo2");
+    const todosCampos = [campo1, campo2];
+
+    // Elementos da Barra Inferior
+    const pilulaDuplaHub = document.getElementById("pilulaDuplaHub");
+    const btnPilulaFalar = document.getElementById("btnPilulaFalar");
+    const btnPilulaDigitar = document.getElementById("btnPilulaDigitar");
+    const lblPilulaFalar = document.getElementById("lblPilulaFalar");
+    const lblPilulaDigitar = document.getElementById("lblPilulaDigitar");
+    const svgMic = document.getElementById("svgMic");
+    const svgMicStop = document.getElementById("svgMicStop");
+
+    const btnAudioHub = document.getElementById("btnAudioHub");
+    const lblHubAudio = document.getElementById("lblHubAudio");
+    const svgSpeaker = document.getElementById("svgSpeaker");
+    const svgStop = document.getElementById("svgStop");
+
+    // Elementos do Modal
+    const switchModoEscuro = document.getElementById("switchModoEscuro");
+    const switchFonteGrande = document.getElementById("switchFonteGrande");
+    const switchDestro = document.getElementById("switchDestro");
+    const switchReduzirAnim = document.getElementById("switchReduzirAnim");
+    const switchSom = document.getElementById("switchSom");
+    const lblIndexedDBModo = document.getElementById("lblIndexedDBModo");
+    const btnModalFalar = document.getElementById("btnModalFalar");
+    const btnModalDigitar = document.getElementById("btnModalDigitar");
+
+    // Estado da Aplicação
+    let modoEntradaAtual = "falar";     // 'falar' ou 'digitar' (Persistido no IndexedDB)
+    let elementoFocado = blocoTexto1;   // Elemento ativo atual
+    let indiceTextoFocado = 1;          // 1 ou 2
+    let estaFalando = false;            // TTS ativo
+    let estaGravando = false;           // STT ativo
+
+    let configuracoes = {
+      modoEscuro: true,
+      fonteGrande: false,
+      destro: true,
+      reduzirAnimacoes: false,
+      somAtivo: true,
+      vibracaoAtiva: true
+    };
+
+    // APIs de Áudio
+    const sintetizadorFala = window.speechSynthesis || null;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+    let recognitionInstance = null;
+    let audioContext = null;
+
+    // --- 1. PERSISTÊNCIA LOCAL COM INDEXEDDB (SSVP_T7_DB) ---
+    const DB_NAME = "SSVP_T7_DB";
+    const DB_VERSION = 1;
+    const STORE_PREFERENCIAS = "preferencias_usuario";
+
+    function abrirIndexedDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_PREFERENCIAS)) {
+            db.createObjectStore(STORE_PREFERENCIAS, { keyPath: "chave" });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function salvarPreferenciaIndexedDB(chave, valor) {
+      try {
+        const db = await abrirIndexedDB();
+        const tx = db.transaction(STORE_PREFERENCIAS, "readwrite");
+        tx.objectStore(STORE_PREFERENCIAS).put({ chave, valor, atualizadoEm: new Date().toISOString() });
+      } catch (err) {
+        console.warn("Falha ao salvar no IndexedDB, usando localStorage:", err);
+        try { localStorage.setItem("ssvp_t7_" + chave, valor); } catch (e) {}
+      }
+    }
+
+    async function obterPreferenciaIndexedDB(chave) {
+      try {
+        const db = await abrirIndexedDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(STORE_PREFERENCIAS, "readonly");
+          const req = tx.objectStore(STORE_PREFERENCIAS).get(chave);
+          req.onsuccess = () => resolve(req.result ? req.result.valor : null);
+          req.onerror = () => resolve(null);
+        });
+      } catch (err) {
+        console.warn("Falha ao ler do IndexedDB, usando localStorage:", err);
+        return localStorage.getItem("ssvp_t7_" + chave);
+      }
+    }
+
+    // --- 2. CONTROLE DA PÍLULA DUPLA & SUPRESSÃO DE TECLADO ---
+
+    /**
+     * Alterna o modo entre 'falar' e 'digitar' e persiste no IndexedDB.
+     */
+    async function alternarModoEntrada(modo) {
+      modoEntradaAtual = modo;
+      dispararFeedbackTabil(35);
+      dispararFeedbackSonoro(modo === "falar" ? 880 : 587.33);
+
+      // Salva no IndexedDB
+      await salvarPreferenciaIndexedDB("modo_entrada", modo);
+
+      // Aplica classes visuais na Pílula Dupla e no Modal
+      aplicarEstadoPilulaDOM();
+
+      // Configura os textareas (inputmode="none" se falar, inputmode="text" se digitar)
+      aplicarInputModeCampos();
+
+      const nomeModo = modo === "falar" ? "Falar (Voz)" : "Digitar (Teclado)";
+      mostrarToast(`Preferência salva no celular: Modo ${nomeModo}`);
+    }
+
+    function aplicarEstadoPilulaDOM() {
+      const eModoFalar = (modoEntradaAtual === "falar");
+
+      // Atualiza Pílula Dupla da Barra Inferior (Ambos agora com o mesmo estilo Ouvir em azul)
+      btnPilulaFalar.classList.toggle("ativo-falar", eModoFalar);
+      btnPilulaDigitar.classList.toggle("ativo-digitar", !eModoFalar);
+
+      // Atualiza no Modal de Configurações
+      if (lblIndexedDBModo) lblIndexedDBModo.textContent = eModoFalar ? "Falar" : "Digitar";
+      if (btnModalFalar && btnModalDigitar) {
+        if (eModoFalar) {
+          btnModalFalar.style.backgroundColor = "var(--md-secondary)";
+          btnModalFalar.style.color = "#ffffff";
+          btnModalDigitar.style.backgroundColor = "var(--md-surface-1)";
+          btnModalDigitar.style.color = "var(--md-on-surface)";
+        } else {
+          btnModalDigitar.style.backgroundColor = "var(--md-secondary)";
+          btnModalDigitar.style.color = "#ffffff";
+          btnModalFalar.style.backgroundColor = "var(--md-surface-1)";
+          btnModalFalar.style.color = "var(--md-on-surface)";
+        }
+      }
+    }
+
+    /**
+     * REQUISITO CENTRAL:
+     * - Se escolher falar, o teclado NÃO é exibido (inputmode="none").
+     * - Se escolher digitar, o teclado É exibido normalmente (inputmode="text").
+     */
+    function aplicarInputModeCampos() {
+      todosCampos.forEach((c) => {
+        if (modoEntradaAtual === "falar") {
+          c.setAttribute("inputmode", "none"); // Bloqueia abertura compulsiva do teclado virtual
+        } else {
+          c.removeAttribute("inputmode");
+          c.setAttribute("inputmode", "text"); // Permite teclado nativo
+        }
+      });
+    }
+
+    // Clique direto no botão Falar (comportamento de toggle igual ao botão Ouvir)
+    async function lidarCliquePilulaFalar() {
+      dispararFeedbackTabil(35);
+
+      if (estaGravando) {
+        pararReconhecimentoSTT();
+        mostrarToast("⏹️ Gravação de voz interrompida.");
+        return;
+      }
+
+      if (modoEntradaAtual !== "falar") {
+        await alternarModoEntrada("falar");
+      }
+
+      iniciarReconhecimentoSTT();
+    }
+
+    // Clique direto no botão Digitar (ativa digitação, foca o campo e abre o teclado)
+    async function lidarCliquePilulaDigitar() {
+      dispararFeedbackTabil(35);
+
+      if (estaGravando) {
+        pararReconhecimentoSTT();
+      }
+
+      if (modoEntradaAtual !== "digitar") {
+        await alternarModoEntrada("digitar");
+      }
+
+      // Foca no campo focado atual para abrir o teclado imediatamente
+      const campoAlvo = (elementoFocado && elementoFocado.tagName === "TEXTAREA") ? elementoFocado : campo1;
+      campoAlvo.removeAttribute("inputmode");
+      campoAlvo.setAttribute("inputmode", "text");
+      campoAlvo.focus();
+      mostrarToast("⌨️ Modo Digitar ativo. Teclado habilitado.");
+    }
+
+    // --- 3. GESTÃO DE FOCO CONTEXTUAL (OPÇÃO A) ---
+
+    // A) Selecionar Texto de Leitura (TTS Verde)
+    function selecionarTextoLeitura(numeroTexto) {
+      dispararFeedbackTabil(25);
+      dispararFeedbackSonoro(523.25);
+
+      if (estaFalando) pararLeituraTTS();
+      if (estaGravando) pararReconhecimentoSTT();
+
+      removerTodosFocos();
+
+      indiceTextoFocado = numeroTexto;
+      const blocoAlvo = numeroTexto === 1 ? blocoTexto1 : blocoTexto2;
+
+      blocoAlvo.classList.add("foco-ativo-tts");
+      elementoFocado = blocoAlvo;
+
+      // TRANSIÇÃO OPÇÃO A: Exibe botão [ Ouvir ] em verde claro e oculta a pílula
+      pilulaDuplaHub.style.display = "none";
+      btnAudioHub.style.display = "flex";
+      btnAudioHub.classList.remove("em-execucao-fala");
+      svgSpeaker.style.display = "block";
+      svgStop.style.display = "none";
+      lblHubAudio.textContent = "Ouvir";
+    }
+
+    // B) Selecionar Campo de Entrada (STT Azul)
+    function registrarFocoCampo(inputEl, idGrupo) {
+      dispararFeedbackTabil(25);
+      dispararFeedbackSonoro(659.25);
+
+      if (estaFalando) pararLeituraTTS();
+
+      removerTodosFocos();
+
+      const grupoAlvo = document.getElementById(idGrupo);
+      grupoAlvo.classList.add("foco-ativo-stt");
+
+      elementoFocado = inputEl;
+
+      // TRANSIÇÃO OPÇÃO A: Restaura a Pílula Dupla [ Falar | Digitar ] e oculta o botão Ouvir
+      btnAudioHub.style.display = "none";
+      pilulaDuplaHub.style.display = "flex";
+
+      // Adiciona pulso azul sincronizado na pílula com o campo
+      pilulaDuplaHub.classList.add("pulso-ativo-stt");
+      aplicarEstadoPilulaDOM();
+    }
+
+    // C) Limpeza de Focos
+    function removerTodosFocos() {
+      blocoTexto1.classList.remove("foco-ativo-tts");
+      blocoTexto2.classList.remove("foco-ativo-tts");
+      grupoCampo1.classList.remove("foco-ativo-stt");
+      grupoCampo2.classList.remove("foco-ativo-stt");
+      pilulaDuplaHub.classList.remove("pulso-ativo-stt");
+    }
+
+    // --- 4. EXECUÇÃO DE ÁUDIO (TTS & STT) ---
+
+    // 4.1. Síntese de Voz (TTS - Ouvir)
+    function lidarCliqueBotaoOuvir() {
+      dispararFeedbackTabil(35);
+      if (estaFalando) {
+        pararLeituraTTS();
+        mostrarToast("⏹️ Leitura interrompida.");
+      } else {
+        iniciarLeituraTTS();
+      }
+    }
+
+    function iniciarLeituraTTS() {
+      if (!sintetizadorFala) {
+        mostrarToast("Síntese de voz indisponível neste navegador.");
+        return;
+      }
+
+      sintetizadorFala.cancel();
+
+      let textoParaFalar = "";
+      if (indiceTextoFocado === 1) {
+        textoParaFalar = document.getElementById("conteudoTexto1").textContent.trim();
+      } else {
+        textoParaFalar = document.getElementById("conteudoTexto2").textContent.trim();
+      }
+
+      const utterance = new SpeechSynthesisUtterance(textoParaFalar);
+      utterance.lang = "pt-BR";
+      utterance.rate = 0.95;
+
+      utterance.onstart = () => {
+        estaFalando = true;
+        btnAudioHub.classList.add("em-execucao-fala");
+        svgSpeaker.style.display = "none";
+        svgStop.style.display = "block";
+        lblHubAudio.textContent = "Parar";
+        dispararFeedbackSonoro(784);
+      };
+
+      utterance.onend = () => finalizarEstadoTTS();
+      utterance.onerror = () => finalizarEstadoTTS();
+
+      sintetizadorFala.speak(utterance);
+    }
+
+    function pararLeituraTTS() {
+      if (sintetizadorFala) {
+        try { sintetizadorFala.cancel(); } catch (e) {}
+      }
+      finalizarEstadoTTS();
+    }
+
+    function finalizarEstadoTTS() {
+      estaFalando = false;
+      btnAudioHub.classList.remove("em-execucao-fala");
+      svgSpeaker.style.display = "block";
+      svgStop.style.display = "none";
+      lblHubAudio.textContent = "Ouvir";
+    }
+
+    // 4.2. Reconhecimento de Voz (STT - Falar) com comportamento idêntico ao Ouvir em Azul
+    function iniciarReconhecimentoSTT() {
+      if (!SpeechRecognition) {
+        mostrarToast("Reconhecimento de voz não suportado neste navegador. Use o modo Digitar.");
+        return;
+      }
+
+      if (estaGravando) pararReconhecimentoSTT();
+
+      try {
+        recognitionInstance = new SpeechRecognition();
+        recognitionInstance.lang = "pt-BR";
+        recognitionInstance.continuous = false;
+        recognitionInstance.interimResults = false;
+
+        recognitionInstance.onstart = () => {
+          estaGravando = true;
+          btnPilulaFalar.classList.add("em-execucao-gravacao");
+          if (svgMic) svgMic.style.display = "none";
+          if (svgMicStop) svgMicStop.style.display = "block";
+          lblPilulaFalar.textContent = "Parar";
+          dispararFeedbackSonoro(880);
+          mostrarToast("🎙️ Ouvindo... Fale com clareza.");
+        };
+
+        recognitionInstance.onresult = (e) => {
+          const resultado = e.results[0][0].transcript;
+          let campoDestino = elementoFocado && elementoFocado.tagName === "TEXTAREA" ? elementoFocado : campo1;
+          const textoAtual = campoDestino.value.trim();
+          campoDestino.value = textoAtual ? (textoAtual + " " + resultado) : resultado;
+          mostrarToast("Texto inserido com sucesso!");
+          dispararFeedbackTabil(50);
+        };
+
+        recognitionInstance.onerror = (e) => {
+          finalizarEstadoSTT();
+          mostrarToast("Não foi possível reconhecer o áudio. Tente novamente.");
+        };
+
+        recognitionInstance.onend = () => {
+          finalizarEstadoSTT();
+        };
+
+        recognitionInstance.start();
+      } catch (err) {
+        console.error("Erro ao iniciar SpeechRecognition:", err);
+        finalizarEstadoSTT();
+      }
+    }
+
+    function pararReconhecimentoSTT() {
+      if (recognitionInstance) {
+        try { recognitionInstance.stop(); } catch (e) {}
+      }
+      finalizarEstadoSTT();
+    }
+
+    function finalizarEstadoSTT() {
+      estaGravando = false;
+      btnPilulaFalar.classList.remove("em-execucao-gravacao");
+      if (svgMic) svgMic.style.display = "block";
+      if (svgMicStop) svgMicStop.style.display = "none";
+      lblPilulaFalar.textContent = "Falar";
+    }
+
+    // --- 5. GESTÃO DOS MODAIS (TOP SHEET & BOTTOM SHEET) ---
+    function abrirTopSheet() {
+      dispararFeedbackTabil(30);
+      dispararFeedbackSonoro(659.25);
+      fecharBottomNav();
+      scrimTop.classList.add("aberto");
+    }
+
+    function fecharTopSheet() {
+      dispararFeedbackTabil(30);
+      scrimTop.classList.remove("aberto");
+    }
+
+    function fecharTopSheetPorOverlay(e) {
+      if (e.target === scrimTop) fecharTopSheet();
+    }
+
+    function abrirBottomNav() {
+      dispararFeedbackTabil(30);
+      dispararFeedbackSonoro(587.33);
+      fecharTopSheet();
+      scrimBottom.classList.add("aberto");
+    }
+
+    function fecharBottomNav() {
+      dispararFeedbackTabil(30);
+      scrimBottom.classList.remove("aberto");
+    }
+
+    function fecharBottomNavPorOverlay(e) {
+      if (e.target === scrimBottom) fecharBottomNav();
+    }
+
+    function mudarAbaGaveta(aba) {
+      dispararFeedbackTabil(20);
+      document.querySelectorAll(".sheet-tabs-container .tab-btn").forEach(b => b.classList.remove("ativo"));
+      document.querySelectorAll(".modulo-secao").forEach(s => s.classList.remove("ativo"));
+
+      if (aba === "config") {
+        document.getElementById("tabBtnConfig").classList.add("ativo");
+        document.getElementById("moduloConfig").classList.add("ativo");
+      } else if (aba === "sinc") {
+        document.getElementById("tabBtnSinc").classList.add("ativo");
+        document.getElementById("moduloSinc").classList.add("ativo");
+      } else if (aba === "ajuda") {
+        document.getElementById("tabBtnAjuda").classList.add("ativo");
+        document.getElementById("moduloAjuda").classList.add("ativo");
+      }
+    }
+
+    // --- 6. FEEDBACKS TÁTEIS E SONOROS ---
+    function dispararFeedbackTabil(duracaoMs = 30) {
+      if (configuracoes.vibracaoAtiva && "vibrate" in navigator) {
+        try { navigator.vibrate(duracaoMs); } catch (e) {}
+      }
+    }
+
+    function dispararFeedbackSonoro(frequenciaHz = 587.33, duracaoSeg = 0.08) {
+      if (!configuracoes.somAtivo) return;
+      try {
+        if (!audioContext) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioContext = new AudioContextClass();
+        }
+        if (audioContext && audioContext.state === "suspended") {
+          audioContext.resume();
+        }
+        if (!audioContext) return;
+
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(frequenciaHz, audioContext.currentTime);
+
+        gain.gain.setValueAtTime(0.06, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duracaoSeg);
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start();
+        osc.stop(audioContext.currentTime + duracaoSeg);
+      } catch (e) {}
+    }
+
+    function mostrarToast(mensagem) {
+      toastFlutuante.textContent = mensagem;
+      toastFlutuante.classList.add("visivel");
+      setTimeout(() => {
+        toastFlutuante.classList.remove("visivel");
+      }, 2400);
+    }
+
+    // --- 7. CONFIGURAÇÕES GLOBAIS DE ACESSIBILIDADE ---
+    function alterarConfig(chave, valor) {
+      configuracoes[chave] = valor;
+      aplicarConfiguracoesDOM();
+      salvarConfiguracoesStorage();
+      dispararFeedbackTabil(35);
+      dispararFeedbackSonoro(523.25);
+    }
+
+    function aplicarConfiguracoesDOM() {
+      // Tema Claro / Escuro
+      if (configuracoes.modoEscuro) {
+        bodyElement.classList.remove("tema-claro");
+      } else {
+        bodyElement.classList.add("tema-claro");
+      }
+      if (switchModoEscuro) switchModoEscuro.checked = configuracoes.modoEscuro;
+
+      // Fonte Grande
+      if (configuracoes.fonteGrande) {
+        htmlElement.classList.add("fonte-grande");
+      } else {
+        htmlElement.classList.remove("fonte-grande");
+      }
+      if (switchFonteGrande) switchFonteGrande.checked = configuracoes.fonteGrande;
+
+      // Modo Destro / Canhoto
+      if (configuracoes.destro) {
+        bodyElement.classList.remove("layout-canhoto");
+      } else {
+        bodyElement.classList.add("layout-canhoto");
+      }
+      if (switchDestro) switchDestro.checked = configuracoes.destro;
+
+      // Reduzir Animações (Vestibular)
+      if (configuracoes.reduzirAnimacoes) {
+        bodyElement.classList.add("sem-animacoes");
+      } else {
+        bodyElement.classList.remove("sem-animacoes");
+      }
+      if (switchReduzirAnim) switchReduzirAnim.checked = configuracoes.reduzirAnimacoes;
+
+      if (switchSom) switchSom.checked = configuracoes.somAtivo;
+    }
+
+    function salvarConfiguracoesStorage() {
+      try {
+        localStorage.setItem("ssvp_t7_config", JSON.stringify(configuracoes));
+      } catch (e) {}
+    }
+
+    function carregarConfiguracoesStorage() {
+      try {
+        const dados = localStorage.getItem("ssvp_t7_config");
+        if (dados) {
+          configuracoes = { ...configuracoes, ...JSON.parse(dados) };
+        }
+      } catch (e) {}
+      aplicarConfiguracoesDOM();
+    }
+
+    function executarLogoutProtegido() {
+      dispararFeedbackTabil(50);
+      dispararFeedbackSonoro(392);
+      pararLeituraTTS();
+      pararReconhecimentoSTT();
+      if (confirm("Deseja encerrar a sessão e proteger os dados das famílias atendidas (LGPD)?")) {
+        window.location.href = "index.html";
+      }
+    }
+
+    // --- INICIALIZAÇÃO ASSÍNCRONA ---
+    window.addEventListener("DOMContentLoaded", async () => {
+      carregarConfiguracoesStorage();
+
+      // Carrega preferência persistida de entrada no IndexedDB
+      const modoSalvo = await obterPreferenciaIndexedDB("modo_entrada");
+      if (modoSalvo === "falar" || modoSalvo === "digitar") {
+        modoEntradaAtual = modoSalvo;
+      }
+
+      aplicarEstadoPilulaDOM();
+      aplicarInputModeCampos();
+
+      // Inicia com o Texto 1 ativado por padrão no modo TTS (Verde)
+      selecionarTextoLeitura(1);
+    });
+  </script>
+
+</body>
+</html>

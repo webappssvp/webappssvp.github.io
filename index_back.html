@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebApp SSVP - Sociedade de São Vicente de Paulo</title>
+
+  <!-- Metadados Canônicos de Busca (Google Search Essentials) -->
+  <meta name="description" content="Aplicativo oficial de apoio e gestão fraterna das conferências vicentinas da Sociedade de São Vicente de Paulo (SSVP Brasil). Servindo na esperança.">
+  <link rel="canonical" href="https://webappssvp.github.io/">
+  <meta name="author" content="Sociedade de São Vicente de Paulo - Brasil">
+
+  <!-- Metatags Open Graph para Compartilhamento em Cards no WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="SSVP Brasil - WebApp">
+  <meta property="og:title" content="WebApp SSVP - Apoio e Gestão Vicentina">
+  <meta property="og:description" content="Plataforma de gestão das visitas fraternas e assistência às famílias da Sociedade de São Vicente de Paulo.">
+  <meta property="og:url" content="https://webappssvp.github.io/">
+  <meta property="og:image" content="https://webappssvp.github.io/img/home_app_logo.svg">
+  <meta property="og:image:alt" content="Logotipo Oficial da Sociedade de São Vicente de Paulo">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="WebApp SSVP - Gestão Vicentina">
+  <meta name="twitter:description" content="Servindo na esperança: apoio digital às conferências da SSVP Brasil.">
+  <meta name="twitter:image" content="https://webappssvp.github.io/img/home_app_logo.svg">
+
+  <!-- Dados Estruturados Schema.org (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "NonProfitOrganization",
+        "@id": "https://webappssvp.github.io/#organizacao",
+        "name": "Sociedade de São Vicente de Paulo",
+        "alternateName": "SSVP Brasil",
+        "url": "https://webappssvp.github.io/",
+        "logo": "https://webappssvp.github.io/img/home_app_logo.svg",
+        "slogan": "Servindo na esperança",
+        "foundingDate": "1833",
+        "description": "Rede internacional de leigos católicos dedicada ao serviço caritativo, acolhimento e promoção integral dos mais pobres."
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://webappssvp.github.io/#webapp",
+        "name": "WebApp SSVP",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "All",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "BRL"
+        },
+        "browserRequirements": "Requer navegador moderno com suporte a HTML5 e Service Workers"
+      }
+    ]
+  }
+  </script>
+
+  <!-- PWA & Ícones -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="img/home_app_logo.svg">
+  <meta name="theme-color" content="#0064B6">
+
+  <!-- Google Fonts: Montserrat (Interface) e EB Garamond (Títulos Institucionais) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Folhas de Estilo Modulares Externas -->
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/barras.css">
+  <link rel="stylesheet" href="css/modal.css">
+</head>
+
+<body>
+
+  <!-- Filtros SVG para Simulação Visual de Daltonismo (WCAG 1.4.1 - t5) -->
+  <svg style="position: absolute; height: 0; width: 0; pointer-events: none;" aria-hidden="true">
+    <defs>
+      <filter id="filtro-deuteranopia">
+        <feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0" />
+      </filter>
+      <filter id="filtro-protanopia">
+        <feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0" />
+      </filter>
+      <filter id="filtro-tritanopia">
+        <feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Banner de Atualização em 1 Toque (PWA) -->
+  <aside id="banner-atualizacao" class="banner-atualizacao" role="alert" aria-live="polite">
+    <span>✨ Nova atualização pronta!</span>
+    <button type="button" id="btn-atualizar-pwa" class="btn-atualizar-pwa">Toque para atualizar</button>
+  </aside>
+
+  <!-- Banner Interativo do Modo de Ajuda ("O que é isso?" - t5) -->
+  <aside class="banner-modo-ajuda" id="bannerModoAjuda" role="alert" aria-live="polite">
+    <span>💡 <strong>Modo Ajuda Ativo:</strong> Toque em qualquer botão ou área destacada para entender sua função.</span>
+    <button type="button" class="btn-sair-ajuda" id="btnSairModoAjuda" aria-label="Sair do modo de ajuda">Sair</button>
+  </aside>
+
+  <!-- Barra Superior (Header Reativo / Semáforo Vicentino) -->
+  <header class="bar-sup" id="barraSuperior">
+    <button type="button" class="bar-circle ajuda-alvo" id="btnLogoTop" aria-label="Início SSVP"
+      data-ajuda-titulo="Emblema Oficial da SSVP"
+      data-ajuda-texto="Representa a Sociedade de São Vicente de Paulo. Toque para retornar ao topo da tela inicial.">
+      SS
+    </button>
+
+    <!-- Botão Central de Status / Semáforo -->
+    <button type="button" class="status-header-container ajuda-alvo" id="statusHeaderBtn"
+      aria-label="Status do aplicativo: toque para conectar ou gerenciar sua conferência."
+      data-ajuda-titulo="Semáforo da Conferência"
+      data-ajuda-texto="Indica se o aplicativo está conectado à sua Conferência Vicentina. Vermelho significa que ainda é necessário conectar; Azul/Verde indica conferência ativa e segura.">
+      <span class="status-texto-principal pulsar" id="txtStatusPrincipal">Não conectado</span>
+      <span class="status-subtexto" id="txtStatusSub">Toque para conectar</span>
+    </button>
+
+    <div class="bar-circle ajuda-alvo" style="background-color: transparent; box-shadow: none; cursor: default;"
+      data-ajuda-titulo="Versão do Aplicativo"
+      data-ajuda-texto="Indica a versão instalada do WebApp Vicentino. Garante que você está sempre com a versão oficial e segura.">
+      <span class="versao-badge" id="lblVersaoTopo">v1.0</span>
+    </div>
+  </header>
+
+  <!-- Área de Conteúdo Central (Scrollável com Cards Explicativos e Painel de Visitas) -->
+  <main class="display-area" id="areaConteudo" role="main">
+
+    <!-- Card 1: O que é a API do WebApp SSVP -->
+    <article class="card-explicativo ajuda-alvo"
+      data-ajuda-titulo="Segurança e LGPD das Famílias"
+      data-ajuda-texto="Explica como os dados das famílias atendidas são protegidos por uma chave digital privativa, impedindo vazamentos na internet.">
+      <h2 class="card-explicativo-titulo">🛡️ O que é a API do WebApp SSVP?</h2>
+      <p class="card-explicativo-corpo">
+        A <strong>API do WebApp SSVP</strong> é o assistente de segurança digital do nosso aplicativo. Ela protege os dados
+        das famílias que visitamos, garantindo que <strong>nenhuma informação sensível</strong> fique desprotegida na
+        internet ou exposta em links públicos.
+      </p>
+    </article>
+
+    <!-- Card 2: Como funciona a Conexão Vicentina -->
+    <article class="card-explicativo ajuda-alvo"
+      data-ajuda-titulo="Hierarquia da SSVP"
+      data-ajuda-texto="Mostra como o aplicativo respeita a estrutura vicentina: Conselho Central ➔ Conselho Particular ➔ Conferência.">
+      <h2 class="card-explicativo-titulo">🗺️ Como funciona a Conexão?</h2>
+      <p class="card-explicativo-corpo">
+        Seguindo a hierarquia da nossa Sociedade, você seleciona seu <strong>Conselho Central</strong>, depois seu
+        <strong>Conselho Particular</strong> e finalmente a sua <strong>Conferência</strong>. A API do WebApp localiza a
+        planilha da sua conferência automaticamente nos bastidores através da planilha <strong>_indice_conferencias</strong>.
+      </p>
+    </article>
+
+    <!-- Card 3: Offline-First e Conforto nas Visitas -->
+    <article class="card-explicativo ajuda-alvo"
+      data-ajuda-titulo="Funcionamento Sem Internet (Offline)"
+      data-ajuda-texto="Garante que nas visitas domiciliares de domingo você possa registrar relatos e metas mesmo onde não houver sinal de celular (3G/4G).">
+      <h2 class="card-explicativo-titulo">📱 Pronto para Visitas no Domingo</h2>
+      <p class="card-explicativo-corpo">
+        Após conectar sua conferência uma única vez, o aplicativo salva as informações de forma segura na
+        <strong>memória do seu aparelho</strong>. Durante as visitas de domingo com a dupla vicentina, você pode registrar
+        relatos e consultar metas com total tranquilidade, mesmo sem internet.
+      </p>
+    </article>
+
+  </main>
+
+  <!-- ========================================================================
+       Gaveta Inferior Flutuante (Bottom Sheet M3) - Preferências e Configurações
+       ======================================================================== -->
+  <div class="scrim-overlay-bottom" id="scrimSheetConfig" role="dialog" aria-modal="true" aria-labelledby="tituloSheetConfig">
+    <div class="bottom-sheet" id="bottomSheetConfig">
+
+      <!-- Cabeçalho da Gaveta -->
+      <div class="sheet-config-header">
+        <h3 class="sheet-config-title" id="tituloSheetConfig">
+          <span>⚙️</span> Configurações
+        </h3>
+        <button type="button" class="btn-fechar" id="btnFecharSheetConfig" aria-label="Fechar configurações">✕</button>
+      </div>
+
+      <!-- Corpo com Rolagem Interna -->
+      <div class="sheet-config-body">
+
+        <!-- Card da Conferência Conectada -->
+        <div class="card-conferencia-sheet">
+          <div class="card-conferencia-info">
+            <span class="card-conferencia-label">Conferência Vinculada</span>
+            <span class="card-conferencia-nome" id="txtSheetNomeConferencia">Nenhuma conectada</span>
+          </div>
+          <button type="button" class="btn-trocar-conferencia" id="btnAbrirModalConexaoSheet">
+            Conectar / Trocar
+          </button>
+        </div>
+
+        <!-- Seção 1: Visual e Conforto (Ergonomia 60+) -->
+        <span class="sheet-secao-titulo">Visual &amp; Acessibilidade</span>
+        <div class="sheet-lista-config">
+
+          <!-- Switch 1: Modo Escuro -->
+          <label class="m3-switch-row" for="switchModoEscuro">
+            <div class="switch-info">
+              <span class="switch-title">Modo Escuro</span>
+              <span class="switch-desc">Fundo escuro para descansar a visão à noite</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchModoEscuro" checked>
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- Switch 2: Fonte Grande (60+) -->
+          <label class="m3-switch-row" for="switchFonteGrande">
+            <div class="switch-info">
+              <span class="switch-title">Fonte Grande (60+)</span>
+              <span class="switch-desc">Aumenta o tamanho das letras para leitura confortável</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchFonteGrande">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- Switch 3: Modo Leitura Silenciosa -->
+          <label class="m3-switch-row" for="switchModoLeitura">
+            <div class="switch-info">
+              <span class="switch-title">Modo Leitura Silenciosa</span>
+              <span class="switch-desc">Oculta botões secundários durante o estudo de relatos</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchModoLeitura">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- Dropdown: Simulação Visual de Daltonismo (WCAG 1.4.1 - t5) -->
+          <div class="m3-switch-row" style="flex-direction: column; align-items: flex-start; gap: 0.35rem;">
+            <div class="switch-info" style="width: 100%; padding-right: 0;">
+              <span class="switch-title">👁️ Simulação Visual (Daltonismo)</span>
+              <span class="switch-desc">Acessibilidade de cores para diferentes percepções</span>
+            </div>
+            <select id="selectDaltonismo" class="m3-select-box" aria-label="Simulação de daltonismo">
+              <option value="normal">🟢 Normal (Cores Reais)</option>
+              <option value="deuteranopia">🟡 Deuteranopia (Verde-Vermelho)</option>
+              <option value="protanopia">🔴 Protanopia (Ausência de Vermelho)</option>
+              <option value="tritanopia">🔵 Tritanopia (Azul-Amarelo / Terceira Idade)</option>
+              <option value="monocromia">⚫ Monocromia (Escala de Cinza)</option>
+              <option value="alto-contraste">⚡ Alto Contraste (+50%)</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Seção 2: Operação em Campo -->
+        <span class="sheet-secao-titulo">Operação em Campo</span>
+        <div class="sheet-lista-config">
+
+          <!-- Switch 4: Vibração ao Tocar -->
+          <label class="m3-switch-row" for="switchVibracao">
+            <div class="switch-info">
+              <span class="switch-title">Vibração ao Tocar</span>
+              <span class="switch-desc">Confirmação física imediata ao tocar nos botões</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchVibracao">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- Switch 5: Som ao Tocar -->
+          <label class="m3-switch-row" for="switchSom">
+            <div class="switch-info">
+              <span class="switch-title">Som ao Tocar</span>
+              <span class="switch-desc">Sinal sonoro suave para confirmação de ações</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchSom">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+          <!-- Switch 6: Sincronizar em Wi-Fi -->
+          <label class="m3-switch-row" for="switchWifi">
+            <div class="switch-info">
+              <span class="switch-title">Sincronizar em Wi-Fi</span>
+              <span class="switch-desc">Economiza dados móveis (3G/4G) durante as visitas</span>
+            </div>
+            <div class="m3-switch">
+              <input type="checkbox" id="switchWifi">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </div>
+          </label>
+
+        </div>
+
+        <!-- Seção 3: Central de Ajuda & Dúvidas (t5) -->
+        <span class="sheet-secao-titulo">Ajuda &amp; Dúvidas</span>
+        <div class="sheet-card-box">
+          <span class="sheet-card-box-title">❓ Modo "O que é isso?"</span>
+          <p class="sheet-card-box-desc">
+            Ative o modo explicativo para tocar em qualquer botão, ícone ou campo da tela e ver um cartão explicativo com letras grandes.
+          </p>
+          <button type="button" class="btn-acao-gaveta" id="btnAtivarAjudaSheet">
+            🔍 Ativar Modo "O que é isso?" na Tela
+          </button>
+        </div>
+
+        <div class="sheet-card-box">
+          <span class="sheet-card-box-title">📖 Guia Rápido de Uso Vicentino</span>
+          <ul class="sheet-card-box-desc" style="padding-left: 1.15rem; margin: 0; line-height: 1.5;">
+            <li><strong>🎙️ Falar:</strong> Toque no campo e aperte Falar na barra para ditar o relato sem digitar.</li>
+            <li><strong>🔊 Ouvir:</strong> Toque num relato ou meta para o aplicativo ler em voz alta.</li>
+            <li><strong>⌨️ Teclado:</strong> Toque em Teclado para abrir ou recolher as teclas na tela.</li>
+            <li><strong>⚙️ Config:</strong> Alterne temas, fontes ampliadas e conexão com a conferência.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Rodapé da Gaveta -->
+      <div class="sheet-config-footer">
+        <button type="button" class="btn-submit" id="btnFecharSheetConfigBottom" style="margin: 0; background-color: var(--ssvp-navy);">
+          Concluir
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal Flutuante de Seleção Hierárquica e Login -->
+  <div class="overlay-modal" id="overlayModal" role="dialog" aria-modal="true" aria-labelledby="tituloCardLogin">
+    <div class="card-login" id="cardLogin">
+
+      <div class="card-login-header">
+        <h3 class="card-login-titulo" id="tituloCardLogin">Conectar Conferência</h3>
+        <button type="button" class="btn-fechar" id="btnFecharModal" aria-label="Fechar janela">✕</button>
+      </div>
+
+      <!-- Feedback de Erro ou Sucesso -->
+      <div class="feedback-msg" id="msgFeedback" role="status"></div>
+
+      <!-- ETAPA 1: Cascata de Seleção (CM ➔ CC ➔ CP ➔ CF) -->
+      <div id="secaoSelects" style="display: flex; flex-direction: column; gap: 0.9rem;">
+
+        <!-- Card Expansível Explicativo: Por que demora no início? -->
+        <details class="aviso-expansivel-demora">
+          <summary class="aviso-expansivel-header">
+            <span>⏳ Por que demora no início?</span>
+            <span class="icone-seta" aria-hidden="true">▾</span>
+          </summary>
+          <div class="aviso-expansivel-corpo">
+            <p>
+              Para proteger a privacidade e os dados das <strong>famílias assistidas</strong> (LGPD), o WebApp não guarda informações confidenciais em servidores públicos.
+            </p>
+            <p>
+              A cada nova conexão, o sistema precisa localizar e abrir com segurança as planilhas oficiais da SSVP guardadas no Google Drive do seu Conselho Central. Esse primeiro acesso pode levar entre <strong>5 e 15 segundos</strong>.
+            </p>
+          </div>
+        </details>
+
+        <!-- Select 0: Conselho Metropolitano (Fixo) -->
+        <div class="form-grupo">
+          <label for="selConselhoMetropolitano" class="form-label">Conselho Metropolitano:</label>
+          <select id="selConselhoMetropolitano" class="form-select" disabled style="opacity: 0.8; cursor: not-allowed; background-color: rgba(255, 255, 255, 0.03); border-style: dashed;">
+            <option value="SP" selected>São Paulo (SP)</option>
+          </select>
+        </div>
+
+        <!-- Select 1: Conselho Central -->
+        <div class="form-grupo">
+          <label for="selConselhoCentral" class="form-label">Conselho Central:</label>
+          <select id="selConselhoCentral" class="form-select">
+            <option value="">Carregando conselhos...</option>
+          </select>
+        </div>
+
+        <!-- Select 2: Conselho Particular -->
+        <div class="form-grupo">
+          <label for="selConselhoParticular" class="form-label">Conselho Particular:</label>
+          <select id="selConselhoParticular" class="form-select" disabled>
+            <option value="">Selecione o Conselho Central primeiro</option>
+          </select>
+        </div>
+
+        <!-- Select 3: Conferência -->
+        <div class="form-grupo">
+          <label for="selConferencia" class="form-label">Conferência Vicentina:</label>
+          <select id="selConferencia" class="form-select" disabled>
+            <option value="">Selecione o Conselho Particular primeiro</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn-submit" id="btnAvancarParaSenha" disabled>
+          Avançar para Login
+        </button>
+
+      </div>
+
+      <!-- ETAPA 2: Validação de E-mail e Senha do Vicentino na Conferência -->
+      <div id="secaoSenha" style="display: none; flex-direction: column; gap: 0.9rem;">
+        
+        <div style="background-color: rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Conferência Selecionada:</span>
+            <div id="txtConfSelecionada" style="font-weight: bold; color: #38bdf8; font-size: 0.95rem;">-</div>
+          </div>
+          <button type="button" id="btnVoltarSelects" style="background: none; border: none; font-size: 0.8rem; color: #38bdf8; text-decoration: underline; cursor: pointer; padding: 0.2rem 0.5rem;" aria-label="Trocar conferência selecionada">
+            Trocar
+          </button>
+        </div>
+
+        <div class="form-grupo">
+          <label for="inputEmail" class="form-label">E-mail do Vicentino:</label>
+          <input type="email" id="inputEmail" class="form-input" placeholder="exemplo@gmail.com" required autocomplete="username">
+        </div>
+
+        <div class="form-grupo">
+          <label for="inputSenha" class="form-label">Senha:</label>
+          <div class="input-senha-wrapper">
+            <input type="password" id="inputSenha" class="form-input" placeholder="Digite sua senha" required autocomplete="current-password">
+            <button type="button" class="btn-toggle-senha" id="btnToggleSenha" aria-label="Mostrar ou ocultar senha">👁️</button>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.35rem;">
+          <button type="button" class="btn-submit" id="btnVoltarSelectsBottom" style="background-color: #334155; flex: 1;">
+            Voltar
+          </button>
+          <button type="button" class="btn-submit" id="btnConfirmarConexao" style="flex: 2;">
+            Entrar no WebApp
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ETAPA 3: Sessão Ativa (Já Conectado) -->
+      <div id="secaoConectado" style="display: none; flex-direction: column; gap: 1rem; text-align: center; padding: 0.5rem 0;">
+        <div style="font-size: 2.5rem;">🎉</div>
+        <h4 style="color: #86efac; font-size: 1.1rem;" id="txtBoasVindas">Bem-vindo(a)!</h4>
+        <p style="font-size: 0.85rem; color: #cbd5e1;" id="txtDetalhesSessao">Conferência conectada com sucesso.</p>
+
+        <button type="button" class="btn-submit" id="btnDesconectar" style="background-color: #334155; margin-top: 0.5rem;">
+          Desconectar / Sair
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Modal Explicativo do Modo "O que é isso?" (t5)
+       ======================================================================== -->
+  <div class="modal-ajuda-overlay" id="modalAjudaOverlay" role="dialog" aria-modal="true" aria-labelledby="lblModalAjudaTitulo">
+    <div class="modal-ajuda-card" onclick="event.stopPropagation()">
+      <div class="modal-ajuda-header">
+        <span class="modal-ajuda-icone">💡</span>
+        <h3 class="modal-ajuda-titulo" id="lblModalAjudaTitulo">Nome do Elemento</h3>
+      </div>
+      <div class="modal-ajuda-bloco" id="lblModalAjudaCorpo">
+        Explicação clara de para que serve e como usar este elemento na prática.
+      </div>
+      <button type="button" class="btn-entendi-ajuda" id="btnEntendiAjuda">
+        Entendi
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra Inferior (Footer Ergonômico 60+ com Cápsula Dupla Reativa e Central de Ajuda) -->
+  <footer class="bar-inf" role="contentinfo">
+    <button type="button" class="btn-barra-inf ajuda-alvo" id="btn_config" title="Configurações e Conexão"
+      aria-label="Abrir configurações e conexão"
+      data-ajuda-titulo="Botão Configurações"
+      data-ajuda-texto="Abre a gaveta com Modo Escuro, Fonte Grande para idosos, sons de confirmação, simulação de daltonismo e troca de conferência.">
+      <span class="btn-barra-icone">⚙️</span>
+      <span class="btn-barra-texto">Config</span>
+    </button>
+
+    <!-- ESTADO 1: Botão Central Simples (Modo Ouvir) -->
+    <button type="button" class="btn-barra-inf btn-barra-central ajuda-alvo" id="btn_voz" title="Comando de Voz e Áudio"
+      aria-label="Comando de Voz e Áudio"
+      data-ajuda-titulo="Botão Central: Modo Ouvir"
+      data-ajuda-texto="Ao tocar num relato de visita ou meta da família, este botão lê o texto em voz alta para você não precisar forçar a vista no celular.">
+      <span class="btn-barra-icone" id="iconeVozCentral">🔊</span>
+      <span class="btn-barra-texto" id="rotuloVozCentral">Ouvir</span>
+    </button>
+
+    <!-- ESTADO 2: Cápsula Dupla (Surge quando um campo de texto está focado) -->
+    <div class="capsula-dupla-container" id="capsulaDupla" aria-label="Ações do campo ativo">
+      <button type="button" class="btn-capsula btn-capsula-falar ajuda-alvo" id="btnCapsulaFalar" title="Falar no Microfone"
+        aria-label="Falar no microfone"
+        data-ajuda-titulo="Sub-botão Falar (Microfone)"
+        data-ajuda-texto="Toque para começar a ditar suas anotações da visita. As palavras faladas são transformadas em texto automaticamente!">
+        <span class="btn-capsula-icone" id="iconeCapsulaFalar">🎙️</span>
+        <span class="btn-capsula-texto" id="textoCapsulaFalar">Falar</span>
+      </button>
+
+      <button type="button" class="btn-capsula btn-capsula-teclado ajuda-alvo" id="btnCapsulaTeclado" title="Alternar Teclado Virtual"
+        aria-label="Alternar teclado virtual"
+        data-ajuda-titulo="Sub-botão Teclado Virtual"
+        data-ajuda-texto="Exibe ou esconde o teclado virtual na tela para você fazer correções manuais com os dedos quando preferir.">
+        <span class="btn-capsula-icone">⌨️</span>
+        <span class="btn-capsula-texto">Teclado</span>
+      </button>
+    </div>
+
+    <button type="button" class="btn-barra-inf ajuda-alvo" id="btn_ajuda" title="Central de Ajuda (O que é isso?)"
+      aria-label="Ajuda e orientações"
+      data-ajuda-titulo="Botão Central de Ajuda"
+      data-ajuda-texto="Ativa o modo 'O que é isso?': todos os botões ganham borda amarela destacada para você tocar e descobrir o que cada um faz!">
+      <span class="btn-barra-icone">❓</span>
+      <span class="btn-barra-texto">Ajuda</span>
+    </button>
+  </footer>
+
+  <!-- Script Principal da Aplicação (ES Modules) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

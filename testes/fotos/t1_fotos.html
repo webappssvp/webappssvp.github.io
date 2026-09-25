@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compartilhar Fotos - SSVP</title>
+  <title>Fotos - SSVP</title>
   <style>
     * {
       margin: 0;
@@ -329,8 +329,9 @@
 </head>
 <body>
   <div class="container">
-    <h1>📸 Compartilhar Fotos</h1>
-    <p class="subtitle">Tire fotos e compartilhe com o grupo do WhatsApp</p>
+    <div style="font-size: 0.72rem; color: #888; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">T1 • Fotos v1.1</div>
+    <h1>📸 Fotos</h1>
+    <p class="subtitle">Captura e minificação de fotos com marca d'água</p>
 
     <!-- Tirar Foto -->
     <div class="form-group">
@@ -375,8 +376,8 @@
 
     <div class="status" id="status"></div>
 
-    <div class="info-box">
-      💡 A foto será comprimida para ~100-200KB. Você pode ajustar a largura para controlar o tamanho.
+    <div class="info-box alerta-destaque-fotos" style="background: rgba(239, 68, 68, 0.08); border-left: 4px solid #ef4444; color: #991b1b; font-size: 13px; line-height: 1.5; padding: 12px 14px; border-radius: 6px; margin: 20px 0;">
+      <strong>⚠️ Importante:</strong> as fotos receberão marca d'água e não haverá opção de baixar ou compartilhar. Neste exemplo foi adicionado o botão de WhatsApp apenas para testes.
     </div>
 
     <div class="divider"></div>
@@ -433,7 +434,7 @@
       
       nomeFoto = `Visita_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.jpg`;
       document.getElementById('btnEnviar').disabled = false;
-      mostrarStatus(`✅ Foto pronta para compartilhar!`, 'success');
+      mostrarStatus(`✅ Foto pronta!`, 'success');
     };
 
     // Processar a foto com a largura atual do slider

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebApp SSVP - Hub de Views de Teste (testes/app)</title>
+
+  <!-- Google Fonts: Montserrat (Interface) e EB Garamond (Títulos Institucionais) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Estilos Modulares de testes/app/css/ -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/views.css">
+</head>
+
+<body>
+
+  <!-- Barra Superior (Header Reativo / Semáforo Vicentino com Identificador de Versão) -->
+  <header class="bar-sup" id="barraSuperior">
+    <a href="../index.html" class="bar-circle" title="Voltar ao Índice de Testes" aria-label="Voltar aos testes gerais">
+      ←
+    </a>
+
+    <div class="status-header-container" id="statusHeaderBtn">
+      <span class="status-texto-principal pulsar" id="txtStatusPrincipal">Não conectado</span>
+      <span class="status-subtexto" id="txtStatusSub">Toque para conectar</span>
+    </div>
+
+    <div class="bar-circle" style="background-color: transparent; box-shadow: none; cursor: default;">
+      <span class="versao-badge" id="lblVersaoTopo">app v1.0</span>
+    </div>
+  </header>
+
+  <!-- Área Central com os Cards das Views -->
+  <main class="display-area" role="main">
+
+    <section style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
+      <h1 class="titulo-garamond" style="font-size: 1.6rem; color: #ffffff;">Módulo de Views Isoladas</h1>
+      <p style="font-size: 0.88rem; color: var(--ssvp-text-muted); line-height: 1.5;">
+        Ambiente de testes para validar individualmente cada tela do aplicativo conectada ao banco local <strong>IndexedDB v3</strong>, preparando os componentes para o SPA final.
+      </p>
+    </section>
+
+    <div class="grid-hub-testes">
+
+      <!-- Card View 1: Login e Seleção Hierárquica -->
+      <a href="t1_login.html" class="card-hub-view">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="card-hub-titulo">🔑 t1_login</span>
+          <span class="card-hub-badge">Pronto</span>
+        </div>
+        <p class="card-hub-desc">
+          Seleção em cascata (CM ➔ CC ➔ CP ➔ CF) e validação de e-mail e senha na aba pessoas da conferência.
+        </p>
+      </a>
+
+      <!-- Card View 2: Vicentinos e Diretoria -->
+      <a href="t2_vicentinos.html" class="card-hub-view">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="card-hub-titulo">👥 t2_vicentinos</span>
+          <span class="card-hub-badge">Pronto</span>
+        </div>
+        <p class="card-hub-desc">
+          Lista de confrades e consócias da conferência ativa, cargos da diretoria e leitura em voz alta (TTS).
+        </p>
+      </a>
+
+      <!-- Card View 3: Famílias Assistidas -->
+      <div class="card-hub-view" style="opacity: 0.65;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="card-hub-titulo">🏠 t3_familias</span>
+          <span class="card-hub-badge" style="color: #94a3b8; background-color: rgba(255,255,255,0.06);">Planejado</span>
+        </div>
+        <p class="card-hub-desc">
+          Lares cadastrados, situação de acolhimento (assistida, triagem) e contagem dos membros familiares.
+        </p>
+      </div>
+
+      <!-- Card View 4: Visitas Domiciliares & Metas -->
+      <div class="card-hub-view" style="opacity: 0.65;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="card-hub-titulo">📋 t4_visitas</span>
+          <span class="card-hub-badge" style="color: #94a3b8; background-color: rgba(255,255,255,0.06);">Planejado</span>
+        </div>
+        <p class="card-hub-desc">
+          Formulário de nova visita, ditado por voz com Cápsula Dupla e plano de promoção humana.
+        </p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Barra Inferior -->
+  <footer class="bar-inf" role="contentinfo">
+    <a href="../index.html" class="btn-barra-inf" title="Voltar aos Testes">
+      <span class="btn-barra-icone">🧪</span>
+      <span class="btn-barra-texto">Testes</span>
+    </a>
+
+    <button type="button" class="btn-barra-inf btn-barra-central" id="btn_voz" title="Áudio">
+      <span class="btn-barra-icone">🔊</span>
+      <span class="btn-barra-texto">Ouvir</span>
+    </button>
+
+    <a href="privado/definicao_views.md" class="btn-barra-inf" title="Documentação das Views">
+      <span class="btn-barra-icone">📖</span>
+      <span class="btn-barra-texto">Docs</span>
+    </a>
+  </footer>
+
+  <script type="module">
+    import { inicializarShellComum } from './js/ui_comum.js';
+    document.addEventListener('DOMContentLoaded', async () => {
+      await inicializarShellComum('app v1.0');
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,93 @@
+/* ==========================================================================
+   WebApp SSVP - Camada Base de Estilos (Design Tokens, Tipografia e Resets)
+   Módulo: testes/app/css/base.css
+   Conformidade com: dev/padroes/01_marca_ssvp.md, 03_html_css_google.md e 05_acessibilidade_ergonomia.md
+   ========================================================================== */
+
+:root {
+  /* Cores Oficiais Institucionais SSVP */
+  --ssvp-navy: #002d62;          /* Azul Marinho Institucional */
+  --ssvp-blue: #0064b6;          /* Azul SSVP Oficial da Marca */
+  --ssvp-blue-hover: #0077da;    /* Azul para hover / foco */
+  --ssvp-red: #d32f2f;           /* Vermelho SSVP Oficial da Marca */
+  --ssvp-red-dark: #b71c1c;      /* Vermelho escuro para contraste */
+  --ssvp-green: #15803d;         /* Verde para status regular / sucesso */
+  --ssvp-amber: #b45309;         /* Âmbar para pendências e avisos */
+
+  /* Paleta Neutra e Superfícies (Tema Escuro Padrão) */
+  --ssvp-bg: #0b0f19;
+  --ssvp-surface: #121929;
+  --ssvp-surface-card: rgba(18, 25, 41, 0.96);
+  --ssvp-surface-elevated: #1e293b;
+  --ssvp-border: rgba(255, 255, 255, 0.12);
+  --ssvp-border-focus: #38bdf8;
+  --ssvp-text: #f3f4f6;
+  --ssvp-text-muted: #94a3b8;
+  --ssvp-white: #ffffff;
+
+  /* Tipografia Oficial SSVP */
+  --font-interface: 'Montserrat', Arial, sans-serif;
+  --font-titulos: 'EB Garamond', Garamond, Georgia, serif;
+
+  /* Ergonomia, Toque Acessível (60+) e Raios Canônicos */
+  --raio-cantos: 3.2rem;
+  --raio-audio: 3.8rem;
+  --tamanho-toque-minimo: 3rem;  /* 48px mínimos para alvos de toque */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* Tema Claro Dinâmico */
+body.tema-claro {
+  --ssvp-bg: #f1f5f9;
+  --ssvp-surface: #ffffff;
+  --ssvp-surface-card: #ffffff;
+  --ssvp-surface-elevated: #e2e8f0;
+  --ssvp-border: rgba(0, 0, 0, 0.12);
+  --ssvp-border-focus: #0064b6;
+  --ssvp-text: #0f172a;
+  --ssvp-text-muted: #64748b;
+}
+
+/* Fonte Grande para Idosos (60+) */
+body.fonte-grande {
+  font-size: 112.5%; /* 18px base */
+}
+
+/* Resets Globais Seguros */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-interface);
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+  background-color: var(--ssvp-bg);
+  color: var(--ssvp-text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tipografia de Cabeçalhos */
+h1, h2, h3, .titulo-garamond {
+  font-family: var(--font-titulos);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Alvos de Toque Ergonômicos */
+button, select, input, textarea, a {
+  min-height: 2.75rem;
+  font-size: 1rem;
+}
+
+/* Prevenção de Zoom Indesejado no iOS Safari */
+input, select, textarea {
+  font-size: 1rem !important;
+}

@@ -324,10 +324,17 @@
     .scrim-overlay-top {
       position: fixed;
       inset: 0;
+      width: 100%;
+      height: 100%;
       background-color: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      box-sizing: border-box;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
@@ -339,34 +346,34 @@
     }
 
     .top-sheet {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      background-color: var(--md-surface-2);
-      border-bottom: 2px solid var(--md-secondary);
-      border-bottom-left-radius: 1.5rem;
-      border-bottom-right-radius: 1.5rem;
+      width: 100%;
+      max-width: 480px;
+      max-height: calc(100dvh - 2.5rem);
+      background-color: var(--md-surface-3);
+      border-radius: 1.5rem;
+      border: 1px solid var(--md-border-strong);
       box-shadow: var(--md-elevation-3);
-      padding-top: calc(0.6rem + var(--safe-top));
       display: flex;
       flex-direction: column;
-      max-height: 85vh;
-      transform: translateY(-100%);
-      transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
+      overflow: hidden;
+      margin: 0;
+      transform: scale(0.95) translateY(-10px);
+      transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.25s ease;
     }
 
     .scrim-overlay-top.aberto .top-sheet {
-      transform: translateY(0);
+      transform: scale(1) translateY(0);
     }
 
     /* Cabeçalho da Gaveta com Abas M3 */
     .sheet-top-header {
-      padding: 0.5rem 1.15rem;
+      padding: 0.85rem 1.15rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--md-border-subtle);
+      flex-shrink: 0;
+      background-color: var(--md-surface-3);
     }
 
     .sheet-nav-tabs {
@@ -411,12 +418,46 @@
     }
 
     .sheet-top-body {
+      flex: 1;
       padding: 1rem 1.15rem;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       display: flex;
       flex-direction: column;
       gap: 0.9rem;
+    }
+
+    /* Rodapé Fixo da Gaveta de Configurações (Padrão t3) */
+    .sheet-config-footer {
+      padding: 0.75rem 1.15rem 1.15rem 1.15rem;
+      border-top: 1px solid var(--md-border-subtle);
+      background-color: var(--md-surface-3);
+      flex-shrink: 0;
+    }
+
+    .btn-m3-filled {
+      width: 100%;
+      min-height: var(--touch-target-min, 3rem);
+      background-color: var(--md-primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 1rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-m3-filled:hover {
+      background-color: #001f44;
+    }
+
+    .btn-m3-filled:active {
+      transform: scale(0.98);
     }
 
     .modulo-secao {
@@ -1637,6 +1678,14 @@
           </div>
         </section>
       </div>
+
+      <!-- Rodapé Fixo da Gaveta de Configurações (Padrão t3) -->
+      <div class="sheet-config-footer">
+        <button type="button" class="btn-m3-filled" onclick="fecharGavetaTop()">
+          Fechar
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -2022,8 +2071,10 @@
     }
 
     function fecharGavetaTop() {
+      dispararFeedbackTabil(30);
       scrimTop.classList.remove("aberto");
     }
+    const fecharTopSheet = fecharGavetaTop;
 
     function fecharGavetaTopPorOverlay(event) {
       if (event.target === scrimTop) fecharGavetaTop();
