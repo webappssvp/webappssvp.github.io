@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS3 UX - Card Acordeão com CSS Grid</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1rem;
+            gap: 1.25rem;
+        }
+
+        .card-list {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .expandable-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .expandable-card:focus-within,
+        .expandable-card.is-open {
+            border-color: #94a3b8;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Cabeçalho acionador (acessível como botão) */
+        .card-header-btn {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0f172a;
+            outline: none;
+        }
+
+        .card-badge {
+            font-size: 0.75rem;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            margin-left: 0.5rem;
+        }
+
+        /* Chevron com rotação GPU */
+        .chevron-icon {
+            width: 20px;
+            height: 20px;
+            stroke: #64748b;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.2s ease;
+        }
+
+        .expandable-card.is-open .chevron-icon {
+            transform: rotate(180deg);
+            stroke: #2563eb;
+        }
+
+        /* Container de transição usando CSS Grid */
+        .card-drawer {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .expandable-card.is-open .card-drawer {
+            grid-template-rows: 1fr;
+        }
+
+        /* O conteúdo precisa de overflow: hidden para o efeito funcionar */
+        .drawer-content {
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .expandable-card.is-open .drawer-content {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.08s;
+        }
+
+        .drawer-inner {
+            padding: 0 1.25rem 1.25rem 1.25rem;
+            color: #475569;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            border-top: 1px dashed #f1f5f9;
+            padding-top: 0.85rem;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            color: #334155;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card-list">
+        <!-- Card 1 -->
+        <article class="expandable-card" id="card1">
+            <button class="card-header-btn" aria-expanded="false" aria-controls="content1">
+                <span>Otimização com CSS Grid <span class="card-badge">Novo</span></span>
+                <svg class="chevron-icon" viewBox="0 0 24 24">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+            <div class="card-drawer" id="content1">
+                <div class="drawer-content">
+                    <div class="drawer-inner">
+                        Ao definir <code>grid-template-rows: 0fr</code> transicionando para <code>1fr</code>, o
+                        navegador calcula a altura necessária sem re-layouts caros via JS, preservando os 60 quadros por
+                        segundo.
+                        <div class="card-tags">
+                            <span class="tag">Performance</span>
+                            <span class="tag">CSS Grid</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="expandable-card" id="card2">
+            <button class="card-header-btn" aria-expanded="false" aria-controls="content2">
+                <span>Acessibilidade e Semântica</span>
+                <svg class="chevron-icon" viewBox="0 0 24 24">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+            <div class="card-drawer" id="content2">
+                <div class="drawer-content">
+                    <div class="drawer-inner">
+                        O gatilho utiliza um elemento <code>&lt;button&gt;</code> nativo com atributos
+                        <code>aria-expanded</code> sincronizados via script, permitindo navegação via tecla Tab e
+                        leitores de tela.
+                        <div class="card-tags">
+                            <span class="tag">A11y</span>
+                            <span class="tag">WAI-ARIA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <script>
+        const cards = document.querySelectorAll('.expandable-card');
+
+        cards.forEach((card) => {
+            const btn = card.querySelector('.card-header-btn');
+
+            btn.addEventListener('click', () => {
+                const isOpen = card.classList.contains('is-open');
+
+                // Modo acordeão exclusivo: fecha outros abertos
+                cards.forEach((c) => {
+                    c.classList.remove('is-open');
+                    c.querySelector('.card-header-btn').setAttribute('aria-expanded', 'false');
+                });
+
+                // Alterna o card atual
+                if (!isOpen) {
+                    card.classList.add('is-open');
+                    btn.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

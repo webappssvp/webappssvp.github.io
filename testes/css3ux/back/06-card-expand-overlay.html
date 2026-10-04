@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSS3 UX - Card com Expansão Modal Contínua</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem;
+      color: #f8fafc;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    /* Card Compacto */
+    .card-item {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.4);
+      border-color: #475569;
+    }
+
+    .card-banner {
+      height: 140px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      position: relative;
+    }
+
+    .card-banner.alt {
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+    }
+
+    .card-summary {
+      padding: 1.25rem;
+    }
+
+    .card-summary h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .card-summary p {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    /* Modal Flutuante (Clone dinâmico) */
+    .expanded-clone {
+      position: fixed;
+      z-index: 1000;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Conteúdo Estendido que surge na expansão */
+    .expanded-clone .expanded-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      opacity: 0;
+      transition: opacity 0.25s ease 0.15s;
+    }
+
+    .expanded-clone.active .expanded-body {
+      opacity: 1;
+    }
+
+    .btn-close-circle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+      z-index: 10;
+    }
+
+    /* Backdrop Blur Overlay */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="grid-container">
+    <div class="card-item" data-title="Fluxo de Checkout Otimizado" data-theme="blue">
+      <div class="card-banner"></div>
+      <div class="card-summary">
+        <h3>Fluxo de Checkout</h3>
+        <p>Clique para inspecionar métricas e detalhes do fluxo.</p>
+      </div>
+      <div class="full-content" style="display: none;">
+        <p>A taxa de abandono caiu 18% ao agrupar as opções de entrega e pagamento em um único acordeão progressivo.
+          Isso reduziu o tempo médio de conclusão da compra em 42 segundos sem necessidade de recarregar a página.</p>
+        <p style="margin-top: 1rem;">O uso de microfeedbacks sonoros discretos e transições inline mantém a confiança do
+          cliente nas etapas de validação do cartão.</p>
+      </div>
+    </div>
+
+    <div class="card-item" data-title="Painel de Monitoramento" data-theme="green">
+      <div class="card-banner alt"></div>
+      <div class="card-summary">
+        <h3>Painel de Monitoramento</h3>
+        <p>Visualização de conexões e estados em tempo real.</p>
+      </div>
+      <div class="full-content" style="display: none;">
+        <p>Ao exibir contadores com animação de subida rápida e cartões expansíveis para log de erros, o operador
+          consegue isolar incidentes sem sair do fluxo principal do dashboard.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="backdrop"></div>
+
+  <script>
+    const cards = document.querySelectorAll('.card-item');
+    const backdrop = document.getElementById('backdrop');
+    let activeClone = null;
+    let sourceCard = null;
+
+    cards.forEach((card) => {
+      card.addEventListener('click', () => {
+        sourceCard = card;
+        const rect = card.getBoundingClientRect();
+
+        // 1. Cria o clone para a animação FLIP
+        activeClone = document.createElement('div');
+        activeClone.className = 'expanded-clone';
+
+        // Copia a estrutura interna
+        const bannerClass = card.querySelector('.card-banner').classList.contains('alt') ? 'card-banner alt' : 'card-banner';
+        const title = card.getAttribute('data-title');
+        const detailHtml = card.querySelector('.full-content').innerHTML;
+
+        activeClone.innerHTML = `
+          <button class="btn-close-circle">&times;</button>
+          <div class="${bannerClass}"></div>
+          <div class="card-summary">
+            <h3>${title}</h3>
+          </div>
+          <div class="expanded-body">
+            ${detailHtml}
+          </div>
+        `;
+
+        // 2. Posiciona exatamente sobre o card de origem
+        activeClone.style.top = `${rect.top}px`;
+        activeClone.style.left = `${rect.left}px`;
+        activeClone.style.width = `${rect.width}px`;
+        activeClone.style.height = `${rect.height}px`;
+
+        document.body.appendChild(activeClone);
+        backdrop.classList.add('active');
+
+        // Esconde temporariamente o card original
+        card.style.opacity = '0';
+
+        // 3. Força frame e expande para o centro da tela
+        requestAnimationFrame(() => {
+          activeClone.classList.add('active');
+          const targetWidth = Math.min(window.innerWidth - 32, 540);
+          const targetHeight = Math.min(window.innerHeight - 80, 480);
+          const targetLeft = (window.innerWidth - targetWidth) / 2;
+          const targetTop = (window.innerHeight - targetHeight) / 2;
+
+          activeClone.style.top = `${targetTop}px`;
+          activeClone.style.left = `${targetLeft}px`;
+          activeClone.style.width = `${targetWidth}px`;
+          activeClone.style.height = `${targetHeight}px`;
+        });
+
+        // Eventos de fechamento
+        activeClone.querySelector('.btn-close-circle').addEventListener('click', closeCard);
+      });
+    });
+
+    function closeCard() {
+      if (!activeClone || !sourceCard) return;
+
+      const rect = sourceCard.getBoundingClientRect();
+
+      // Transição de volta ao formato original
+      activeClone.classList.remove('active');
+      activeClone.style.top = `${rect.top}px`;
+      activeClone.style.left = `${rect.left}px`;
+      activeClone.style.width = `${rect.width}px`;
+      activeClone.style.height = `${rect.height}px`;
+      backdrop.classList.remove('active');
+
+      activeClone.addEventListener('transitionend', () => {
+        if (activeClone) {
+          activeClone.remove();
+          activeClone = null;
+        }
+        sourceCard.style.opacity = '1';
+        sourceCard = null;
+      }, { once: true });
+    }
+
+    backdrop.addEventListener('click', closeCard);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeCard();
+    });
+  </script>
+</body>
+
+</html>

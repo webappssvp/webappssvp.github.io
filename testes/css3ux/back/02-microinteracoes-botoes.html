@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS3 UX - Microinterações em Botões</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        /* 1. Botão Tátil com Profundidade */
+        .btn-tactile {
+            position: relative;
+            background: #0284c7;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.9rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #0369a1, 0 6px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            user-select: none;
+        }
+
+        .btn-tactile:hover {
+            background: #0ea5e9;
+        }
+
+        .btn-tactile:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #0369a1, 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 2. Botão com Efeito Ripple */
+        .btn-ripple {
+            position: relative;
+            overflow: hidden;
+            background: #4f46e5;
+            color: #fff;
+            border: none;
+            padding: 0.9rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple-anim 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-anim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 3. Botão com Ciclo de Feedback (Idle -> Loading -> Success) */
+        .btn-stateful {
+            position: relative;
+            background: #0f172a;
+            color: #fff;
+            border: none;
+            padding: 0.9rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+            min-height: 52px;
+        }
+
+        .btn-stateful .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .btn-stateful.is-loading .btn-text {
+            display: none;
+        }
+
+        .btn-stateful.is-loading .spinner {
+            display: block;
+        }
+
+        .btn-stateful.is-success {
+            background: #16a34a;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <button class="btn-tactile">Efeito Tátil 3D</button>
+
+        <button class="btn-ripple" id="btnRipple">Efeito Ripple (Onda)</button>
+
+        <button class="btn-stateful" id="btnAsync">
+            <span class="btn-text">Salvar Alterações</span>
+            <div class="spinner"></div>
+        </button>
+    </div>
+
+    <script>
+        // Ripple Effect Logic
+        const rippleBtn = document.getElementById('btnRipple');
+        rippleBtn.addEventListener('click', function (e) {
+            const rect = this.getBoundingClientRect();
+            const circle = document.createElement('span');
+            const diameter = Math.max(rect.width, rect.height);
+            const radius = diameter / 2;
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - rect.left - radius}px`;
+            circle.style.top = `${e.clientY - rect.top - radius}px`;
+            circle.classList.add('ripple-effect');
+
+            const existingRipple = this.querySelector('.ripple-effect');
+            if (existingRipple) {
+                existingRipple.remove();
+            }
+
+            this.appendChild(circle);
+        });
+
+        // Stateful Async Simulation
+        const btnAsync = document.getElementById('btnAsync');
+        btnAsync.addEventListener('click', function () {
+            if (this.classList.contains('is-loading')) return;
+
+            this.classList.add('is-loading');
+
+            setTimeout(() => {
+                this.classList.remove('is-loading');
+                this.classList.add('is-success');
+                this.querySelector('.btn-text').textContent = 'Salvo com Sucesso!';
+
+                setTimeout(() => {
+                    this.classList.remove('is-success');
+                    this.querySelector('.btn-text').textContent = 'Salvar Alterações';
+                }, 2000);
+            }, 1500);
+        });
+    </script>
+</body>
+
+</html>

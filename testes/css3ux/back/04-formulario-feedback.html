@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS3 UX - Formulário com Feedback Visual</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .form-card {
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 14px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .form-card h2 {
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+            font-size: 1.4rem;
+        }
+
+        /* Floating Label Container */
+        .field-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 1rem 0.85rem 0.5rem 0.85rem;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background: transparent;
+        }
+
+        .field-label {
+            position: absolute;
+            top: 0.85rem;
+            left: 0.85rem;
+            color: #64748b;
+            pointer-events: none;
+            transition: 0.2s ease all;
+            font-size: 0.95rem;
+        }
+
+        /* Flutua quando tem foco ou conteúdo */
+        .field-input:focus~.field-label,
+        .field-input:not(:placeholder-shown)~.field-label {
+            top: 0.3rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        .field-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Estado de Erro */
+        .field-group.has-error .field-input {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+        }
+
+        .field-group.has-error .field-label {
+            color: #ef4444;
+        }
+
+        .error-msg {
+            font-size: 0.8rem;
+            color: #ef4444;
+            margin-top: 0.35rem;
+            display: none;
+        }
+
+        .field-group.has-error .error-msg {
+            display: block;
+        }
+
+        /* Animação de Shake para Erro */
+        .shake {
+            animation: shake-anim 0.35s ease-in-out;
+        }
+
+        @keyframes shake-anim {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-6px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(6px);
+            }
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 0.85rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="form-card">
+        <h2>Acessar Conta</h2>
+        <form id="loginForm" novalidate>
+            <div class="field-group" id="emailGroup">
+                <input type="email" id="emailInput" class="field-input" placeholder=" " required />
+                <label for="emailInput" class="field-label">E-mail corporativo</label>
+                <div class="error-msg">Informe um endereço de e-mail válido.</div>
+            </div>
+
+            <button type="submit" class="btn-submit">Entrar</button>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('emailInput');
+        const emailGroup = document.getElementById('emailGroup');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const val = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailRegex.test(val)) {
+                // Dispara estado de erro e classe de animação
+                emailGroup.classList.add('has-error');
+                emailGroup.classList.remove('shake');
+                // Força reflow para reiniciar animação se já estiver ativo
+                void emailGroup.offsetWidth;
+                emailGroup.classList.add('shake');
+            } else {
+                emailGroup.classList.remove('has-error', 'shake');
+                alert('Formulário válido enviado com sucesso!');
+            }
+        });
+
+        // Remove erro enquanto o usuário digita novamente
+        emailInput.addEventListener('input', () => {
+            if (emailGroup.classList.contains('has-error')) {
+                emailGroup.classList.remove('has-error');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visita Vicentina - Obter Endereço Atual (T2)</title>
+  <!-- Link para o CSS Externo básico compartilhado -->
+  <link rel="stylesheet" href="../testes.css">
+  <!-- Fonte Inter para tipografia premium -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Variáveis e ajustes específicos deste protótipo */
+    :root {
+      --card-bg: var(--ssvp-white, #ffffff);
+      --card-border: var(--ssvp-gray-border, #e2e8f0);
+      --primary-color: var(--ssvp-blue, #007fff);
+      --primary-hover: #0066cc;
+      --navy-color: var(--ssvp-navy, #002d62);
+      --bg-soft: var(--ssvp-light-blue, #e6f0fa);
+      --text-color: var(--ssvp-text-main, #1e293b);
+      --muted-color: var(--ssvp-text-muted, #64748b);
+      --success-color: var(--ssvp-success, #10b981);
+      --error-color: var(--ssvp-error, #ef4444);
+    }
+
+    .teste-wrapper {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin: 0 auto;
+    }
+
+    /* Painel de Ação Principal */
+    .painel-acao {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.5rem 1.25rem;
+      box-shadow: 0 4px 12px rgba(0, 45, 98, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .painel-acao-titulo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy-color);
+      margin-bottom: 0.25rem;
+    }
+
+    .painel-acao-subtitulo {
+      font-size: 0.9rem;
+      color: var(--muted-color);
+      line-height: 1.4;
+    }
+
+    /* Botão Principal de Localização */
+    .btn-obter-localizacao {
+      width: 100%;
+      min-height: 3.2rem;
+      padding: 0.875rem 1.25rem;
+      background-color: var(--primary-color);
+      color: #ffffff;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1.05rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      box-shadow: 0 4px 12px rgba(0, 127, 255, 0.25);
+      transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-obter-localizacao:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 6px 16px rgba(0, 127, 255, 0.35);
+    }
+
+    .btn-obter-localizacao:active {
+      transform: scale(0.98);
+    }
+
+    .btn-obter-localizacao:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Ações secundárias (simulação) */
+    .btn-secundario {
+      background: transparent;
+      border: 1px dashed var(--muted-color);
+      color: var(--muted-color);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      align-self: center;
+    }
+
+    .btn-secundario:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      background-color: var(--bg-soft);
+    }
+
+    /* Painel de Status / Carregamento */
+    .painel-status {
+      display: none;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3.5px solid var(--bg-soft);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      margin: 0 auto 0.75rem auto;
+      animation: girar 0.8s linear infinite;
+    }
+
+    @keyframes girar {
+      to { transform: rotate(360deg); }
+    }
+
+    .status-mensagem {
+      font-size: 0.95rem;
+      color: var(--navy-color);
+      font-weight: 600;
+    }
+
+    /* Painel de Alerta / Erro */
+    .painel-erro {
+      display: none;
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      color: #991b1b;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    /* Card de Resultado do Endereço */
+    .card-endereco {
+      display: none;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0, 45, 98, 0.08);
+      overflow: hidden;
+      animation: surgir 0.3s ease-out;
+    }
+
+    @keyframes surgir {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-endereco-cabecalho {
+      background-color: var(--bg-soft);
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-endereco-titulo {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-precisao {
+      background-color: var(--navy-color);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .card-endereco-corpo {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Endereço em Destaque */
+    .endereco-destaque {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy-color);
+      line-height: 1.35;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    /* Lista de Detalhes do Endereço */
+    .grade-detalhes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem 1rem;
+    }
+
+    .item-detalhe {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .item-detalhe.largura-total {
+      grid-column: 1 / -1;
+    }
+
+    .rotulo-detalhe {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted-color);
+    }
+
+    .valor-detalhe {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-color);
+      word-break: break-word;
+    }
+
+    /* Barra de Botões do Resultado */
+    .botoes-resultado {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-copiar {
+      width: 100%;
+      min-height: 2.875rem;
+      padding: 0.75rem 1rem;
+      background-color: var(--bg-soft);
+      color: var(--navy-color);
+      border: 1px solid rgba(0, 45, 98, 0.2);
+      border-radius: 8px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-copiar:hover {
+      background-color: #d8e8f8;
+      border-color: var(--navy-color);
+    }
+
+    .btn-ver-mapa {
+      width: 100%;
+      min-height: 2.875rem;
+      padding: 0.75rem 1rem;
+      background-color: var(--success-color);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-ver-mapa:hover {
+      background-color: #059669;
+    }
+
+    /* Toast de Notificação */
+    .toast-aviso {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background-color: var(--navy-color);
+      color: #ffffff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .toast-aviso.visivel {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 480px) {
+      .grade-detalhes {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="teste-wrapper">
+    <!-- Painel de Ação Principal -->
+    <section class="painel-acao">
+      <h2 class="painel-acao-titulo">Endereço Atual da Visita</h2>
+      <p class="painel-acao-subtitulo">
+        Obtém as coordenadas do GPS do seu celular e consulta o OpenStreetMap para identificar rua, número aproximado, bairro e CEP automaticamente.
+      </p>
+
+      <button type="button" class="btn-obter-localizacao" id="btnObterLocalizacao" onclick="obterEnderecoAtual()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="2" x2="12" y2="6"></line>
+          <line x1="12" y1="18" x2="12" y2="22"></line>
+          <line x1="2" y1="12" x2="6" y2="12"></line>
+          <line x1="18" y1="12" x2="22" y2="12"></line>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        <span>Obter Endereço Atual</span>
+      </button>
+
+      <button type="button" class="btn-secundario" onclick="testarComCoordenadasFicticias()">
+        Simular Coordenadas de Teste (Sé - SP)
+      </button>
+    </section>
+
+    <!-- Painel de Status / Carregamento -->
+    <div class="painel-status" id="painelStatus" role="status" aria-live="polite">
+      <div class="spinner"></div>
+      <div class="status-mensagem" id="statusMensagem">Aguardando permissão de GPS...</div>
+    </div>
+
+    <!-- Painel de Alerta / Erro -->
+    <div class="painel-erro" id="painelErro" role="alert"></div>
+
+    <!-- Card de Resultado do Endereço -->
+    <article class="card-endereco" id="cardEndereco">
+      <header class="card-endereco-cabecalho">
+        <span class="card-endereco-titulo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          Localização Identificada
+        </span>
+        <span class="badge-precisao" id="badgePrecisao">GPS ± 0m</span>
+      </header>
+
+      <div class="card-endereco-corpo">
+        <!-- Logradouro e número em destaque -->
+        <div class="endereco-destaque" id="enderecoDestaque">
+          Carregando logradouro...
+        </div>
+
+        <!-- Grade de Detalhes Estruturados -->
+        <div class="grade-detalhes">
+          <div class="item-detalhe">
+            <span class="rotulo-detalhe">Logradouro</span>
+            <span class="valor-detalhe" id="valorLogradouro">-</span>
+          </div>
+          <div class="item-detalhe">
+            <span class="rotulo-detalhe">Número</span>
+            <span class="valor-detalhe" id="valorNumero">-</span>
+          </div>
+          <div class="item-detalhe">
+            <span class="rotulo-detalhe">Bairro</span>
+            <span class="valor-detalhe" id="valorBairro">-</span>
+          </div>
+          <div class="item-detalhe">
+            <span class="rotulo-detalhe">CEP</span>
+            <span class="valor-detalhe" id="valorCep">-</span>
+          </div>
+          <div class="item-detalhe">
+            <span class="rotulo-detalhe">Cidade / UF</span>
+            <span class="valor-detalhe" id="valorCidadeUf">-</span>
+          </div>
+          <div class="item-detalhe">
+            <span class="rotulo-detalhe">Coordenadas</span>
+            <span class="valor-detalhe" id="valorCoordenadas">-</span>
+          </div>
+          <div class="item-detalhe largura-total">
+            <span class="rotulo-detalhe">Endereço Completo (Nominatim)</span>
+            <span class="valor-detalhe" id="valorCompleto">-</span>
+          </div>
+        </div>
+
+        <!-- Ações do Resultado -->
+        <div class="botoes-resultado">
+          <button type="button" class="btn-copiar" id="btnCopiar" onclick="copiarEnderecoFormatado()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Copiar Endereço Estruturado</span>
+          </button>
+
+          <a href="#" target="_blank" rel="noopener noreferrer" class="btn-ver-mapa" id="linkVerMapa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+              <line x1="8" y1="2" x2="8" y2="18"></line>
+              <line x1="16" y1="6" x2="16" y2="22"></line>
+            </svg>
+            <span>Visualizar no OpenStreetMap</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <!-- Toast para Feedback -->
+  <div class="toast-aviso" id="toastAviso">Endereço copiado com sucesso!</div>
+
+  <!-- Scripts Compartilhados de Teste -->
+  <script src="../testes.js"></script>
+  <script>
+    // Inicialização da barra superior e instruções padronizadas
+    inicializarSandbox({
+      id_teste: "t2_endereco",
+      titulo: "T2 - Geocodificação Reversa (OpenStreetMap)",
+      versao: "t2_endereco v1.0",
+      instrucoes: [
+        "Toque no botão 'Obter Endereço Atual' para capturar as coordenadas reais do GPS do seu celular.",
+        "O sistema consulta a API pública do OpenStreetMap (Nominatim Reverse) sem necessidade de chave de API paga.",
+        "O resultado é segmentado em Logradouro, Número aproximado, Bairro, CEP e Cidade/UF.",
+        "Em computadores sem sensor GPS, use o botão 'Simular Coordenadas de Teste' para testar a geocodificação em São Paulo."
+      ]
+    });
+
+    /** @type {Object|null} Armazena os dados do último endereço carregado */
+    let dadosEnderecoAtual = null;
+
+    /**
+     * Exibe o painel de status com a mensagem informada e desabilita o botão.
+     * @param {string} mensagem Texto explicativo de carregamento.
+     */
+    function exibirCarregando(mensagem) {
+      const painelStatus = document.getElementById("painelStatus");
+      const statusMensagem = document.getElementById("statusMensagem");
+      const painelErro = document.getElementById("painelErro");
+      const btn = document.getElementById("btnObterLocalizacao");
+
+      painelErro.style.display = "none";
+      statusMensagem.textContent = mensagem;
+      painelStatus.style.display = "block";
+      btn.disabled = true;
+    }
+
+    /**
+     * Oculta o indicador de carregamento e reativa o botão.
+     */
+    function ocultarCarregando() {
+      const painelStatus = document.getElementById("painelStatus");
+      const btn = document.getElementById("btnObterLocalizacao");
+      painelStatus.style.display = "none";
+      btn.disabled = false;
+    }
+
+    /**
+     * Exibe mensagem de erro estilizada e com acessibilidade.
+     * @param {string} mensagem Mensagem de erro a ser exibida.
+     */
+    function exibirErro(mensagem) {
+      ocultarCarregando();
+      const painelErro = document.getElementById("painelErro");
+      painelErro.textContent = mensagem;
+      painelErro.style.display = "block";
+    }
+
+    /**
+     * Exibe toast de notificação temporário na tela.
+     * @param {string} texto Mensagem do toast.
+     */
+    function exibirToast(texto) {
+      const toast = document.getElementById("toastAviso");
+      toast.textContent = texto;
+      toast.classList.add("visivel");
+      setTimeout(() => {
+        toast.classList.remove("visivel");
+      }, 3000);
+    }
+
+    /**
+     * Inicia o fluxo de captura de geolocalização do dispositivo.
+     */
+    function obterEnderecoAtual() {
+      if (!navigator.geolocation) {
+        exibirErro("Seu navegador ou dispositivo não possui suporte à geolocalização por GPS.");
+        return;
+      }
+
+      exibirCarregando("Solicitando sinal do GPS do dispositivo...");
+
+      navigator.geolocation.getCurrentPosition(
+        (posicao) => {
+          const lat = posicao.coords.latitude;
+          const lon = posicao.coords.longitude;
+          const precisao = Math.round(posicao.coords.accuracy || 0);
+
+          consultarNominatim(lat, lon, precisao);
+        },
+        (erro) => {
+          let detalheErro = "Não foi possível obter a sua localização.";
+          if (erro.code === erro.PERMISSION_DENIED) {
+            detalheErro = "Permissão de GPS negada. Por favor, autorize o acesso à sua localização nas configurações do navegador.";
+          } else if (erro.code === erro.POSITION_UNAVAILABLE) {
+            detalheErro = "Sinal de GPS indisponível no momento. Verifique se a localização está ativada no celular.";
+          } else if (erro.code === erro.TIMEOUT) {
+            detalheErro = "Tempo limite para captura do GPS esgotado. Tente novamente em uma área aberta.";
+          }
+          exibirErro(detalheErro);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 12000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    /**
+     * Consulta a API do OpenStreetMap Nominatim para geocodificação reversa.
+     * @param {number} lat Latitude em graus decimais.
+     * @param {number} lon Longitude em graus decimais.
+     * @param {number} precisao Acurácia estimada em metros.
+     */
+    function consultarNominatim(lat, lon, precisao) {
+      exibirCarregando("Consultando logradouro no OpenStreetMap...");
+
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&addressdetails=1&accept-language=pt-br`;
+
+      fetch(url, {
+        headers: {
+          "Accept": "application/json",
+          "User-Agent": "SSVP-WebApp-Visita-Laboratorio"
+        }
+      })
+      .then((resposta) => {
+        if (!resposta.ok) {
+          throw new Error(`Erro na API do OpenStreetMap (HTTP ${resposta.status})`);
+        }
+        return resposta.json();
+      })
+      .then((dados) => {
+        ocultarCarregando();
+        if (!dados || dados.error) {
+          exibirErro(dados.error || "Nenhum endereço correspondente foi encontrado para estas coordenadas.");
+          return;
+        }
+        renderizarResultadoEndereco(dados, lat, lon, precisao);
+      })
+      .catch((erro) => {
+        console.error("Falha ao consultar Nominatim:", erro);
+        exibirErro("Falha de rede ao consultar o OpenStreetMap. Verifique sua conexão com a internet.");
+      });
+    }
+
+    /**
+     * Renderiza as informações estruturadas de endereço no card da interface.
+     * @param {Object} dados Objeto retornado pela API Nominatim.
+     * @param {number} lat Latitude.
+     * @param {number} lon Longitude.
+     * @param {number} precisao Precisão do GPS em metros.
+     */
+    function renderizarResultadoEndereco(dados, lat, lon, precisao) {
+      const endereco = dados.address || {};
+
+      // Extração inteligente de campos considerando variações do OSM no Brasil
+      const logradouro = endereco.road || endereco.pedestrian || endereco.street || endereco.suburb || "Logradouro não identificado";
+      const numero = endereco.house_number || "S/N ou aprox.";
+      const bairro = endereco.suburb || endereco.neighbourhood || endereco.quarter || endereco.residential || "Bairro não informado";
+      const cep = endereco.postcode || "CEP não disponível";
+      const cidade = endereco.city || endereco.town || endereco.municipality || endereco.village || "São Paulo";
+      const estado = endereco.state || "SP";
+      const cidadeUf = `${cidade} - ${estado}`;
+      const nomeCompleto = dados.display_name || `${logradouro}, ${numero}, ${bairro}, ${cidadeUf}`;
+
+      // Monta objeto global para cópia
+      dadosEnderecoAtual = {
+        logradouro,
+        numero,
+        bairro,
+        cidade,
+        estado,
+        cidadeUf,
+        cep,
+        lat,
+        lon,
+        precisao,
+        nomeCompleto
+      };
+
+      // Atualiza os elementos da tela
+      document.getElementById("badgePrecisao").textContent = `GPS ± ${precisao}m`;
+      document.getElementById("enderecoDestaque").textContent = `${logradouro}${endereco.house_number ? ', ' + endereco.house_number : ''}`;
+      document.getElementById("valorLogradouro").textContent = logradouro;
+      document.getElementById("valorNumero").textContent = numero;
+      document.getElementById("valorBairro").textContent = bairro;
+      document.getElementById("valorCep").textContent = cep;
+      document.getElementById("valorCidadeUf").textContent = cidadeUf;
+      document.getElementById("valorCoordenadas").textContent = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+      document.getElementById("valorCompleto").textContent = nomeCompleto;
+
+      // Link para o OpenStreetMap oficial
+      const linkOsm = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=18/${lat}/${lon}`;
+      document.getElementById("linkVerMapa").href = linkOsm;
+
+      // Exibe o card de resultado
+      const card = document.getElementById("cardEndereco");
+      card.style.display = "block";
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    /**
+     * Executa teste com coordenadas simuladas no centro histórico de São Paulo (Praça da Sé).
+     */
+    function testarComCoordenadasFicticias() {
+      // Coordenadas da Praça da Sé, SP
+      const latFicticia = -23.55052;
+      const lonFicticia = -46.633309;
+      const precisaoSimulada = 5;
+
+      consultarNominatim(latFicticia, lonFicticia, precisaoSimulada);
+    }
+
+    /**
+     * Copia os dados do endereço estruturado para a área de transferência.
+     */
+    function copiarEnderecoFormatado() {
+      if (!dadosEnderecoAtual) {
+        return;
+      }
+
+      const textoParaCopiar = `${dadosEnderecoAtual.logradouro}, ${dadosEnderecoAtual.numero} - ${dadosEnderecoAtual.bairro}, ${dadosEnderecoAtual.cidadeUf}, CEP ${dadosEnderecoAtual.cep} (Coordenadas: ${dadosEnderecoAtual.lat.toFixed(5)}, ${dadosEnderecoAtual.lon.toFixed(5)})`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textoParaCopiar)
+          .then(() => {
+            exibirToast("Endereço copiado para a área de transferência!");
+          })
+          .catch(() => {
+            copiarFallback(textoParaCopiar);
+          });
+      } else {
+        copiarFallback(textoParaCopiar);
+      }
+    }
+
+    /**
+     * Método alternativo de cópia para navegadores legados.
+     * @param {string} texto Texto a ser copiado.
+     */
+    function copiarFallback(texto) {
+      const textarea = document.createElement("textarea");
+      textarea.value = texto;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        exibirToast("Endereço copiado com sucesso!");
+      } catch (err) {
+        console.error("Erro ao copiar:", err);
+      }
+      document.body.removeChild(textarea);
+    }
+  </script>
+</body>
+</html>

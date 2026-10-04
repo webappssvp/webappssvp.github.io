@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS3 UX - Skeleton Shimmer</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --skeleton-base: #e2e8f0;
+            --skeleton-shimmer: rgba(255, 255, 255, 0.6);
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .controls {
+            margin-bottom: 2rem;
+        }
+
+        .btn-toggle {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 0.65rem 1.25rem;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-toggle:hover {
+            background: #1d4ed8;
+        }
+
+        .feed-container {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            width: 100%;
+            max-width: 960px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Skeleton Animation */
+        .skeleton {
+            background: var(--skeleton-base);
+            background-image: linear-gradient(90deg,
+                    rgba(255, 255, 255, 0) 0%,
+                    var(--skeleton-shimmer) 50%,
+                    rgba(255, 255, 255, 0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.6s infinite ease-in-out;
+            border-radius: 6px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* Elementos Skeleton */
+        .skeleton-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+
+        .skeleton-line {
+            height: 14px;
+            width: 100%;
+        }
+
+        .skeleton-line.title {
+            height: 18px;
+            width: 60%;
+        }
+
+        .skeleton-line.short {
+            width: 40%;
+        }
+
+        .skeleton-image {
+            height: 160px;
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        /* Elementos Reais */
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            display: grid;
+            place-items: center;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .author-info h3 {
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .author-info p {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .card-content p {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .card-banner {
+            height: 160px;
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            border-radius: 8px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .skeleton {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="controls">
+        <button id="toggleBtn" class="btn-toggle">Alternar: Carregando / Conteúdo Pronto</button>
+    </div>
+
+    <main class="feed-container">
+        <!-- Card com Skeleton e Conteúdo alternável -->
+        <article class="card" id="cardExample">
+
+            <!-- Layout Skeleton -->
+            <div class="skeleton-view">
+                <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem;">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+                        <div class="skeleton skeleton-line title"></div>
+                        <div class="skeleton skeleton-line short"></div>
+                    </div>
+                </div>
+                <div class="skeleton skeleton-image" style="margin-bottom: 1rem;"></div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div class="skeleton skeleton-line"></div>
+                    <div class="skeleton skeleton-line"></div>
+                    <div class="skeleton skeleton-line short"></div>
+                </div>
+            </div>
+
+            <!-- Layout Real -->
+            <div class="loaded-view hidden">
+                <div class="card-header">
+                    <div class="avatar">UX</div>
+                    <div class="author-info">
+                        <h3>Design System Team</h3>
+                        <p>Publicado há 5 minutos</p>
+                    </div>
+                </div>
+                <div class="card-banner" style="margin: 1rem 0;"></div>
+                <div class="card-content">
+                    <p>Transições visuais estruturadas garantem uma navegação contínua, reduzindo o estresse cognitivo
+                        do usuário durante requisições de rede.</p>
+                </div>
+            </div>
+
+        </article>
+    </main>
+
+    <script>
+        const toggleBtn = document.getElementById('toggleBtn');
+        const skeletonView = document.querySelector('.skeleton-view');
+        const loadedView = document.querySelector('.loaded-view');
+
+        toggleBtn.addEventListener('click', () => {
+            skeletonView.classList.toggle('hidden');
+            loadedView.classList.toggle('hidden');
+        });
+    </script>
+</body>
+
+</html>

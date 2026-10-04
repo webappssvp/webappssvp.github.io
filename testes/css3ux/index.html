@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>css3ux - Protótipos SSVP</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #111b2d;
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #e7ecf7;
+      --muted: #a6b4cf;
+      --primary: #5aa7ff;
+      --primary-strong: #2a75d7;
+      --accent: #38bdf8;
+      --shadow: rgba(8, 15, 30, 0.45);
+      --ssvp-blue: #0064B6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #09111b 0%, #0f1a2d 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px 36px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      width: min(100%, 980px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 18px;
+      min-height: 48px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .back-button:hover,
+    .back-button:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(90, 167, 255, 0.8);
+      background: rgba(90, 167, 255, 0.12);
+      outline: none;
+    }
+
+    .version-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 14px;
+      user-select: none;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary-strong), var(--primary));
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 26px 22px;
+      box-shadow: 0 14px 30px var(--shadow);
+    }
+
+    .eyebrow {
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.75rem;
+      font-weight: 700;
+      opacity: 0.92;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 2.8vw, 2.6rem);
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.98rem;
+      line-height: 1.5;
+      max-width: 820px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      background: rgba(17, 27, 45, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px 18px;
+      min-height: 116px;
+      color: var(--text);
+      box-shadow: 0 10px 24px var(--shadow);
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+      touch-action: manipulation;
+    }
+
+    .card:hover,
+    .card:focus-visible {
+      transform: translateY(-3px);
+      border-color: rgba(90, 167, 255, 0.75);
+      background: rgba(20, 33, 56, 0.98);
+      box-shadow: 0 14px 28px rgba(90, 167, 255, 0.22);
+      outline: none;
+    }
+
+    .card-destaque {
+      border: 2px solid #38bdf8;
+      background: linear-gradient(135deg, rgba(0, 100, 182, 0.28) 0%, rgba(17, 27, 45, 0.98) 100%);
+      box-shadow: 0 12px 26px rgba(0, 100, 182, 0.35);
+    }
+
+    .card-destaque:hover,
+    .card-destaque:focus-visible {
+      border-color: #60a5fa;
+      box-shadow: 0 16px 32px rgba(56, 189, 248, 0.4);
+    }
+
+    .card-title {
+      display: block;
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #ffffff;
+      word-break: break-word;
+    }
+
+    .card-meta {
+      display: block;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 14px 12px 24px;
+      }
+
+      .header {
+        padding: 20px 16px;
+        border-radius: 16px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .card {
+        padding: 16px 14px;
+        min-height: 96px;
+      }
+
+      .card-title {
+        font-size: 1rem;
+      }
+
+      .card-meta {
+        font-size: 0.82rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <a class="back-button" href="../index.html">← Voltar para Testes</a>
+      <span class="version-tag">css3ux v1.0</span>
+    </div>
+
+    <header class="header">
+      <p class="eyebrow">SSVP / Testes / UX &amp; CSS3 Moderno</p>
+      <h1>css3ux</h1>
+      <p class="subtitle">Laboratório de microinterações, skeletons shimmer, modais com glassmorphism, acordeão com CSS Grid, transições contínuas e feedback de sincronização em CSS3 puro.</p>
+    </header>
+
+    <nav class="grid" aria-label="Protótipos de CSS3 e UX">
+      <!-- 01: Onboarding Spotlight (Destaque Ativo) -->
+      <a class="card card-destaque" href="./01-onboarding-spotlight.html">
+        <span class="card-title">🌟 01. Onboarding Spotlight (Efeito Holofote)</span>
+        <span class="card-meta">Tour guiado interativo em 3 passos para vicentinos 60+, com anel iluminado dinâmico, balão contextual e feedback sonoro harmônico.</span>
+      </a>
+
+      <!-- Arquivos Anteriores Preservados na Pasta back/ -->
+      <a class="card" href="./back/01-skeleton-shimmer.html">
+        <span class="card-title">💀 Skeleton Shimmer</span>
+        <span class="card-meta">Placeholders animados com gradiente shimmer simulando carregamento suave (back).</span>
+      </a>
+
+      <a class="card" href="./back/02-microinteracoes-botoes.html">
+        <span class="card-title">🔘 Microinterações em Botões</span>
+        <span class="card-meta">Efeitos táteis com profundidade 3D, ripple e estados de loading (back).</span>
+      </a>
+
+      <a class="card" href="./back/03-glassmorphism-modal.html">
+        <span class="card-title">🪟 Modal Glassmorphism</span>
+        <span class="card-meta">Janela modal translúcida com desfoque backdrop-filter e bordas suaves (back).</span>
+      </a>
+
+      <a class="card" href="./back/04-formulario-feedback.html">
+        <span class="card-title">📝 Formulário com Feedback Visual</span>
+        <span class="card-meta">Validações interativas em tempo real, floating labels e foco acessível (back).</span>
+      </a>
+
+      <a class="card" href="./back/05-card-acordeao-grid.html">
+        <span class="card-title">📐 Card Acordeão com CSS Grid</span>
+        <span class="card-meta">Transição de altura fluida usando grid-template-rows de 0fr a 1fr (back).</span>
+      </a>
+
+      <a class="card" href="./back/06-card-expand-overlay.html">
+        <span class="card-title">🗂️ Card com Expansão Modal Contínua</span>
+        <span class="card-meta">Transição contínua do card de assistido para overlay em tela cheia (back).</span>
+      </a>
+
+      <a class="card" href="./back/07-sheets-sync-feedback.html">
+        <span class="card-title">🔄 Feedback de Sincronização Google Sheets</span>
+        <span class="card-meta">Barra global no topo, badge de conectividade e alertas Web Audio API (back).</span>
+      </a>
+    </nav>
+  </main>
+</body>
+</html>

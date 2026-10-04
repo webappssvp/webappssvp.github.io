@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Relatos de Visitas - SSVP</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #111b2d;
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #e7ecf7;
+      --muted: #a6b4cf;
+      --primary: #5aa7ff;
+      --primary-strong: #2a75d7;
+      --shadow: rgba(8, 15, 30, 0.45);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #09111b 0%, #0f1a2d 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: calc(18px + var(--safe-top)) 14px calc(28px + var(--safe-bottom));
+      line-height: 1.4;
+    }
+
+    .page { width: min(100%, 980px); }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 700;
+      min-height: 48px;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .back-button:hover,
+    .back-button:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(90, 167, 255, 0.8);
+      outline: none;
+    }
+
+    .icon {
+      width: 22px;
+      height: 22px;
+      display: block;
+      filter: brightness(0) invert(1);
+      flex-shrink: 0;
+    }
+
+    .version-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(90, 167, 255, 0.15);
+      border: 1px solid rgba(90, 167, 255, 0.3);
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary-strong), var(--primary));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px 20px;
+      box-shadow: 0 14px 30px var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.72rem;
+      opacity: 0.9;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      display: block;
+      text-decoration: none;
+      background: rgba(17, 27, 45, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px 18px;
+      min-height: 100px;
+      color: var(--text);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      touch-action: manipulation;
+    }
+
+    .card:hover,
+    .card:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(90, 167, 255, 0.7);
+      box-shadow: 0 14px 28px rgba(90, 167, 255, 0.18);
+      outline: none;
+    }
+
+    .card-destaque {
+      border: 2px solid #38bdf8;
+      background: linear-gradient(135deg, rgba(0, 100, 182, 0.35) 0%, rgba(17, 27, 45, 0.98) 100%);
+      box-shadow: 0 12px 26px rgba(0, 100, 182, 0.35);
+    }
+
+    .card-destaque:hover {
+      border-color: #60a5fa;
+      box-shadow: 0 14px 30px rgba(56, 189, 248, 0.45);
+    }
+
+    .card-title {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .card-meta {
+      display: block;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 12px 10px 20px; }
+      .header { padding: 20px 16px; border-radius: 14px; }
+      .grid { grid-template-columns: 1fr; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <a class="back-button" href="../index.html">
+        <img class="icon" src="../../img/chevron_left.svg" alt="" aria-hidden="true">
+        <span>Testes</span>
+      </a>
+      <span class="version-tag">v1.0</span>
+    </div>
+
+    <header class="header">
+      <p class="eyebrow">SSVP / Módulo de Voz</p>
+      <h1>Relatos de Visitas</h1>
+      <p class="subtitle">Protótipos de gravação de relatos por voz no bolso (Hands-Free) para segurança física do vicentino.</p>
+    </header>
+
+    <nav class="grid" aria-label="Protótipos disponíveis">
+      <!-- Card Principal: T1 Ativo -->
+      <a class="card card-destaque" href="./t1_relato_bolso.html">
+        <span class="card-title">🎙️ T1: Relato de Visita (Modo Bolso)</span>
+        <span class="card-meta">Gravação por voz em múltiplos trechos com hold 350 ms, TTS de confirmação e persistência local (IndexedDB).</span>
+      </a>
+
+      <!-- Card da pasta privada -->
+      <a class="card" href="./privado/index.html">
+        <span class="card-title">🔒 Pasta Privada</span>
+        <span class="card-meta">Todos os arquivos de testes, especificações e planos de implementação.</span>
+      </a>
+    </nav>
+  </main>
+</body>
+</html>

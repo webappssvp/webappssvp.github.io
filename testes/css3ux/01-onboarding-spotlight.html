@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01 - Onboarding Spotlight (Efeito Holofote) - CSS3 UX</title>
+  <style>
+    :root {
+      --bg-principal: #0b1220;
+      --bg-card: #111b2d;
+      --borda-suave: rgba(255, 255, 255, 0.08);
+      --borda-foco: #38bdf8;
+      --texto-claro: #f1f5f9;
+      --texto-mutado: #94a3b8;
+      --azul-ssvp: #0064B6;
+      --azul-realce: #2563eb;
+      --azul-claro: #38bdf8;
+      --verde-status: #10b981;
+      --amarelo-status: #f59e0b;
+      --sombra-card: 0 10px 25px rgba(0, 0, 0, 0.35);
+      --raio-card: 16px;
+      --raio-botao: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #070d18 0%, #0d1627 100%);
+      color: var(--texto-claro);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.45;
+      padding: 16px 12px 100px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Container do App Simulado */
+    .app-viewport {
+      width: min(100%, 460px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* Barra Superior com Identificação da Versão */
+    .topbar-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 4px;
+    }
+
+    .btn-voltar {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--texto-claro);
+      border: 1px solid var(--borda-suave);
+      border-radius: var(--raio-botao);
+      padding: 8px 14px;
+      min-height: 48px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-voltar:hover,
+    .btn-voltar:focus-visible {
+      background: rgba(90, 167, 255, 0.15);
+      border-color: var(--azul-claro);
+      outline: none;
+    }
+
+    .versao-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--texto-mutado);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--borda-suave);
+      border-radius: 8px;
+      padding: 6px 10px;
+      user-select: none;
+    }
+
+    /* Cabeçalho do App Simulado */
+    .header-conferencia {
+      background: linear-gradient(135deg, var(--azul-ssvp), var(--azul-realce));
+      border: 1px solid var(--borda-suave);
+      border-radius: var(--raio-card);
+      padding: 18px 16px;
+      box-shadow: 0 8px 24px rgba(0, 100, 182, 0.28);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .header-linha-superior {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .eyebrow-conf {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.9;
+      font-weight: 700;
+    }
+
+    /* Alvo 3 do Tour: Badge de Sincronização */
+    .badge-conexao {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #ffffff;
+      transition: transform 0.2s ease;
+    }
+
+    .ponto-status {
+      width: 8px;
+      height: 8px;
+      background-color: var(--verde-status);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--verde-status);
+    }
+
+    .titulo-conf {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .subtitulo-conf {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    /* Barra de Ações Rápidas */
+    .barra-acao-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 2px;
+    }
+
+    .secao-titulo {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--texto-claro);
+    }
+
+    .btn-reiniciar-tour {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--azul-claro);
+      border-radius: 10px;
+      padding: 8px 12px;
+      min-height: 48px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      touch-action: manipulation;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-reiniciar-tour:hover,
+    .btn-reiniciar-tour:focus-visible {
+      background: rgba(56, 189, 248, 0.22);
+      outline: none;
+    }
+
+    .btn-reiniciar-tour:active {
+      transform: scale(0.97);
+    }
+
+    /* Lista de Famílias Assistidas */
+    .lista-familias {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-familia {
+      background: var(--bg-card);
+      border: 1px solid var(--borda-suave);
+      border-radius: var(--raio-card);
+      padding: 16px;
+      box-shadow: var(--sombra-card);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .card-familia:hover {
+      border-color: rgba(90, 167, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .card-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .nome-familia {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .badge-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-atendimento {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .tag-sindicancia {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .info-linha {
+      font-size: 0.88rem;
+      color: var(--texto-mutado);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Botão Flutuante (FAB) de Nova Visita - Alvo 2 */
+    .fab-container {
+      position: fixed;
+      bottom: 24px;
+      right: max(16px, calc(50% - 215px));
+      z-index: 10;
+    }
+
+    .btn-fab-visita {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      border-radius: 28px;
+      padding: 14px 22px;
+      min-height: 56px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.45);
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-fab-visita:hover,
+    .btn-fab-visita:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(16, 185, 129, 0.6);
+      outline: none;
+    }
+
+    .btn-fab-visita:active {
+      transform: scale(0.96);
+    }
+
+    /* ========================================================
+       SISTEMA SPOTLIGHT (EFEITO HOLOFOTE EM CSS3 PURO)
+       ======================================================== */
+    
+    /* Overlay semi-transparente que cobre a tela inteira */
+    .spotlight-scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 9, 18, 0.78);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+      touch-action: none;
+    }
+
+    .spotlight-scrim.ativo {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Caixa Iluminada Flutuante (O "Foco" que viaja pelos alvos) */
+    .spotlight-box {
+      position: fixed;
+      z-index: 1000;
+      border-radius: 18px;
+      pointer-events: none;
+      border: 3px solid var(--azul-claro);
+      /* O truque do anel gigante: isola o alvo com sombra de 9999px */
+      box-shadow: 0 0 0 9999px rgba(4, 9, 18, 0.82), 0 0 35px rgba(56, 189, 248, 0.65);
+      opacity: 0;
+      visibility: hidden;
+      /* Transição fluida de viagem entre os elementos */
+      transition: top 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  left 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  width 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  height 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  opacity 0.25s ease,
+                  border-radius 0.35s ease;
+    }
+
+    .spotlight-box.ativo {
+      opacity: 1;
+      visibility: visible;
+      animation: pulso-brilho 2s infinite ease-in-out;
+    }
+
+    @keyframes pulso-brilho {
+      0%, 100% {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 9999px rgba(4, 9, 18, 0.82), 0 0 30px rgba(56, 189, 248, 0.6);
+      }
+      50% {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 9999px rgba(4, 9, 18, 0.82), 0 0 45px rgba(56, 189, 248, 0.85);
+      }
+    }
+
+    /* Balão Explicativo (Tooltip Guiado do Tour) */
+    .spotlight-tooltip {
+      position: fixed;
+      z-index: 1002;
+      width: min(92vw, 380px);
+      background: #111b2d;
+      border: 1.5px solid rgba(90, 167, 255, 0.6);
+      border-radius: 20px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: top 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  left 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  opacity 0.3s ease,
+                  transform 0.3s ease,
+                  visibility 0.3s ease;
+    }
+
+    .spotlight-tooltip.ativo {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .tooltip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tooltip-passo-tag {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--azul-claro);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-fechar-tour {
+      background: transparent;
+      border: none;
+      color: var(--texto-mutado);
+      font-size: 1.3rem;
+      line-height: 1;
+      cursor: pointer;
+      min-height: 48px;
+      min-width: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      touch-action: manipulation;
+    }
+
+    .btn-fechar-tour:hover,
+    .btn-fechar-tour:focus-visible {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+    }
+
+    .tooltip-titulo {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.25;
+    }
+
+    .tooltip-mensagem {
+      font-size: 0.96rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    /* Rodapé do Balão com Navegação */
+    .tooltip-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+      padding-top: 10px;
+      border-top: 1px solid var(--borda-suave);
+    }
+
+    .tour-indicadores {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot-passo {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: background 0.25s ease, transform 0.25s ease;
+    }
+
+    .dot-passo.ativo {
+      background: var(--azul-claro);
+      transform: scale(1.25);
+    }
+
+    .tooltip-botoes {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-tour-pular {
+      background: transparent;
+      border: none;
+      color: var(--texto-mutado);
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 10px 12px;
+      min-height: 48px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .btn-tour-pular:hover,
+    .btn-tour-pular:focus-visible {
+      color: var(--texto-claro);
+      text-decoration: underline;
+      outline: none;
+    }
+
+    .btn-tour-avancar {
+      background: linear-gradient(135deg, var(--azul-ssvp), var(--azul-realce));
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--raio-botao);
+      padding: 12px 18px;
+      min-height: 48px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      touch-action: manipulation;
+      box-shadow: 0 4px 14px rgba(0, 100, 182, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-tour-avancar:hover,
+    .btn-tour-avancar:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 100, 182, 0.55);
+      outline: none;
+    }
+
+    .btn-tour-avancar:active {
+      transform: scale(0.97);
+    }
+
+    /* Dica Explicativa Inferior */
+    .card-dica-inferior {
+      background: rgba(17, 27, 45, 0.6);
+      border: 1px dashed rgba(90, 167, 255, 0.3);
+      border-radius: var(--raio-card);
+      padding: 14px;
+      font-size: 0.85rem;
+      color: var(--texto-mutado);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-top: 8px;
+    }
+
+    .card-dica-inferior p {
+      line-height: 1.45;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px 8px 100px;
+      }
+      .spotlight-tooltip {
+        width: calc(100vw - 20px);
+        padding: 16px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Container da Interface Simulada do WebApp -->
+  <main class="app-viewport">
+
+    <!-- Barra de Navegação Superior e Versão -->
+    <nav class="topbar-nav" aria-label="Navegação da página">
+      <a class="btn-voltar" href="./index.html">← Voltar para css3ux</a>
+      <span class="versao-badge">01-onboarding-spotlight v1.0</span>
+    </nav>
+
+    <!-- Cabeçalho da Conferência -->
+    <header class="header-conferencia">
+      <div class="header-linha-superior">
+        <span class="eyebrow-conf">SSVP • Conselho Particular</span>
+        
+        <!-- Alvo 3 do Tour: Status de Sincronização -->
+        <div id="alvo-status-conexao" class="badge-conexao" title="Status de Sincronização">
+          <span class="ponto-status"></span>
+          <span>Sincronizado</span>
+        </div>
+      </div>
+      <h1 class="titulo-conf">Conferência São José</h1>
+      <p class="subtitulo-conf">Painel de Acompanhamento das Famílias</p>
+    </header>
+
+    <!-- Barra de Ações Rápidas -->
+    <div class="barra-acao-topo">
+      <h2 class="secao-titulo">Famílias Assistidas (3)</h2>
+      <button id="btn-iniciar-tour" type="button" class="btn-reiniciar-tour">
+        <span>🔄 Ver Guia do App</span>
+      </button>
+    </div>
+
+    <!-- Lista de Famílias Assistidas -->
+    <section class="lista-familias" aria-label="Lista de famílias assistidas">
+
+      <!-- Alvo 1 do Tour: Primeiro Card de Família -->
+      <article id="alvo-card-familia" class="card-familia" tabindex="0">
+        <div class="card-topo">
+          <h3 class="nome-familia">Família Santos (Dona Maria)</h3>
+          <span class="badge-tag tag-atendimento">Em Atendimento</span>
+        </div>
+        <p class="info-linha">📍 Rua Bom Pastor, 120 - Ipiranga</p>
+        <p class="info-linha">📅 Última visita: há 4 dias (Dupla: Confrade Antônio e Consócia Rita)</p>
+        <p class="info-linha">📦 Cesta Básica + Leite entregues</p>
+      </article>
+
+      <!-- Demais Cards da Lista -->
+      <article class="card-familia" tabindex="0">
+        <div class="card-topo">
+          <h3 class="nome-familia">Família Oliveira (Seu Jorge)</h3>
+          <span class="badge-tag tag-atendimento">Em Atendimento</span>
+        </div>
+        <p class="info-linha">📍 Av. Nazaré, 450 - Ipiranga</p>
+        <p class="info-linha">📅 Última visita: há 7 dias</p>
+      </article>
+
+      <article class="card-familia" tabindex="0">
+        <div class="card-topo">
+          <h3 class="nome-familia">Família Silva (Neuza)</h3>
+          <span class="badge-tag tag-sindicancia">Sindicância</span>
+        </div>
+        <p class="info-linha">📍 Rua Silva Bueno, 780</p>
+        <p class="info-linha">📅 Primeira visita agendada para sábado</p>
+      </article>
+
+    </section>
+
+    <!-- Dica Didática para o Desenvolvedor / Avaliador -->
+    <aside class="card-dica-inferior">
+      <span>💡</span>
+      <p>
+        <strong>Como funciona o Spotlight:</strong> O anel guia utiliza uma única moldura animada com <code>box-shadow: 0 0 0 9999px</code>. 
+        Quando você avança, a caixa desliza suavemente até o próximo elemento na tela sem precisar recriar camadas.
+      </p>
+    </aside>
+
+    <!-- Alvo 2 do Tour: Botão Flutuante de Nova Visita -->
+    <div class="fab-container">
+      <button id="alvo-botao-visita" type="button" class="btn-fab-visita">
+        <span>➕</span>
+        <span>Registrar Visita</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ========================================================
+       ESTRUTURA DO TOUR GUIADO (SPOTLIGHT HOLOFOTE)
+       ======================================================== -->
+  
+  <!-- Camada escura de fundo -->
+  <div id="spotlight-scrim" class="spotlight-scrim" aria-hidden="true"></div>
+
+  <!-- A Caixa de Luz que viaja e ilumina o alvo -->
+  <div id="spotlight-box" class="spotlight-box" aria-hidden="true"></div>
+
+  <!-- O Balão com Instruções e Botões de Avanço -->
+  <section id="spotlight-tooltip" class="spotlight-tooltip" role="dialog" aria-modal="true" aria-labelledby="tour-titulo" aria-describedby="tour-msg">
+    <div class="tooltip-header">
+      <span id="tour-passo-tag" class="tooltip-passo-tag">Passo 1 de 3</span>
+      <button id="btn-tour-fechar" type="button" class="btn-fechar-tour" aria-label="Fechar tutorial">✕</button>
+    </div>
+    
+    <h4 id="tour-titulo" class="tooltip-titulo">Famílias Assistidas</h4>
+    <p id="tour-msg" class="tooltip-mensagem">
+      Bem-vindo, Confrade! Aqui você encontra todas as famílias acolhidas pela sua conferência. Toque em qualquer card para ver o histórico e localização.
+    </p>
+
+    <div class="tooltip-footer">
+      <div class="tour-indicadores" aria-hidden="true">
+        <span class="dot-passo ativo"></span>
+        <span class="dot-passo"></span>
+        <span class="dot-passo"></span>
+      </div>
+
+      <div class="tooltip-botoes">
+        <button id="btn-tour-pular" type="button" class="btn-tour-pular">Pular</button>
+        <button id="btn-tour-avancar" type="button" class="btn-tour-avancar">
+          <span id="txt-btn-avancar">Próximo ➔</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       LÓGICA EM JAVASCRIPT MODERNO (PADRÃO GOOGLE STYLE GUIDE)
+       ======================================================== -->
+  <script>
+    /**
+     * @typedef {Object} EtapaTour
+     * @property {string} seletorId - ID do elemento a ser iluminado.
+     * @property {string} tagPasso - Rótulo do passo (ex: 'Passo 1 de 3').
+     * @property {string} titulo - Título acolhedor do balão.
+     * @property {string} mensagem - Texto explicativo com linguagem vicentina clara.
+     * @property {'abaixo'|'acima'|'auto'} posicaoTooltip - Preferência de posicionamento do balão.
+     * @property {string} textoBotao - Texto do botão de avanço.
+     */
+
+    /**
+     * Configuração das 3 etapas do Onboarding da SSVP.
+     * @type {Array<EtapaTour>}
+     */
+    const ETAPAS_ONBOARDING = [
+      {
+        seletorId: 'alvo-card-familia',
+        tagPasso: 'Passo 1 de 3',
+        titulo: '🏡 Famílias Acolhidas',
+        mensagem: 'Aqui ficam reunidas todas as famílias acompanhadas pela sua conferência. Toque em qualquer card para ver o endereço, quem mora na casa e as últimas entregas.',
+        posicaoTooltip: 'abaixo',
+        textoBotao: 'Próximo ➔'
+      },
+      {
+        seletorId: 'alvo-botao-visita',
+        tagPasso: 'Passo 2 de 3',
+        titulo: '✍️ Registrar Visita Semanal',
+        mensagem: 'A visita em dupla é a nossa missão principal! Ao sair em visita, toque neste botão verde para registrar a conversa, necessidades de saúde e alimentos entregues.',
+        posicaoTooltip: 'acima',
+        textoBotao: 'Próximo ➔'
+      },
+      {
+        seletorId: 'alvo-status-conexao',
+        tagPasso: 'Passo 3 de 3',
+        titulo: '🟢 Funciona 100% Sem Internet',
+        mensagem: 'Fique tranquilo! Você pode usar o aplicativo no celular mesmo sem sinal de internet na rua. Tudo fica salvo com segurança e será sincronizado quando reconectar.',
+        posicaoTooltip: 'abaixo',
+        textoBotao: 'Concluir e Começar! 🚀'
+      }
+    ];
+
+    /** Índice da etapa ativa atual do tour. */
+    let indiceEtapaAtual = 0;
+
+    /** Referências aos elementos do DOM */
+    const scrimElement = document.getElementById('spotlight-scrim');
+    const boxElement = document.getElementById('spotlight-box');
+    const tooltipElement = document.getElementById('spotlight-tooltip');
+
+    const txtPassoTag = document.getElementById('tour-passo-tag');
+    const txtTitulo = document.getElementById('tour-titulo');
+    const txtMensagem = document.getElementById('tour-msg');
+    const txtBtnAvancar = document.getElementById('txt-btn-avancar');
+
+    const btnAvancar = document.getElementById('btn-tour-avancar');
+    const btnPular = document.getElementById('btn-tour-pular');
+    const btnFechar = document.getElementById('btn-fechar-tour');
+    const btnIniciarTour = document.getElementById('btn-iniciar-tour');
+    const dotsIndicadores = document.querySelectorAll('.dot-passo');
+
+    /**
+     * Toca um feedback sonoro harmônico e suave via Web Audio API.
+     * @param {number} frequencia - Frequência em Hz.
+     */
+    function emitirBipHarmonico(frequencia = 587.33) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(frequencia, ctx.currentTime);
+
+        gain.gain.setValueAtTime(0.04, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start();
+        osc.stop(ctx.currentTime + 0.12);
+      } catch (err) {
+        // Silencioso se o navegador não permitir áudio automático
+      }
+    }
+
+    /**
+     * Posiciona o holofote (Spotlight Box) e o balão (Tooltip) sobre o elemento alvo da etapa atual.
+     */
+    function atualizarPosicaoHolofote() {
+      const etapa = ETAPAS_ONBOARDING[indiceEtapaAtual];
+      if (!etapa) return;
+
+      const elementoAlvo = document.getElementById(etapa.seletorId);
+      if (!elementoAlvo) return;
+
+      // Rola a tela suavemente para garantir que o alvo esteja visível
+      elementoAlvo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Aguarda pequena fração para término de rolagem antes de ler as coordenadas reais
+      requestAnimationFrame(() => {
+        const rect = elementoAlvo.getBoundingClientRect();
+        const paddingFoco = 8;
+
+        // 1. Posiciona e dimensiona o anel de luz
+        const boxTop = Math.max(4, rect.top - paddingFoco);
+        const boxLeft = Math.max(4, rect.left - paddingFoco);
+        const boxWidth = rect.width + (paddingFoco * 2);
+        const boxHeight = rect.height + (paddingFoco * 2);
+
+        boxElement.style.top = `${boxTop}px`;
+        boxElement.style.left = `${boxLeft}px`;
+        boxElement.style.width = `${boxWidth}px`;
+        boxElement.style.height = `${boxHeight}px`;
+
+        // Se o elemento for redondo (como o FAB), arredonda o anel
+        if (elementoAlvo.classList.contains('btn-fab-visita') || elementoAlvo.classList.contains('badge-conexao')) {
+          boxElement.style.borderRadius = `${rect.height}px`;
+        } else {
+          boxElement.style.borderRadius = '18px';
+        }
+
+        // 2. Preenche os textos da etapa
+        txtPassoTag.textContent = etapa.tagPasso;
+        txtTitulo.textContent = etapa.titulo;
+        txtMensagem.textContent = etapa.mensagem;
+        txtBtnAvancar.textContent = etapa.textoBotao;
+
+        // 3. Atualiza os dots indicadores
+        dotsIndicadores.forEach((dot, idx) => {
+          if (idx === indiceEtapaAtual) {
+            dot.classList.add('ativo');
+          } else {
+            dot.classList.remove('ativo');
+          }
+        });
+
+        // 4. Posiciona o Balão Explicativo (acima ou abaixo do alvo)
+        const tooltipWidth = Math.min(window.innerWidth - 24, 380);
+        const tooltipLeft = Math.max(12, Math.min(window.innerWidth - tooltipWidth - 12, rect.left + (rect.width / 2) - (tooltipWidth / 2)));
+        
+        let tooltipTop = 0;
+        const espacoAbaixo = window.innerHeight - (boxTop + boxHeight);
+        const alturaEstimadaTooltip = 210;
+
+        if (etapa.posicaoTooltip === 'acima' || (espacoAbaixo < alturaEstimadaTooltip && boxTop > alturaEstimadaTooltip)) {
+          // Posiciona Acima
+          tooltipTop = Math.max(12, boxTop - alturaEstimadaTooltip - 12);
+        } else {
+          // Posiciona Abaixo
+          tooltipTop = Math.min(window.innerHeight - alturaEstimadaTooltip - 12, boxTop + boxHeight + 14);
+        }
+
+        tooltipElement.style.left = `${tooltipLeft}px`;
+        tooltipElement.style.top = `${tooltipTop}px`;
+        tooltipElement.style.width = `${tooltipWidth}px`;
+      });
+    }
+
+    /**
+     * Inicia a exibição do Tour de Onboarding.
+     * @param {number} [etapaInicial=0]
+     */
+    function iniciarTour(etapaInicial = 0) {
+      indiceEtapaAtual = etapaInicial;
+      scrimElement.classList.add('ativo');
+      boxElement.classList.add('ativo');
+      tooltipElement.classList.add('ativo');
+
+      emitirBipHarmonico(523.25); // Dó
+      atualizarPosicaoHolofote();
+    }
+
+    /**
+     * Avança para a próxima etapa ou finaliza o tour.
+     */
+    function avancarEtapaTour() {
+      if (indiceEtapaAtual < ETAPAS_ONBOARDING.length - 1) {
+        indiceEtapaAtual += 1;
+        emitirBipHarmonico(659.25); // Mi
+        atualizarPosicaoHolofote();
+      } else {
+        encerrarTour(true);
+      }
+    }
+
+    /**
+     * Fecha e oculta o tour do usuário.
+     * @param {boolean} [concluido=false]
+     */
+    function encerrarTour(concluido = false) {
+      scrimElement.classList.remove('ativo');
+      boxElement.classList.remove('ativo');
+      tooltipElement.classList.remove('ativo');
+
+      if (concluido) {
+        emitirBipHarmonico(880.00); // Lá
+      }
+    }
+
+    // Configuração dos Event Listeners
+    btnAvancar.addEventListener('click', avancarEtapaTour);
+    btnPular.addEventListener('click', () => encerrarTour(false));
+    btnFechar.addEventListener('click', () => encerrarTour(false));
+    btnIniciarTour.addEventListener('click', () => iniciarTour(0));
+
+    // Fecha ao tocar no fundo escuro
+    scrimElement.addEventListener('click', () => encerrarTour(false));
+
+    // Reposiciona em redimensionamentos de tela
+    window.addEventListener('resize', () => {
+      if (boxElement.classList.contains('ativo')) {
+        atualizarPosicaoHolofote();
+      }
+    });
+
+    // Inicia automaticamente o tour 600ms após o carregamento da página
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        iniciarTour(0);
+      }, 650);
+    });
+  </script>
+</body>
+</html>

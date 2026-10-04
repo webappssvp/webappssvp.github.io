@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS3 UX - Feedback de Sincronização Google Sheets</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --sheets-green: #0f9d58;
+            --sync-blue: #2563eb;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 1. Barra de Progresso no Topo (Global Loader) */
+        .top-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: transparent;
+            overflow: hidden;
+            z-index: 9999;
+        }
+
+        .top-loader-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #0f9d58, #34a853, #4285f4);
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+        }
+
+        .top-loader.active .top-loader-bar {
+            animation: indeterminate-bar 1.4s infinite ease-in-out;
+        }
+
+        @keyframes indeterminate-bar {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            50% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* 2. Header com Badge de Status */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sheets-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--sheets-green);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f1f5f9;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+            position: relative;
+        }
+
+        /* Estados do Badge */
+        .status-badge.syncing {
+            background: #eff6ff;
+            color: var(--sync-blue);
+            border-color: #bfdbfe;
+        }
+
+        .status-badge.syncing .status-dot {
+            background: var(--sync-blue);
+        }
+
+        .status-badge.syncing .status-dot::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            border: 2px solid var(--sync-blue);
+            animation: ping-dot 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        .status-badge.synced {
+            background: #f0fdf4;
+            color: var(--sheets-green);
+            border-color: #bbf7d0;
+        }
+
+        .status-badge.synced .status-dot {
+            background: var(--sheets-green);
+        }
+
+        .status-badge.error {
+            background: #fef2f2;
+            color: var(--danger);
+            border-color: #fecaca;
+        }
+
+        .status-badge.error .status-dot {
+            background: var(--danger);
+        }
+
+        @keyframes ping-dot {
+
+            75%,
+            100% {
+                transform: scale(2.2);
+                opacity: 0;
+            }
+        }
+
+        /* 3. Painel Principal */
+        main {
+            max-width: 800px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .controls-card {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-action {
+            background: var(--surface);
+            border: 1px solid #cbd5e1;
+            color: var(--text);
+            padding: 0.6rem 1.1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.15s ease;
+        }
+
+        .btn-action:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .btn-action:active {
+            transform: translateY(1px);
+        }
+
+        .btn-primary {
+            background: var(--sheets-green);
+            border-color: var(--sheets-green);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #0b8043;
+            border-color: #0b8043;
+        }
+
+        /* 4. Tabela com Feedback de Linha (Optimistic Highlight) */
+        .table-container {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.92rem;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 0.85rem 1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Animação quando a linha está sendo enviada/confirmada */
+        tr.pending-save {
+            background: #eff6ff;
+            animation: pulse-row 1.5s infinite alternate;
+        }
+
+        tr.just-saved {
+            animation: flash-success 1.2s ease-out;
+        }
+
+        @keyframes pulse-row {
+            from {
+                background: rgba(239, 246, 255, 0.5);
+            }
+
+            to {
+                background: rgba(219, 234, 254, 0.9);
+            }
+        }
+
+        @keyframes flash-success {
+            0% {
+                background: #dcfce7;
+            }
+
+            100% {
+                background: transparent;
+            }
+        }
+
+        /* 5. Toasts Flutuantes */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .toast {
+            pointer-events: auto;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.85rem 1.15rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 290px;
+            max-width: 380px;
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.show {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .toast-text {
+            flex: 1;
+            font-size: 0.88rem;
+            color: var(--text);
+        }
+
+        /* Barra regressiva dentro do toast */
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.12);
+            width: 100%;
+            transform-origin: left;
+        }
+
+        .toast.show .toast-progress {
+            animation: countdown 3s linear forwards;
+        }
+
+        @keyframes countdown {
+            from {
+                transform: scaleX(1);
+            }
+
+            to {
+                transform: scaleX(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .top-loader-bar,
+            .status-dot::after,
+            .toast,
+            tr.pending-save {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Barra de Carregamento Superior -->
+    <div class="top-loader" id="topLoader">
+        <div class="top-loader-bar"></div>
+    </div>
+
+    <!-- Cabeçalho com Status Global -->
+    <header>
+        <div class="app-title">
+            <svg class="sheets-icon" viewBox="0 0 24 24">
+                <path
+                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H6v-2h6v2zm0-4H6v-2h6v2zm0-4H6V7h6v2zm6 8h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V7h4v2z" />
+            </svg>
+            Sincronizador Sheets
+        </div>
+
+        <div class="status-badge synced" id="statusBadge">
+            <span class="status-dot"></span>
+            <span class="status-label" id="statusText">Conectado</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- Controles de Simulação -->
+        <div class="controls-card">
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); width: 100%;">
+                Simular Ações na Planilha:
+            </span>
+            <button class="btn-action btn-primary" id="btnWrite">
+                Gravar Nova Linha
+            </button>
+            <button class="btn-action" id="btnRead">
+                Atualizar / Recarregar Dados
+            </button>
+            <button class="btn-action" id="btnError">
+                Simular Falha de Conexão
+            </button>
+        </div>
+
+        <!-- Tabela de Dados -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item / Registro</th>
+                        <th>Categoria</th>
+                        <th>Data de Envio</th>
+                        <th>Status na Planilha</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td>Relatório Mensal #102</td>
+                        <td>Financeiro</td>
+                        <td>27/09/2026 14:20</td>
+                        <td><span style="color: var(--sheets-green); font-weight: 600;">Salvo</span></td>
+                    </tr>
+                    <tr>
+                        <td>Cadastro Voluntário - ID 44</td>
+                        <td>Operações</td>
+                        <td>27/09/2026 16:05</td>
+                        <td><span style="color: var(--sheets-green); font-weight: 600;">Salvo</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Container de Toasts -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        const topLoader = document.getElementById('topLoader');
+        const statusBadge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        const toastContainer = document.getElementById('toastContainer');
+        const tableBody = document.getElementById('tableBody');
+
+        // Funções controladoras de estado de UX
+        function setSyncState(state, label) {
+            statusBadge.className = `status-badge ${state}`;
+            statusText.textContent = label;
+
+            if (state === 'syncing') {
+                topLoader.classList.add('active');
+            } else {
+                topLoader.classList.remove('active');
+            }
+        }
+
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '✅';
+            if (type === 'error') icon = '⚠️';
+            if (type === 'syncing') icon = '⏳';
+
+            toast.innerHTML = `
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-text">${message}</span>
+        <div class="toast-progress"></div>
+      `;
+
+            toastContainer.appendChild(toast);
+
+            // Trigger animação CSS
+            requestAnimationFrame(() => toast.classList.add('show'));
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, duration);
+        }
+
+        // 1. Simulação: Gravação com Optimistic UI
+        document.getElementById('btnWrite').addEventListener('click', () => {
+            setSyncState('syncing', 'Gravando no Google Sheets...');
+            showToast('Enviando linha para a planilha...', 'syncing', 1800);
+
+            // Adiciona linha otimista imediatamente
+            const newRow = document.createElement('tr');
+            newRow.className = 'pending-save';
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            newRow.innerHTML = `
+        <td>Novo Registro Automático</td>
+        <td>Geral</td>
+        <td>Hoje às ${timestamp}</td>
+        <td><em>Sincronizando...</em></td>
+      `;
+            tableBody.prepend(newRow);
+
+            // Simula a resposta do endpoint do Sheets (1.8s)
+            setTimeout(() => {
+                newRow.classList.remove('pending-save');
+                newRow.classList.add('just-saved');
+                newRow.cells[3].innerHTML = `<span style="color: var(--sheets-green); font-weight: 600;">Gravado</span>`;
+
+                setSyncState('synced', 'Todas alterações salvas');
+                showToast('Linha sincronizada na planilha com sucesso!', 'success', 2500);
+            }, 1800);
+        });
+
+        // 2. Simulação: Leitura / Recarregamento
+        document.getElementById('btnRead').addEventListener('click', () => {
+            setSyncState('syncing', 'Buscando dados da planilha...');
+            showToast('Consultando API do Google Sheets...', 'syncing', 1400);
+
+            setTimeout(() => {
+                setSyncState('synced', 'Dados atualizados');
+                showToast('Tabela recarregada com sucesso!', 'success', 2000);
+            }, 1400);
+        });
+
+        // 3. Simulação: Erro de Rede ou Quota Excedida
+        document.getElementById('btnError').addEventListener('click', () => {
+            setSyncState('syncing', 'Conectando...');
+
+            setTimeout(() => {
+                setSyncState('error', 'Falha na conexão com Sheets');
+                showToast('Erro ao sincronizar dados. Tente novamente em instantes.', 'error', 4000);
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>

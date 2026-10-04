@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS3 UX - Modal Glassmorphism</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .btn-open {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.6rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            transition: filter 0.2s;
+        }
+
+        .btn-open:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Overlay com Backdrop Blur */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Modal Card com Glassmorphism */
+        .modal-content {
+            background: rgba(255, 255, 255, 0.85);
+            color: #1e293b;
+            max-width: 480px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+            line-height: 1;
+        }
+
+        .modal-body p {
+            line-height: 1.5;
+            color: #475569;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 0.6rem 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="btn-open" id="openModalBtn">Abrir Janela Modal</button>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <h2>Confirmação de Ação</h2>
+                <button class="modal-close" id="closeXBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>O efeito de desfoque de fundo mantém a referência espacial de onde o usuário estava na aplicação,
+                    evitando desorientação e isolando a atenção no conteúdo do diálogo.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cancelBtn">Cancelar</button>
+                <button class="btn-primary" id="confirmBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const openBtn = document.getElementById('openModalBtn');
+        const overlay = document.getElementById('modalOverlay');
+        const closeX = document.getElementById('closeXBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+
+        function closeModal() {
+            overlay.classList.remove('active');
+        }
+
+        function openModal() {
+            overlay.classList.add('active');
+        }
+
+        openBtn.addEventListener('click', openModal);
+        closeX.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        confirmBtn.addEventListener('click', closeModal);
+
+        // Fecha ao clicar fora da caixa do modal
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeModal();
+        });
+
+        // Fecha ao pressionar Esc
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && overlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>
