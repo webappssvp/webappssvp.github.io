@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Material Design 3 - Navigation Bar & Bottom Sheet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* M3 Baseline Color Tokens (Light Scheme) */
+      --md-sys-color-primary: #00658f;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-primary-container: #c7e7ff;
+      --md-sys-color-on-primary-container: #001e2e;
+      --md-sys-color-secondary-container: #cde7ec;
+      --md-sys-color-on-secondary-container: #051f23;
+      --md-sys-color-surface: #f8fafd;
+      --md-sys-color-on-surface: #191c1e;
+      --md-sys-color-surface-variant: #dce4e8;
+      --md-sys-color-on-surface-variant: #40484c;
+      --md-sys-color-surface-container-low: #f2f4f7;
+      --md-sys-color-surface-container: #eceef1;
+      --md-sys-color-surface-container-high: #e6e8eb;
+      --md-sys-color-surface-container-highest: #e0e3e5;
+      --md-sys-color-outline: #71787d;
+      --md-sys-color-outline-variant: #c0c8cc;
+      --md-sys-color-scrim: rgba(0, 0, 0, 0.4);
+
+      /* Typography & Elevation */
+      --md-sys-shape-corner-extra-large: 28px;
+      --md-sys-shape-corner-full: 9999px;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .material-symbols-rounded {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      user-select: none;
+    }
+    .material-symbols-rounded.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* M3 Navigation Bar Spec (80dp height) */
+    .m3-navigation-bar {
+      height: 80px;
+      background-color: var(--md-sys-color-surface-container);
+      box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .m3-nav-item {
+      min-width: 48px;
+      min-height: 48px;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    /* Active Indicator Pill (64x32dp) */
+    .m3-nav-pill {
+      width: 64px;
+      height: 32px;
+      border-radius: 16px;
+      transition: background-color 0.25s cubic-bezier(0.2, 0, 0, 1), transform 0.2s ease;
+    }
+
+    .m3-nav-item.active .m3-nav-pill {
+      background-color: var(--md-sys-color-secondary-container);
+    }
+
+    .m3-nav-item.active .m3-nav-label {
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    /* Modal Bottom Sheet Animations */
+    .m3-scrim {
+      background-color: var(--md-sys-color-scrim);
+      transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .m3-bottom-sheet {
+      border-top-left-radius: var(--md-sys-shape-corner-extra-large);
+      border-top-right-radius: var(--md-sys-shape-corner-extra-large);
+      background-color: var(--md-sys-color-surface-container-low);
+      transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+      touch-action: pan-y;
+      max-height: 90%;
+    }
+
+    .m3-bottom-sheet.closed {
+      transform: translateY(100%);
+    }
+
+    /* Drag Handle: 32dp x 4dp */
+    .m3-drag-handle {
+      width: 32px;
+      height: 4px;
+      border-radius: 2px;
+      background-color: var(--md-sys-color-outline-variant);
+    }
+
+    /* Scrollbar styling for code views */
+    pre::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    pre::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col items-center justify-start p-3 sm:p-6">
+
+  <header class="w-full max-w-5xl mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center justify-center p-2 rounded-xl bg-sky-600 text-white">
+          <span class="material-symbols-rounded">design_services</span>
+        </span>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Material Design 3 (M3) Mobile PWA</h1>
+      </div>
+      <p class="text-sm text-slate-600 mt-1">Exemplo prático e especificações oficiais de Navigation Bar e Modal Bottom Sheet</p>
+    </div>
+
+    <!-- Mode Selector: UI Preview vs Code -->
+    <div class="inline-flex p-1 bg-white border border-slate-200 rounded-2xl shadow-sm self-start md:self-auto">
+      <button id="btnTabPreview" onclick="switchMainTab('preview')" class="px-4 py-2 text-sm font-semibold rounded-xl bg-sky-100 text-sky-800 transition">
+        📱 Demonstração Mobile
+      </button>
+      <button id="btnTabCode" onclick="switchMainTab('code')" class="px-4 py-2 text-sm font-medium rounded-xl text-slate-600 hover:text-slate-900 transition">
+        &lt;/&gt; Código & Variáveis CSS
+      </button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-5xl flex flex-col items-center justify-center">
+
+    <!-- View: Interactive Device Preview -->
+    <div id="sectionPreview" class="w-full flex flex-col lg:flex-row items-center justify-center gap-8">
+      
+      <!-- Mobile Frame Emulator (390 x 780 standard mobile ratio) -->
+      <div class="relative w-[360px] sm:w-[390px] h-[720px] bg-white rounded-[44px] shadow-2xl border-[9px] border-slate-900 overflow-hidden flex flex-col select-none">
+        
+        <!-- Mobile Status Bar Top -->
+        <div class="h-9 px-6 flex items-center justify-between text-xs font-semibold text-slate-700 bg-[var(--md-sys-color-surface)] z-10">
+          <span>09:41</span>
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-rounded text-sm">signal_cellular_alt</span>
+            <span class="material-symbols-rounded text-sm">wifi</span>
+            <span class="material-symbols-rounded text-sm">battery_full</span>
+          </div>
+        </div>
+
+        <!-- M3 Small Top App Bar (64dp) -->
+        <header class="h-16 px-4 flex items-center justify-between bg-[var(--md-sys-color-surface)] border-b border-[var(--md-sys-color-surface-container-high)] z-10">
+          <div class="flex items-center gap-3">
+            <button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 active:bg-black/10 transition text-[var(--md-sys-color-on-surface)]" aria-label="Menu">
+              <span class="material-symbols-rounded">menu</span>
+            </button>
+            <span class="text-lg font-medium text-[var(--md-sys-color-on-surface)]">Visitas Técnicas</span>
+          </div>
+          <button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 active:bg-black/10 transition text-[var(--md-sys-color-on-surface)]" aria-label="Pesquisar">
+            <span class="material-symbols-rounded">search</span>
+          </button>
+        </header>
+
+        <!-- Mobile Scrollable Body Content -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--md-sys-color-surface)]">
+          <!-- PWA Sync Status Pill -->
+          <div class="flex items-center justify-between p-3 rounded-2xl bg-[var(--md-sys-color-surface-container)] border border-[var(--md-sys-color-outline-variant)]">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-rounded text-sky-700">cloud_done</span>
+              <div>
+                <p class="text-xs font-medium text-[var(--md-sys-color-on-surface)]">PWA Sincronizado</p>
+                <p class="text-[11px] text-[var(--md-sys-color-on-surface-variant)]">Cache IndexedDB pronto offline</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">ONLINE</span>
+          </div>
+
+          <!-- M3 Outlined Card 1 -->
+          <div class="p-4 rounded-3xl bg-[var(--md-sys-color-surface)] border border-[var(--md-sys-color-outline-variant)] shadow-sm">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-[11px] font-medium tracking-wide uppercase text-sky-800 bg-sky-100 px-2 py-0.5 rounded-full">Ordem #4892</span>
+                <h2 class="text-base font-semibold text-[var(--md-sys-color-on-surface)] mt-1.5">Inspeção Preventiva</h2>
+                <p class="text-xs text-[var(--md-sys-color-on-surface-variant)]">Rua das Acácias, 240 - Centro</p>
+              </div>
+              <button onclick="openBottomSheet('Inspeção Preventiva - #4892')" class="w-9 h-9 rounded-full flex items-center justify-center bg-[var(--md-sys-color-surface-container-high)] hover:bg-[var(--md-sys-color-surface-variant)] transition">
+                <span class="material-symbols-rounded text-sm">more_vert</span>
+              </button>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[var(--md-sys-color-outline-variant)]/40 flex items-center justify-between">
+              <span class="text-xs text-slate-500">Agendado: Hoje, 14:30</span>
+              <button onclick="openBottomSheet('Inspeção Preventiva - #4892')" class="text-xs font-semibold text-sky-700 hover:text-sky-900 flex items-center gap-1">
+                Ações <span class="material-symbols-rounded text-sm">expand_more</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- M3 Outlined Card 2 -->
+          <div class="p-4 rounded-3xl bg-[var(--md-sys-color-surface)] border border-[var(--md-sys-color-outline-variant)] shadow-sm">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-[11px] font-medium tracking-wide uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">Ordem #4893</span>
+                <h2 class="text-base font-semibold text-[var(--md-sys-color-on-surface)] mt-1.5">Troca de Medidor</h2>
+                <p class="text-xs text-[var(--md-sys-color-on-surface-variant)]">Av. Paulista, 1100 - Bela Vista</p>
+              </div>
+              <button onclick="openBottomSheet('Troca de Medidor - #4893')" class="w-9 h-9 rounded-full flex items-center justify-center bg-[var(--md-sys-color-surface-container-high)] hover:bg-[var(--md-sys-color-surface-variant)] transition">
+                <span class="material-symbols-rounded text-sm">more_vert</span>
+              </button>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[var(--md-sys-color-outline-variant)]/40 flex items-center justify-between">
+              <span class="text-xs text-slate-500">Agendado: Amanhã, 10:00</span>
+              <button onclick="openBottomSheet('Troca de Medidor - #4893')" class="text-xs font-semibold text-sky-700 hover:text-sky-900 flex items-center gap-1">
+                Ações <span class="material-symbols-rounded text-sm">expand_more</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Extended FAB Trigger for Bottom Sheet -->
+          <div class="pt-2 flex justify-end">
+            <button onclick="openBottomSheet('Nova Ordem de Serviço')" class="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] shadow-md hover:shadow-lg active:scale-95 transition-all">
+              <span class="material-symbols-rounded">add</span>
+              <span class="text-sm font-semibold tracking-wide">Novo Registro</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- M3 Navigation Bar -->
+        <nav class="m3-navigation-bar w-full flex items-center justify-around px-2 z-20" aria-label="Navegação Principal">
+          
+          <!-- Item 1: Início (Active) -->
+          <button id="navItemHome" onclick="selectNavItem(this, 'home')" class="m3-nav-item active flex flex-col items-center justify-center gap-1 group" aria-label="Início">
+            <div class="m3-nav-pill flex items-center justify-center text-[var(--md-sys-color-on-secondary-container)]">
+              <span class="material-symbols-rounded filled text-[22px]">home</span>
+            </div>
+            <span class="m3-nav-label text-[12px] text-[var(--md-sys-color-on-surface)] tracking-tight">Início</span>
+          </button>
+
+          <!-- Item 2: Ordens -->
+          <button onclick="selectNavItem(this, 'orders')" class="m3-nav-item flex flex-col items-center justify-center gap-1 group" aria-label="Ordens">
+            <div class="m3-nav-pill flex items-center justify-center text-[var(--md-sys-color-on-surface-variant)] group-hover:bg-slate-200/50">
+              <span class="material-symbols-rounded text-[22px]">assignment</span>
+            </div>
+            <span class="m3-nav-label text-[12px] text-[var(--md-sys-color-on-surface-variant)] tracking-tight">Ordens</span>
+          </button>
+
+          <!-- Item 3: Ações Rápidas (Abre Bottom Sheet) -->
+          <button onclick="openBottomSheet('Ações Rápidas M3')" class="m3-nav-item flex flex-col items-center justify-center gap-1 group" aria-label="Menu Rápido">
+            <div class="m3-nav-pill flex items-center justify-center text-[var(--md-sys-color-on-surface-variant)] group-hover:bg-slate-200/50">
+              <span class="material-symbols-rounded text-[22px]">widgets</span>
+            </div>
+            <span class="m3-nav-label text-[12px] text-[var(--md-sys-color-on-surface-variant)] tracking-tight">Painel</span>
+          </button>
+
+          <!-- Item 4: Perfil -->
+          <button onclick="selectNavItem(this, 'profile')" class="m3-nav-item flex flex-col items-center justify-center gap-1 group" aria-label="Perfil">
+            <div class="m3-nav-pill flex items-center justify-center text-[var(--md-sys-color-on-surface-variant)] group-hover:bg-slate-200/50">
+              <span class="material-symbols-rounded text-[22px]">account_circle</span>
+            </div>
+            <span class="m3-nav-label text-[12px] text-[var(--md-sys-color-on-surface-variant)] tracking-tight">Perfil</span>
+          </button>
+        </nav>
+
+        <!-- Mobile Safe Area Home Indicator -->
+        <div class="h-4 bg-[var(--md-sys-color-surface-container)] flex items-center justify-center">
+          <div class="w-32 h-1 bg-slate-400 rounded-full"></div>
+        </div>
+
+        <!-- Modal Bottom Sheet Overlay Container -->
+        <div id="modalBottomSheetContainer" class="absolute inset-0 z-30 pointer-events-none overflow-hidden">
+          
+          <!-- Scrim (Backdrop) -->
+          <div id="bottomSheetScrim" onclick="closeBottomSheet()" class="m3-scrim absolute inset-0 opacity-0 transition-opacity duration-300"></div>
+
+          <!-- Bottom Sheet Surface -->
+          <div id="bottomSheetContent" class="m3-bottom-sheet closed absolute bottom-0 left-0 right-0 p-5 flex flex-col shadow-2xl pointer-events-auto">
+            
+            <!-- Drag Handle (32 x 4 dp) -->
+            <div class="w-full flex justify-center pb-3 cursor-grab" id="sheetDragHandle">
+              <div class="m3-drag-handle"></div>
+            </div>
+
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-3">
+              <div>
+                <h3 id="bottomSheetTitle" class="text-lg font-semibold text-[var(--md-sys-color-on-surface)]">Ações Rápidas</h3>
+                <p class="text-xs text-[var(--md-sys-color-on-surface-variant)]">Padrão Modal Bottom Sheet do M3</p>
+              </div>
+              <button onclick="closeBottomSheet()" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-200 text-slate-600 transition" aria-label="Fechar">
+                <span class="material-symbols-rounded text-lg">close</span>
+              </button>
+            </div>
+
+            <!-- List of Contextual Sheet Actions -->
+            <div class="py-2 space-y-1">
+              <button onclick="triggerAction('Iniciar Navegação GPS')" class="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--md-sys-color-surface-container-high)] text-left transition">
+                <span class="material-symbols-rounded text-sky-700">near_me</span>
+                <span class="text-sm font-medium text-slate-800">Traçar rota no GPS</span>
+              </button>
+
+              <button onclick="triggerAction('Adicionar Fotos da Visita')" class="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--md-sys-color-surface-container-high)] text-left transition">
+                <span class="material-symbols-rounded text-sky-700">photo_camera</span>
+                <span class="text-sm font-medium text-slate-800">Registrar foto e anexar</span>
+              </button>
+
+              <button onclick="triggerAction('Assinatura do Cliente')" class="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--md-sys-color-surface-container-high)] text-left transition">
+                <span class="material-symbols-rounded text-sky-700">draw</span>
+                <span class="text-sm font-medium text-slate-800">Coletar assinatura digital</span>
+              </button>
+
+              <button onclick="triggerAction('Concluir e Sincronizar')" class="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-red-50 text-left transition text-red-700">
+                <span class="material-symbols-rounded">check_circle</span>
+                <span class="text-sm font-medium">Finalizar atendimento</span>
+              </button>
+            </div>
+
+            <!-- Bottom Sheet Button -->
+            <div class="pt-3">
+              <button onclick="closeBottomSheet()" class="w-full py-2.5 rounded-full bg-[var(--md-sys-color-surface-container-highest)] text-slate-700 text-xs font-semibold hover:bg-slate-300 transition">
+                Dispensar
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Toast Feedback Notification -->
+        <div id="actionToast" class="absolute bottom-24 left-4 right-4 bg-slate-900/90 text-white text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all duration-300 opacity-0 pointer-events-none translate-y-2 z-40 text-center">
+          Ação selecionada
+        </div>
+
+      </div>
+
+      <!-- Feature Checklist & UX Highlights -->
+      <div class="max-w-md space-y-4">
+        <div class="p-5 bg-white border border-slate-200 rounded-3xl shadow-sm space-y-3">
+          <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <span class="material-symbols-rounded text-sky-600">verified</span>
+            Especificações M3 Aplicadas
+          </h3>
+          <ul class="text-xs text-slate-600 space-y-2.5">
+            <li class="flex items-start gap-2">
+              <strong class="text-slate-800 min-w-32">Navigation Bar:</strong>
+              <span>Altura exata de <strong>80dp</strong>, com pílula ativa ovalada (64×32dp) e alvos mínimos de toque de <strong>48×48dp</strong>.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <strong class="text-slate-800 min-w-32">Modal Bottom Sheet:</strong>
+              <span>Cantos superiores arredondados com <strong>28dp</strong> (<code class="bg-slate-100 px-1 rounded">shape-xl</code>), indicador de arraste de 32×4dp e escurecimento com <em>scrim</em>.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <strong class="text-slate-800 min-w-32">Tonal Elevation:</strong>
+              <span>Não usa sombras pesadas artificiais; a elevação é diferenciada por tons de superfície (<code class="bg-slate-100 px-1 rounded">surface-container</code>).</span>
+            </li>
+          </ul>
+
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <button onclick="openBottomSheet('Demonstração M3')" class="px-4 py-2 rounded-xl bg-sky-600 text-white text-xs font-semibold hover:bg-sky-700 transition">
+              Abrir Bottom Sheet
+            </button>
+            <span class="text-[11px] text-slate-400">Interaja com a maquete ao lado</span>
+          </div>
+        </div>
+
+        <div class="p-4 bg-sky-50 border border-sky-100 rounded-2xl text-xs text-sky-900 flex items-center gap-3">
+          <span class="material-symbols-rounded text-sky-600 text-xl">touch_app</span>
+          <span>Toque nos botões inferiores para alternar abas ou clique no ícone de opções nos cards para abrir a Bottom Sheet.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- View: Code & Tokens View -->
+    <div id="sectionCode" class="w-full hidden space-y-6">
+      
+      <!-- Subtabs for HTML / CSS / Variables -->
+      <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <div class="flex gap-2">
+            <button id="btnSubHtml" onclick="switchCodeSnippet('html')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-100 text-sky-800">
+              HTML Estrutura
+            </button>
+            <button id="btnSubCss" onclick="switchCodeSnippet('css')" class="px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900">
+              CSS Tokens (M3)
+            </button>
+          </div>
+          <button onclick="copyActiveCode()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition">
+            <span class="material-symbols-rounded text-sm">content_copy</span>
+            <span id="copyBtnText">Copiar Código</span>
+          </button>
+        </div>
+
+        <!-- Code Block 1: HTML -->
+        <div id="codeHtmlContainer">
+          <pre class="bg-slate-900 text-slate-200 p-4 rounded-2xl text-xs font-mono overflow-x-auto leading-relaxed"><code id="codeHtml">&lt;!-- Material Design 3: Navigation Bar (80dp) --&gt;
+&lt;nav class="m3-navigation-bar" aria-label="Navegação Principal"&gt;
+  &lt;!-- Item Ativo --&gt;
+  &lt;button class="m3-nav-item active" aria-label="Início"&gt;
+    &lt;div class="m3-nav-pill"&gt;
+      &lt;span class="material-symbols-rounded filled"&gt;home&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;span class="m3-nav-label"&gt;Início&lt;/span&gt;
+  &lt;/button&gt;
+
+  &lt;!-- Item Inativo --&gt;
+  &lt;button class="m3-nav-item" aria-label="Ordens"&gt;
+    &lt;div class="m3-nav-pill"&gt;
+      &lt;span class="material-symbols-rounded"&gt;assignment&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;span class="m3-nav-label"&gt;Ordens&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/nav&gt;
+
+&lt;!-- Material Design 3: Modal Bottom Sheet --&gt;
+&lt;div class="m3-bottom-sheet-scrim"&gt;&lt;/div&gt;
+&lt;div class="m3-bottom-sheet"&gt;
+  &lt;!-- Drag handle (32dp x 4dp) --&gt;
+  &lt;div class="m3-drag-handle"&gt;&lt;/div&gt;
+  &lt;div class="m3-sheet-content"&gt;
+    &lt;h3&gt;Ações Rápidas&lt;/h3&gt;
+    &lt;!-- Ações contextuais --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+
+        <!-- Code Block 2: CSS Tokens -->
+        <div id="codeCssContainer" class="hidden">
+          <pre class="bg-slate-900 text-slate-200 p-4 rounded-2xl text-xs font-mono overflow-x-auto leading-relaxed"><code id="codeCss">/* Material 3 Design Tokens (Light Baseline) */
+:root {
+  --md-sys-color-primary: #00658f;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #c7e7ff;
+  --md-sys-color-secondary-container: #cde7ec;
+  --md-sys-color-on-secondary-container: #051f23;
+  --md-sys-color-surface: #f8fafd;
+  --md-sys-color-surface-container: #eceef1;
+  --md-sys-color-surface-container-low: #f2f4f7;
+  --md-sys-color-outline-variant: #c0c8cc;
+  --md-sys-color-scrim: rgba(0, 0, 0, 0.4);
+}
+
+/* 1. M3 Navigation Bar: 80dp de altura oficial */
+.m3-navigation-bar {
+  display: flex;
+  height: 80px;
+  align-items: center;
+  justify-content: space-around;
+  background-color: var(--md-sys-color-surface-container);
+}
+
+.m3-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 48px;
+  min-height: 48px;
+}
+
+/* Pílula do indicador ativo (64dp x 32dp) */
+.m3-nav-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.m3-nav-item.active .m3-nav-pill {
+  background-color: var(--md-sys-color-secondary-container);
+}
+
+/* 2. M3 Modal Bottom Sheet */
+.m3-bottom-sheet {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: var(--md-sys-color-surface-container-low);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.m3-drag-handle {
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--md-sys-color-outline-variant);
+  margin: 12px auto 8px auto;
+}</code></pre>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Tab Switching: Preview vs Code
+    function switchMainTab(mode) {
+      const sectionPreview = document.getElementById('sectionPreview');
+      const sectionCode = document.getElementById('sectionCode');
+      const btnPreview = document.getElementById('btnTabPreview');
+      const btnCode = document.getElementById('btnTabCode');
+
+      if (mode === 'preview') {
+        sectionPreview.classList.remove('hidden');
+        sectionCode.classList.add('hidden');
+        btnPreview.className = "px-4 py-2 text-sm font-semibold rounded-xl bg-sky-100 text-sky-800 transition";
+        btnCode.className = "px-4 py-2 text-sm font-medium rounded-xl text-slate-600 hover:text-slate-900 transition";
+      } else {
+        sectionPreview.classList.add('hidden');
+        sectionCode.classList.remove('hidden');
+        btnCode.className = "px-4 py-2 text-sm font-semibold rounded-xl bg-sky-100 text-sky-800 transition";
+        btnPreview.className = "px-4 py-2 text-sm font-medium rounded-xl text-slate-600 hover:text-slate-900 transition";
+      }
+    }
+
+    // Code Subtabs (HTML vs CSS)
+    let currentCodeType = 'html';
+    function switchCodeSnippet(type) {
+      currentCodeType = type;
+      const htmlBox = document.getElementById('codeHtmlContainer');
+      const cssBox = document.getElementById('codeCssContainer');
+      const btnHtml = document.getElementById('btnSubHtml');
+      const btnCss = document.getElementById('btnSubCss');
+
+      if (type === 'html') {
+        htmlBox.classList.remove('hidden');
+        cssBox.classList.add('hidden');
+        btnHtml.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-100 text-sky-800";
+        btnCss.className = "px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900";
+      } else {
+        htmlBox.classList.add('hidden');
+        cssBox.classList.remove('hidden');
+        btnCss.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-100 text-sky-800";
+        btnHtml.className = "px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900";
+      }
+    }
+
+    // Copy to clipboard helper
+    function copyActiveCode() {
+      const codeId = currentCodeType === 'html' ? 'codeHtml' : 'codeCss';
+      const textToCopy = document.getElementById(codeId).innerText;
+      
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        const copyBtnText = document.getElementById('copyBtnText');
+        copyBtnText.innerText = "Copiado!";
+        setTimeout(() => {
+          copyBtnText.innerText = "Copiar Código";
+        }, 2000);
+      } catch (err) {
+        console.error('Falha ao copiar:', err);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    // M3 Navigation Bar Active State Toggle
+    function selectNavItem(buttonElement, key) {
+      const allItems = document.querySelectorAll('.m3-nav-item');
+      allItems.forEach(item => {
+        item.classList.remove('active');
+        const icon = item.querySelector('.material-symbols-rounded');
+        if (icon) icon.classList.remove('filled');
+      });
+
+      buttonElement.classList.add('active');
+      const activeIcon = buttonElement.querySelector('.material-symbols-rounded');
+      if (activeIcon) activeIcon.classList.add('filled');
+    }
+
+    // Modal Bottom Sheet Controller
+    function openBottomSheet(customTitle) {
+      const scrim = document.getElementById('bottomSheetScrim');
+      const sheet = document.getElementById('bottomSheetContent');
+      const container = document.getElementById('modalBottomSheetContainer');
+      const titleElem = document.getElementById('bottomSheetTitle');
+
+      if (customTitle && titleElem) {
+        titleElem.innerText = customTitle;
+      }
+
+      container.classList.remove('pointer-events-none');
+      scrim.classList.remove('opacity-0');
+      scrim.classList.add('opacity-100');
+      sheet.classList.remove('closed');
+    }
+
+    function closeBottomSheet() {
+      const scrim = document.getElementById('bottomSheetScrim');
+      const sheet = document.getElementById('bottomSheetContent');
+      const container = document.getElementById('modalBottomSheetContainer');
+
+      scrim.classList.add('opacity-0');
+      scrim.classList.remove('opacity-100');
+      sheet.classList.add('closed');
+
+      setTimeout(() => {
+        container.classList.add('pointer-events-none');
+      }, 300);
+    }
+
+    // Toast notification for user actions
+    function triggerAction(actionName) {
+      closeBottomSheet();
+      const toast = document.getElementById('actionToast');
+      toast.innerText = `Ação executada: ${actionName}`;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2500);
+    }
+
+    // Basic touch gesture support on sheet drag handle
+    let touchStartY = 0;
+    const dragHandle = document.getElementById('sheetDragHandle');
+    
+    if (dragHandle) {
+      dragHandle.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      dragHandle.addEventListener('touchmove', (e) => {
+        const touchCurrentY = e.touches[0].clientY;
+        if (touchCurrentY - touchStartY > 60) {
+          closeBottomSheet();
+        }
+      }, { passive: true });
+    }
+  </script>
+</body>
+</html>

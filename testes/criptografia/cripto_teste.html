@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>cripto_teste - Laboratório de Criptografia AES-GCM SSVP</title>
+
+  <!-- Google Fonts: Montserrat e EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Estilo Base Compartilhado -->
+  <link rel="stylesheet" href="../app/css/base.css">
+
+  <style>
+    /* Sobrescrita de overflow herdado de base.css para permitir rolagem fluida */
+    html, body {
+      width: 100% !important;
+      height: auto !important;
+      min-height: 100% !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body {
+      background-color: var(--ssvp-bg, #0b0f19);
+      color: var(--ssvp-text, #f3f4f6);
+      font-family: var(--font-interface, 'Montserrat', Arial, sans-serif);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+      box-sizing: border-box;
+    }
+
+    /* Barra Superior com Identificação de Versão */
+    .barra-topo-versao {
+      width: 100%;
+      max-width: 54rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--ssvp-text-muted, #94a3b8);
+      border-bottom: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.12));
+      margin-bottom: 1.5rem;
+    }
+
+    .badge-ambiente {
+      background: rgba(13, 148, 136, 0.18);
+      color: #2dd4bf;
+      padding: 0.2rem 0.55rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      border: 1px solid rgba(45, 212, 191, 0.3);
+    }
+
+    /* Container Principal */
+    .container-principal {
+      width: 100%;
+      max-width: 54rem;
+      background: var(--ssvp-surface-card, #121929);
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.12));
+      border-radius: 1rem;
+      padding: 1.75rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    .cabecalho-principal {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .titulo-principal {
+      font-family: var(--font-titulos, 'EB Garamond', Georgia, serif);
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--ssvp-white, #ffffff);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .descricao-principal {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--ssvp-text-muted, #94a3b8);
+      max-width: 40rem;
+    }
+
+    .btn-link-voltar {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #1e293b;
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.18));
+      color: #e2e8f0;
+      padding: 0.6rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-link-voltar:hover {
+      background: #283548;
+      color: #ffffff;
+    }
+
+    /* Painéis de Etapas */
+    .card-etapa {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.08));
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .titulo-etapa {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-numero {
+      background: var(--ssvp-blue, #0064b6);
+      color: #ffffff;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .rotulo-campo {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 0.35rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .campo-texto {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      font-family: var(--font-interface, 'Montserrat', Arial, sans-serif);
+      background: #060911;
+      color: #f1f5f9;
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.15));
+      border-radius: 0.5rem;
+      box-sizing: border-box;
+      resize: vertical;
+      min-height: 5rem;
+    }
+
+    .select-estilizado {
+      width: 100%;
+      height: 3rem;
+      padding: 0.6rem 0.85rem;
+      font-size: 0.95rem;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-weight: 600;
+      background: #060911;
+      color: #38bdf8;
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.15));
+      border-radius: 0.5rem;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+
+    .select-estilizado:focus {
+      outline: none;
+      border-color: var(--ssvp-blue-hover, #0077da);
+    }
+
+    .btn-acao {
+      min-height: 3rem;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      font-family: var(--font-interface, 'Montserrat', Arial, sans-serif);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      transition: all 0.2s ease;
+      margin-top: 0.75rem;
+    }
+
+    .btn-acao:active {
+      transform: scale(0.98);
+    }
+
+    .btn-cifrar {
+      background: var(--ssvp-blue, #0064b6);
+      color: #ffffff;
+      width: 100%;
+    }
+
+    .btn-cifrar:hover {
+      background: var(--ssvp-blue-hover, #0077da);
+    }
+
+    /* Exibição do Dado Cifrado */
+    .painel-cifrado {
+      background: #060911;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .painel-cifrado.ativo {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .detalhe-tecnico {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      word-break: break-all;
+      background: #0a0f1d;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      margin-top: 0.35rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Seção de Teste Comparativo (Dois Cards Lado a Lado) */
+    .grid-testes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 680px) {
+      .grid-testes {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card-teste-sucesso {
+      background: rgba(21, 128, 61, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-teste-falha {
+      background: rgba(220, 38, 38, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .titulo-card-teste {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .titulo-sucesso {
+      color: #4ade80;
+    }
+
+    .titulo-falha {
+      color: #f87171;
+    }
+
+    .descricao-card-teste {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: #cbd5e1;
+      margin-bottom: 0.75rem;
+    }
+
+    .btn-decifrar-sucesso {
+      background: #15803d;
+      color: #ffffff;
+      width: 100%;
+    }
+
+    .btn-decifrar-sucesso:hover {
+      background: #16a34a;
+    }
+
+    .btn-decifrar-falha {
+      background: #b91c1c;
+      color: #ffffff;
+      width: 100%;
+    }
+
+    .btn-decifrar-falha:hover {
+      background: #dc2626;
+    }
+
+    .caixa-resultado {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      display: none;
+    }
+
+    .caixa-resultado.ativo {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .resultado-sucesso {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid #22c55e;
+      color: #dcfce7;
+    }
+
+    .resultado-falha {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #fee2e2;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Barra Superior com Versão -->
+  <header class="barra-topo-versao">
+    <span>testes/criptografia/cripto_teste.html <strong>v1.1.0</strong></span>
+    <span class="badge-ambiente">Laboratório Criptográfico AES-GCM</span>
+  </header>
+
+  <!-- Container Principal -->
+  <main class="container-principal" role="main">
+    <div class="cabecalho-principal">
+      <div>
+        <h1 class="titulo-principal">
+          <span>🧪</span> Laboratório de Criptografia AES-GCM
+        </h1>
+        <p class="descricao-principal">
+          Demonstração do isolamento criptográfico da SSVP: Criptografe um dado de família assistida com a chave de um Conselho e comprove que conselhos vizinhos são bloqueados.
+        </p>
+      </div>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <a href="cripto_pessoas.html" class="btn-link-voltar" style="background:var(--ssvp-blue); color:#ffffff; border-color:transparent;">
+          <span>👥</span> Ver Pessoas LGPD
+        </a>
+        <a href="cripto_gerador.html" class="btn-link-voltar">
+          <span>⚙️</span> Gestor de Chaves
+        </a>
+      </div>
+    </div>
+
+    <!-- Etapa 1: Entrada do Dado Sensível -->
+    <section class="card-etapa">
+      <h2 class="titulo-etapa">
+        <span class="badge-numero">1</span> Registro Sensível de Exemplo (LGPD)
+      </h2>
+      <div class="rotulo-campo">
+        <label for="texto-original">Conteúdo da Visita Domiciliar (Texto Plano):</label>
+        <span id="contador-chars" style="font-size:0.75rem; color:#94a3b8;"></span>
+      </div>
+      <textarea id="texto-original" class="campo-texto" rows="3" spellcheck="false">Assistida: Maria José da Silva • Bairro: Vila Mariana • Renda: R$ 450,00 • Composição: 3 filhos • Relato: Visita realizada pela dupla de vicentinos em 16/10/2026. Entregue cesta de alimentos e agendado acompanhamento escolar.</textarea>
+    </section>
+
+    <!-- Etapa 2: Criptografia com a Chave de Origem -->
+    <section class="card-etapa">
+      <h2 class="titulo-etapa">
+        <span class="badge-numero">2</span> Criptografar Registro com Chave do Conselho de Origem
+      </h2>
+      <div class="rotulo-campo">
+        <label for="select-chave-origem">Selecione o Conselho Titular da Conferência:</label>
+      </div>
+      <select id="select-chave-origem" class="select-estilizado" aria-label="Conselho de Origem"></select>
+
+      <button type="button" id="btn-executar-cifra" class="btn-acao btn-cifrar">
+        <span>🔐</span> Criptografar com AES-GCM (256 bits)
+      </button>
+
+      <!-- Detalhes do Bloco Cifrado Gerado -->
+      <div id="painel-cifrado" class="painel-cifrado">
+        <div class="rotulo-campo">
+          <span>IV Único Aleatório (12 bytes / 24 hex):</span>
+        </div>
+        <div id="saida-iv" class="detalhe-tecnico">—</div>
+
+        <div class="rotulo-campo" style="margin-top:0.75rem;">
+          <span>Ciphertext com Tag de Autenticação GCM (Base64):</span>
+        </div>
+        <div id="saida-ciphertext" class="detalhe-tecnico" style="color:#38bdf8;">—</div>
+      </div>
+    </section>
+
+    <!-- Etapa 3: Prova dos 9 (Comparativo Visual) -->
+    <section>
+      <h2 class="titulo-etapa">
+        <span class="badge-numero">3</span> Validação de Acesso & Isolamento Criptográfico
+      </h2>
+
+      <div class="grid-testes">
+        <!-- Card 1: Descriptografia Autorizada -->
+        <div class="card-teste-sucesso">
+          <div>
+            <h3 class="titulo-card-teste titulo-sucesso">
+              <span>✅</span> Teste 1: Mesma Chave (Autorizado)
+            </h3>
+            <p class="descricao-card-teste">
+              Descriptografa o registro utilizando exatamente a mesma chave do Conselho que cifrou o dado.
+            </p>
+          </div>
+
+          <div>
+            <button type="button" id="btn-testar-sucesso" class="btn-acao btn-decifrar-sucesso" disabled>
+              <span>🔓</span> Descriptografar Registro
+            </button>
+            <div id="resultado-sucesso" class="caixa-resultado resultado-sucesso"></div>
+          </div>
+        </div>
+
+        <!-- Card 2: Tentativa Não Autorizada -->
+        <div class="card-teste-falha">
+          <div>
+            <h3 class="titulo-card-teste titulo-falha">
+              <span>🚫</span> Teste 2: Outro Conselho (Bloqueado)
+            </h3>
+            <p class="descricao-card-teste">
+              Tenta descriptografar utilizando a chave de outro Conselho. O AES-GCM deve rejeitar a operação.
+            </p>
+            <div class="rotulo-campo">
+              <label for="select-chave-outra">Chave Incompatível:</label>
+            </div>
+            <select id="select-chave-outra" class="select-estilizado" style="color:#f87171;" aria-label="Chave de outro conselho"></select>
+          </div>
+
+          <div>
+            <button type="button" id="btn-testar-falha" class="btn-acao btn-decifrar-falha" disabled>
+              <span>⚠️</span> Tentar com Outra Chave
+            </button>
+            <div id="resultado-falha" class="caixa-resultado resultado-falha"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /**
+     * @fileoverview Laboratório interativo de validação criptográfica AES-GCM 256 bits.
+     * Módulo: testes/app/cripto_teste.html
+     */
+    'use strict';
+
+    const DB_NAME = 'webappssvp_db';
+    const DB_VERSION = 3;
+    const STORE_CONFIG = 'config_conferencia';
+
+    // Chaves padrão de fallback caso o IndexedDB ainda não tenha sido populado
+    const CHAVES_FALLBACK = {
+      'CHA-SP-SUD': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      'CHA-SP-LES': '4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945',
+      'CHA-SP-OES': '7d4a23b9f1a0e8c75d2e619b04f38a129487c53e8102d9b64c3f5a7e1920bd81',
+      'CHA-BH-BHO': '91b84e720c6a51d38f2940e57c13b69204a8e75d19c3b8204f7a51c938e02d47',
+      'CHA-BH-STA': '18f2a93c840d1e57c29b47e8103d928405a7e93c12b840e57c19a8204f5e71c9',
+      'CHA-BH-STL': '63a8e104f92d7b51c8204e957a13c82940e75d19b3840e57c29a8104f5e92d71'
+    };
+
+    let mapaChaves = {};
+    let estadoCripto = {
+      idOrigem: '',
+      ivHex: '',
+      ciphertextBase64: ''
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const textoOriginal = document.getElementById('texto-original');
+      const selectChaveOrigem = document.getElementById('select-chave-origem');
+      const selectChaveOutra = document.getElementById('select-chave-outra');
+      const btnExecutarCifra = document.getElementById('btn-executar-cifra');
+      const painelCifrado = document.getElementById('painel-cifrado');
+      const saidaIv = document.getElementById('saida-iv');
+      const saidaCiphertext = document.getElementById('saida-ciphertext');
+      const btnTestarSucesso = document.getElementById('btn-testar-sucesso');
+      const resultadoSucesso = document.getElementById('resultado-sucesso');
+      const btnTestarFalha = document.getElementById('btn-testar-falha');
+      const resultadoFalha = document.getElementById('resultado-falha');
+
+      // ========================================================================
+      // 1. CARREGAMENTO DAS CHAVES (INDEXEDDB OU FALLBACK)
+      // ========================================================================
+
+      async function carregarChaves() {
+        try {
+          const chavesDb = await lerChavesIndexedDb();
+          if (chavesDb && chavesDb.length > 0) {
+            mapaChaves = {};
+            chavesDb.forEach((it) => {
+              const id = it.chave || it.id_chave;
+              if (id && it.chave_hex) {
+                mapaChaves[id] = it.chave_hex;
+              }
+            });
+          } else {
+            mapaChaves = { ...CHAVES_FALLBACK };
+          }
+        } catch (err) {
+          mapaChaves = { ...CHAVES_FALLBACK };
+        }
+
+        popularSelects();
+      }
+
+      function lerChavesIndexedDb() {
+        return new Promise((resolve) => {
+          const req = indexedDB.open(DB_NAME, DB_VERSION);
+          req.onerror = () => resolve([]);
+          req.onsuccess = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains(STORE_CONFIG)) {
+              return resolve([]);
+            }
+            const tx = db.transaction([STORE_CONFIG], 'readonly');
+            const store = tx.objectStore(STORE_CONFIG);
+            const getReq = store.getAll();
+            getReq.onsuccess = () => {
+              const itens = getReq.result || [];
+              const chaves = itens.filter(
+                (it) => it.tipo === 'chave_criptografia_cc' || (typeof it.chave === 'string' && it.chave.startsWith('CHA-'))
+              );
+              resolve(chaves);
+            };
+            getReq.onerror = () => resolve([]);
+          };
+        });
+      }
+
+      function popularSelects() {
+        selectChaveOrigem.innerHTML = '';
+        selectChaveOutra.innerHTML = '';
+
+        const ids = Object.keys(mapaChaves);
+
+        ids.forEach((id, index) => {
+          const opt1 = document.createElement('option');
+          opt1.value = id;
+          opt1.textContent = `${id} (${id.includes('SUD') ? 'São Paulo Sudeste' : id.includes('OES') ? 'São Paulo Oeste' : 'Conselho'})`;
+          selectChaveOrigem.appendChild(opt1);
+
+          const opt2 = document.createElement('option');
+          opt2.value = id;
+          opt2.textContent = `${id} (Conselho Comparativo)`;
+          selectChaveOutra.appendChild(opt2);
+        });
+
+        // Configura padrões diferentes para facilitar o teste
+        if (ids.length >= 2) {
+          selectChaveOrigem.selectedIndex = 0;
+          selectChaveOutra.selectedIndex = 1; // Outro conselho
+        }
+      }
+
+      // ========================================================================
+      // 2. MOTOR CRIPTOGRÁFICO NATIVO (WEB CRYPTO API: AES-GCM 256 bits)
+      // ========================================================================
+
+      /**
+       * Converte string Hexadecimal para Uint8Array.
+       * @param {string} hex
+       * @return {Uint8Array}
+       */
+      function hexParaBytes(hex) {
+        const bytes = new Uint8Array(hex.length / 2);
+        for (let i = 0; i < hex.length; i += 2) {
+          bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
+        }
+        return bytes;
+      }
+
+      /**
+       * Importa uma chave Hexadecimal de 64 caracteres como CryptoKey AES-GCM.
+       * @param {string} hexKey
+       * @return {Promise<CryptoKey>}
+       */
+      async function importarChaveHex(hexKey) {
+        const rawBytes = hexParaBytes(hexKey);
+        return await window.crypto.subtle.importKey(
+          'raw',
+          rawBytes,
+          { name: 'AES-GCM' },
+          false,
+          ['encrypt', 'decrypt']
+        );
+      }
+
+      /**
+       * Cifra texto plano utilizando AES-GCM com IV aleatório de 12 bytes.
+       * @param {string} texto
+       * @param {string} hexKey
+       * @return {Promise<{ivHex: string, ciphertextBase64: string}>}
+       */
+      async function cifrarTexto(texto, hexKey) {
+        const cryptoKey = await importarChaveHex(hexKey);
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+        const dadosCodificados = new TextEncoder().encode(texto);
+
+        const cipherBuffer = await window.crypto.subtle.encrypt(
+          { name: 'AES-GCM', iv },
+          cryptoKey,
+          dadosCodificados
+        );
+
+        const ivHex = Array.from(iv, (b) => b.toString(16).padStart(2, '0')).join('');
+        const cipherBase64 = btoa(String.fromCharCode(...new Uint8Array(cipherBuffer)));
+
+        return { ivHex, ciphertextBase64: cipherBase64 };
+      }
+
+      /**
+       * Decifra texto Base64 utilizando AES-GCM e verifica tag de autenticação.
+       * @param {string} cipherBase64
+       * @param {string} ivHex
+       * @param {string} hexKey
+       * @return {Promise<string>}
+       */
+      async function decifrarTexto(cipherBase64, ivHex, hexKey) {
+        const cryptoKey = await importarChaveHex(hexKey);
+        const iv = hexParaBytes(ivHex);
+        const cipherBytes = Uint8Array.from(atob(cipherBase64), (c) => c.charCodeAt(0));
+
+        const decifradoBuffer = await window.crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv },
+          cryptoKey,
+          cipherBytes
+        );
+
+        return new TextDecoder().decode(decifradoBuffer);
+      }
+
+      // ========================================================================
+      // 3. FLUXO DE TESTES INTERATIVOS
+      // ========================================================================
+
+      // Ação: Criptografar
+      btnExecutarCifra.addEventListener('click', async () => {
+        const texto = textoOriginal.value.trim();
+        const idOrigem = selectChaveOrigem.value;
+        const hexKey = mapaChaves[idOrigem];
+
+        if (!texto) {
+          alert('Por favor, informe o texto do registro.');
+          return;
+        }
+
+        if (!hexKey) {
+          alert(`Chave para "${idOrigem}" não encontrada.`);
+          return;
+        }
+
+        try {
+          const res = await cifrarTexto(texto, hexKey);
+          estadoCripto.idOrigem = idOrigem;
+          estadoCripto.ivHex = res.ivHex;
+          estadoCripto.ciphertextBase64 = res.ciphertextBase64;
+
+          saidaIv.textContent = res.ivHex;
+          saidaCiphertext.textContent = res.ciphertextBase64;
+          painelCifrado.classList.add('ativo');
+
+          // Habilita os botões dos testes comparativos
+          btnTestarSucesso.disabled = false;
+          btnTestarFalha.disabled = false;
+          btnTestarSucesso.innerHTML = `<span>🔓</span> Descriptografar com ${idOrigem}`;
+
+          // Limpa resultados anteriores
+          resultadoSucesso.classList.remove('ativo');
+          resultadoFalha.classList.remove('ativo');
+
+          // Ajusta a chave do teste 2 para ser diferente da chave de origem
+          const ids = Object.keys(mapaChaves);
+          const outroId = ids.find((id) => id !== idOrigem) || idOrigem;
+          selectChaveOutra.value = outroId;
+        } catch (err) {
+          alert(`Erro na criptografia: ${err.message}`);
+        }
+      });
+
+      // Teste 1: Descriptografar com a Mesma Chave (Autorizado)
+      btnTestarSucesso.addEventListener('click', async () => {
+        if (!estadoCripto.ciphertextBase64) return;
+
+        const hexKey = mapaChaves[estadoCripto.idOrigem];
+
+        try {
+          const textoRecuperado = await decifrarTexto(
+            estadoCripto.ciphertextBase64,
+            estadoCripto.ivHex,
+            hexKey
+          );
+
+          resultadoSucesso.innerHTML = `
+            <strong>✅ Autenticação Criptográfica com Sucesso!</strong><br>
+            <span style="font-size:0.78rem; color:#86efac;">Tag de autenticação AES-GCM verificada com a chave ${estadoCripto.idOrigem}.</span><br><br>
+            <strong>Dado Restaurado:</strong><br>
+            <em>"${textoRecuperado}"</em>
+          `;
+          resultadoSucesso.classList.add('ativo');
+        } catch (err) {
+          resultadoSucesso.innerHTML = `<strong>Falha inesperada:</strong> ${err.message}`;
+          resultadoSucesso.classList.add('ativo');
+        }
+      });
+
+      // Teste 2: Tentar com Outra Chave (Bloqueado)
+      btnTestarFalha.addEventListener('click', async () => {
+        if (!estadoCripto.ciphertextBase64) return;
+
+        const idOutro = selectChaveOutra.value;
+        const hexOutro = mapaChaves[idOutro];
+
+        if (idOutro === estadoCripto.idOrigem) {
+          alert('Para testar a rejeição criptográfica, selecione um Conselho diferente daquele que cifrou o dado.');
+          return;
+        }
+
+        try {
+          await decifrarTexto(
+            estadoCripto.ciphertextBase64,
+            estadoCripto.ivHex,
+            hexOutro
+          );
+
+          // Se passar (não deveria acontecer), exibe aviso
+          resultadoFalha.innerHTML = `⚠️ Inesperado: os dados foram abertos (verifique se as chaves são idênticas).`;
+          resultadoFalha.classList.add('ativo');
+        } catch (err) {
+          // Erro esperado (OperationError: tag mismatch)
+          resultadoFalha.innerHTML = `
+            <strong>🛡️ ACESSO BLOQUEADO PELO AES-GCM!</strong><br>
+            <span style="font-size:0.78rem; color:#fca5a5;">
+              Erro retornado pela Web Crypto API: <code>${err.name}: ${err.message || 'Tag de autenticação MAC incompatível'}</code>
+            </span><br><br>
+            <strong>Conclusão de Segurança:</strong><br>
+            A chave do conselho <strong>${idOutro}</strong> não é capaz de decifrar os registros do conselho <strong>${estadoCripto.idOrigem}</strong>. 
+            O isolamento entre unidades vicentinas está matematicamente garantido em conformidade com a LGPD.
+          `;
+          resultadoFalha.classList.add('ativo');
+        }
+      });
+
+      // Inicialização
+      await carregarChaves();
+    });
+  </script>
+</body>
+
+</html>

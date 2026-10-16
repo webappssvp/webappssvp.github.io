@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>T1: Modo Relato de Visita — Material Design SSVP</title>
+
+  <!-- Google Fonts: Montserrat (Interface M3) e EB Garamond (Marca Institucional SSVP) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. TOKENS DO SISTEMA DE DESIGN (SSVP + MATERIAL DESIGN 3)
+       ========================================================================== */
+    :root {
+      /* Cores Oficiais da Marca SSVP */
+      --ssvp-blue: #0064B6;
+      --ssvp-blue-dark: #004177;
+      --ssvp-blue-light: #38bdf8;
+      --ssvp-red: #E00512;
+      --ssvp-red-dark: #99000a;
+      --ssvp-red-light: #ef4444;
+
+      /* Ações e Estados M3 */
+      --md-secondary: #007fff;
+      --md-success: #15803d;
+      --md-success-light: #86efac;
+      --md-amber: #d97706;
+      --md-amber-light: #fde047;
+
+      /* Superfícies no Modo Noturno (Padrão de Campo) */
+      --md-surface-0: #0b0f19;        /* Nível 0: Fundo da Página */
+      --md-surface-1: #151d2f;        /* Nível 1: Cards e Seções */
+      --md-surface-2: #1b263d;        /* Nível 2: Barras Fixas */
+      --md-surface-3: #22304d;        /* Nível 3: Modais e Gavetas */
+
+      --md-on-surface: #f1f5f9;       /* Texto Principal */
+      --md-on-surface-variant: #94a3b8; /* Texto Secundário */
+      --md-border-subtle: rgba(255, 255, 255, 0.08);
+      --md-border-soft: rgba(255, 255, 255, 0.14);
+      --md-border-strong: rgba(255, 255, 255, 0.22);
+
+      /* Sombras e Elevação M3 */
+      --md-elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
+      --md-elevation-2: 0 4px 8px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+      --md-elevation-3: 0 12px 24px -4px rgba(0, 0, 0, 0.45), 0 4px 8px -2px rgba(0, 0, 0, 0.3);
+
+      /* Safe Areas Multiplataforma (iOS & Android) */
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+      /* Tipografias Padronizadas */
+      --font-ui: 'Montserrat', Arial, sans-serif;
+      --font-brand: 'EB Garamond', Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--md-surface-0);
+      color: var(--md-on-surface);
+      font-family: var(--font-ui);
+      height: 100vh;
+      height: 100dvh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Prevenção de Zoom no iOS/Safari */
+    input, textarea, select, button {
+      font-family: var(--font-ui);
+      font-size: 1rem;
+    }
+
+    /* ==========================================================================
+       2. BARRA SUPERIOR INSTITUCIONAL (COM METAMORFOSE PARA MODO RELATO)
+       ========================================================================== */
+    .app-header {
+      position: relative;
+      background-color: var(--md-surface-2);
+      border-bottom: 1px solid var(--md-border-subtle);
+      padding-top: calc(0.55rem + var(--safe-top));
+      padding-bottom: 0.55rem;
+      padding-left: 0.9rem;
+      padding-right: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      box-shadow: var(--md-elevation-2);
+      z-index: 60;
+      flex-shrink: 0;
+      min-height: calc(3.8rem + var(--safe-top));
+      transition: background-color 0.3s ease, min-height 0.3s ease, padding 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Logo Institucional SSVP */
+    .header-logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 2.6rem;
+      height: 2.6rem;
+    }
+
+    .header-logo-img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+    }
+
+    /* Título e Subtítulo Institucional */
+    .header-title-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .header-conf-name {
+      font-family: var(--font-brand);
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.01em;
+    }
+
+    .header-sub-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-top: 0.15rem;
+    }
+
+    .header-cp-name {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--md-on-surface-variant);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-version-pill {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background-color: rgba(0, 127, 255, 0.15);
+      color: var(--ssvp-blue-light);
+      border: 1px solid rgba(0, 127, 255, 0.3);
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    /* Botão de 3 Pontos Verticais (Overflow Menu) */
+    .btn-header-overflow {
+      width: 3rem;
+      height: 3rem;
+      background: transparent;
+      border: none;
+      color: var(--md-on-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-header-overflow:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-header-overflow:active {
+      transform: scale(0.92);
+      background-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .btn-header-overflow img,
+    .btn-header-overflow svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      fill: currentColor;
+    }
+
+    /* ==========================================================================
+       3. METAMORFOSE: BARRA SUPERIOR COMO ÁREA DE TOQUE CEGO NO MODO RELATO
+       ========================================================================== */
+    body.modo-relato-ativo .app-header {
+      background-color: #041d3b;
+      border-bottom: 2px solid var(--ssvp-blue);
+      padding: calc(0.7rem + var(--safe-top)) 1rem 0.85rem 1rem;
+      min-height: calc(5.2rem + var(--safe-top));
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0, 100, 182, 0.4);
+    }
+
+    /* Estado de Gravação Ativa na Barra Superior */
+    body.modo-relato-ativo.gravando-ativo .app-header {
+      background-color: #6d0a11 !important;
+      border-bottom-color: var(--ssvp-red) !important;
+      box-shadow: 0 4px 25px rgba(224, 5, 18, 0.65) !important;
+      animation: pulsoBarraGravando 1.4s infinite ease-in-out;
+    }
+
+    @keyframes pulsoBarraGravando {
+      0%, 100% {
+        background-color: #7f0d15;
+        box-shadow: 0 4px 20px rgba(224, 5, 18, 0.5);
+      }
+      50% {
+        background-color: #990e18;
+        box-shadow: 0 6px 30px rgba(239, 68, 68, 0.8);
+      }
+    }
+
+    /* Container Interno da Área de Toque Cego */
+    .barra-toque-container {
+      display: none;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      touch-action: manipulation;
+    }
+
+    body.modo-relato-ativo .header-normal-conteudo {
+      display: none !important;
+    }
+
+    body.modo-relato-ativo .barra-toque-container {
+      display: flex !important;
+    }
+
+    .toque-icone-box {
+      width: 3.4rem;
+      height: 3.4rem;
+      border-radius: 50%;
+      background: rgba(0, 127, 255, 0.25);
+      border: 2px solid var(--ssvp-blue-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .toque-icone-box img,
+    .toque-icone-box svg {
+      width: 1.85rem;
+      height: 1.85rem;
+      fill: #ffffff;
+      filter: brightness(0) invert(1);
+    }
+
+    body.gravando-ativo .toque-icone-box {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: #ffffff;
+      animation: pulsoIconeGravando 1s infinite alternate;
+    }
+
+    @keyframes pulsoIconeGravando {
+      from { transform: scale(0.96); }
+      to { transform: scale(1.08); }
+    }
+
+    .toque-textos {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .toque-titulo {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
+    .toque-instrucao {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      margin-top: 0.2rem;
+      font-weight: 500;
+    }
+
+    .toque-timer-pill {
+      background-color: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.05em;
+      display: none;
+      align-items: center;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    body.gravando-ativo .toque-timer-pill {
+      display: inline-flex !important;
+      background-color: #000000;
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    .ponto-vermelho-grav {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #ef4444;
+      animation: piscarPonto 0.8s infinite;
+    }
+
+    @keyframes piscarPonto {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    /* Feedback de Toque Segurado (Barra de Progresso 350ms) */
+    .barra-progresso-hold {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8, #ffffff);
+      transition: width 0.35s linear;
+      z-index: 65;
+    }
+
+    .barra-progresso-hold.carregando {
+      width: 100%;
+    }
+
+    /* ==========================================================================
+       4. ÁREA CENTRAL (DISPLAY AREA: FORMULÁRIO OU LISTA DE TRECHOS)
+       ========================================================================== */
+    .display-area {
+      flex: 1 1 0%;
+      min-height: 0;
+      width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
+      padding: 1rem 0.9rem calc(6.8rem + var(--safe-bottom)) 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .display-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .display-area::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+    }
+
+    /* Containers de Estado */
+    .container-modo-normal,
+    .container-modo-relato {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    body.modo-relato-ativo .container-modo-normal {
+      display: none !important;
+    }
+
+    .container-modo-relato {
+      display: none;
+    }
+
+    body.modo-relato-ativo .container-modo-relato {
+      display: flex !important;
+    }
+
+    /* ==========================================================================
+       5. COMPONENTES DO MODO NORMAL (FORMULÁRIO DE VISITA SIMILAR A T5)
+       ========================================================================== */
+    .md-card {
+      background-color: var(--md-surface-1);
+      border: 1px solid var(--md-border-soft);
+      border-radius: 1.25rem;
+      padding: 1.15rem;
+      box-shadow: var(--md-elevation-1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      width: 100%;
+      transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card-familia-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .chip-status-visita {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background-color: rgba(0, 127, 255, 0.18);
+      color: #93c5fd;
+      border: 1px solid rgba(0, 127, 255, 0.4);
+    }
+
+    .card-titulo {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.25;
+    }
+
+    .card-detalhes {
+      font-size: 0.85rem;
+      color: var(--md-on-surface-variant);
+      line-height: 1.4;
+    }
+
+    .banner-convite-relato {
+      background: linear-gradient(135deg, rgba(0, 100, 182, 0.3) 0%, rgba(21, 29, 47, 0.95) 100%);
+      border: 1.5px solid var(--ssvp-blue-light);
+      border-radius: 1.25rem;
+      padding: 1.2rem;
+      box-shadow: 0 4px 16px rgba(0, 100, 182, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .banner-convite-titulo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .banner-convite-desc {
+      font-size: 0.86rem;
+      color: var(--md-on-surface-variant);
+      line-height: 1.45;
+    }
+
+    .btn-entrar-relato-banner {
+      background: linear-gradient(135deg, var(--ssvp-blue) 0%, #0284c7 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      padding: 0.85rem 1.2rem;
+      border-radius: 0.9rem;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      box-shadow: 0 4px 12px rgba(0, 100, 182, 0.4);
+      min-height: 3rem;
+      transition: transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-entrar-relato-banner:active {
+      transform: scale(0.96);
+    }
+
+    .btn-entrar-relato-banner img,
+    .btn-entrar-relato-banner svg {
+      width: 1.4rem;
+      height: 1.4rem;
+      filter: brightness(0) invert(1);
+    }
+
+    /* Campos de Formulário Normais */
+    .grupo-campo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .label-campo {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--md-on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .campo-texto {
+      background-color: var(--md-surface-0);
+      border: 1.5px solid var(--md-border-soft);
+      border-radius: 0.85rem;
+      padding: 0.75rem 0.9rem;
+      color: var(--md-on-surface);
+      font-size: 0.92rem;
+      line-height: 1.4;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .campo-texto:focus {
+      border-color: var(--ssvp-blue-light);
+    }
+
+    /* ==========================================================================
+       6. COMPONENTES DO MODO RELATO (ESTADO VAZIO E CARDS DE TRECHOS)
+       ========================================================================== */
+    /* Estado Inicial Vazio */
+    .empty-state-relato {
+      background-color: rgba(21, 29, 47, 0.6);
+      border: 2px dashed var(--md-border-strong);
+      border-radius: 1.5rem;
+      padding: 2.4rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    .empty-state-icon {
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      background: rgba(0, 100, 182, 0.15);
+      border: 1.5px solid rgba(0, 127, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.2rem;
+    }
+
+    .empty-state-icon img,
+    .empty-state-icon svg {
+      width: 2.2rem;
+      height: 2.2rem;
+      filter: brightness(0) invert(1);
+    }
+
+    .empty-state-titulo {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .empty-state-desc {
+      font-size: 0.88rem;
+      color: var(--md-on-surface-variant);
+      line-height: 1.5;
+      max-width: 26rem;
+    }
+
+    .empty-state-dica {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(217, 119, 6, 0.15);
+      border: 1px solid rgba(217, 119, 6, 0.35);
+      color: var(--md-amber-light);
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-top: 0.4rem;
+    }
+
+    /* Lista de Trechos Gravados */
+    .lista-trechos-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      width: 100%;
+    }
+
+    /* Card de Trecho de Áudio M3 */
+    .card-trecho {
+      background-color: var(--md-surface-1);
+      border: 1.5px solid var(--md-border-strong);
+      border-radius: 1.2rem;
+      padding: 1rem 1.15rem;
+      box-shadow: var(--md-elevation-2);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      touch-action: pan-y;
+      animation: animarEntradaCard 0.25s cubic-bezier(0, 0, 0.2, 1);
+      transition: border-color 0.2s ease, transform 0.15s ease, background-color 0.2s ease;
+    }
+
+    @keyframes animarEntradaCard {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-trecho:hover {
+      border-color: var(--ssvp-blue-light);
+    }
+
+    .card-trecho:active {
+      transform: scale(0.985);
+    }
+
+    .card-trecho.em-reproducao {
+      border-color: #22c55e !important;
+      background: linear-gradient(180deg, var(--md-surface-1) 0%, rgba(34, 197, 94, 0.1) 100%);
+      box-shadow: 0 0 0 2px #22c55e, 0 4px 16px rgba(34, 197, 94, 0.3);
+    }
+
+    .trecho-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .trecho-chip-numero {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #ffffff;
+      background-color: rgba(0, 100, 182, 0.3);
+      border: 1px solid rgba(0, 127, 255, 0.4);
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .trecho-metadados {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.78rem;
+      color: var(--md-on-surface-variant);
+      font-weight: 600;
+    }
+
+    .trecho-duracao-tag {
+      background-color: rgba(255, 255, 255, 0.08);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* Barra de Ações do Card de Trecho */
+    .trecho-acao-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-top: 0.2rem;
+      border-top: 1px solid var(--md-border-subtle);
+    }
+
+    /* Botão Play / Ouvir */
+    .btn-play-trecho {
+      flex: 1;
+      background-color: rgba(0, 127, 255, 0.12);
+      border: 1.5px solid rgba(0, 127, 255, 0.35);
+      color: #ffffff;
+      padding: 0.65rem 1rem;
+      border-radius: 0.8rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      cursor: pointer;
+      min-height: 2.9rem;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .card-trecho.em-reproducao .btn-play-trecho {
+      background-color: #15803d;
+      border-color: #22c55e;
+      color: #ffffff;
+    }
+
+    .btn-play-trecho:active {
+      transform: scale(0.95);
+    }
+
+    .btn-play-trecho svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      fill: currentColor;
+    }
+
+    /* Botão Excluir (Alvo Mínimo 48x48px) */
+    .btn-excluir-trecho {
+      width: 3rem;
+      height: 3rem;
+      min-width: 3rem;
+      min-height: 3rem;
+      background-color: rgba(220, 38, 38, 0.12);
+      border: 1.5px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      border-radius: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-excluir-trecho:hover {
+      background-color: rgba(220, 38, 38, 0.25);
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+
+    .btn-excluir-trecho:active {
+      transform: scale(0.9);
+      background-color: #dc2626;
+      color: #ffffff;
+    }
+
+    .btn-excluir-trecho svg {
+      width: 1.35rem;
+      height: 1.35rem;
+      fill: currentColor;
+    }
+
+    /* Resumo no Topo da Lista de Trechos */
+    .resumo-relato-box {
+      background: var(--md-surface-2);
+      border: 1px solid var(--md-border-soft);
+      border-radius: 1rem;
+      padding: 0.8rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.84rem;
+    }
+
+    .resumo-contagem {
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .resumo-duracao-total {
+      color: var(--md-on-surface-variant);
+      font-size: 0.8rem;
+    }
+
+    /* ==========================================================================
+       7. BARRA INFERIOR NO POLEGAR (ADAPTÁVEL AOS DOIS MODOS)
+       ========================================================================== */
+    .app-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--md-surface-2);
+      border-top: 1px solid var(--md-border-subtle);
+      padding-top: 0.5rem;
+      padding-bottom: calc(0.5rem + var(--safe-bottom));
+      padding-left: 1rem;
+      padding-right: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 0.6rem;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+      z-index: 60;
+    }
+
+    .btn-footer-lateral {
+      background-color: rgba(255, 255, 255, 0.04);
+      border: 1.5px solid var(--md-border-soft);
+      color: var(--md-on-surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+      min-width: 4.5rem;
+      height: 3.5rem;
+      padding: 0.35rem 0.55rem;
+      border-radius: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-footer-lateral:hover {
+      background-color: rgba(255, 255, 255, 0.09);
+      border-color: var(--md-secondary);
+    }
+
+    .btn-footer-lateral:active {
+      transform: scale(0.94);
+    }
+
+    .btn-footer-lateral img,
+    .btn-footer-lateral svg {
+      width: 1.45rem;
+      height: 1.45rem;
+      fill: currentColor;
+      filter: brightness(0) invert(1);
+    }
+
+    .footer-btn-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--md-on-surface-variant);
+      pointer-events: none;
+    }
+
+    /* Botão Central de Destaque: MODO RELATO */
+    .btn-footer-hub-relato {
+      flex: 1;
+      max-width: 14rem;
+      height: 3.6rem;
+      background: linear-gradient(135deg, var(--ssvp-blue) 0%, #0284c7 100%);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-radius: 1.1rem;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 100, 182, 0.45);
+      transition: transform 0.1s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-footer-hub-relato:hover {
+      box-shadow: 0 6px 18px rgba(0, 100, 182, 0.6);
+    }
+
+    .btn-footer-hub-relato:active {
+      transform: scale(0.95);
+    }
+
+    .btn-footer-hub-relato img,
+    .btn-footer-hub-relato svg {
+      width: 1.65rem;
+      height: 1.65rem;
+      filter: brightness(0) invert(1);
+    }
+
+    .hub-relato-texto-box {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .hub-relato-label {
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      line-height: 1.15;
+    }
+
+    .hub-relato-sub {
+      font-size: 0.68rem;
+      opacity: 0.85;
+      font-weight: 600;
+    }
+
+    /* Botão Sair Lateral Vermelho */
+    .btn-sair-lateral {
+      background: linear-gradient(135deg, #b91c1c 0%, var(--ssvp-red) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-sair-lateral .footer-btn-label {
+      color: #ffffff !important;
+    }
+
+    /* ==========================================================================
+       8. MODAL DE RESUMO / CONCLUSÃO DO RELATO
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .modal-overlay.visivel {
+      display: flex;
+    }
+
+    .modal-card {
+      background-color: var(--md-surface-3);
+      border: 1px solid var(--md-border-strong);
+      border-radius: 1.35rem;
+      padding: 1.35rem;
+      width: min(100%, 26rem);
+      box-shadow: var(--md-elevation-3);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      animation: surgirModal 0.2s cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    @keyframes surgirModal {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .modal-icone {
+      font-size: 1.8rem;
+    }
+
+    .modal-titulo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .modal-corpo {
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: var(--md-on-surface);
+    }
+
+    .modal-botoes-row {
+      display: flex;
+      gap: 0.65rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: 0.8rem;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      min-height: 3rem;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-modal:active {
+      transform: scale(0.96);
+    }
+
+    .btn-modal-cancelar {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--md-on-surface);
+      border: 1px solid var(--md-border-soft);
+    }
+
+    .btn-modal-confirmar {
+      background: var(--ssvp-blue);
+      color: #ffffff;
+    }
+
+    /* Toast Flutuante de Alerta */
+    .toast-aviso {
+      position: fixed;
+      bottom: calc(5.2rem + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--md-border-strong);
+      color: #ffffff;
+      padding: 0.65rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: var(--md-elevation-3);
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .toast-aviso.visivel {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ========================================================================
+       BARRA SUPERIOR INSTITUCIONAL (COM METAMORFOSE PARA ÁREA DE TOQUE CEGO)
+       ======================================================================== -->
+  <header class="app-header" id="appHeader">
+    <!-- Barra de Feedback de Hold 350ms -->
+    <div class="barra-progresso-hold" id="barraHold"></div>
+
+    <!-- 1. Conteúdo do Modo Normal -->
+    <div class="header-normal-conteudo" style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 0.75rem;">
+      <div class="header-logo-container">
+        <img class="header-logo-img" src="../../img/marca_ssvp.svg" alt="Logotipo SSVP">
+      </div>
+
+      <div class="header-title-area">
+        <h1 class="header-conf-name">Conferência São Vicente de Paulo</h1>
+        <div class="header-sub-row">
+          <span class="header-cp-name">Visita Domiciliar • Dona Neuza</span>
+          <span class="header-version-pill">t1_modo_relato.html v1.0</span>
+        </div>
+      </div>
+
+      <button type="button" class="btn-header-overflow" id="btnHeaderMenu" title="Opções" onclick="mostrarToast('Opções da visita')">
+        <img src="../../img/more_vert.svg" alt="Opções">
+      </button>
+    </div>
+
+    <!-- 2. Conteúdo da Área de Toque Cego (Ativo no Modo Relato) -->
+    <div class="barra-toque-container" id="barraToqueContainer">
+      <div class="toque-icone-box" id="toqueIconeBox">
+        <img id="imgMicToque" src="../../img/mic.svg" alt="Microfone">
+      </div>
+
+      <div class="toque-textos">
+        <span class="toque-titulo" id="lblToqueTitulo">🎙️ SEGURE PARA GRAVAR</span>
+        <span class="toque-instrucao" id="lblToqueInstrucao">Pressione firme (350ms) ou toque para iniciar</span>
+      </div>
+
+      <div class="toque-timer-pill" id="toqueTimerPill">
+        <span class="ponto-vermelho-grav"></span>
+        <span id="lblTempoGravacao">00:00</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       ÁREA CENTRAL (DISPLAY AREA)
+       ======================================================================== -->
+  <main class="display-area" id="displayArea">
+    <!-- ==================== ESTADO 1: FORMULÁRIO NORMAL ==================== -->
+    <div class="container-modo-normal" id="containerNormal">
+      <!-- Card da Família -->
+      <article class="md-card">
+        <div class="card-familia-header">
+          <span class="chip-status-visita">Em Acompanhamento Regular</span>
+          <span style="font-size: 0.78rem; color: var(--md-on-surface-variant); font-weight: 600;">Visita #12</span>
+        </div>
+        <h2 class="card-titulo">Dona Neuza Aparecida da Silva (68 anos)</h2>
+        <p class="card-detalhes">
+          Rua das Acácias, 142 — Bairro Vila Operária.<br>
+          Moram na residência: Neuza (avó) e 2 netos (Lucas, 9 e Sofia, 7 anos).
+        </p>
+      </article>
+
+      <!-- Banner de Destaque: Convite ao Modo Relato ao Sair da Casa -->
+      <section class="banner-convite-relato">
+        <div class="banner-convite-titulo">
+          <span>🎙️</span>
+          <span>Ao sair da casa: registre por voz!</span>
+        </div>
+        <p class="banner-convite-desc">
+          Evite esquecer detalhes vitais e não se exponha digitando no celular na rua.
+          Entre no <strong>Modo Relato</strong> e dita pequenos trechos com toque cego na barra superior.
+        </p>
+        <button type="button" class="btn-entrar-relato-banner" onclick="ativarModoRelato()">
+          <img src="../../img/mic.svg" alt="">
+          <span>Entrar no Modo Relato de Voz</span>
+        </button>
+      </section>
+
+      <!-- Campo 1: Pessoas Presentes -->
+      <div class="grupo-campo">
+        <label class="label-campo" for="campoPresentes">1. Pessoas Presentes no Lar:</label>
+        <textarea id="campoPresentes" class="campo-texto" rows="2" placeholder="Ex: Dona Neuza e os dois netos">Dona Neuza e os dois netos estavam na sala.</textarea>
+      </div>
+
+      <!-- Campo 2: Relato / Observações -->
+      <div class="grupo-campo">
+        <label class="label-campo" for="campoResumoVisita">2. Relato / Observações da Visita:</label>
+        <textarea id="campoResumoVisita" class="campo-texto" rows="3" placeholder="Os trechos gravados por voz aparecerão aqui após revisão"></textarea>
+      </div>
+
+      <!-- Campo 3: Encaminhamentos -->
+      <div class="grupo-campo">
+        <label class="label-campo" for="campoDemandas">3. Demandas Imediatas:</label>
+        <input type="text" id="campoDemandas" class="campo-texto" value="Cesta de alimentos entregue. Apoio escolar para os netos.">
+      </div>
+    </div>
+
+    <!-- ==================== ESTADO 2: MODO RELATO ==================== -->
+    <div class="container-modo-relato" id="containerModoRelato">
+      <!-- Resumo com Contador e Duração -->
+      <div class="resumo-relato-box" id="resumoRelatoBox">
+        <div class="resumo-contagem">
+          <span id="badgeIconeContagem">📦</span>
+          <span id="lblTotalTrechos">0 trechos gravados no cofre</span>
+        </div>
+        <div class="resumo-duracao-total" id="lblDuracaoTotal">Duração total: 00:00</div>
+      </div>
+
+      <!-- Estado Inicial Vazio (Começa Vazia) -->
+      <div class="empty-state-relato" id="emptyStateRelato">
+        <div class="empty-state-icon">
+          <img src="../../img/mic.svg" alt="">
+        </div>
+        <h3 class="empty-state-titulo">A área de conteúdo está pronta</h3>
+        <p class="empty-state-desc">
+          Toque firme na barra superior para ditar o primeiro trecho do relato ao sair da casa do assistido.
+        </p>
+        <div class="empty-state-dica">
+          <span>💡 Toque de 350ms para gravar • Toque para parar</span>
+        </div>
+      </div>
+
+      <!-- Grid com os Cards de Trechos Gravados -->
+      <div class="lista-trechos-grid" id="listaTrechosGrid">
+        <!-- Cards inseridos dinamicamente via JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       BARRA INFERIOR NO POLEGAR (ADAPTÁVEL)
+       ======================================================================== -->
+  <footer class="app-footer" id="appFooter">
+    <!-- Botão Esquerdo: Voltar / Menu -->
+    <button type="button" class="btn-footer-lateral" id="btnFooterEsq" onclick="tratarCliqueBotaoEsq()">
+      <img id="imgIconeEsq" src="../../img/menu.svg" alt="Menu">
+      <span class="footer-btn-label" id="lblBtnEsq">Menu</span>
+    </button>
+
+    <!-- Botão Central: Hub Relato (Modo Normal) ou Status (Modo Relato) -->
+    <button type="button" class="btn-footer-hub-relato" id="btnFooterCentro" onclick="tratarCliqueBotaoCentro()">
+      <img id="imgIconeCentro" src="../../img/mic.svg" alt="Relato">
+      <div class="hub-relato-texto-box">
+        <span class="hub-relato-label" id="lblHubPrincipal">Modo Relato</span>
+        <span class="hub-relato-sub" id="lblHubSub">Gravar trechos na saída</span>
+      </div>
+    </button>
+
+    <!-- Botão Direito: Sair (Modo Normal) ou Concluir (Modo Relato) -->
+    <button type="button" class="btn-footer-lateral btn-sair-lateral" id="btnFooterDir" onclick="tratarCliqueBotaoDir()">
+      <img id="imgIconeDir" src="../../img/logout.svg" alt="Sair">
+      <span class="footer-btn-label" id="lblBtnDir">Sair</span>
+    </button>
+  </footer>
+
+  <!-- ========================================================================
+       MODAL DE CONFIRMAÇÃO / CONCLUSÃO DO RELATO
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalConcluir">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-icone">💾</span>
+        <h3 class="modal-titulo">Concluir Relato de Campo?</h3>
+      </div>
+      <p class="modal-corpo" id="modalCorpoTexto">
+        Você gravou <strong>0 trechos</strong> de áudio no cofre local do aparelho.
+        Ao chegar em casa ou no Wi-Fi da conferência, eles poderão ser transcritos por IA e sincronizados com a planilha.
+      </p>
+      <div class="modal-botoes-row">
+        <button type="button" class="btn-modal btn-modal-cancelar" onclick="fecharModalConcluir()">Continuar Gravando</button>
+        <button type="button" class="btn-modal btn-modal-confirmar" onclick="confirmarConclusaoRelato()">Salvar e Voltar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Flutuante -->
+  <div class="toast-aviso" id="toastAviso">
+    <span id="toastIcone">✅</span>
+    <span id="toastTexto">Ação realizada</span>
+  </div>
+
+  <!-- Elemento de Áudio Oculto para Reprodução -->
+  <audio id="audioPlayer" preload="none" style="display: none;"></audio>
+
+  <!-- ========================================================================
+       LÓGICA JAVASCRIPT CONFORME O GOOGLE JAVASCRIPT STYLE GUIDE
+       ======================================================================== -->
+  <script>
+    /**
+     * @fileoverview Protótipo T1: Modo Relato de Visita por Voz.
+     * Implementa operação de toque cego na barra superior, persistência
+     * de blobs de áudio compactados no IndexedDB e cartões interativos M3.
+     */
+
+    'use strict';
+
+    // Constantes de Configuração e Identificação
+    const NOME_BANCO = 'SSVP_Relatos_DB';
+    const VERSAO_BANCO = 1;
+    const TABELA_TRECHOS = 'tb_trechos_relato';
+    const ID_VISITA_ATUAL = 'VISITA_SILVA_20261012';
+    const TEMPO_HOLD_MS = 350; // Tempo mínimo de toque firme para iniciar gravação
+
+    // Estado da Aplicação
+    const estadoApp = {
+      modoRelatoAtivo: false,
+      gravando: false,
+      tempoInicioGravacao: 0,
+      intervaloTimer: null,
+      temporizadorHold: null,
+      holdIniciado: false,
+      idTrechoReproduzindo: null,
+      streamMidia: null,
+      mediaRecorder: null,
+      chunksAudio: [],
+      db: null
+    };
+
+    // Referências aos Elementos do DOM
+    const elementos = {
+      appHeader: document.getElementById('appHeader'),
+      barraHold: document.getElementById('barraHold'),
+      barraToqueContainer: document.getElementById('barraToqueContainer'),
+      toqueIconeBox: document.getElementById('toqueIconeBox'),
+      imgMicToque: document.getElementById('imgMicToque'),
+      lblToqueTitulo: document.getElementById('lblToqueTitulo'),
+      lblToqueInstrucao: document.getElementById('lblToqueInstrucao'),
+      toqueTimerPill: document.getElementById('toqueTimerPill'),
+      lblTempoGravacao: document.getElementById('lblTempoGravacao'),
+
+      displayArea: document.getElementById('displayArea'),
+      containerNormal: document.getElementById('containerNormal'),
+      containerModoRelato: document.getElementById('containerModoRelato'),
+      emptyStateRelato: document.getElementById('emptyStateRelato'),
+      listaTrechosGrid: document.getElementById('listaTrechosGrid'),
+      lblTotalTrechos: document.getElementById('lblTotalTrechos'),
+      lblDuracaoTotal: document.getElementById('lblDuracaoTotal'),
+
+      btnFooterEsq: document.getElementById('btnFooterEsq'),
+      lblBtnEsq: document.getElementById('lblBtnEsq'),
+      imgIconeEsq: document.getElementById('imgIconeEsq'),
+
+      btnFooterCentro: document.getElementById('btnFooterCentro'),
+      lblHubPrincipal: document.getElementById('lblHubPrincipal'),
+      lblHubSub: document.getElementById('lblHubSub'),
+      imgIconeCentro: document.getElementById('imgIconeCentro'),
+
+      btnFooterDir: document.getElementById('btnFooterDir'),
+      lblBtnDir: document.getElementById('lblBtnDir'),
+      imgIconeDir: document.getElementById('imgIconeDir'),
+
+      modalConcluir: document.getElementById('modalConcluir'),
+      modalCorpoTexto: document.getElementById('modalCorpoTexto'),
+      toastAviso: document.getElementById('toastAviso'),
+      toastTexto: document.getElementById('toastTexto'),
+      toastIcone: document.getElementById('toastIcone'),
+      audioPlayer: document.getElementById('audioPlayer')
+    };
+
+    // Instância de Contexto de Áudio para Bipes Auditivos
+    let audioCtx = null;
+
+    /**
+     * Inicializa o contexto Web Audio na primeira interação do usuário.
+     * @return {AudioContext} Contexto pronto para reproduzir bipes.
+     */
+    function obterAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    /**
+     * Emite um bipe sonoro de frequência e duração especificadas no fone/alto-falante.
+     * @param {number} frequencia Frequência em Hertz (ex: 880Hz para início).
+     * @param {number} duracaoMs Duração do tom em milissegundos.
+     */
+    function emitirBipe(frequencia, duracaoMs) {
+      try {
+        const ctx = obterAudioContext();
+        const oscilador = ctx.createOscillator();
+        const ganho = ctx.createGain();
+
+        oscilador.type = 'sine';
+        oscilador.frequency.setValueAtTime(frequencia, ctx.currentTime);
+
+        ganho.gain.setValueAtTime(0.12, ctx.currentTime);
+        ganho.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (duracaoMs / 1000));
+
+        oscilador.connect(ganho);
+        ganho.connect(ctx.destination);
+
+        oscilador.start();
+        oscilador.stop(ctx.currentTime + (duracaoMs / 1000));
+      } catch (err) {
+        console.warn('Falha ao emitir bipe de áudio:', err);
+      }
+    }
+
+    /**
+     * Dispara vibração háptica se suportada pelo smartphone.
+     * @param {number|number[]} padrao Duração ou padrão em ms.
+     */
+    function vibrarHaptico(padrao) {
+      if ('vibrate' in navigator) {
+        try {
+          navigator.vibrate(padrao);
+        } catch (e) {
+          // Ignorado caso bloqueado pelo sistema
+        }
+      }
+    }
+
+    // ==========================================================================
+    // CAMADA DE PERSISTÊNCIA LOCAL (INDEXEDDB)
+    // ==========================================================================
+
+    /**
+     * Abre a base de dados do IndexedDB local com criação da tabela se necessário.
+     * @return {Promise<IDBDatabase>} Instância conectada da base de dados.
+     */
+    function inicializarBancoDados() {
+      return new Promise((resolve, reject) => {
+        const requisicao = indexedDB.open(NOME_BANCO, VERSAO_BANCO);
+
+        requisicao.onupgradeneeded = (evento) => {
+          const db = evento.target.result;
+          if (!db.objectStoreNames.contains(TABELA_TRECHOS)) {
+            const store = db.createObjectStore(TABELA_TRECHOS, { keyPath: 'id' });
+            store.createIndex('idx_visita', 'id_visita', { unique: false });
+          }
+        };
+
+        requisicao.onsuccess = (evento) => {
+          estadoApp.db = evento.target.result;
+          resolve(estadoApp.db);
+        };
+
+        requisicao.onerror = (evento) => {
+          console.error('Erro ao abrir IndexedDB:', evento.target.error);
+          reject(evento.target.error);
+        };
+      });
+    }
+
+    /**
+     * Grava um novo trecho de áudio na base de dados IndexedDB.
+     * @param {Blob} audioBlob Blob de áudio comprimido.
+     * @param {number} duracaoSegundos Duração estimada do trecho.
+     * @return {Promise<Object>} Trecho gravado com sucesso.
+     */
+    function salvarTrechoNoBanco(audioBlob, duracaoSegundos) {
+      return new Promise((resolve, reject) => {
+        if (!estadoApp.db) {
+          reject(new Error('Banco de dados não inicializado.'));
+          return;
+        }
+
+        const transacao = estadoApp.db.transaction([TABELA_TRECHOS], 'readwrite');
+        const store = transacao.objectStore(TABELA_TRECHOS);
+
+        const novoRegistro = {
+          id: Date.now(),
+          id_visita: ID_VISITA_ATUAL,
+          blob: audioBlob,
+          duracao: duracaoSegundos,
+          data_hora: new Date().toISOString()
+        };
+
+        const requisicao = store.add(novoRegistro);
+
+        requisicao.onsuccess = () => {
+          resolve(novoRegistro);
+        };
+
+        requisicao.onerror = (e) => {
+          reject(e.target.error);
+        };
+      });
+    }
+
+    /**
+     * Recupera todos os trechos de áudio vinculados à visita atual.
+     * @return {Promise<Array<Object>>} Lista ordenada de trechos.
+     */
+    function buscarTrechosDaVisita() {
+      return new Promise((resolve, reject) => {
+        if (!estadoApp.db) {
+          resolve([]);
+          return;
+        }
+
+        const transacao = estadoApp.db.transaction([TABELA_TRECHOS], 'readonly');
+        const store = transacao.objectStore(TABELA_TRECHOS);
+        const requisicao = store.getAll();
+
+        requisicao.onsuccess = () => {
+          const resultados = (requisicao.result || [])
+            .filter((item) => item.id_visita === ID_VISITA_ATUAL)
+            .sort((a, b) => a.id - b.id);
+          resolve(resultados);
+        };
+
+        requisicao.onerror = (e) => {
+          reject(e.target.error);
+        };
+      });
+    }
+
+    /**
+     * Remove definitivamente um trecho de áudio do cofre IndexedDB.
+     * @param {number} id Identificador numérico do trecho.
+     * @return {Promise<void>}
+     */
+    function excluirTrechoDoBanco(id) {
+      return new Promise((resolve, reject) => {
+        if (!estadoApp.db) {
+          reject(new Error('Banco de dados não inicializado.'));
+          return;
+        }
+
+        const transacao = estadoApp.db.transaction([TABELA_TRECHOS], 'readwrite');
+        const store = transacao.objectStore(TABELA_TRECHOS);
+        const requisicao = store.delete(id);
+
+        requisicao.onsuccess = () => {
+          resolve();
+        };
+
+        requisicao.onerror = (e) => {
+          reject(e.target.error);
+        };
+      });
+    }
+
+    // ==========================================================================
+    // CAPTURA DE ÁUDIO VIA MEDIARECORDER (WEBM / OPUS / MP4)
+    // ==========================================================================
+
+    /**
+     * Determina o tipo MIME de gravação suportado com melhor compressão.
+     * @return {string} MIME type otimizado.
+     */
+    function obterMimeTypeGravacao() {
+      if (typeof MediaRecorder === 'undefined') {
+        return '';
+      }
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        return 'audio/webm;codecs=opus';
+      }
+      if (MediaRecorder.isTypeSupported('audio/webm')) {
+        return 'audio/webm';
+      }
+      if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        return 'audio/mp4';
+      }
+      return '';
+    }
+
+    /**
+     * Inicia a gravação de áudio através do MediaRecorder.
+     */
+    async function iniciarGravacaoTrecho() {
+      if (estadoApp.gravando) {
+        return;
+      }
+
+      try {
+        // Handshake W3C de permissão do microfone
+        if (!estadoApp.streamMidia) {
+          estadoApp.streamMidia = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          });
+        }
+
+        const mime = obterMimeTypeGravacao();
+        const opcoes = mime ? { mimeType: mime } : undefined;
+        estadoApp.mediaRecorder = new MediaRecorder(estadoApp.streamMidia, opcoes);
+        estadoApp.chunksAudio = [];
+
+        estadoApp.mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            estadoApp.chunksAudio.push(e.data);
+          }
+        };
+
+        estadoApp.mediaRecorder.onstop = processarFimGravacao;
+
+        estadoApp.mediaRecorder.start(250); // Coleta a cada 250ms
+        estadoApp.gravando = true;
+        estadoApp.tempoInicioGravacao = Date.now();
+
+        // Feedbacks sensoriais: Bipe agudo (880Hz) + Vibração curta (60ms)
+        emitirBipe(880, 90);
+        vibrarHaptico(60);
+
+        // Atualização de Interface
+        document.body.classList.add('gravando-ativo');
+        elementos.lblToqueTitulo.textContent = '🔴 GRAVANDO TRECHO...';
+        elementos.lblToqueInstrucao.textContent = 'Toque em qualquer lugar da barra para finalizar';
+
+        // Disparo do Timer de Gravação
+        atualizarDisplayTimer();
+        estadoApp.intervaloTimer = setInterval(atualizarDisplayTimer, 1000);
+
+        mostrarToast('🎙️ Gravando trecho do relato...', '🎙️');
+      } catch (erro) {
+        console.error('Falha ao acessar microfone:', erro);
+        mostrarToast('Erro ao acessar microfone. Verifique permissões.', '⚠️');
+        cancelarEstadoGravacao();
+      }
+    }
+
+    /**
+     * Para a gravação atual e aciona o processamento do blob.
+     */
+    function pararGravacaoTrecho() {
+      if (!estadoApp.gravando || !estadoApp.mediaRecorder) {
+        return;
+      }
+
+      try {
+        if (estadoApp.mediaRecorder.state !== 'inactive') {
+          estadoApp.mediaRecorder.stop();
+        }
+      } catch (err) {
+        console.warn('Erro ao parar MediaRecorder:', err);
+      }
+
+      // Feedbacks sensoriais: Bipe médio (440Hz) + Vibração dupla rápida
+      emitirBipe(440, 90);
+      vibrarHaptico([50, 40, 50]);
+
+      clearInterval(estadoApp.intervaloTimer);
+      estadoApp.intervaloTimer = null;
+      estadoApp.gravando = false;
+
+      document.body.classList.remove('gravando-ativo');
+      elementos.lblToqueTitulo.textContent = '🎙️ SEGURE PARA GRAVAR';
+      elementos.lblToqueInstrucao.textContent = 'Pressione firme (350ms) para novo trecho';
+      elementos.lblTempoGravacao.textContent = '00:00';
+    }
+
+    /**
+     * Restaura visual de gravação cancelada por erro.
+     */
+    function cancelarEstadoGravacao() {
+      clearInterval(estadoApp.intervaloTimer);
+      estadoApp.intervaloTimer = null;
+      estadoApp.gravando = false;
+      document.body.classList.remove('gravando-ativo');
+      elementos.lblToqueTitulo.textContent = '🎙️ SEGURE PARA GRAVAR';
+      elementos.lblToqueInstrucao.textContent = 'Pressione firme (350ms) para novo trecho';
+      elementos.lblTempoGravacao.textContent = '00:00';
+    }
+
+    /**
+     * Atualiza o cronômetro visual durante a gravação ativa.
+     */
+    function atualizarDisplayTimer() {
+      const segundosPassados = Math.floor((Date.now() - estadoApp.tempoInicioGravacao) / 1000);
+      const min = String(Math.floor(segundosPassados / 60)).padStart(2, '0');
+      const seg = String(segundosPassados % 60).padStart(2, '0');
+      elementos.lblTempoGravacao.textContent = `${min}:${seg}`;
+    }
+
+    /**
+     * Processa os chunks gravados, gera o Blob e salva no IndexedDB.
+     */
+    async function processarFimGravacao() {
+      if (!estadoApp.chunksAudio.length) {
+        return;
+      }
+
+      const mimeType = (estadoApp.mediaRecorder && estadoApp.mediaRecorder.mimeType) || 'audio/webm';
+      const audioBlob = new Blob(estadoApp.chunksAudio, { type: mimeType });
+      const duracaoSegundos = Math.max(1, Math.round((Date.now() - estadoApp.tempoInicioGravacao) / 1000));
+
+      try {
+        await salvarTrechoNoBanco(audioBlob, duracaoSegundos);
+        await renderizarListaTrechos();
+        mostrarToast(`Trecho salvo com sucesso (${duracaoSegundos}s)!`, '💾');
+      } catch (err) {
+        console.error('Falha ao salvar trecho no IndexedDB:', err);
+        mostrarToast('Erro ao salvar áudio no cofre local.', '⚠️');
+      }
+    }
+
+    // ==========================================================================
+    // RENDERIZAÇÃO DA ÁREA CENTRAL (CARDS DE TRECHOS NO MODO RELATO)
+    // ==========================================================================
+
+    /**
+     * Formata segundos em formato legível mm:ss.
+     * @param {number} totalSegundos Duração em segundos.
+     * @return {string} Texto formatado.
+     */
+    function formatarDuracao(totalSegundos) {
+      const min = Math.floor(totalSegundos / 60);
+      const seg = totalSegundos % 60;
+      return `${min}:${String(seg).padStart(2, '0')}`;
+    }
+
+    /**
+     * Atualiza a lista de cards na tela com os trechos obtidos do IndexedDB.
+     */
+    async function renderizarListaTrechos() {
+      const trechos = await buscarTrechosDaVisita();
+
+      // Atualiza os contadores
+      const totalTrechos = trechos.length;
+      const somaSegundos = trechos.reduce((acum, t) => acum + (t.duracao || 0), 0);
+
+      elementos.lblTotalTrechos.textContent = totalTrechos === 1 
+        ? '1 trecho gravado no cofre'
+        : `${totalTrechos} trechos gravados no cofre`;
+      elementos.lblDuracaoTotal.textContent = `Duração total: ${formatarDuracao(somaSegundos)}`;
+
+      // Alterna entre estado vazio e grid
+      if (totalTrechos === 0) {
+        elementos.emptyStateRelato.style.display = 'flex';
+        elementos.listaTrechosGrid.innerHTML = '';
+        return;
+      }
+
+      elementos.emptyStateRelato.style.display = 'none';
+      elementos.listaTrechosGrid.innerHTML = '';
+
+      trechos.forEach((trecho, index) => {
+        const card = document.createElement('article');
+        card.className = 'card-trecho';
+        card.id = `cardTrecho_${trecho.id}`;
+
+        const dataObj = new Date(trecho.data_hora);
+        const horaStr = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        card.innerHTML = `
+          <div class="trecho-top-row">
+            <span class="trecho-chip-numero">🎙️ Trecho #${index + 1}</span>
+            <div class="trecho-metadados">
+              <span>🕒 ${horaStr}</span>
+              <span class="trecho-duracao-tag">⏱️ ${formatarDuracao(trecho.duracao)}</span>
+            </div>
+          </div>
+          <div class="trecho-acao-row">
+            <button type="button" class="btn-play-trecho" id="btnPlay_${trecho.id}" 
+              onclick="event.stopPropagation(); alternarReproducaoTrecho(${trecho.id})">
+              <svg id="svgPlay_${trecho.id}" viewBox="0 -960 960 960"><path d="M320-200v-560l440 280-440 280Z"/></svg>
+              <span id="lblPlay_${trecho.id}">Ouvir Áudio</span>
+            </button>
+            <button type="button" class="btn-excluir-trecho" title="Excluir este trecho" 
+              onclick="event.stopPropagation(); excluirTrecho(${trecho.id})">
+              <svg viewBox="0 -960 960 960"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+            </button>
+          </div>
+        `;
+
+        // Ao tocar no corpo do card também dispara a reprodução
+        card.addEventListener('click', () => {
+          alternarReproducaoTrecho(trecho.id);
+        });
+
+        elementos.listaTrechosGrid.appendChild(card);
+      });
+    }
+
+    /**
+     * Alterna a reprodução do áudio de um trecho específico.
+     * @param {number} id Identificador do trecho.
+     */
+    async function alternarReproducaoTrecho(id) {
+      const player = elementos.audioPlayer;
+
+      // Se já estiver reproduzindo este mesmo trecho, pausa
+      if (estadoApp.idTrechoReproduzindo === id && !player.paused) {
+        player.pause();
+        redefinirVisualReproducao(id, false);
+        estadoApp.idTrechoReproduzindo = null;
+        return;
+      }
+
+      // Se estava reproduzindo outro, pausa o anterior
+      if (estadoApp.idTrechoReproduzindo) {
+        redefinirVisualReproducao(estadoApp.idTrechoReproduzindo, false);
+      }
+
+      try {
+        const trechos = await buscarTrechosDaVisita();
+        const item = trechos.find((t) => t.id === id);
+        if (!item || !item.blob) {
+          mostrarToast('Áudio não encontrado no cofre.', '⚠️');
+          return;
+        }
+
+        const audioUrl = URL.createObjectURL(item.blob);
+        player.src = audioUrl;
+
+        player.onended = () => {
+          redefinirVisualReproducao(id, false);
+          estadoApp.idTrechoReproduzindo = null;
+          URL.revokeObjectURL(audioUrl);
+        };
+
+        await player.play();
+        estadoApp.idTrechoReproduzindo = id;
+        redefinirVisualReproducao(id, true);
+        vibrarHaptico(30);
+      } catch (err) {
+        console.error('Falha ao reproduzir áudio:', err);
+        mostrarToast('Erro ao reproduzir áudio.', '⚠️');
+      }
+    }
+
+    /**
+     * Atualiza o visual de play/pause do card correspondente.
+     * @param {number} id Identificador do trecho.
+     * @param {boolean} tocando Se está em reprodução ativa.
+     */
+    function redefinirVisualReproducao(id, tocando) {
+      const card = document.getElementById(`cardTrecho_${id}`);
+      const btnPlay = document.getElementById(`btnPlay_${id}`);
+      const lblPlay = document.getElementById(`lblPlay_${id}`);
+      const svgPlay = document.getElementById(`svgPlay_${id}`);
+
+      if (!card || !btnPlay || !lblPlay || !svgPlay) {
+        return;
+      }
+
+      if (tocando) {
+        card.classList.add('em-reproducao');
+        lblPlay.textContent = 'Pausar Áudio';
+        // Ícone de Pause
+        svgPlay.innerHTML = '<path d="M560-200v-560h160v560H560Zm-320 0v-560h160v560H240Z"/>';
+      } else {
+        card.classList.remove('em-reproducao');
+        lblPlay.textContent = 'Ouvir Áudio';
+        // Ícone de Play
+        svgPlay.innerHTML = '<path d="M320-200v-560l440 280-440 280Z"/>';
+      }
+    }
+
+    /**
+     * Exclui um trecho do IndexedDB e remove da tela.
+     * @param {number} id Identificador do trecho.
+     */
+    async function excluirTrecho(id) {
+      // Se estava tocando, para imediatamente
+      if (estadoApp.idTrechoReproduzindo === id) {
+        elementos.audioPlayer.pause();
+        estadoApp.idTrechoReproduzindo = null;
+      }
+
+      try {
+        await excluirTrechoDoBanco(id);
+
+        // Feedback sonoro (tom grave) e háptico (100ms)
+        emitirBipe(220, 110);
+        vibrarHaptico(100);
+
+        await renderizarListaTrechos();
+        mostrarToast('Trecho excluído do cofre local.', '🗑️');
+      } catch (err) {
+        console.error('Erro ao excluir trecho:', err);
+        mostrarToast('Falha ao excluir trecho.', '⚠️');
+      }
+    }
+
+    // ==========================================================================
+    // TRANSIÇÃO DE ESTADOS (MODO NORMAL <-> MODO RELATO)
+    // ==========================================================================
+
+    /**
+     * Ativa o Modo Relato com transformação da barra superior.
+     */
+    function ativarModoRelato() {
+      // Pré-ativa o contexto de áudio
+      obterAudioContext();
+
+      estadoApp.modoRelatoAtivo = true;
+      document.body.classList.add('modo-relato-ativo');
+
+      // Atualiza a Barra Inferior para controles do Modo Relato
+      elementos.lblBtnEsq.textContent = 'Voltar';
+      elementos.imgIconeEsq.src = '../../img/chevron_left.svg';
+
+      elementos.lblHubPrincipal.textContent = 'Gravando Relato';
+      elementos.lblHubSub.textContent = 'Toque na barra acima';
+
+      elementos.lblBtnDir.textContent = 'Concluir';
+      elementos.imgIconeDir.src = '../../img/target.svg';
+
+      // Atualiza a lista de trechos a partir do IndexedDB
+      renderizarListaTrechos();
+
+      // Vibração de ativação
+      vibrarHaptico(50);
+      mostrarToast('Modo Relato Ativo! Toque na barra superior.', '🎙️');
+    }
+
+    /**
+     * Desativa o Modo Relato e retorna à visualização padrão do formulário.
+     */
+    function desativarModoRelato() {
+      if (estadoApp.gravando) {
+        pararGravacaoTrecho();
+      }
+      if (estadoApp.idTrechoReproduzindo) {
+        elementos.audioPlayer.pause();
+        estadoApp.idTrechoReproduzindo = null;
+      }
+
+      estadoApp.modoRelatoAtivo = false;
+      document.body.classList.remove('modo-relato-ativo');
+
+      // Restaura a Barra Inferior ao padrão
+      elementos.lblBtnEsq.textContent = 'Menu';
+      elementos.imgIconeEsq.src = '../../img/menu.svg';
+
+      elementos.lblHubPrincipal.textContent = 'Modo Relato';
+      elementos.lblHubSub.textContent = 'Gravar trechos na saída';
+
+      elementos.lblBtnDir.textContent = 'Sair';
+      elementos.imgIconeDir.src = '../../img/logout.svg';
+
+      mostrarToast('Retornou à visita domiciliar.', '📋');
+    }
+
+    // ==========================================================================
+    // CONTROLES DE TOQUE CEGO NA BARRA SUPERIOR (HOLD 350MS / TOGGLE)
+    // ==========================================================================
+
+    /**
+     * Dispara o início do gesto de hold na barra superior.
+     */
+    function iniciarGestoBarraSuperior(e) {
+      if (!estadoApp.modoRelatoAtivo) {
+        return;
+      }
+
+      // Se já estiver gravando, qualquer toque cancela/para imediatamente
+      if (estadoApp.gravando) {
+        pararGravacaoTrecho();
+        return;
+      }
+
+      estadoApp.holdIniciado = true;
+      elementos.barraHold.classList.add('carregando');
+
+      clearTimeout(estadoApp.temporizadorHold);
+      estadoApp.temporizadorHold = setTimeout(() => {
+        if (estadoApp.holdIniciado && !estadoApp.gravando) {
+          iniciarGravacaoTrecho();
+        }
+        elementos.barraHold.classList.remove('carregando');
+      }, TEMPO_HOLD_MS);
+    }
+
+    /**
+     * Finaliza ou cancela o gesto caso o dedo seja solto antes dos 350ms.
+     */
+    function finalizarGestoBarraSuperior(e) {
+      if (!estadoApp.modoRelatoAtivo) {
+        return;
+      }
+
+      estadoApp.holdIniciado = false;
+      elementos.barraHold.classList.remove('carregando');
+      clearTimeout(estadoApp.temporizadorHold);
+    }
+
+    // Registra os ouvintes capacitivos na Barra Superior
+    elementos.appHeader.addEventListener('pointerdown', iniciarGestoBarraSuperior);
+    elementos.appHeader.addEventListener('pointerup', finalizarGestoBarraSuperior);
+    elementos.appHeader.addEventListener('pointercancel', finalizarGestoBarraSuperior);
+    elementos.appHeader.addEventListener('pointerleave', finalizarGestoBarraSuperior);
+
+    // ==========================================================================
+    // AÇÕES DOS BOTÕES DA BARRA INFERIOR
+    // ==========================================================================
+
+    function tratarCliqueBotaoEsq() {
+      if (estadoApp.modoRelatoAtivo) {
+        desativarModoRelato();
+      } else {
+        mostrarToast('Navegando entre telas de teste...', '🧭');
+      }
+    }
+
+    function tratarCliqueBotaoCentro() {
+      if (estadoApp.modoRelatoAtivo) {
+        if (estadoApp.gravando) {
+          pararGravacaoTrecho();
+        } else {
+          iniciarGravacaoTrecho();
+        }
+      } else {
+        ativarModoRelato();
+      }
+    }
+
+    async function tratarCliqueBotaoDir() {
+      if (estadoApp.modoRelatoAtivo) {
+        // Abre modal de conclusão
+        const trechos = await buscarTrechosDaVisita();
+        elementos.modalCorpoTexto.innerHTML = `
+          Você possui <strong>${trechos.length} trecho(s)</strong> de áudio salvos no cofre local do aparelho.<br><br>
+          Eles permanecerão salvos com segurança para quando você chegar em casa e conectar no Wi-Fi para transcrição por IA.
+        `;
+        elementos.modalConcluir.classList.add('visivel');
+      } else {
+        mostrarToast('Sessão encerrada com dados protegidos (LGPD).', '🔒');
+      }
+    }
+
+    function fecharModalConcluir() {
+      elementos.modalConcluir.classList.remove('visivel');
+    }
+
+    function confirmarConclusaoRelato() {
+      fecharModalConcluir();
+      desativarModoRelato();
+      mostrarToast('Relato concluído e preservado localmente!', '✅');
+    }
+
+    // ==========================================================================
+    // UTILITÁRIO: TOAST FLUTUANTE
+    // ==========================================================================
+    let toastTimeout = null;
+
+    /**
+     * Exibe toast temporário de notificação na tela.
+     * @param {string} texto Mensagem a ser exibida.
+     * @param {string} [icone='ℹ️'] Emoji ou ícone ilustrativo.
+     */
+    function mostrarToast(texto, icone = 'ℹ️') {
+      elementos.toastTexto.textContent = texto;
+      elementos.toastIcone.textContent = icone;
+      elementos.toastAviso.classList.add('visivel');
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        elementos.toastAviso.classList.remove('visivel');
+      }, 2600);
+    }
+
+    // ==========================================================================
+    // INICIALIZAÇÃO DA APLICAÇÃO
+    // ==========================================================================
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await inicializarBancoDados();
+      } catch (err) {
+        console.error('Falha na inicialização do IndexedDB:', err);
+      }
+    });
+  </script>
+</body>
+
+</html>

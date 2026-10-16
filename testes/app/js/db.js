@@ -27,6 +27,7 @@ export const STORES = {
 };
 
 const CHAVE_CONFERENCIA_ATUAL = 'conferencia_atual';
+const CHAVE_INDICE_CONFERENCIAS = 'indice_conferencias';
 
 /**
  * Abre a conexão com o banco de dados IndexedDB e provisiona a estrutura relacional.
@@ -152,6 +153,57 @@ export async function limparSessao() {
   return new Promise((resolve) => {
     const tx = db.transaction(STORES.CONFIG_CONFERENCIA, 'readwrite');
     tx.objectStore(STORES.CONFIG_CONFERENCIA).delete(CHAVE_CONFERENCIA_ATUAL);
+    tx.oncomplete = () => resolve();
+  });
+}
+
+/**
+ * Salva o índice de conferências (CPs e CFs) e seu hash no IndexedDB.
+ * @param {Object} dadosIndice { conselhos_particulares, conferencias }
+ * @param {string} hash
+ * @return {Promise<void>}
+ */
+export async function salvarIndiceConferencias(dadosIndice, hash) {
+  const db = await abrirBanco();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORES.CONFIG_CONFERENCIA, 'readwrite');
+    const store = tx.objectStore(STORES.CONFIG_CONFERENCIA);
+    const item = {
+      chave: CHAVE_INDICE_CONFERENCIAS,
+      hash: hash || '',
+      atualizado_em: new Date().toISOString(),
+      dados: dadosIndice
+    };
+    const req = store.put(item);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/**
+ * Obtém o índice de conferências gravado no IndexedDB.
+ * @return {Promise<{chave: string, hash: string, atualizado_em: string, dados: Object}|null>}
+ */
+export async function obterIndiceConferencias() {
+  const db = await abrirBanco();
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORES.CONFIG_CONFERENCIA, 'readonly');
+    const store = tx.objectStore(STORES.CONFIG_CONFERENCIA);
+    const req = store.get(CHAVE_INDICE_CONFERENCIAS);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => resolve(null);
+  });
+}
+
+/**
+ * Limpa o índice de conferências do IndexedDB para simular primeiro acesso.
+ * @return {Promise<void>}
+ */
+export async function limparIndiceConferencias() {
+  const db = await abrirBanco();
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORES.CONFIG_CONFERENCIA, 'readwrite');
+    tx.objectStore(STORES.CONFIG_CONFERENCIA).delete(CHAVE_INDICE_CONFERENCIAS);
     tx.oncomplete = () => resolve();
   });
 }

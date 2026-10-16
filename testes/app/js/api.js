@@ -77,33 +77,112 @@ export async function buscarEstruturaCC(idCc) {
 }
 
 /**
+ * Dados locais de fallback para testes offline ou antes do deploy da API.
+ */
+export const DADOS_FALLBACK_INDICE = {
+  conselhos_particulares: [
+    { id_conselho: 'ITA', nome_conselho: 'TESTE Conselho Particular Itaim', link_pasta: 'cp_itaim' },
+    { id_conselho: 'SAU', nome_conselho: 'TESTE Conselho Particular Saúde', link_pasta: 'cp_saude' }
+  ],
+  conferencias: [
+    {
+      conselho_particular: 'TESTE Conselho Particular Saúde',
+      id_conferencia: 'SP-SUD-SAU-NSL',
+      nome_conferencia: 'TESTE Nossa Senhora de Loreto',
+      status: 'ativa',
+      link_planilha: 'https://docs.google.com/spreadsheets/d/1ZXA74veROnpdjhBuDadIu7JZ2JFLMEItBFjGnrVDAWY/edit?usp=sharing',
+      id_planilha: '1ZXA74veROnpdjhBuDadIu7JZ2JFLMEItBFjGnrVDAWY'
+    },
+    {
+      conselho_particular: 'TESTE Conselho Particular Itaim',
+      id_conferencia: 'SP-SUD-ITA-ICO',
+      nome_conferencia: 'TESTE Imaculada Conceição',
+      status: 'ativa',
+      link_planilha: 'https://docs.google.com/spreadsheets/d/1Dh4ndhz9PurBS2ArV2v32D0bqt0NbksA4fuyW26S7a8/edit?usp=sharing',
+      id_planilha: '1Dh4ndhz9PurBS2ArV2v32D0bqt0NbksA4fuyW26S7a8'
+    }
+  ]
+};
+
+/**
+ * Busca o índice de conferências (CPs e CFs) do Google Drive via Apps Script.
+ * @param {string} [idPlanilhaIndice]
+ * @return {Promise<{hash: string, dados: {conselhos_particulares: Array, conferencias: Array}}>}
+ */
+export async function buscarIndiceConferencias(idPlanilhaIndice = '') {
+  try {
+    const url = obterUrlApi();
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ acao: 'get_indice', id_planilha_indice: idPlanilhaIndice })
+    });
+    const json = await res.json();
+    if (json.sucesso && json.dados && Array.isArray(json.dados.conselhos_particulares) && Array.isArray(json.dados.conferencias)) {
+      return { hash: json.hash || 'hash_drive_1', dados: json.dados };
+    }
+    throw new Error(json.erro || 'A API remota ainda não possui a ação get_indice implantada.');
+  } catch (err) {
+    console.warn('API remota sem get_indice ou inacessível, utilizando dados locais de fallback do índice:', err.message);
+    return {
+      hash: 'fallback_local_v1',
+      dados: DADOS_FALLBACK_INDICE
+    };
+  }
+}
+
+/**
+ * Checa se o hash do índice no Drive é igual ao do cache local (Stale-While-Revalidate).
+ * @param {string} hashAtual
+ * @param {string} [idPlanilhaIndice]
+ * @return {Promise<{igual: boolean, hash?: string, dados?: Object}>}
+ */
+export async function checarIndiceHash(hashAtual, idPlanilhaIndice = '') {
+  try {
+    const url = obterUrlApi();
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ acao: 'check_indice_hash', hash: hashAtual, id_planilha_indice: idPlanilhaIndice })
+    });
+    if (!res.ok) throw new Error('Status HTTP ' + res.status);
+    return await res.json();
+  } catch (err) {
+    return { igual: true }; // Se offline, mantém o cache local intacto
+  }
+}
+
+/**
  * Valida credenciais de login do Vicentino na planilha da Conferência.
- * @param {string} idCc
- * @param {string} idSsvp
+ * @param {string} idPlanilha ID da planilha da conferência
  * @param {string} email
  * @param {string} senha
- * @return {Promise<{sucesso: boolean, dados?: Object, erro?: Object}>}
+ * @return {Promise<{sucesso: boolean, pessoa?: Object, conferencia?: Object, erro?: string}>}
  */
-export async function autenticarPessoa(idCc, idSsvp, email, senha) {
-  if (!idCc || !idSsvp) {
-    throw new Error('Conselho Central e Conferência são obrigatórios para login.');
+export async function autenticarPessoa(idPlanilha, email, senha) {
+  if (!idPlanilha) {
+    throw new Error('ID da planilha da conferência é obrigatório.');
   }
   if (!email || !senha) {
     throw new Error('Preencha e-mail e senha.');
   }
 
   const payload = {
-    id_cc: idCc,
-    id_ssvp: idSsvp,
+    acao: 'login',
+    id_planilha: idPlanilha,
     email: email.trim(),
     senha: senha.trim()
   };
 
-  const urlParams = `action=login&id_cc=${encodeURIComponent(idCc)}&id_ssvp=${encodeURIComponent(idSsvp)}&email=${encodeURIComponent(payload.email)}&senha=${encodeURIComponent(payload.senha)}`;
-
-  return await chamarApi(urlParams, {
+  const url = obterUrlApi();
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   });
+
+  if (!res.ok) {
+    throw new Error(`Erro no servidor (${res.status})`);
+  }
+  return await res.json();
 }

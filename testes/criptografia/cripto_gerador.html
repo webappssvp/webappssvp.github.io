@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>cripto_gerador - Gestor de Chaves AES-256 SSVP</title>
+
+  <!-- Google Fonts: Montserrat e EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Estilo Base Compartilhado -->
+  <link rel="stylesheet" href="../app/css/base.css">
+
+  <style>
+    /* Sobrescrita de overflow herdado de base.css para permitir rolagem fluida */
+    html, body {
+      width: 100% !important;
+      height: auto !important;
+      min-height: 100% !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body {
+      background-color: var(--ssvp-bg, #0b0f19);
+      color: var(--ssvp-text, #f3f4f6);
+      font-family: var(--font-interface, 'Montserrat', Arial, sans-serif);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+      box-sizing: border-box;
+    }
+
+    /* Barra Superior com Identificação de Versão */
+    .barra-topo-versao {
+      width: 100%;
+      max-width: 52rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--ssvp-text-muted, #94a3b8);
+      border-bottom: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.12));
+      margin-bottom: 1.5rem;
+    }
+
+    .badge-ambiente {
+      background: rgba(0, 100, 182, 0.18);
+      color: #38bdf8;
+      padding: 0.2rem 0.55rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    /* Container Principal */
+    .container-principal {
+      width: 100%;
+      max-width: 52rem;
+      background: var(--ssvp-surface-card, #121929);
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.12));
+      border-radius: 1rem;
+      padding: 1.75rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    .cabecalho-principal {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .titulo-principal {
+      font-family: var(--font-titulos, 'EB Garamond', Georgia, serif);
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--ssvp-white, #ffffff);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .descricao-principal {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--ssvp-text-muted, #94a3b8);
+      max-width: 38rem;
+    }
+
+    .btn-link-teste {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0, 100, 182, 0.15);
+      border: 1px solid var(--ssvp-blue, #0064b6);
+      color: #38bdf8;
+      padding: 0.6rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn-link-teste:hover {
+      background: var(--ssvp-blue, #0064b6);
+      color: #ffffff;
+    }
+
+    /* Formulário de Geração e Identificação */
+    .secao-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.08));
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .grupo-campo {
+      margin-bottom: 1.25rem;
+    }
+
+    .rotulo-campo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--ssvp-text, #e2e8f0);
+      margin-bottom: 0.45rem;
+    }
+
+    .chips-sugestoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .chip-btn {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 0.3rem 0.65rem;
+      border-radius: 2rem;
+      font-size: 0.78rem;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip-btn:hover {
+      background: var(--ssvp-blue, #0064b6);
+      color: #ffffff;
+      border-color: #38bdf8;
+    }
+
+    .input-texto {
+      width: 100%;
+      height: 3rem;
+      padding: 0.6rem 0.85rem;
+      font-size: 1rem;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-weight: 600;
+      background: #060911;
+      color: #ffffff;
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.15));
+      border-radius: 0.5rem;
+      box-sizing: border-box;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-texto:focus {
+      outline: none;
+      border-color: var(--ssvp-blue-hover, #0077da);
+      box-shadow: 0 0 0 3px rgba(0, 100, 182, 0.35);
+    }
+
+    .campo-chave {
+      width: 100%;
+      min-height: 4.25rem;
+      padding: 0.75rem 0.85rem;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.98rem;
+      line-height: 1.45;
+      color: #38bdf8;
+      background: #060911;
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.15));
+      border-radius: 0.5rem;
+      word-break: break-all;
+      resize: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    /* Ações e Botões */
+    .linha-acoes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .btn-acao {
+      min-height: 3rem;
+      padding: 0.65rem 1rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      font-family: var(--font-interface, 'Montserrat', Arial, sans-serif);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-acao:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primario {
+      background: var(--ssvp-blue, #0064b6);
+      color: #ffffff;
+    }
+
+    .btn-primario:hover {
+      background: var(--ssvp-blue-hover, #0077da);
+    }
+
+    .btn-salvar {
+      background: #0d9488;
+      color: #ffffff;
+    }
+
+    .btn-salvar:hover {
+      background: #0f766e;
+    }
+
+    .btn-secundario {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.15));
+    }
+
+    .btn-secundario:hover {
+      background: #283548;
+    }
+
+    .btn-lote {
+      grid-column: 1 / -1;
+      background: rgba(0, 100, 182, 0.15);
+      border: 1px dashed #38bdf8;
+      color: #38bdf8;
+      font-size: 0.9rem;
+    }
+
+    .btn-lote:hover {
+      background: rgba(0, 100, 182, 0.3);
+      color: #ffffff;
+    }
+
+    /* Mensagem de Feedback */
+    .feedback-status {
+      min-height: 1.5rem;
+      margin-top: 0.65rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      color: #22c55e;
+      opacity: 0;
+      transition: opacity 0.25s ease-in-out;
+    }
+
+    .feedback-status.ativo {
+      opacity: 1;
+    }
+
+    /* Tabela de Chaves Gravadas no IndexedDB */
+    .secao-tabela {
+      margin-top: 1.5rem;
+    }
+
+    .cabecalho-tabela {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .titulo-tabela {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .badge-contador {
+      background: #1e293b;
+      color: #38bdf8;
+      font-size: 0.78rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-limpar-todas {
+      background: transparent;
+      border: 1px solid rgba(211, 47, 47, 0.35);
+      color: #f87171;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-limpar-todas:hover {
+      background: rgba(211, 47, 47, 0.2);
+    }
+
+    .tabela-container {
+      overflow-x: auto;
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.1));
+      border-radius: 0.5rem;
+      background: #080c14;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    th {
+      background: #101726;
+      padding: 0.75rem 0.85rem;
+      color: var(--ssvp-text-muted, #94a3b8);
+      font-weight: 600;
+      border-bottom: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.1));
+    }
+
+    td {
+      padding: 0.75rem 0.85rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .col-id {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-weight: 700;
+      color: #38bdf8;
+      white-space: nowrap;
+    }
+
+    .col-chave {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      color: #94a3b8;
+      max-width: 15rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-acao-tabela {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 0.3rem 0.55rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      margin-right: 0.25rem;
+      transition: all 0.15s;
+    }
+
+    .btn-acao-tabela:hover {
+      background: var(--ssvp-blue, #0064b6);
+      color: #ffffff;
+    }
+
+    .btn-excluir-item:hover {
+      background: #b91c1c;
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+
+    .vazio-mensagem {
+      padding: 2rem;
+      text-align: center;
+      color: var(--ssvp-text-muted, #94a3b8);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Identificação Sutil de Versão no Topo -->
+  <header class="barra-topo-versao">
+    <span>testes/criptografia/cripto_gerador.html <strong>v1.1.0</strong></span>
+    <span class="badge-ambiente">Público / PoC Demonstrativa</span>
+  </header>
+
+  <!-- Container Principal -->
+  <main class="container-principal" role="main">
+    <div class="cabecalho-principal">
+      <div>
+        <h1 class="titulo-principal">
+          <span>🔐</span> Gestor de Chaves AES-256
+        </h1>
+        <p class="descricao-principal">
+          Gere chaves pseudoaleatórias seguras de 256 bits (64 HEX) e persista localmente no <strong>IndexedDB (webappssvp_db)</strong> para simular o isolamento de Conselhos.
+        </p>
+      </div>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <a href="cripto_pessoas.html" class="btn-link-teste">
+          <span>👥</span> Ver Proteção de Pessoas LGPD ➔
+        </a>
+        <a href="cripto_teste.html" class="btn-link-teste" style="background:#1e293b; color:#cbd5e1; border-color:rgba(255,255,255,0.2);">
+          <span>🧪</span> Laboratório Cripto
+        </a>
+      </div>
+    </div>
+
+    <!-- Seção de Geração -->
+    <section class="secao-card">
+      <div class="grupo-campo">
+        <div class="rotulo-campo">
+          <label for="input-id-chave">Identificador do Conselho (ID da Chave):</label>
+          <span style="font-size:0.75rem; color:#94a3b8;">Exemplos rápidos abaixo</span>
+        </div>
+        <input type="text" id="input-id-chave" class="input-texto" placeholder="ex: CHA-SP-SUD" list="sugestoes-conselhos" autocomplete="off" spellcheck="false">
+        
+        <datalist id="sugestoes-conselhos">
+          <option value="CHA-SP-SUD">São Paulo Sudeste</option>
+          <option value="CHA-SP-LES">São Paulo Leste</option>
+          <option value="CHA-SP-OES">São Paulo Oeste</option>
+          <option value="CHA-BH-BHO">Belo Horizonte Central</option>
+          <option value="CHA-BH-STA">Belo Horizonte Santa Terezinha</option>
+          <option value="CHA-BH-STL">Belo Horizonte Santa Luzia</option>
+        </datalist>
+
+        <!-- Chips de seleção rápida dos 6 conselhos sugeridos -->
+        <div class="chips-sugestoes">
+          <button type="button" class="chip-btn" data-id="CHA-SP-SUD">CHA-SP-SUD</button>
+          <button type="button" class="chip-btn" data-id="CHA-SP-LES">CHA-SP-LES</button>
+          <button type="button" class="chip-btn" data-id="CHA-SP-OES">CHA-SP-OES</button>
+          <button type="button" class="chip-btn" data-id="CHA-BH-BHO">CHA-BH-BHO</button>
+          <button type="button" class="chip-btn" data-id="CHA-BH-STA">CHA-BH-STA</button>
+          <button type="button" class="chip-btn" data-id="CHA-BH-STL">CHA-BH-STL</button>
+        </div>
+      </div>
+
+      <div class="grupo-campo">
+        <div class="rotulo-campo">
+          <label for="campo-chave-hex">Chave Criptográfica Hexadecimal (256 bits):</label>
+          <span style="font-size:0.75rem; color:#38bdf8; font-family:'JetBrains Mono';">64 Caracteres HEX</span>
+        </div>
+        <textarea id="campo-chave-hex" class="campo-chave" readonly spellcheck="false"></textarea>
+      </div>
+
+      <!-- Botões de Ação Individual e em Lote -->
+      <div class="linha-acoes">
+        <button type="button" id="btn-gerar" class="btn-acao btn-primario">
+          <span>🔄</span> Gerar Nova Chave
+        </button>
+        <button type="button" id="btn-copiar" class="btn-acao btn-secundario">
+          <span id="icone-copiar">📋</span> <span id="texto-copiar">Copiar HEX</span>
+        </button>
+        <button type="button" id="btn-salvar-db" class="btn-acao btn-salvar">
+          <span>💾</span> Salvar no IndexedDB
+        </button>
+        <button type="button" id="btn-gerar-todos" class="btn-acao btn-lote">
+          <span>⚡</span> Gerar e Salvar Todas as 6 Chaves de Demonstração
+        </button>
+      </div>
+
+      <div id="feedback-status" class="feedback-status" aria-live="polite"></div>
+    </section>
+
+    <!-- Tabela de Chaves Persistidas no IndexedDB -->
+    <section class="secao-tabela">
+      <div class="cabecalho-tabela">
+        <div class="titulo-tabela">
+          <span>🗄️</span> Chaves Gravadas no IndexedDB
+          <span id="badge-contador" class="badge-contador">0 salvas</span>
+        </div>
+        <button type="button" id="btn-limpar-todas" class="btn-limpar-todas">
+          🗑️ Limpar Todas as Chaves
+        </button>
+      </div>
+
+      <div class="tabela-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">ID Conselho</th>
+              <th style="width: 45%;">Chave HEX (64 chars)</th>
+              <th style="width: 15%;">Data</th>
+              <th style="width: 15%; text-align: center;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-tabela-chaves">
+            <tr>
+              <td colspan="4" class="vazio-mensagem">Carregando chaves do IndexedDB...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /**
+     * @fileoverview Gestor de Chaves AES-256 e persistência em IndexedDB.
+     * Módulo: testes/app/cripto_gerador.html
+     */
+    'use strict';
+
+    const DB_NAME = 'webappssvp_db';
+    const DB_VERSION = 3;
+    const STORE_CONFIG = 'config_conferencia';
+
+    const CONSELHOS_DEMO = [
+      'CHA-SP-SUD',
+      'CHA-SP-LES',
+      'CHA-SP-OES',
+      'CHA-BH-BHO',
+      'CHA-BH-STA',
+      'CHA-BH-STL'
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputIdChave = document.getElementById('input-id-chave');
+      const campoChaveHex = document.getElementById('campo-chave-hex');
+      const btnGerar = document.getElementById('btn-gerar');
+      const btnCopiar = document.getElementById('btn-copiar');
+      const btnSalvarDb = document.getElementById('btn-salvar-db');
+      const btnGerarTodos = document.getElementById('btn-gerar-todos');
+      const btnLimparTodas = document.getElementById('btn-limpar-todas');
+      const feedbackStatus = document.getElementById('feedback-status');
+      const corpoTabela = document.getElementById('corpo-tabela-chaves');
+      const badgeContador = document.getElementById('badge-contador');
+      const chipsBtns = document.querySelectorAll('.chip-btn');
+
+      let timerFeedback = null;
+
+      // ========================================================================
+      // 1. CRIPTOGRAFIA & GERAÇÃO
+      // ========================================================================
+
+      /**
+       * Gera 32 bytes pseudoaleatórios seguros (CSPRNG) e converte em 64 caracteres HEX minúsculos.
+       * @return {string}
+       */
+      function gerarChaveHexAes256() {
+        const buffer = new Uint8Array(32);
+        window.crypto.getRandomValues(buffer);
+        return Array.from(buffer, (b) => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      function preencherNovaChave() {
+        campoChaveHex.value = gerarChaveHexAes256();
+      }
+
+      // ========================================================================
+      // 2. PERSISTÊNCIA NO INDEXEDDB
+      // ========================================================================
+
+      /**
+       * Abre conexão com o IndexedDB existente.
+       * @return {Promise<IDBDatabase>}
+       */
+      function abrirBancoIndexedDb() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(DB_NAME, DB_VERSION);
+          req.onupgradeneeded = (e) => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains(STORE_CONFIG)) {
+              db.createObjectStore(STORE_CONFIG, { keyPath: 'chave' });
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      /**
+       * Salva uma chave no store 'config_conferencia'.
+       * @param {string} idChave
+       * @param {string} chaveHex
+       * @return {Promise<void>}
+       */
+      async function salvarChaveNoDb(idChave, chaveHex) {
+        const db = await abrirBancoIndexedDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction([STORE_CONFIG], 'readwrite');
+          const store = tx.objectStore(STORE_CONFIG);
+          const registro = {
+            chave: idChave,
+            id_chave: idChave,
+            chave_hex: chaveHex,
+            tipo: 'chave_criptografia_cc',
+            atualizado_em: new Date().toISOString()
+          };
+          const req = store.put(registro);
+          req.onsuccess = () => resolve();
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      /**
+       * Exclui uma chave específica do IndexedDB.
+       * @param {string} idChave
+       * @return {Promise<void>}
+       */
+      async function excluirChaveDoDb(idChave) {
+        const db = await abrirBancoIndexedDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction([STORE_CONFIG], 'readwrite');
+          const store = tx.objectStore(STORE_CONFIG);
+          const req = store.delete(idChave);
+          req.onsuccess = () => resolve();
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      /**
+       * Lista todas as chaves de criptografia salvas no IndexedDB.
+       * @return {Promise<Array<Object>>}
+       */
+      async function listarChavesSalvas() {
+        const db = await abrirBancoIndexedDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction([STORE_CONFIG], 'readonly');
+          const store = tx.objectStore(STORE_CONFIG);
+          const req = store.getAll();
+          req.onsuccess = () => {
+            const itens = req.result || [];
+            // Filtra registros que são chaves ou começam com 'CHA-'
+            const chaves = itens.filter(
+              (it) => it.tipo === 'chave_criptografia_cc' || (typeof it.chave === 'string' && it.chave.startsWith('CHA-'))
+            );
+            resolve(chaves);
+          };
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      /**
+       * Limpa todas as chaves criptográficas salvas no IndexedDB.
+       * @return {Promise<void>}
+       */
+      async function limparTodasChavesDoDb() {
+        const chaves = await listarChavesSalvas();
+        const db = await abrirBancoIndexedDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction([STORE_CONFIG], 'readwrite');
+          const store = tx.objectStore(STORE_CONFIG);
+          chaves.forEach((c) => store.delete(c.chave));
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+      }
+
+      // ========================================================================
+      // 3. ATUALIZAÇÃO VISUAL DA TABELA
+      // ========================================================================
+
+      async function recarregarTabela() {
+        try {
+          const chaves = await listarChavesSalvas();
+          badgeContador.textContent = `${chaves.length} salvas`;
+
+          if (chaves.length === 0) {
+            corpoTabela.innerHTML = `
+              <tr>
+                <td colspan="4" class="vazio-mensagem">
+                  Nenhuma chave persistida no IndexedDB. Utilize os botões acima para cadastrar ou gerar em lote.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          corpoTabela.innerHTML = '';
+          chaves.forEach((item) => {
+            const tr = document.createElement('tr');
+            const dataFmt = item.atualizado_em ? new Date(item.atualizado_em).toLocaleDateString('pt-BR') : '—';
+            const hexAbrev = item.chave_hex ? `${item.chave_hex.substring(0, 16)}...${item.chave_hex.substring(48)}` : '—';
+
+            tr.innerHTML = `
+              <td class="col-id">${item.chave || item.id_chave}</td>
+              <td class="col-chave" title="${item.chave_hex}">${hexAbrev}</td>
+              <td>${dataFmt}</td>
+              <td style="text-align: center; white-space: nowrap;">
+                <button type="button" class="btn-acao-tabela btn-copiar-item" data-chave="${item.chave_hex}">Copiar</button>
+                <button type="button" class="btn-acao-tabela btn-excluir-item" data-id="${item.chave}">Excluir</button>
+              </td>
+            `;
+
+            // Ação de copiar chave da linha
+            tr.querySelector('.btn-copiar-item').addEventListener('click', (e) => {
+              const val = e.target.getAttribute('data-chave');
+              copiarTextoParaClipboard(val, `Chave ${item.chave} copiada!`);
+            });
+
+            // Ação de excluir chave da linha
+            tr.querySelector('.btn-excluir-item').addEventListener('click', async (e) => {
+              const id = e.target.getAttribute('data-id');
+              if (confirm(`Remover a chave "${id}" do IndexedDB?`)) {
+                await excluirChaveDoDb(id);
+                exibirFeedback(`Chave "${id}" removida com sucesso.`);
+                await recarregarTabela();
+              }
+            });
+
+            corpoTabela.appendChild(tr);
+          });
+        } catch (err) {
+          corpoTabela.innerHTML = `<tr><td colspan="4" class="vazio-mensagem" style="color:#f87171;">Erro ao carregar banco: ${err.message}</td></tr>`;
+        }
+      }
+
+      // ========================================================================
+      // 4. FEEDBACK & UTILITÁRIOS
+      // ========================================================================
+
+      function exibirFeedback(msg, sucesso = true) {
+        if (timerFeedback) clearTimeout(timerFeedback);
+        feedbackStatus.textContent = msg;
+        feedbackStatus.style.color = sucesso ? '#22c55e' : '#f87171';
+        feedbackStatus.classList.add('ativo');
+
+        timerFeedback = setTimeout(() => {
+          feedbackStatus.classList.remove('ativo');
+          feedbackStatus.textContent = '';
+        }, 3000);
+      }
+
+      async function copiarTextoParaClipboard(texto, mensagemSucesso = 'Copiado para a área de transferência!') {
+        if (!texto) {
+          exibirFeedback('Nenhum texto para copiar.', false);
+          return;
+        }
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(texto);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = texto;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          exibirFeedback(`✅ ${mensagemSucesso}`);
+        } catch (err) {
+          exibirFeedback('Falha ao copiar automaticamente.', false);
+        }
+      }
+
+      // ========================================================================
+      // 5. EVENTOS DA TELA
+      // ========================================================================
+
+      // Botão Gerar Nova Chave
+      btnGerar.addEventListener('click', () => {
+        preencherNovaChave();
+        exibirFeedback('Nova chave AES-256 gerada.');
+      });
+
+      // Botão Copiar Chave
+      btnCopiar.addEventListener('click', () => {
+        copiarTextoParaClipboard(campoChaveHex.value, 'Chave HEX copiada com sucesso!');
+      });
+
+      // Seleção rápida via Chips
+      chipsBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          inputIdChave.value = id;
+          preencherNovaChave();
+          inputIdChave.focus();
+        });
+      });
+
+      // Botão Salvar Individual no IndexedDB
+      btnSalvarDb.addEventListener('click', async () => {
+        const id = inputIdChave.value.trim().toUpperCase();
+        const hex = campoChaveHex.value.trim();
+
+        if (!id) {
+          exibirFeedback('Por favor, informe ou selecione o ID do Conselho.', false);
+          inputIdChave.focus();
+          return;
+        }
+
+        if (!hex || hex.length !== 64) {
+          exibirFeedback('Chave inválida. Gere uma chave HEX de 64 caracteres.', false);
+          return;
+        }
+
+        try {
+          await salvarChaveNoDb(id, hex);
+          exibirFeedback(`✅ Chave "${id}" salva com sucesso no IndexedDB!`);
+          await recarregarTabela();
+        } catch (err) {
+          exibirFeedback(`Erro ao salvar no IndexedDB: ${err.message}`, false);
+        }
+      });
+
+      // Botão Gerar Todas as 6 em Lote
+      btnGerarTodos.addEventListener('click', async () => {
+        try {
+          for (const id of CONSELHOS_DEMO) {
+            const hex = gerarChaveHexAes256();
+            await salvarChaveNoDb(id, hex);
+          }
+          exibirFeedback('⚡ Todas as 6 chaves de conselhos foram geradas e salvas no IndexedDB!');
+          await recarregarTabela();
+        } catch (err) {
+          exibirFeedback(`Erro no processo em lote: ${err.message}`, false);
+        }
+      });
+
+      // Botão Limpar Todas as Chaves
+      btnLimparTodas.addEventListener('click', async () => {
+        if (confirm('Tem certeza que deseja apagar todas as chaves de teste salvas no IndexedDB?')) {
+          await limparTodasChavesDoDb();
+          exibirFeedback('Todas as chaves foram removidas.');
+          await recarregarTabela();
+        }
+      });
+
+      // Inicialização
+      inputIdChave.value = 'CHA-SP-SUD';
+      preencherNovaChave();
+      recarregarTabela();
+    });
+  </script>
+</body>
+
+</html>
