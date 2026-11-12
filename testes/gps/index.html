@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#002d62">
+  <title>Teste GPS offline - SSVP</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="stylesheet" href="../testes.css">
+  <style>
+    .aviso {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--ssvp-text-main);
+    }
+    .aviso[hidden] { display: none; }
+
+    #botaoInstalar {
+      flex: 0 0 auto;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.85rem;
+    }
+    #botaoInstalar[hidden] { display: none; }
+
+    .situacao {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+    .situacao div {
+      background: var(--ssvp-white);
+      border: 1px solid var(--ssvp-gray-border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+    }
+    .situacao strong { display: block; font-size: 1rem; }
+    .bom { color: var(--ssvp-success); }
+    .medio { color: var(--ssvp-warning); }
+    .ruim { color: var(--ssvp-error); }
+
+    #botaoEtapa {
+      width: 100%;
+      min-height: 7rem;
+      font-size: 1.8rem;
+      border-radius: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    #textoAjuda {
+      text-align: center;
+      color: var(--ssvp-text-muted);
+      font-size: 0.85rem;
+      margin: 0.5rem 0 1rem;
+      min-height: 1.2em;
+    }
+
+    .lista-pontos {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .lista-pontos li {
+      background: var(--ssvp-white);
+      border: 1px solid var(--ssvp-gray-border);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.85rem;
+    }
+    .lista-pontos .trecho {
+      background: transparent;
+      border: none;
+      padding: 0 0.8rem;
+      color: var(--ssvp-text-muted);
+      font-size: 0.8rem;
+    }
+    .lista-pontos strong { text-transform: capitalize; }
+  </style>
+</head>
+<body>
+
+  <div class="topo-acoes-teste">
+    <div class="teste-nome-arquivo" id="topoNomeArquivo"></div>
+    <button class="btn btn-primary" id="botaoInstalar" type="button" hidden>📲 Instalar</button>
+    <div class="teste-versao-topo">v1.2</div>
+  </div>
+
+  <div class="card-principal" id="cardPrincipal">
+    <div class="cabecalho-principal" onclick="toggleCardPrincipal()">
+      <span class="titulo-principal">📊 Instruções & Informações do Teste</span>
+      <span class="seta-principal" id="setaPrincipal">+</span>
+    </div>
+    <div class="conteudo-principal-wrapper">
+      <div class="conteudo-principal">
+        <div class="corpo-principal">
+
+          <div class="sub-card" id="subCardPorQue">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardPorQue')">
+              <span>❓ Por que testar esta funcionalidade?</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                Nas visitas, o vicentino nem sempre tem internet. Este teste mostra se o celular
+                consegue registrar onde e quando a dupla chegou e saiu de uma visita, sem internet,
+                e mostrar o percurso depois, quando a internet voltar.
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-card" id="subCardOQue">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardOQue')">
+              <span>🔍 O que deve ser avaliado?</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                <ul>
+                  <li><strong>Abrir sem internet:</strong> o app instalado abre em modo avião.</li>
+                  <li><strong>GPS sem internet:</strong> quanto tempo leva para achar a posição e qual a precisão (em metros).</li>
+                  <li><strong>Guardar:</strong> os pontos continuam lá depois de fechar e reabrir o app.</li>
+                  <li><strong>Rota:</strong> com internet, o Google Maps mostra os 4 pontos no lugar certo.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-card" id="subCardComo">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardComo')">
+              <span>📋 Passo a Passo para testar</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                <ol style="padding-left: 1.2rem; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                  <li>Em casa, com internet: abra a página, permita a localização e instale o app.</li>
+                  <li>Feche o navegador, ligue o modo avião e confira se o app instalado abre.</li>
+                  <li>Na portaria, abra o app e espere a precisão ficar verde. Toque em <strong>Início</strong>.</li>
+                  <li>Na porta do mercado, toque em <strong>Chegada</strong>. Ao sair, toque em <strong>Saída</strong>.</li>
+                  <li>De volta à portaria, toque em <strong>Término</strong>.</li>
+                  <li>Em casa, com internet, toque em <strong>Exibir rota</strong>.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="teste-container">
+
+    <div class="aviso" id="avisoSeguro" hidden>
+      ⚠️ Esta página não está em endereço seguro (https ou localhost).
+      O celular bloqueia o GPS e a instalação. Veja o LEIAME.md desta pasta.
+    </div>
+
+    <div class="situacao">
+      <div>Internet<strong id="sitInternet">—</strong></div>
+      <div>GPS<strong id="sitGps">—</strong></div>
+      <div>Latitude<strong id="sitLat">—</strong></div>
+      <div>Longitude<strong id="sitLng">—</strong></div>
+      <div>Precisão<strong id="sitPrecisao">—</strong></div>
+      <div>Última leitura<strong id="sitIdade">—</strong></div>
+    </div>
+
+    <button class="btn btn-primary" id="botaoEtapa" type="button">Início</button>
+    <p id="textoAjuda" aria-live="polite"></p>
+
+    <ul class="lista-pontos" id="listaPontos"></ul>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="botaoRota" type="button" disabled>🗺️ Exibir rota</button>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" id="botaoCopiar" type="button" disabled>📋 Copiar dados</button>
+      <button class="btn btn-danger" id="botaoApagar" type="button" disabled>🗑️ Recomeçar</button>
+    </div>
+  </main>
+
+  <script src="../testes.js"></script>
+  <script>
+    'use strict';
+
+    /** Etapas do percurso, na ordem em que o botão principal as grava. */
+    const ETAPAS = ['início', 'chegada', 'saída', 'término'];
+
+    /** Uma leitura do GPS vale para gravar se tiver no máximo esta idade. */
+    const IDADE_MAXIMA_MS = 10000;
+
+    /** Tempo máximo esperando o GPS depois do toque. */
+    const ESPERA_MAXIMA_MS = 90000;
+
+    const NOME_BANCO = 'teste_gps';
+    const LOJA = 'pontos';
+
+    const el = (id) => document.getElementById(id);
+
+    /** @type {GeolocationPosition|null} */
+    let ultimaLeitura = null;
+    /** Funções esperando a próxima leitura do GPS. */
+    let esperandoLeitura = [];
+    /** @type {Array<Object>} */
+    let pontos = [];
+
+    // ---------------------------------------------------------------- IndexedDB
+
+    /** @return {!Promise<IDBDatabase>} */
+    function abrirBanco() {
+      return new Promise((resolve, reject) => {
+        const pedido = indexedDB.open(NOME_BANCO, 1);
+        pedido.onupgradeneeded = () => {
+          pedido.result.createObjectStore(LOJA, {keyPath: 'id', autoIncrement: true});
+        };
+        pedido.onsuccess = () => resolve(pedido.result);
+        pedido.onerror = () => reject(pedido.error);
+      });
+    }
+
+    /**
+     * @param {IDBTransactionMode} modo
+     * @param {function(IDBObjectStore): IDBRequest} acao
+     * @return {!Promise<*>}
+     */
+    async function usarLoja(modo, acao) {
+      const banco = await abrirBanco();
+      return new Promise((resolve, reject) => {
+        const transacao = banco.transaction(LOJA, modo);
+        const pedido = acao(transacao.objectStore(LOJA));
+        transacao.oncomplete = () => { banco.close(); resolve(pedido.result); };
+        transacao.onerror = () => { banco.close(); reject(transacao.error); };
+      });
+    }
+
+    const lerPontos = () => usarLoja('readonly', (loja) => loja.getAll());
+    const gravarPonto = (ponto) => usarLoja('readwrite', (loja) => loja.add(ponto));
+    const apagarPontos = () => usarLoja('readwrite', (loja) => loja.clear());
+
+    // ---------------------------------------------------------------------- GPS
+
+    function iniciarGps() {
+      if (!('geolocation' in navigator)) {
+        el('sitGps').textContent = 'indisponível';
+        el('sitGps').className = 'ruim';
+        return;
+      }
+      el('sitGps').textContent = 'procurando…';
+      // Mantém o GPS ligado enquanto o app está aberto: a primeira posição sem
+      // internet pode demorar, e assim ela já está pronta na hora do toque.
+      navigator.geolocation.watchPosition(
+        (posicao) => {
+          ultimaLeitura = posicao;
+          el('sitGps').textContent = 'ativo';
+          el('sitGps').className = 'bom';
+          el('sitLat').textContent = posicao.coords.latitude.toFixed(6);
+          el('sitLng').textContent = posicao.coords.longitude.toFixed(6);
+          mostrarPrecisao();
+          esperandoLeitura.forEach((avisar) => avisar(posicao));
+          esperandoLeitura = [];
+        },
+        (erro) => {
+          const textos = {1: 'sem permissão', 2: 'sem sinal', 3: 'demorando…'};
+          el('sitGps').textContent = textos[erro.code] || 'erro';
+          el('sitGps').className = erro.code === 3 ? 'medio' : 'ruim';
+        },
+        {enableHighAccuracy: true, maximumAge: 0, timeout: 30000}
+      );
+    }
+
+    function mostrarPrecisao() {
+      if (!ultimaLeitura) return;
+      const metros = Math.round(ultimaLeitura.coords.accuracy);
+      el('sitPrecisao').textContent = `${metros} m`;
+      el('sitPrecisao').className = metros <= 20 ? 'bom' : metros <= 60 ? 'medio' : 'ruim';
+    }
+
+    function mostrarIdade() {
+      if (!ultimaLeitura) return;
+      const segundos = Math.round((Date.now() - ultimaLeitura.timestamp) / 1000);
+      el('sitIdade').textContent = segundos < 2 ? 'agora' : `há ${segundos} s`;
+      el('sitIdade').className = segundos * 1000 <= IDADE_MAXIMA_MS ? 'bom' : 'medio';
+    }
+
+    /**
+     * Usa a leitura atual, se for recente; senão espera a próxima.
+     * @return {!Promise<GeolocationPosition>}
+     */
+    function obterPosicao() {
+      if (ultimaLeitura && Date.now() - ultimaLeitura.timestamp <= IDADE_MAXIMA_MS) {
+        return Promise.resolve(ultimaLeitura);
+      }
+      return new Promise((resolve, reject) => {
+        const prazo = setTimeout(() => {
+          esperandoLeitura = esperandoLeitura.filter((f) => f !== avisar);
+          reject(new Error('O GPS não respondeu. Vá para céu aberto e tente de novo.'));
+        }, ESPERA_MAXIMA_MS);
+        const avisar = (posicao) => { clearTimeout(prazo); resolve(posicao); };
+        esperandoLeitura.push(avisar);
+      });
+    }
+
+    // ------------------------------------------------------------------- Cálculos
+
+    /** Distância em metros entre dois pontos (fórmula de haversine). */
+    function distancia(a, b) {
+      const raio = 6371000;
+      const rad = (graus) => graus * Math.PI / 180;
+      const dLat = rad(b.lat - a.lat);
+      const dLng = rad(b.lng - a.lng);
+      const h = Math.sin(dLat / 2) ** 2 +
+          Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+      return 2 * raio * Math.asin(Math.sqrt(h));
+    }
+
+    const formatarHora = (iso) => new Date(iso).toLocaleTimeString('pt-BR');
+
+    function formatarDuracao(ms) {
+      const minutos = Math.round(ms / 60000);
+      if (minutos < 60) return `${minutos} min`;
+      return `${Math.floor(minutos / 60)} h ${minutos % 60} min`;
+    }
+
+    function formatarDistancia(metros) {
+      return metros < 1000 ? `${Math.round(metros)} m` : `${(metros / 1000).toFixed(2).replace('.', ',')} km`;
+    }
+
+    // ------------------------------------------------------------------- Tela
+
+    function desenhar() {
+      const proxima = ETAPAS[pontos.length];
+      const botao = el('botaoEtapa');
+      botao.textContent = proxima || '✔ Concluído';
+      botao.disabled = !proxima;
+
+      const lista = el('listaPontos');
+      lista.innerHTML = '';
+      pontos.forEach((ponto, i) => {
+        if (i > 0) {
+          const anterior = pontos[i - 1];
+          const trecho = document.createElement('li');
+          trecho.className = 'trecho';
+          const rotulo = anterior.etapa === 'chegada' ? 'no mercado' : 'caminhando';
+          trecho.textContent = `↓ ${formatarDuracao(new Date(ponto.horario) - new Date(anterior.horario))} ` +
+              `${rotulo} · ${formatarDistancia(distancia(anterior, ponto))} em linha reta`;
+          lista.appendChild(trecho);
+        }
+        const item = document.createElement('li');
+        item.innerHTML = `<strong></strong> às ${formatarHora(ponto.horario)}<br>` +
+            `${ponto.lat.toFixed(6)}, ${ponto.lng.toFixed(6)} · precisão ${Math.round(ponto.precisao)} m` +
+            ` · ${ponto.online ? 'com' : 'sem'} internet`;
+        item.querySelector('strong').textContent = ponto.etapa;
+        lista.appendChild(item);
+      });
+
+      el('botaoRota').disabled = pontos.length < 2;
+      el('botaoCopiar').disabled = pontos.length === 0;
+      el('botaoApagar').disabled = pontos.length === 0;
+    }
+
+    function mostrarInternet() {
+      el('sitInternet').textContent = navigator.onLine ? 'com internet' : 'sem internet';
+      el('sitInternet').className = navigator.onLine ? 'bom' : 'medio';
+    }
+
+    // ------------------------------------------------------------------- Ações
+
+    async function gravarEtapa() {
+      const etapa = ETAPAS[pontos.length];
+      if (!etapa) return;
+      const botao = el('botaoEtapa');
+      botao.disabled = true;
+      const tocouEm = new Date();
+      el('textoAjuda').textContent = 'Lendo o GPS…';
+      try {
+        const posicao = await obterPosicao();
+        const ponto = {
+          etapa,
+          // Horário do toque: é ele que marca chegada e saída.
+          horario: tocouEm.toISOString(),
+          horarioGps: new Date(posicao.timestamp).toISOString(),
+          lat: posicao.coords.latitude,
+          lng: posicao.coords.longitude,
+          precisao: posicao.coords.accuracy,
+          online: navigator.onLine,
+        };
+        await gravarPonto(ponto);
+        pontos = await lerPontos();
+        if (navigator.vibrate) navigator.vibrate(150);
+        el('textoAjuda').textContent = `${etapa} gravado.`;
+      } catch (erro) {
+        el('textoAjuda').textContent = erro.message;
+      }
+      desenhar();
+    }
+
+    function exibirRota() {
+      if (!navigator.onLine &&
+          !confirm('Parece que não há internet. O mapa pode não abrir. Continuar?')) {
+        return;
+      }
+      const coord = (p) => `${p.lat},${p.lng}`;
+      const primeiro = pontos[0];
+      const ultimo = pontos[pontos.length - 1];
+      const meio = pontos.slice(1, -1).map(coord).join('|');
+      const parametros = new URLSearchParams({
+        api: '1',
+        origin: coord(primeiro),
+        destination: coord(ultimo),
+        travelmode: 'walking',
+      });
+      if (meio) parametros.set('waypoints', meio);
+      window.open(`https://www.google.com/maps/dir/?${parametros}`, '_blank');
+    }
+
+    async function copiarDados() {
+      const texto = JSON.stringify(pontos, null, 2);
+      try {
+        await navigator.clipboard.writeText(texto);
+        el('textoAjuda').textContent = 'Dados copiados.';
+      } catch (erro) {
+        prompt('Copie os dados:', texto);
+      }
+    }
+
+    async function recomecar() {
+      if (!confirm('Apagar os pontos gravados e começar um percurso novo?')) return;
+      await apagarPontos();
+      pontos = [];
+      el('textoAjuda').textContent = '';
+      desenhar();
+    }
+
+    // ---------------------------------------------------------------- Instalação
+
+    /** Pedido de instalação guardado pelo Chrome (Android). */
+    let pedidoInstalacao = null;
+
+    function prepararInstalacao() {
+      const botao = el('botaoInstalar');
+      const instalado = window.matchMedia('(display-mode: standalone)').matches ||
+          navigator.standalone === true;
+      if (instalado) return;
+      botao.hidden = false;
+
+      window.addEventListener('beforeinstallprompt', (evento) => {
+        evento.preventDefault();
+        pedidoInstalacao = evento;
+      });
+      window.addEventListener('appinstalled', () => {
+        botao.hidden = true;
+        pedidoInstalacao = null;
+      });
+
+      botao.addEventListener('click', async () => {
+        if (pedidoInstalacao) {
+          pedidoInstalacao.prompt();
+          const {outcome} = await pedidoInstalacao.userChoice;
+          if (outcome === 'accepted') botao.hidden = true;
+          pedidoInstalacao = null;
+          return;
+        }
+        // Sem o pedido do Chrome: iPhone, outro navegador, ou o app já instalado.
+        const iphone = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        alert(iphone ?
+            'No Safari: toque em Compartilhar (quadrado com seta) e depois em "Adicionar à Tela de Início".' :
+            'No Chrome: toque no menu ⋮ e depois em "Instalar app" ou "Adicionar à tela inicial".\n\n' +
+            'Se a opção não aparecer, o app pode já estar instalado: procure o ícone "GPS SSVP".');
+      });
+    }
+
+    // ------------------------------------------------------------------- Início
+
+    async function iniciar() {
+      prepararInstalacao();
+      if (!window.isSecureContext) el('avisoSeguro').hidden = false;
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch((erro) => console.warn('SW:', erro));
+      }
+      // Pede ao navegador para não apagar os dados quando faltar espaço.
+      if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
+
+      el('botaoEtapa').addEventListener('click', gravarEtapa);
+      el('botaoRota').addEventListener('click', exibirRota);
+      el('botaoCopiar').addEventListener('click', copiarDados);
+      el('botaoApagar').addEventListener('click', recomecar);
+      window.addEventListener('online', mostrarInternet);
+      window.addEventListener('offline', mostrarInternet);
+      setInterval(mostrarIdade, 1000);
+
+      mostrarInternet();
+      pontos = await lerPontos();
+      desenhar();
+      iniciarGps();
+    }
+
+    iniciar();
+  </script>
+</body>
+</html>

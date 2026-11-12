@@ -1,0 +1,20 @@
+{
+  "name": "Teste GPS offline SSVP",
+  "short_name": "GPS SSVP",
+  "description": "Grava início, chegada, saída e término de um percurso com o GPS, sem internet.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#002d62",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
