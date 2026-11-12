@@ -92,13 +92,13 @@
   <div class="topo-acoes-teste">
     <div class="teste-nome-arquivo" id="topoNomeArquivo"></div>
     <button class="btn btn-primary" id="botaoInstalar" type="button" hidden>📲 Instalar</button>
-    <div class="teste-versao-topo">v1.2</div>
+    <div class="teste-versao-topo">v1.3</div>
   </div>
 
-  <div class="card-principal" id="cardPrincipal">
+  <div class="card-principal ativo" id="cardPrincipal">
     <div class="cabecalho-principal" onclick="toggleCardPrincipal()">
       <span class="titulo-principal">📊 Instruções & Informações do Teste</span>
-      <span class="seta-principal" id="setaPrincipal">+</span>
+      <span class="seta-principal" id="setaPrincipal">−</span>
     </div>
     <div class="conteudo-principal-wrapper">
       <div class="conteudo-principal">
@@ -135,21 +135,60 @@
             </div>
           </div>
 
-          <div class="sub-card" id="subCardComo">
+          <div class="sub-card ativo" id="subCardComo">
             <div class="sub-card-header" onclick="toggleSubCard('subCardComo')">
               <span>📋 Passo a Passo para testar</span>
+              <span class="sub-card-seta">−</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                Escolha um passeio curto a pé: padaria, igreja, mercado, casa de um vizinho.
+                <ol style="padding-left: 1.2rem; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                  <li>Em casa, com internet: toque em <strong>📲 Instalar</strong> no topo da tela e permita a localização.</li>
+                  <li>Ligue o <strong>modo avião</strong> (veja abaixo) e abra o app pelo ícone <strong>GPS SSVP</strong>.</li>
+                  <li>Na porta de casa, espere a <strong>Precisão</strong> ficar verde ou amarela e toque em <strong>Início</strong>.</li>
+                  <li>Ao chegar ao local, toque em <strong>Chegada</strong>.</li>
+                  <li>Ao sair do local, toque em <strong>Saída</strong>.</li>
+                  <li>De volta à porta de casa, toque em <strong>Término</strong>.</li>
+                  <li>Desligue o modo avião e toque em <strong>Exibir rota</strong>: confira se os pontos estão no lugar certo.</li>
+                  <li>Toque em <strong>Copiar dados</strong> e cole no WhatsApp para quem enviou o teste.</li>
+                </ol>
+                Pode fechar o app entre um toque e outro: os pontos ficam guardados.
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-card" id="subCardAviao">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardAviao')">
+              <span>✈️ Como ligar o modo avião</span>
               <span class="sub-card-seta">+</span>
             </div>
             <div class="sub-card-content-wrapper">
               <div class="sub-card-content">
-                <ol style="padding-left: 1.2rem; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;">
-                  <li>Em casa, com internet: abra a página, permita a localização e instale o app.</li>
-                  <li>Feche o navegador, ligue o modo avião e confira se o app instalado abre.</li>
-                  <li>Na portaria, abra o app e espere a precisão ficar verde. Toque em <strong>Início</strong>.</li>
-                  <li>Na porta do mercado, toque em <strong>Chegada</strong>. Ao sair, toque em <strong>Saída</strong>.</li>
-                  <li>De volta à portaria, toque em <strong>Término</strong>.</li>
-                  <li>Em casa, com internet, toque em <strong>Exibir rota</strong>.</li>
-                </ol>
+                <ul>
+                  <li><strong>Android:</strong> deslize o dedo do alto da tela para baixo e toque no ícone do avião ✈️.
+                    Se a <strong>Localização</strong> desligar junto, toque nela para ligar de novo.</li>
+                  <li><strong>iPhone:</strong> deslize o dedo do canto de cima, à direita, para baixo e toque no avião ✈️.
+                    No iPhone 8 ou mais antigo, deslize de baixo para cima.</li>
+                </ul>
+                Para desligar, faça o mesmo e toque no avião de novo.
+                O GPS continua funcionando em modo avião, mas pode demorar um pouco para achar a posição.
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-card" id="subCardInstalar">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardInstalar')">
+              <span>📲 Como instalar</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                <ul>
+                  <li><strong>Android:</strong> abra o link no Chrome e toque em <strong>📲 Instalar</strong>, no topo da tela.</li>
+                  <li><strong>iPhone:</strong> abra o link no Safari, toque em <strong>Compartilhar</strong>
+                    (quadrado com seta para cima) e depois em <strong>Adicionar à Tela de Início</strong>.</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -350,7 +389,7 @@
           const anterior = pontos[i - 1];
           const trecho = document.createElement('li');
           trecho.className = 'trecho';
-          const rotulo = anterior.etapa === 'chegada' ? 'no mercado' : 'caminhando';
+          const rotulo = anterior.etapa === 'chegada' ? 'no local' : 'caminhando';
           trecho.textContent = `↓ ${formatarDuracao(new Date(ponto.horario) - new Date(anterior.horario))} ` +
               `${rotulo} · ${formatarDistancia(distancia(anterior, ponto))} em linha reta`;
           lista.appendChild(trecho);
