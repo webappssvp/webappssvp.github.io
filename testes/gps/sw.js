@@ -4,7 +4,7 @@
  * Para publicar uma versão nova, aumente a VERSAO (e a versão no topo do index.html).
  */
 
-const VERSAO = 'teste-gps-v1.3';
+const VERSAO = 'teste-gps-v1.4';
 
 const ARQUIVOS = [
   './',
