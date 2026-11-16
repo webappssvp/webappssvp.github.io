@@ -1,0 +1,34 @@
+[
+  {
+    "sigla": "PRG",
+    "significado": "Visita Programada",
+    "descricao": "Agendada pela conferência, aguardando a realização presencial pela dupla",
+    "icone": "⏳",
+    "cor": "#0284c7",
+    "ordem": 1
+  },
+  {
+    "sigla": "REA",
+    "significado": "Visita Realizada",
+    "descricao": "Visita concluída com escuta ativa fraterna e relato registrado",
+    "icone": "✅",
+    "cor": "#15803d",
+    "ordem": 2
+  },
+  {
+    "sigla": "REG",
+    "significado": "Visita Reagendada",
+    "descricao": "Data remarcada por ausência justificada ou solicitação da família",
+    "icone": "🔄",
+    "cor": "#d97706",
+    "ordem": 3
+  },
+  {
+    "sigla": "CAN",
+    "significado": "Visita Cancelada",
+    "descricao": "Cancelada por motivo de força maior, mudança de endereço ou recusa",
+    "icone": "❌",
+    "cor": "#dc2626",
+    "ordem": 4
+  }
+]

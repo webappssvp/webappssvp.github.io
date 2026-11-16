@@ -1,0 +1,227 @@
+[
+  {
+    "sigla": "TIT",
+    "categoria": "titular",
+    "significado": "Pessoa de Referência (Titular)",
+    "descricao": "Responsável principal pelo cadastro da família e acolhimento vicentino",
+    "icone": "⭐",
+    "partilha_cesta": true,
+    "ordem": 1
+  },
+  {
+    "sigla": "CON",
+    "categoria": "nuclear",
+    "significado": "Cônjuge / Companheiro(a)",
+    "descricao": "Esposo, esposa ou companheiro(a) em união estável sob o mesmo teto",
+    "icone": "💍",
+    "partilha_cesta": true,
+    "ordem": 2
+  },
+  {
+    "sigla": "FIL",
+    "categoria": "nuclear",
+    "significado": "Filho(a)",
+    "descricao": "Filho ou filha biológico(a) ou adotivo(a) residente no domicílio",
+    "icone": "👶",
+    "partilha_cesta": true,
+    "ordem": 3
+  },
+  {
+    "sigla": "PAI",
+    "categoria": "nuclear",
+    "significado": "Pai",
+    "descricao": "Pai do(a) titular residente na residência",
+    "icone": "👨",
+    "partilha_cesta": true,
+    "ordem": 4
+  },
+  {
+    "sigla": "MAE",
+    "categoria": "nuclear",
+    "significado": "Mãe",
+    "descricao": "Mãe do(a) titular residente na residência",
+    "icone": "👩",
+    "partilha_cesta": true,
+    "ordem": 5
+  },
+  {
+    "sigla": "IRM",
+    "categoria": "nuclear",
+    "significado": "Irmão/Irmã",
+    "descricao": "Irmão ou irmã consanguíneo(a) residindo sob o mesmo teto",
+    "icone": "👦",
+    "partilha_cesta": true,
+    "ordem": 6
+  },
+  {
+    "sigla": "NET",
+    "categoria": "nuclear",
+    "significado": "Neto(a)",
+    "descricao": "Neto ou neta sob cuidados ou coabitação da família",
+    "icone": "🧒",
+    "partilha_cesta": true,
+    "ordem": 7
+  },
+  {
+    "sigla": "ENT",
+    "categoria": "afinidade",
+    "significado": "Enteado(a)",
+    "descricao": "Filho(a) exclusivo(a) do cônjuge residente no núcleo familiar",
+    "icone": "🧑",
+    "partilha_cesta": true,
+    "ordem": 8
+  },
+  {
+    "sigla": "SOG",
+    "categoria": "afinidade",
+    "significado": "Sogro(a)",
+    "descricao": "Pai ou mãe do cônjuge residindo na mesma casa",
+    "icone": "👴",
+    "partilha_cesta": true,
+    "ordem": 9
+  },
+  {
+    "sigla": "GEN",
+    "categoria": "afinidade",
+    "significado": "Genro",
+    "descricao": "Cônjuge da filha residente na residência",
+    "icone": "🧔",
+    "partilha_cesta": true,
+    "ordem": 10
+  },
+  {
+    "sigla": "NOR",
+    "categoria": "afinidade",
+    "significado": "Nora",
+    "descricao": "Cônjuge do filho residente na residência",
+    "icone": "👱‍♀️",
+    "partilha_cesta": true,
+    "ordem": 11
+  },
+  {
+    "sigla": "CUN",
+    "categoria": "afinidade",
+    "significado": "Cunhado(a)",
+    "descricao": "Irmão ou irmã do cônjuge coabitando no lar",
+    "icone": "🤝",
+    "partilha_cesta": true,
+    "ordem": 12
+  },
+  {
+    "sigla": "PAD",
+    "categoria": "afinidade",
+    "significado": "Padrasto / Madrasta",
+    "descricao": "Cônjuge do pai ou da mãe residente na casa",
+    "icone": "🧑",
+    "partilha_cesta": true,
+    "ordem": 13
+  },
+  {
+    "sigla": "AVO",
+    "categoria": "colateral",
+    "significado": "Avô/Avó",
+    "descricao": "Avô ou avó do titular residente no núcleo familiar",
+    "icone": "👵",
+    "partilha_cesta": true,
+    "ordem": 14
+  },
+  {
+    "sigla": "TIO",
+    "categoria": "colateral",
+    "significado": "Tio(a)",
+    "descricao": "Tio ou tia consanguíneo(a) ou por afinidade",
+    "icone": "🧑‍🦰",
+    "partilha_cesta": true,
+    "ordem": 15
+  },
+  {
+    "sigla": "SOB",
+    "categoria": "colateral",
+    "significado": "Sobrinho(a)",
+    "descricao": "Sobrinho ou sobrinha residente sob responsabilidade familiar",
+    "icone": "🧒",
+    "partilha_cesta": true,
+    "ordem": 16
+  },
+  {
+    "sigla": "PRI",
+    "categoria": "colateral",
+    "significado": "Primo(a)",
+    "descricao": "Primo ou prima coabitando no mesmo imóvel",
+    "icone": "🧑",
+    "partilha_cesta": true,
+    "ordem": 17
+  },
+  {
+    "sigla": "BIS",
+    "categoria": "colateral",
+    "significado": "Bisneto(a)",
+    "descricao": "Bisneto ou bisneta presente no domicílio",
+    "icone": "👶",
+    "partilha_cesta": true,
+    "ordem": 18
+  },
+  {
+    "sigla": "AGR",
+    "categoria": "afetividade",
+    "significado": "Agregado(a) Acolhido(a)",
+    "descricao": "Pessoa sem laço de sangue acolhida por caridade ou compadrio",
+    "icone": "🏡",
+    "partilha_cesta": true,
+    "ordem": 19
+  },
+  {
+    "sigla": "AMI",
+    "categoria": "afetividade",
+    "significado": "Amigo(a) Residente",
+    "descricao": "Amigo ou conhecido que compartilha habitação e despesas",
+    "icone": "🤝",
+    "partilha_cesta": true,
+    "ordem": 20
+  },
+  {
+    "sigla": "AFI",
+    "categoria": "afetividade",
+    "significado": "Afilhado(a)",
+    "descricao": "Afilhado ou afilhada residente na moradia",
+    "icone": "🙏",
+    "partilha_cesta": true,
+    "ordem": 21
+  },
+  {
+    "sigla": "INQ",
+    "categoria": "moradia",
+    "significado": "Inquilino(a) (Independente)",
+    "descricao": "Locatário de cômodo com subsistência própria e independente",
+    "icone": "🚪",
+    "partilha_cesta": false,
+    "ordem": 22
+  },
+  {
+    "sigla": "PEN",
+    "categoria": "moradia",
+    "significado": "Pensionista",
+    "descricao": "Residente que paga hospedagem ou alimentação avulsa",
+    "icone": "🛏️",
+    "partilha_cesta": false,
+    "ordem": 23
+  },
+  {
+    "sigla": "CUI",
+    "categoria": "moradia",
+    "significado": "Cuidador(a) Residente",
+    "descricao": "Cuidador(a) de idoso ou pessoa com deficiência residente no local",
+    "icone": "🩺",
+    "partilha_cesta": true,
+    "ordem": 24
+  },
+  {
+    "sigla": "OUT",
+    "categoria": "outros",
+    "significado": "Outro Vínculo",
+    "descricao": "Vínculo ou arranjo familiar não especificado nos tipos anteriores",
+    "icone": "👥",
+    "partilha_cesta": false,
+    "ordem": 25
+  }
+]

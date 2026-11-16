@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>T2 Endereço por voz: números e datas - SSVP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../testes.css">
+  <style>
+    /* Fonte do app (decisão de 13/11/2026): só Montserrat, destaque em bold */
+    body, input, button, select, textarea { font-family: 'Montserrat', Arial, sans-serif; }
+
+    .teste-container { display: flex; flex-direction: column; gap: 1rem; width: min(100%, 40rem); }
+    .campo-voz { display: flex; gap: 0.5rem; align-items: stretch; }
+    .campo-voz input { flex: 1; min-width: 0; font-size: 1.15rem; padding: 0.7rem 0.8rem; border-radius: 10px;
+      border: 1px solid var(--ssvp-gray-border); }
+    .campo-voz input.gravando { border-color: var(--ssvp-red); box-shadow: 0 0 0 3px rgba(224, 5, 18, 0.2); }
+    .btn-mic { width: 3.25rem; flex: none; border: none; border-radius: 10px; background: var(--ssvp-blue);
+      color: #fff; font-size: 1.4rem; cursor: pointer; }
+    .btn-mic.gravando { background: var(--ssvp-red); }
+    .ouvido { margin-top: 0.4rem; font-size: 0.85rem; color: var(--ssvp-text-muted); }
+    .ouvido b { color: var(--ssvp-text-main); }
+    .ouvido ol { margin: 0.25rem 0 0 1.2rem; }
+    .linha { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .linha select, .linha input[type="text"] { padding: 0.6rem; border-radius: 10px; border: 1px solid var(--ssvp-gray-border);
+      font-size: 1rem; }
+    .linha input[type="text"] { flex: 1; min-width: 12rem; }
+    .resultado { font-size: 1.1rem; font-weight: 700; margin-top: 0.5rem; word-break: break-word; }
+    .seletor { width: 100%; padding: 0.6rem; border-radius: 10px; border: 1px solid var(--ssvp-gray-border); font-size: 0.95rem; }
+    .opcao { display: flex; gap: 0.5rem; align-items: center; font-size: 0.95rem; text-transform: none; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { text-align: left; padding: 0.35rem 0.4rem; border-bottom: 1px solid var(--ssvp-gray-border); vertical-align: top; }
+    td.ok { color: var(--ssvp-success); font-weight: 700; }
+    td.falha { color: var(--ssvp-error); font-weight: 700; }
+    .resumo { font-weight: 700; margin-bottom: 0.5rem; }
+    .console-logs { max-height: 14rem; overflow-y: auto; color: #e2e8f0; white-space: pre-wrap; }
+    .aviso { font-size: 0.9rem; color: var(--ssvp-error); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <div class="topo-acoes-teste">
+    <div class="teste-nome-arquivo" id="topoNomeArquivo"></div>
+    <div class="teste-versao-topo">v1.0</div>
+  </div>
+
+  <div class="card-principal" id="cardPrincipal">
+    <div class="cabecalho-principal" onclick="toggleCardPrincipal()">
+      <span class="titulo-principal">📊 Instruções & Informações do Teste</span>
+      <span class="seta-principal" id="setaPrincipal">+</span>
+    </div>
+    <div class="conteudo-principal-wrapper">
+      <div class="conteudo-principal">
+        <div class="corpo-principal">
+
+          <div class="sub-card" id="subCardPorQue">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardPorQue')">
+              <span>❓ Por que testar esta funcionalidade?</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                Ao ditar o endereço, o celular às vezes escreve os números por extenso: "cento e um" em vez de
+                <b>101</b>, "ap trinta e dois" em vez de <b>ap 32</b>. No número e no complemento, o vicentino quer os
+                algarismos, como escreveria à mão. No logradouro é diferente: "Rua Dois Irmãos" não pode virar
+                "Rua 2 Irmãos", e as datas ("Av. 23 de Maio", "Rua XV de Novembro") precisam de uma forma só.
+                <ul>
+                  <li><b>Valor prático:</b> menos correção no teclado depois de falar.</li>
+                  <li><b>Dado limpo:</b> o número do endereço em algarismos ajuda a achar a casa no mapa.</li>
+                  <li><b>Uma forma só:</b> os "casos de atenção" comparam endereços entre conferências pelo HMAC; "Rua 15 de
+                    Novembro" e "Rua Quinze de Novembro" dariam HMACs diferentes para a mesma rua.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-card" id="subCardOQue">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardOQue')">
+              <span>🔍 O que deve ser avaliado?</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                <ul>
+                  <li><b>O que o reconhecedor manda:</b> por extenso ou já em algarismos? Muda entre Android e iPhone?</li>
+                  <li><b>A conversão:</b> o campo recebe "101" e "ap 32", e não "cento e um" e "ap trinta e dois".</li>
+                  <li><b>Casos difíceis:</b> "um zero um", "dois mil e quinhentos", "cento e um A", "sem número",
+                    "bloco B ap doze", "casa e fundos" (o "e" de "casa e fundos" não pode sumir).</li>
+                  <li><b>Logradouro:</b> "avenida vinte e três de maio", "rua quinze de novembro", "rua primeiro de março",
+                    "rua XV de novembro", "rua dois irmãos" (fica como é). Qual forma das datas é melhor: por extenso ou em
+                    algarismos?</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-card" id="subCardComo">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardComo')">
+              <span>📋 Passo a Passo para testar</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                <ol style="padding-left: 1.2rem; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                  <li>Toque em 🎙️ ao lado de <b>Logradouro</b> e diga "avenida vinte e três de maio". Troque "Datas no nome da
+                    rua" e repita.</li>
+                  <li>Toque em 🎙️ ao lado de <b>Número</b> e diga, por exemplo, "cento e um".</li>
+                  <li>Veja embaixo do campo o que o reconhecedor ouviu (todas as opções) e o que foi para o campo.</li>
+                  <li>Faça o mesmo no <b>Complemento</b>: "ap trinta e dois", "bloco B apartamento doze".</li>
+                  <li>Desligue "Converter números" e repita, para comparar com o ditado sem conversão.</li>
+                  <li>Sem microfone, use "Simular sem microfone" para testar uma frase digitada.</li>
+                  <li>No fim, toque em <b>Copiar registro</b> e cole no chat, para ajustarmos a conversão.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="teste-container">
+    <p class="aviso" id="avisoSemVoz" hidden></p>
+
+    <section class="panel">
+      <h2 class="panel-title">🎙️ Ditar no endereço</h2>
+      <label class="opcao"><input type="checkbox" id="chkConverter" checked> Converter números em algarismos</label>
+      <div class="form-group" style="margin-top: 0.75rem;">
+        <label for="selDatas">Datas no nome da rua</label>
+        <select id="selDatas" class="seletor">
+          <option value="logradouro">Por extenso: Vinte e Três de Maio</option>
+          <option value="logradouro_algarismos">Em algarismos: 23 de Maio</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="iptLogradouro">Logradouro</label>
+        <div class="campo-voz">
+          <input id="iptLogradouro" autocomplete="off" autocapitalize="words" data-tipo="logradouro">
+          <button type="button" class="btn-mic" data-campo="iptLogradouro" aria-label="Ditar o logradouro">🎙️</button>
+        </div>
+        <div class="ouvido" id="ouvidoLogradouro"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="iptNumero">Número</label>
+        <div class="campo-voz">
+          <input id="iptNumero" inputmode="numeric" autocomplete="off" data-tipo="numero">
+          <button type="button" class="btn-mic" data-campo="iptNumero" aria-label="Ditar o número">🎙️</button>
+        </div>
+        <div class="ouvido" id="ouvidoNumero"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="iptComplemento">Complemento</label>
+        <div class="campo-voz">
+          <input id="iptComplemento" autocomplete="off" data-tipo="complemento">
+          <button type="button" class="btn-mic" data-campo="iptComplemento" aria-label="Ditar o complemento">🎙️</button>
+        </div>
+        <div class="ouvido" id="ouvidoComplemento"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">⌨️ Simular sem microfone</h2>
+      <div class="linha">
+        <select id="selSimular" aria-label="Campo">
+          <option value="logradouro">Logradouro (datas por extenso)</option>
+          <option value="logradouro_algarismos">Logradouro (datas em algarismos)</option>
+          <option value="numero" selected>Número</option>
+          <option value="complemento">Complemento</option>
+        </select>
+        <input type="text" id="iptSimular" placeholder="Ex.: ap trinta e dois" autocomplete="off">
+      </div>
+      <div class="resultado" id="resSimular"></div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">✅ Casos de teste</h2>
+      <div class="resumo" id="resumoCasos"></div>
+      <table>
+        <thead><tr><th>Campo</th><th>Falado</th><th>No campo</th><th></th></tr></thead>
+        <tbody id="tabelaCasos"></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">📝 Registro</h2>
+      <div class="btn-group" style="margin-bottom: 0.75rem;">
+        <button type="button" class="btn btn-secondary" id="btnCopiar">Copiar registro</button>
+        <button type="button" class="btn btn-secondary" id="btnLimpar">Limpar</button>
+      </div>
+      <div class="console-logs" id="registro"></div>
+    </section>
+  </main>
+
+  <script src="../testes.js"></script>
+  <script type="module">
+    import {converter as converterTipo} from './converter.js';
+    import {CASOS} from './casos_numeros.js';
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;'}[c]));
+    const NOMES = {numero: 'Número', complemento: 'Complemento', logradouro: 'Logradouro (extenso)',
+      logradouro_algarismos: 'Logradouro (algarismos)'};
+    const converter = converterTipo;
+    /** O logradouro segue a escolha das datas; os outros campos, o próprio tipo. */
+    const tipoDoCampo = (campo) => (campo.dataset.tipo === 'logradouro' ? $('selDatas').value : campo.dataset.tipo);
+    const linhas = [];
+
+    function registrar(texto) {
+      const hora = new Date().toLocaleTimeString('pt-BR');
+      linhas.push(hora + '  ' + texto);
+      $('registro').textContent = linhas.join('\n');
+      $('registro').scrollTop = $('registro').scrollHeight;
+    }
+
+    // ---- Casos de teste (os mesmos do Node: node testes/voz/testar_numeros.mjs)
+    let falhas = 0;
+    $('tabelaCasos').innerHTML = CASOS.map(([tipo, falado, esperado]) => {
+      const obtido = converter(tipo, falado);
+      const ok = obtido === esperado;
+      falhas += ok ? 0 : 1;
+      return `<tr><td>${NOMES[tipo]}</td><td>${esc(falado)}</td>
+        <td>${esc(obtido)}${ok ? '' : ' <small>(esperado ' + esc(esperado) + ')</small>'}</td>
+        <td class="${ok ? 'ok' : 'falha'}">${ok ? 'OK' : 'FALHA'}</td></tr>`;
+    }).join('');
+    $('resumoCasos').textContent = falhas ? falhas + ' de ' + CASOS.length + ' casos falharam' :
+      'Os ' + CASOS.length + ' casos passaram';
+
+    // ---- Simular
+    const simular = () => {
+      const texto = $('iptSimular').value;
+      $('resSimular').textContent = texto.trim() ? '→ ' + converter($('selSimular').value, texto) : '';
+    };
+    $('iptSimular').addEventListener('input', simular);
+    $('selSimular').addEventListener('change', simular);
+
+    // ---- Ditado
+    const Reconhecedor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Reconhecedor) {
+      $('avisoSemVoz').hidden = false;
+      $('avisoSemVoz').textContent = 'Este navegador não reconhece a fala. Use o Chrome no Android ou o Safari no iPhone ' +
+        '(em https ou localhost). A simulação e os casos de teste funcionam assim mesmo.';
+    }
+    let gravando = null;
+
+    /**
+     * Número: das opções do reconhecedor, a primeira que vira só número (às vezes a 2ª já vem como "101").
+     * Complemento: a primeira opção.
+     */
+    function escolher(tipo, opcoes) {
+      if (!$('chkConverter').checked) {
+        return opcoes[0];
+      }
+      if (tipo === 'numero') {
+        const boa = opcoes.map((o) => converter(tipo, o)).find((c) => /^(\d+[A-Z]?|S\/N)$/.test(c));
+        if (boa) {
+          return boa;
+        }
+      }
+      return converter(tipo, opcoes[0]);
+    }
+
+    function ditar(botao) {
+      if (!Reconhecedor) {
+        return;
+      }
+      if (gravando) {
+        gravando.stop();
+        return;
+      }
+      const campo = $(botao.dataset.campo);
+      const tipo = tipoDoCampo(campo);
+      const ouvido = $('ouvido' + campo.id.slice(3));
+      const rec = new Reconhecedor();
+      rec.lang = 'pt-BR';
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.maxAlternatives = 5;
+      const ligar = (sim) => {
+        botao.classList.toggle('gravando', sim);
+        campo.classList.toggle('gravando', sim);
+        gravando = sim ? rec : null;
+      };
+      rec.onstart = () => {
+        ligar(true);
+        ouvido.textContent = 'Pode falar…';
+      };
+      rec.onresult = (e) => {
+        const r = e.results[0];
+        const opcoes = Array.from(r, (a) => a.transcript.trim());
+        const confs = Array.from(r, (a) => (a.confidence ? Math.round(a.confidence * 100) + '%' : '?'));
+        const valor = escolher(tipo, opcoes);
+        campo.value = valor;
+        ouvido.innerHTML = 'Ouvido: <ol>' + opcoes.map((o, i) => `<li>${esc(o)} <small>(${confs[i]})</small></li>`).join('') +
+          '</ol>No campo: <b>' + esc(valor) + '</b>';
+        registrar(NOMES[tipo] + (($('chkConverter').checked) ? '' : ' (sem conversão)') +
+          ' | ouvido: ' + opcoes.map((o) => JSON.stringify(o)).join(' / ') + ' | campo: ' + JSON.stringify(valor));
+      };
+      rec.onerror = (e) => {
+        ouvido.textContent = e.error === 'not-allowed' ? 'Precisa permitir o microfone.' :
+          e.error === 'no-speech' ? 'Não ouvi nada. Tente de novo.' : 'Erro: ' + e.error;
+        registrar('Erro do reconhecedor: ' + e.error);
+      };
+      rec.onend = () => ligar(false);
+      try {
+        rec.start();
+      } catch (erro) {
+        ligar(false);
+        ouvido.textContent = 'Não consegui ligar o microfone: ' + erro.message;
+      }
+    }
+    document.querySelectorAll('.btn-mic').forEach((b) => b.addEventListener('click', () => ditar(b)));
+
+    // ---- Registro
+    registrar('Navegador: ' + navigator.userAgent);
+    $('btnCopiar').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(linhas.join('\n'));
+        $('btnCopiar').textContent = 'Copiado';
+      } catch (erro) {
+        $('btnCopiar').textContent = 'Não deu: selecione e copie';
+      }
+      setTimeout(() => ($('btnCopiar').textContent = 'Copiar registro'), 2000);
+    });
+    $('btnLimpar').addEventListener('click', () => {
+      linhas.length = 0;
+      registrar('Navegador: ' + navigator.userAgent);
+    });
+  </script>
+</body>
+</html>

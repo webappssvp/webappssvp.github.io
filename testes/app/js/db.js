@@ -158,6 +158,51 @@ export async function limparSessao() {
 }
 
 /**
+ * Lê um item de configuração (store config_conferencia) pela chave.
+ * @param {string} chave
+ * @return {Promise<*>} O campo "dados" do item, ou null.
+ */
+export async function lerConfig(chave) {
+  const db = await abrirBanco();
+  return new Promise((resolve) => {
+    const req = db.transaction(STORES.CONFIG_CONFERENCIA, 'readonly').objectStore(STORES.CONFIG_CONFERENCIA).get(chave);
+    req.onsuccess = () => resolve(req.result ? req.result.dados : null);
+    req.onerror = () => resolve(null);
+  });
+}
+
+/**
+ * Grava um item de configuração (store config_conferencia).
+ * @param {string} chave
+ * @param {*} dados
+ * @return {Promise<void>}
+ */
+export async function salvarConfig(chave, dados) {
+  const db = await abrirBanco();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(STORES.CONFIG_CONFERENCIA, 'readwrite').objectStore(STORES.CONFIG_CONFERENCIA)
+        .put({chave: chave, dados: dados, atualizado_em: new Date().toISOString()});
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/**
+ * Apaga um item de configuração.
+ * @param {string} chave
+ * @return {Promise<void>}
+ */
+export async function apagarConfig(chave) {
+  const db = await abrirBanco();
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORES.CONFIG_CONFERENCIA, 'readwrite');
+    tx.objectStore(STORES.CONFIG_CONFERENCIA).delete(chave);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+  });
+}
+
+/**
  * Salva o índice de conferências (CPs e CFs) e seu hash no IndexedDB.
  * @param {Object} dadosIndice { conselhos_particulares, conferencias }
  * @param {string} hash

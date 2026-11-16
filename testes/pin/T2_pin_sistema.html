@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>T2: Validação de PIN do Sistema (Fundo Verde / Vermelho) - SSVP</title>
+
+  <!-- Google Fonts: Montserrat e EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS Compartilhado dos Testes SSVP -->
+  <link rel="stylesheet" href="../testes.css">
+
+  <style>
+    /* =========================================================================
+       VARIÁVEIS DE DESIGN E ERGONOMIA 60+ (T2_pin_sistema.html)
+       ========================================================================= */
+    :root {
+      --cor-fundo-padrao: #f8fafc;
+      --cor-fundo-verde: #15803d;      /* Verde vibrante acessível de sucesso */
+      --cor-fundo-verde-suave: #dcfce7;
+      --cor-fundo-vermelho: #b91c1c;   /* Vermelho vibrante acessível de erro */
+      --cor-fundo-vermelho-suave: #fee2e2;
+
+      --pin-btn-size: 4.75rem;         /* ~76px para toque amplo e confortável 60+ */
+      --pin-btn-bg: #ffffff;
+      --pin-btn-border: #cbd5e1;
+      --pin-btn-text: #0f172a;
+      --pin-btn-active: #e2e8f0;
+
+      --pin-dot-size: 1.25rem;
+      --pin-dot-empty: #cbd5e1;
+      --pin-dot-filled: #002d62;
+
+      --ssvp-navy: #002d62;
+      --ssvp-blue: #007fff;
+      --ssvp-text: #1e293b;
+      --ssvp-muted: #64748b;
+    }
+
+    /* Reset e Transição Suave do Fundo da Tela */
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-color: var(--cor-fundo-padrao);
+      color: var(--ssvp-text);
+      margin: 0;
+      padding: 0 0 calc(3rem + env(safe-area-inset-bottom, 0px)) 0;
+      min-height: 100vh;
+      transition: background-color 0.4s ease, color 0.3s ease;
+    }
+
+    /* =========================================================================
+       ESTADOS DA TELA: FUNDO VERDE (IGUAL) E FUNDO VERMELHO (DIFERENTE)
+       ========================================================================= */
+    body.fundo-verde {
+      background-color: var(--cor-fundo-verde) !important;
+    }
+
+    body.fundo-vermelho {
+      background-color: var(--cor-fundo-vermelho) !important;
+    }
+
+    /* Adaptação de contraste quando o fundo da tela está colorido */
+    body.fundo-verde .topo-acoes-teste,
+    body.fundo-vermelho .topo-acoes-teste {
+      background: rgba(0, 0, 0, 0.45);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    body.fundo-verde .topo-acoes-teste .teste-nome-arquivo,
+    body.fundo-vermelho .topo-acoes-teste .teste-nome-arquivo,
+    body.fundo-verde .topo-acoes-teste .teste-versao-topo,
+    body.fundo-vermelho .topo-acoes-teste .teste-versao-topo {
+      color: #ffffff;
+    }
+
+    .teste-container {
+      width: 100%;
+      max-width: 32rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      margin: 0 auto;
+      padding: 0 1rem;
+      box-sizing: border-box;
+    }
+
+    /* =========================================================================
+       PAINEL DE CONFIGURAÇÃO E PARÂMETROS DO TESTE
+       ========================================================================= */
+    .painel-sistema-config {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.25rem;
+      box-shadow: 0 4px 14px rgba(0, 45, 98, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-sizing: border-box;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .painel-sistema-cabecalho {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .painel-sistema-titulo {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0;
+    }
+
+    .badge-pin-sistema {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 2rem;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      border: 1px solid #bae6fd;
+    }
+
+    .pin-display-valor {
+      font-family: monospace;
+      font-size: 1.15rem;
+      letter-spacing: 0.18em;
+      color: var(--ssvp-navy);
+      font-weight: 700;
+    }
+
+    .painel-linha-acoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .btn-acao-config {
+      min-height: 2.75rem;
+      padding: 0.5rem 0.9rem;
+      background: #f1f5f9;
+      color: var(--ssvp-text);
+      border: 1px solid #cbd5e1;
+      border-radius: 0.5rem;
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-acao-config:hover,
+    .btn-acao-config:focus-visible {
+      background: #ffffff;
+      border-color: var(--ssvp-blue);
+      outline: none;
+    }
+
+    .btn-acao-config.destaque {
+      background: #e6f0fa;
+      border-color: var(--ssvp-blue);
+      color: var(--ssvp-navy);
+    }
+
+    .toggles-linha {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 0.75rem;
+    }
+
+    .toggle-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-item input[type="checkbox"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      accent-color: var(--ssvp-navy);
+      cursor: pointer;
+    }
+
+    /* =========================================================================
+       CARD CENTRAL DO TECLADO PIN (ERGONOMIA 60+)
+       ========================================================================= */
+    .card-teclado-pin {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.5rem;
+      padding: 1.75rem 1.25rem;
+      box-shadow: 0 12px 28px rgba(0, 45, 98, 0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      box-sizing: border-box;
+      position: relative;
+      transition: transform 0.25s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Destaques visuais no card quando o fundo da tela muda */
+    body.fundo-verde .card-teclado-pin {
+      border: 3px solid #16a34a;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+    }
+
+    body.fundo-vermelho .card-teclado-pin {
+      border: 3px solid #ef4444;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+      animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    .pin-cabecalho-texto {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .pin-titulo {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .pin-instrucoes-texto {
+      font-size: 0.925rem;
+      color: var(--ssvp-muted);
+      margin: 0;
+      max-width: 20rem;
+      line-height: 1.4;
+    }
+
+    /* Container dos Indicadores de Dígitos (Bolinhas) */
+    .pin-dots-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      min-height: 3.25rem;
+      padding: 0.4rem 1.25rem;
+      background: #f8fafc;
+      border-radius: 2rem;
+      border: 2px solid #e2e8f0;
+      box-sizing: border-box;
+      transition: all 0.25s ease;
+    }
+
+    .pin-dot-item {
+      width: var(--pin-dot-size);
+      height: var(--pin-dot-size);
+      border-radius: 50%;
+      background: var(--pin-dot-empty);
+      border: 2px solid transparent;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+    }
+
+    .pin-dot-item.preenchido {
+      background: var(--pin-dot-filled);
+      transform: scale(1.18);
+      box-shadow: 0 2px 6px rgba(0, 45, 98, 0.3);
+    }
+
+    .pin-dot-item.revelado {
+      background: #e6f0fa;
+      border-color: var(--ssvp-blue);
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 0.4rem;
+      transform: scale(1.1);
+    }
+
+    /* Teclado Numérico 3x4 Amplo (76px por botão) */
+    .pin-grade-teclas {
+      display: grid;
+      grid-template-columns: repeat(3, var(--pin-btn-size));
+      gap: 0.85rem;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+
+    .btn-tecla {
+      width: var(--pin-btn-size);
+      height: var(--pin-btn-size);
+      border-radius: 50%;
+      border: 2px solid var(--pin-btn-border);
+      background: var(--pin-btn-bg);
+      color: var(--pin-btn-text);
+      font-size: 1.75rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 3px 6px rgba(0, 45, 98, 0.08);
+      transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+    }
+
+    .btn-tecla:hover {
+      border-color: var(--ssvp-blue);
+      background: #f8fafc;
+    }
+
+    .btn-tecla:active {
+      transform: scale(0.92);
+      background: var(--pin-btn-active);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-tecla:focus-visible {
+      outline: 3px solid var(--ssvp-blue);
+      outline-offset: 2px;
+    }
+
+    .tecla-letras {
+      font-size: 0.625rem;
+      font-weight: 600;
+      color: var(--ssvp-muted);
+      letter-spacing: 0.12em;
+      margin-top: -0.15rem;
+    }
+
+    .btn-tecla-utilitaria {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      font-size: 1.35rem;
+      color: var(--ssvp-navy);
+    }
+
+    .btn-tecla-utilitaria:hover {
+      background: #f1f5f9;
+      border-color: var(--ssvp-navy);
+    }
+
+    /* Banner de Alerta e Resultado da Validação */
+    .banner-resultado {
+      width: 100%;
+      min-height: 3.5rem;
+      border-radius: 0.875rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      background: #f1f5f9;
+      color: var(--ssvp-muted);
+      border: 1px solid #cbd5e1;
+    }
+
+    .banner-resultado.sucesso {
+      background: var(--cor-fundo-verde-suave);
+      color: #065f46;
+      border: 2px solid #10b981;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .banner-resultado.erro {
+      background: var(--cor-fundo-vermelho-suave);
+      color: #991b1b;
+      border: 2px solid #ef4444;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Botão de Redefinir / Testar Novamente */
+    .btn-reiniciar-teste {
+      min-height: 3rem;
+      padding: 0.5rem 1.5rem;
+      background: var(--ssvp-navy);
+      color: #ffffff;
+      border: 2px solid var(--ssvp-navy);
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-reiniciar-teste:hover {
+      background: #001f44;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 45, 98, 0.25);
+    }
+
+    /* Painel de Métricas de Validação */
+    .painel-estatisticas {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0, 45, 98, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      box-sizing: border-box;
+    }
+
+    .grid-estatisticas {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .card-estatistica {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.625rem;
+      padding: 0.65rem 0.5rem;
+      text-align: center;
+    }
+
+    .label-estatistica {
+      font-size: 0.725rem;
+      font-weight: 600;
+      color: var(--ssvp-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .valor-estatistica {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+      margin-top: 0.25rem;
+    }
+
+    .valor-estatistica.verde {
+      color: #059669;
+    }
+
+    .valor-estatistica.vermelho {
+      color: #dc2626;
+    }
+
+    /* Animação de Tremor (Shake) */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      15% { transform: translateX(-8px); }
+      30% { transform: translateX(8px); }
+      45% { transform: translateX(-6px); }
+      60% { transform: translateX(6px); }
+      75% { transform: translateX(-3px); }
+      90% { transform: translateX(3px); }
+    }
+
+    /* Modal de Edição de PIN do Sistema */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .modal-overlay.ativo {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 24rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-sizing: border-box;
+    }
+
+    .modal-titulo {
+      margin: 0;
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.5rem;
+      color: var(--ssvp-navy);
+      font-weight: 700;
+    }
+
+    .modal-campo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .modal-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--ssvp-text);
+    }
+
+    .modal-input {
+      width: 100%;
+      font-size: 1.35rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 0.625rem;
+      letter-spacing: 0.25em;
+      text-align: center;
+      font-family: monospace;
+      font-weight: 700;
+      box-sizing: border-box;
+    }
+
+    .modal-input:focus {
+      border-color: var(--ssvp-blue);
+      outline: none;
+    }
+
+    .modal-acoes {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* Links de Navegação */
+    .links-navegacao-teste {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .link-teste-btn {
+      text-decoration: none;
+      color: #ffffff;
+      background: rgba(0, 45, 98, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background-color 0.15s ease;
+    }
+
+    .link-teste-btn:hover {
+      background: var(--ssvp-blue);
+    }
+
+    /* Responsividade para telas menores que 360px */
+    @media (max-width: 360px) {
+      :root {
+        --pin-btn-size: 4.15rem;
+        --pin-dot-size: 1.05rem;
+      }
+      .pin-grade-teclas {
+        gap: 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra de Ações do Topo -->
+  <div class="topo-acoes-teste">
+    <div class="teste-nome-arquivo" id="topoNomeArquivo">testes/pin/T2_pin_sistema.html</div>
+    <div class="teste-versao-topo">v1.0 (Validação PIN do Sistema)</div>
+  </div>
+
+  <!-- Card Principal de Instruções (Padrão SSVP Testes) -->
+  <div class="card-principal" id="cardPrincipal">
+    <div class="cabecalho-principal" onclick="toggleCardPrincipal()">
+      <span class="titulo-principal">📊 Instruções: Teste T2 - Validação de PIN do Sistema</span>
+      <span class="seta-principal" id="setaPrincipal">+</span>
+    </div>
+    
+    <div class="conteudo-principal-wrapper">
+      <div class="conteudo-principal">
+        <div class="corpo-principal">
+          
+          <!-- SUB-CARD 1: Objetivo do Teste T2 -->
+          <div class="sub-card" id="subCardObjetivo">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardObjetivo')">
+              <span>🎯 Objetivo do Teste T2 (Feedback Cromático Imediato)</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                Este teste avalia o feedback visual instantâneo ao conferir um PIN de 6 dígitos:
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                  <li><strong>Fundo Verde (PIN Igual):</strong> Se os 6 números digitados forem idênticos ao PIN gravado no sistema, o fundo de toda a tela fica verde, confirmando o desbloqueio com tom harmônico e vibração simples.</li>
+                  <li><strong>Fundo Vermelho (PIN Diferente):</strong> Se qualquer número for diferente, o fundo de toda a tela fica vermelho, indicando erro com tremor (*shake*), tom grave e vibração dupla.</li>
+                  <li><strong>Ergonomia 60+:</strong> Alvos de toque amplos de 76px, alto contraste de leitura e recuperação simples sem travar a interface.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-CARD 2: O que deve ser avaliado? -->
+          <div class="sub-card" id="subCardAvaliar">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardAvaliar')">
+              <span>🔍 O que avaliar neste teste T2?</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                Avalie os seguintes comportamentos práticos em campo:
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                  <li><strong>Visibilidade da Mudança de Cor:</strong> O fundo verde e vermelho é imediatamente perceptível mesmo sob luz solar ou para pessoas com baixa acuidade visual?</li>
+                  <li><strong>Tempo de Resposta:</strong> A mudança de cor e o som disparam no exato milissegundo em que o 6º dígito é teclado.</li>
+                  <li><strong>Recuperação Automática:</strong> No erro, a tela retorna suavemente ao estado normal após 2.5 segundos para uma nova tentativa, sem necessidade de recarregar a página.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-CARD 3: Passo a Passo -->
+          <div class="sub-card" id="subCardPasso">
+            <div class="sub-card-header" onclick="toggleSubCard('subCardPasso')">
+              <span>📋 Passo a Passo para Testar</span>
+              <span class="sub-card-seta">+</span>
+            </div>
+            <div class="sub-card-content-wrapper">
+              <div class="sub-card-content">
+                <ol style="padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                  <li>O PIN do sistema inicial é <code>123456</code> (exibido no painel de parâmetros).</li>
+                  <li><strong>Teste de Sucesso:</strong> Digite <code>123456</code> no teclado. Observe o <strong>fundo da tela ficar VERDE</strong> e o aviso de sucesso.</li>
+                  <li><strong>Teste de Erro:</strong> Digite qualquer código diferente (ex: <code>112233</code>). Observe o <strong>fundo da tela ficar VERMELHO</strong>, o tremor e o retorno automático.</li>
+                  <li>Clique em <em>"✏️ Alterar PIN do Sistema"</em> se quiser configurar outro código (ex: <code>150854</code>).</li>
+                  <li>Clique em <em>"📥 Carregar do IndexedDB"</em> para verificar o PIN criptografado do teste T1.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Container Principal do Protótipo -->
+  <main class="teste-container">
+
+    <!-- 1. Painel de Parâmetros do Teste e PIN do Sistema -->
+    <section class="painel-sistema-config" aria-label="Parâmetros de Teste">
+      <div class="painel-sistema-cabecalho">
+        <h2 class="painel-sistema-titulo">⚙️ Parâmetros do Sistema</h2>
+        <div class="badge-pin-sistema">
+          <span>PIN do Sistema:</span>
+          <span class="pin-display-valor" id="displayPinSistema">123456</span>
+        </div>
+      </div>
+
+      <div class="painel-linha-acoes">
+        <button type="button" class="btn-acao-config destaque" onclick="abrirModalAlterarPin()">
+          ✏️ Alterar PIN do Sistema
+        </button>
+        <button type="button" class="btn-acao-config" id="btnAlternarVisibilidadePin" onclick="alternarVisibilidadePinSistema()">
+          👁️ Ocultar PIN
+        </button>
+        <button type="button" class="btn-acao-config" onclick="consultarIndexedDbT1()">
+          📥 Carregar do IndexedDB
+        </button>
+      </div>
+
+      <div class="toggles-linha">
+        <label class="toggle-item">
+          <input type="checkbox" id="chkAudio" checked>
+          🔊 Som de Feedback
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="chkVibracao" checked>
+          📳 Vibração Háptica
+        </label>
+      </div>
+    </section>
+
+    <!-- 2. Card Central do Teclado PIN Ergonômico -->
+    <section class="card-teclado-pin" id="cardTecladoPin" aria-label="Teclado Numérico de Validação">
+      
+      <div class="pin-cabecalho-texto">
+        <h1 class="pin-titulo" id="pinTituloTela">Validação de PIN</h1>
+        <p class="pin-instrucoes-texto" id="pinDescricaoTela">
+          Digite os 6 números para conferir com o sistema.
+        </p>
+      </div>
+
+      <!-- Indicadores de Dígitos (Bolinhas) -->
+      <div class="pin-dots-wrapper" id="pinDotsWrapper" aria-live="polite">
+        <div class="pin-dot-item" data-indice="0"></div>
+        <div class="pin-dot-item" data-indice="1"></div>
+        <div class="pin-dot-item" data-indice="2"></div>
+        <div class="pin-dot-item" data-indice="3"></div>
+        <div class="pin-dot-item" data-indice="4"></div>
+        <div class="pin-dot-item" data-indice="5"></div>
+      </div>
+
+      <!-- Grade do Teclado Numérico 3x4 (76px por botão) -->
+      <div class="pin-grade-teclas" role="group" aria-label="Teclas Numéricas">
+        <button type="button" class="btn-tecla" onclick="teclarNumero('1')">
+          1 <span class="tecla-letras">&nbsp;</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('2')">
+          2 <span class="tecla-letras">ABC</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('3')">
+          3 <span class="tecla-letras">DEF</span>
+        </button>
+
+        <button type="button" class="btn-tecla" onclick="teclarNumero('4')">
+          4 <span class="tecla-letras">GHI</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('5')">
+          5 <span class="tecla-letras">JKL</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('6')">
+          6 <span class="tecla-letras">MNO</span>
+        </button>
+
+        <button type="button" class="btn-tecla" onclick="teclarNumero('7')">
+          7 <span class="tecla-letras">PQRS</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('8')">
+          8 <span class="tecla-letras">TUV</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('9')">
+          9 <span class="tecla-letras">WXYZ</span>
+        </button>
+
+        <!-- Ação Esquerda: Mostrar / Ocultar números digitados -->
+        <button type="button" class="btn-tecla btn-tecla-utilitaria" id="btnRevelarDigitacao" onclick="alternarRevelacaoDigitacao()" aria-label="Mostrar ou ocultar números digitados">
+          👁️
+        </button>
+
+        <!-- Zero -->
+        <button type="button" class="btn-tecla" onclick="teclarNumero('0')">
+          0 <span class="tecla-letras">+</span>
+        </button>
+
+        <!-- Ação Direita: Apagar último número -->
+        <button type="button" class="btn-tecla btn-tecla-utilitaria" onclick="apagarUltimoDigito()" aria-label="Apagar último dígito">
+          ⌫
+        </button>
+      </div>
+
+      <!-- Banner de Resultado Visual e Auditivo -->
+      <div class="banner-resultado" id="bannerResultado">
+        Aguardando digitação dos 6 números...
+      </div>
+
+      <!-- Botão Reiniciar / Limpar -->
+      <button type="button" class="btn-reiniciar-teste" id="btnReiniciarTeste" onclick="redefinirTesteManual()">
+        🔄 Limpar Digitação
+      </button>
+
+    </section>
+
+    <!-- 3. Painel de Métricas do Teste -->
+    <section class="painel-estatisticas" aria-label="Estatísticas do Teste">
+      <div class="painel-sistema-titulo">📊 Estatísticas da Sessão</div>
+      <div class="grid-estatisticas">
+        <div class="card-estatistica">
+          <div class="label-estatistica">Total de Testes</div>
+          <div class="valor-estatistica" id="statTotal">0</div>
+        </div>
+        <div class="card-estatistica">
+          <div class="label-estatistica">Corretos (Verde)</div>
+          <div class="valor-estatistica verde" id="statCorretos">0</div>
+        </div>
+        <div class="card-estatistica">
+          <div class="label-estatistica">Incorretos (Vermelho)</div>
+          <div class="valor-estatistica vermelho" id="statIncorretos">0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navegação Rápida entre Testes -->
+    <nav class="links-navegacao-teste" aria-label="Outros Testes de PIN">
+      <a href="T1_pin_local.html" class="link-teste-btn">⬅️ Ir para T1 (PIN Local Consolidado)</a>
+      <a href="index.html" class="link-teste-btn">🏠 Índice de Testes PIN</a>
+    </nav>
+
+  </main>
+
+  <!-- Modal para Configurar PIN do Sistema -->
+  <div class="modal-overlay" id="modalConfigPin" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+    <div class="modal-card">
+      <h3 class="modal-titulo" id="tituloModal">Definir PIN do Sistema</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: #64748b;">
+        Insira um código de 6 dígitos que servirá como referência oficial do sistema para validação:
+      </p>
+      
+      <div class="modal-campo">
+        <label for="inputNovoPinSistema" class="modal-label">Novo PIN (6 dígitos numéricos):</label>
+        <input type="text" id="inputNovoPinSistema" class="modal-input" maxlength="6" inputmode="numeric" placeholder="123456">
+      </div>
+
+      <div class="modal-acoes">
+        <button type="button" class="btn-acao-config" onclick="fecharModalAlterarPin()">
+          Cancelar
+        </button>
+        <button type="button" class="btn-acao-config destaque" onclick="confirmarNovoPinSistema()">
+          💾 Salvar PIN
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Compartilhados SSVP -->
+  <script src="../testes.js"></script>
+
+  <script>
+    'use strict';
+
+    /**
+     * @fileoverview Protótipo T2: Validação de PIN do Sistema.
+     * Implementa feedback cromático em tela cheia (fundo verde para igual, fundo vermelho para diferente).
+     * Padrão Google JavaScript, Web Audio API e ergonomia para público 60+.
+     */
+
+    // =========================================================================
+    // CONFIGURAÇÕES E ESTADO DO TESTE
+    // =========================================================================
+
+    /** @const {number} Tamanho padrão adotado para o PIN bancário/data */
+    const TAMANHO_PIN = 6;
+
+    /**
+     * Estado reativo da aplicação de teste
+     */
+    const estado = {
+      pinSistema: '123456',        // PIN cadastrado no sistema para conferência
+      pinOculto: false,            // Exibir ou mascarar PIN no painel
+      pinDigitado: '',             // Buffer atual digitado pelo usuário
+      mostrarDigitos: false,       // Olho de revelação de dígitos acionado
+      bloqueadoParaValidacao: false,// Trava temporária durante a animação
+      estatisticas: {
+        total: 0,
+        corretos: 0,
+        incorretos: 0
+      },
+      timerReset: null             // Referência do setTimeout do auto-reset
+    };
+
+    // =========================================================================
+    // SÍNTESE DE ÁUDIO HARMONIOSA (WEB AUDIO API)
+    // =========================================================================
+
+    /** @type {AudioContext|null} */
+    let audioCtx = null;
+
+    /**
+     * Garante a inicialização segura do AudioContext mediante interação física.
+     * @return {AudioContext}
+     */
+    function obterAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    /**
+     * Emite som suave e curto de clique na tecla.
+     */
+    function emitirSomClique() {
+      const chk = document.getElementById('chkAudio');
+      if (!chk || !chk.checked) {
+        return;
+      }
+      try {
+        const ctx = obterAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(850, ctx.currentTime + 0.04);
+
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start();
+        osc.stop(ctx.currentTime + 0.04);
+      } catch (err) {
+        console.warn('Áudio Web Audio indisponível:', err);
+      }
+    }
+
+    /**
+     * Emite acorde ascendente harmônico para PIN CORRETO.
+     */
+    function emitirSomSucesso() {
+      const chk = document.getElementById('chkAudio');
+      if (!chk || !chk.checked) {
+        return;
+      }
+      try {
+        const ctx = obterAudioContext();
+        const agora = ctx.currentTime;
+
+        // Nota 1: C5 (523Hz)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(523.25, agora);
+        gain1.gain.setValueAtTime(0.15, agora);
+        gain1.gain.exponentialRampToValueAtTime(0.001, agora + 0.25);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(agora);
+        osc1.stop(agora + 0.25);
+
+        // Nota 2: E5 (659Hz)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(659.25, agora + 0.12);
+        gain2.gain.setValueAtTime(0.18, agora + 0.12);
+        gain2.gain.exponentialRampToValueAtTime(0.001, agora + 0.45);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(agora + 0.12);
+        osc2.stop(agora + 0.45);
+
+        // Nota 3: G5 (783Hz)
+        const osc3 = ctx.createOscillator();
+        const gain3 = ctx.createGain();
+        osc3.type = 'triangle';
+        osc3.frequency.setValueAtTime(783.99, agora + 0.24);
+        gain3.gain.setValueAtTime(0.20, agora + 0.24);
+        gain3.gain.exponentialRampToValueAtTime(0.001, agora + 0.65);
+        osc3.connect(gain3);
+        gain3.connect(ctx.destination);
+        osc3.start(agora + 0.24);
+        osc3.stop(agora + 0.65);
+      } catch (err) {
+        console.warn('Áudio de sucesso indisponível:', err);
+      }
+    }
+
+    /**
+     * Emite tom grave descendente de aviso para PIN INCORRETO.
+     */
+    function emitirSomErro() {
+      const chk = document.getElementById('chkAudio');
+      if (!chk || !chk.checked) {
+        return;
+      }
+      try {
+        const ctx = obterAudioContext();
+        const agora = ctx.currentTime;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, agora);
+        osc.frequency.exponentialRampToValueAtTime(130, agora + 0.35);
+
+        gain.gain.setValueAtTime(0.18, agora);
+        gain.gain.exponentialRampToValueAtTime(0.001, agora + 0.35);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(agora);
+        osc.stop(agora + 0.35);
+      } catch (err) {
+        console.warn('Áudio de erro indisponível:', err);
+      }
+    }
+
+    /**
+     * Dispara vibração háptica se habilitada e suportada no dispositivo.
+     * @param {number|Array<number>} padrao
+     */
+    function vibrarAparelho(padrao) {
+      const chk = document.getElementById('chkVibracao');
+      if (!chk || !chk.checked) {
+        return;
+      }
+      if ('vibrate' in navigator) {
+        try {
+          navigator.vibrate(padrao);
+        } catch (e) {
+          // Navegador bloqueou ou dispositivo sem motor háptico
+        }
+      }
+    }
+
+    // =========================================================================
+    // LÓGICA DO TECLADO E DIGITAÇÃO DE DÍGITOS
+    // =========================================================================
+
+    /**
+     * Processa a inserção de um dígito numérico.
+     * @param {string} digito
+     */
+    function teclarNumero(digito) {
+      if (estado.bloqueadoParaValidacao) {
+        return;
+      }
+
+      if (estado.pinDigitado.length >= TAMANHO_PIN) {
+        return;
+      }
+
+      // Cancela auto-reset pendente se o usuário começou a teclar
+      limparTimerAutoReset();
+
+      estado.pinDigitado += digito;
+      emitirSomClique();
+      vibrarAparelho(30);
+      atualizarIndicadoresDots();
+
+      // Ao completar 6 dígitos, valida imediatamente contra o PIN do sistema
+      if (estado.pinDigitado.length === TAMANHO_PIN) {
+        validarPinContraSistema();
+      }
+    }
+
+    /**
+     * Apaga o último dígito inserido no buffer.
+     */
+    function apagarUltimoDigito() {
+      if (estado.bloqueadoParaValidacao) {
+        return;
+      }
+      if (estado.pinDigitado.length > 0) {
+        limparTimerAutoReset();
+        estado.pinDigitado = estado.pinDigitado.slice(0, -1);
+        emitirSomClique();
+        vibrarAparelho(20);
+        atualizarIndicadoresDots();
+        redefinirCorFundoPadrao();
+        atualizarBannerPadrao();
+      }
+    }
+
+    /**
+     * Alterna a visibilidade dos números digitados (olho).
+     */
+    function alternarRevelacaoDigitacao() {
+      estado.mostrarDigitos = !estado.mostrarDigitos;
+      const btn = document.getElementById('btnRevelarDigitacao');
+      if (btn) {
+        btn.textContent = estado.mostrarDigitos ? '🔒' : '👁️';
+        btn.setAttribute('aria-label', estado.mostrarDigitos ? 'Ocultar dígitos' : 'Mostrar dígitos');
+      }
+      emitirSomClique();
+      vibrarAparelho(25);
+      atualizarIndicadoresDots();
+    }
+
+    /**
+     * Renderiza o estado dos 6 dots conforme o buffer digitado.
+     */
+    function atualizarIndicadoresDots() {
+      const dots = document.querySelectorAll('.pin-dot-item');
+      dots.forEach((dot, index) => {
+        if (index < estado.pinDigitado.length) {
+          dot.classList.add('preenchido');
+          if (estado.mostrarDigitos) {
+            dot.classList.add('revelado');
+            dot.textContent = estado.pinDigitado[index];
+          } else {
+            dot.classList.remove('revelado');
+            dot.textContent = '';
+          }
+        } else {
+          dot.classList.remove('preenchido', 'revelado');
+          dot.textContent = '';
+        }
+      });
+    }
+
+    // =========================================================================
+    // VALIDAÇÃO PRINCIPAL: FUNDO VERDE (IGUAL) OU FUNDO VERMELHO (DIFERENTE)
+    // =========================================================================
+
+    /**
+     * Compara o PIN digitado com o PIN do sistema e aplica o feedback cromático no fundo.
+     */
+    function validarPinContraSistema() {
+      estado.bloqueadoParaValidacao = true;
+      estado.estatisticas.total += 1;
+
+      const body = document.body;
+      const banner = document.getElementById('bannerResultado');
+      const card = document.getElementById('cardTecladoPin');
+
+      const isIgual = (estado.pinDigitado === estado.pinSistema);
+
+      if (isIgual) {
+        // ---------------------------------------------------------------------
+        // SUCESSO: PIN FORNECIDO É IGUAL AO DO SISTEMA -> FUNDO FICA VERDE
+        // ---------------------------------------------------------------------
+        estado.estatisticas.corretos += 1;
+
+        body.classList.remove('fundo-vermelho');
+        body.classList.add('fundo-verde');
+
+        if (banner) {
+          banner.className = 'banner-resultado sucesso';
+          banner.innerHTML = '🎉 <strong>PIN CORRETO!</strong> O fundo da tela ficou verde.';
+        }
+
+        emitirSomSucesso();
+        vibrarAparelho(150);
+
+        // Permite ao usuário manter o status verde ou reiniciar clicando no botão
+        estado.bloqueadoParaValidacao = false;
+
+      } else {
+        // ---------------------------------------------------------------------
+        // ERRO: PIN FORNECIDO É DIFERENTE DO SISTEMA -> FUNDO FICA VERMELHO
+        // ---------------------------------------------------------------------
+        estado.estatisticas.incorretos += 1;
+
+        body.classList.remove('fundo-verde');
+        body.classList.add('fundo-vermelho');
+
+        if (banner) {
+          banner.className = 'banner-resultado erro';
+          banner.innerHTML = '❌ <strong>PIN INCORRETO!</strong> O fundo da tela ficou vermelho.';
+        }
+
+        emitirSomErro();
+        vibrarAparelho([120, 60, 120]);
+
+        // Auto-reset após 2.5 segundos para permitir nova tentativa sem travar o idoso
+        estado.timerReset = setTimeout(() => {
+          redefinirTesteAposErro();
+        }, 2500);
+      }
+
+      atualizarPainelEstatisticas();
+    }
+
+    /**
+     * Limpa o buffer e restaura a cor neutra após o tempo de erro.
+     */
+    function redefinirTesteAposErro() {
+      redefinirCorFundoPadrao();
+      estado.pinDigitado = '';
+      estado.bloqueadoParaValidacao = false;
+      atualizarIndicadoresDots();
+      atualizarBannerPadrao();
+    }
+
+    /**
+     * Limpeza manual disparada pelo botão "Limpar Digitação".
+     */
+    function redefinirTesteManual() {
+      limparTimerAutoReset();
+      redefinirCorFundoPadrao();
+      estado.pinDigitado = '';
+      estado.bloqueadoParaValidacao = false;
+      atualizarIndicadoresDots();
+      atualizarBannerPadrao();
+      emitirSomClique();
+      vibrarAparelho(20);
+    }
+
+    /**
+     * Cancela o timer de auto-reset se ativo.
+     */
+    function limparTimerAutoReset() {
+      if (estado.timerReset) {
+        clearTimeout(estado.timerReset);
+        estado.timerReset = null;
+      }
+    }
+
+    /**
+     * Retorna a cor de fundo do body para o estado padrão.
+     */
+    function redefinirCorFundoPadrao() {
+      document.body.classList.remove('fundo-verde', 'fundo-vermelho');
+    }
+
+    /**
+     * Restaura o texto inicial do banner de instruções.
+     */
+    function atualizarBannerPadrao() {
+      const banner = document.getElementById('bannerResultado');
+      if (banner) {
+        banner.className = 'banner-resultado';
+        banner.textContent = 'Aguardando digitação dos 6 números...';
+      }
+    }
+
+    /**
+     * Atualiza os números de acertos, erros e total na tela.
+     */
+    function atualizarPainelEstatisticas() {
+      const elTotal = document.getElementById('statTotal');
+      const elCorretos = document.getElementById('statCorretos');
+      const elIncorretos = document.getElementById('statIncorretos');
+
+      if (elTotal) elTotal.textContent = String(estado.estatisticas.total);
+      if (elCorretos) elCorretos.textContent = String(estado.estatisticas.corretos);
+      if (elIncorretos) elIncorretos.textContent = String(estado.estatisticas.incorretos);
+    }
+
+    // =========================================================================
+    // CONFIGURAÇÃO DO PIN DO SISTEMA (MODAL E ALTERAÇÃO)
+    // =========================================================================
+
+    /**
+     * Alterna a visualização do PIN no painel de parâmetros (mostra ou oculta com asteriscos).
+     */
+    function alternarVisibilidadePinSistema() {
+      estado.pinOculto = !estado.pinOculto;
+      const display = document.getElementById('displayPinSistema');
+      const btn = document.getElementById('btnAlternarVisibilidadePin');
+
+      if (display) {
+        display.textContent = estado.pinOculto ? '••••••' : estado.pinSistema;
+      }
+
+      if (btn) {
+        btn.textContent = estado.pinOculto ? '👁️ Exibir PIN' : '👁️ Ocultar PIN';
+      }
+      emitirSomClique();
+    }
+
+    /**
+     * Abre a modal para configurar um novo PIN de referência no sistema.
+     */
+    function abrirModalAlterarPin() {
+      const modal = document.getElementById('modalConfigPin');
+      const input = document.getElementById('inputNovoPinSistema');
+      if (modal && input) {
+        input.value = estado.pinSistema;
+        modal.classList.add('ativo');
+        setTimeout(() => input.focus(), 150);
+      }
+    }
+
+    /**
+     * Fecha a modal de alteração de PIN.
+     */
+    function fecharModalAlterarPin() {
+      const modal = document.getElementById('modalConfigPin');
+      if (modal) {
+        modal.classList.remove('ativo');
+      }
+    }
+
+    /**
+     * Salva o novo PIN de referência inserido na modal.
+     */
+    function confirmarNovoPinSistema() {
+      const input = document.getElementById('inputNovoPinSistema');
+      if (!input) return;
+
+      const valorLimpo = input.value.replace(/\D/g, '');
+      if (valorLimpo.length !== TAMANHO_PIN) {
+        alert('O PIN do sistema deve conter exatamente 6 números!');
+        input.focus();
+        return;
+      }
+
+      estado.pinSistema = valorLimpo;
+      const display = document.getElementById('displayPinSistema');
+      if (display) {
+        display.textContent = estado.pinOculto ? '••••••' : estado.pinSistema;
+      }
+
+      fecharModalAlterarPin();
+      redefinirTesteManual();
+      alert(`PIN do Sistema atualizado para: ${estado.pinSistema}`);
+    }
+
+    // =========================================================================
+    // INTEGRAÇÃO COM INDEXEDDB (SE O USUÁRIO SALVOU PIN NO TESTE T1)
+    // =========================================================================
+
+    /**
+     * Consulta se há PIN salvo no IndexedDB gravado pelo protótipo T1.
+     */
+    async function consultarIndexedDbT1() {
+      emitirSomClique();
+      try {
+        const DB_NOME = 'SSVP_Pin_DB';
+        const DB_VERSAO = 1;
+        const STORE_NOME = 'seguranca';
+
+        const req = indexedDB.open(DB_NOME, DB_VERSAO);
+        req.onerror = () => {
+          alert('Nenhum banco IndexedDB do T1 encontrado. Usando PIN padrão: ' + estado.pinSistema);
+        };
+
+        req.onsuccess = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NOME)) {
+            alert('Banco encontrado, mas sem cofre de segurança criado no T1.');
+            return;
+          }
+
+          const tx = db.transaction(STORE_NOME, 'readonly');
+          const store = tx.objectStore(STORE_NOME);
+          const getReq = store.get('pin_config');
+
+          getReq.onsuccess = () => {
+            if (getReq.result && getReq.result.hash) {
+              alert('✓ Registro seguro encontrado no IndexedDB!\nHash PBKDF2 presente no cofre local gravado pelo T1.');
+            } else {
+              alert('Nenhum PIN registrado no IndexedDB ainda.\nAbra o teste T1_pin_local.html para cadastrar.');
+            }
+          };
+        };
+      } catch (err) {
+        console.error('Falha ao consultar IndexedDB:', err);
+      }
+    }
+
+    // =========================================================================
+    // SUPORTE A TECLADO FÍSICO DO COMPUTADOR (ACESSIBILIDADE DESKTOP)
+    // =========================================================================
+    window.addEventListener('keydown', (e) => {
+      // Ignora se a modal de configuração estiver aberta
+      const modal = document.getElementById('modalConfigPin');
+      if (modal && modal.classList.contains('ativo')) {
+        return;
+      }
+
+      if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault();
+        teclarNumero(e.key);
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        apagarUltimoDigito();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        redefinirTesteManual();
+      }
+    });
+
+    // Inicialização da tela
+    document.addEventListener('DOMContentLoaded', () => {
+      atualizarIndicadoresDots();
+      atualizarBannerPadrao();
+    });
+  </script>
+</body>
+</html>

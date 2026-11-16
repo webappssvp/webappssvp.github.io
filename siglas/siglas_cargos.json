@@ -1,0 +1,30 @@
+[
+  {
+    "sigla": "PRE",
+    "significado": "Presidente da Conferência",
+    "descricao": "Líder e animador fraterno da Conferência; responsável legal e pastoral",
+    "icone": "👑",
+    "ordem": 1
+  },
+  {
+    "sigla": "VIC",
+    "significado": "Vice-Presidente",
+    "descricao": "Auxilia e substitui o Presidente em suas ausências ou impedimentos",
+    "icone": "🤝",
+    "ordem": 2
+  },
+  {
+    "sigla": "SEC",
+    "significado": "Secretário(a)",
+    "descricao": "Responsável pelas atas, registros de presenças e comunicações oficiais",
+    "icone": "📝",
+    "ordem": 3
+  },
+  {
+    "sigla": "TES",
+    "significado": "Tesoureiro(a)",
+    "descricao": "Guardião dos recursos da caridade, controle da coleta e prestação de contas",
+    "icone": "💰",
+    "ordem": 4
+  }
+]

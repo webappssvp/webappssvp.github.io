@@ -1,0 +1,23 @@
+[
+  {
+    "sigla": "CAS",
+    "significado": "Casa",
+    "descricao": "O vicentino saiu da própria casa para a visita",
+    "icone": "🏠",
+    "ordem": 1
+  },
+  {
+    "sigla": "REU",
+    "significado": "Reunião da conferência",
+    "descricao": "A dupla saiu do local de reunião da conferência",
+    "icone": "⛪",
+    "ordem": 2
+  },
+  {
+    "sigla": "VIS",
+    "significado": "Outra visita",
+    "descricao": "O vicentino veio direto da casa de outra família assistida no mesmo dia",
+    "icone": "🔁",
+    "ordem": 3
+  }
+]

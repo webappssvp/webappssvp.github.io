@@ -1,0 +1,74 @@
+[
+  {
+    "sigla": "ALI",
+    "significado": "Cesta Básica / Alimentos",
+    "descricao": "Provisão de alimentos não perecíveis, leite e itens essenciais de subsistência",
+    "unidade_padrao": "cesta",
+    "icone": "🥫",
+    "ordem": 1
+  },
+  {
+    "sigla": "GAS",
+    "significado": "Botijão de Gás (GLP 13kg)",
+    "descricao": "Recarga ou vale de botijão de gás de cozinha para preparo de alimentos",
+    "unidade_padrao": "unidade",
+    "icone": "🔥",
+    "ordem": 2
+  },
+  {
+    "sigla": "REM",
+    "significado": "Medicamento / Apoio Farmacêutico",
+    "descricao": "Auxílio para compra de remédios receitados não disponíveis no SUS",
+    "unidade_padrao": "caixa",
+    "icone": "💊",
+    "ordem": 3
+  },
+  {
+    "sigla": "FRA",
+    "significado": "Fraldas (Infantis ou Geriátricas)",
+    "descricao": "Pacotes de fraldas para bebês ou idosos acamados com prescrição de higiene",
+    "unidade_padrao": "pacote",
+    "icone": "👶",
+    "ordem": 4
+  },
+  {
+    "sigla": "PAS",
+    "significado": "Vale Transporte / Passagens",
+    "descricao": "Recarga de bilhete ou passagens para deslocamento médico, escolar ou entrevistas de emprego",
+    "unidade_padrao": "passagem",
+    "icone": "🚌",
+    "ordem": 5
+  },
+  {
+    "sigla": "ROU",
+    "significado": "Roupas, Calçados e Cobertores",
+    "descricao": "Vestuário, agasalhos de inverno, calçados e roupas de cama do bazar caritativo",
+    "unidade_padrao": "peça",
+    "icone": "👕",
+    "ordem": 6
+  },
+  {
+    "sigla": "MOV",
+    "significado": "Móveis e Utensílios Domésticos",
+    "descricao": "Colchões, camas, fogões, geladeiras ou mesas doados para dignidade do lar",
+    "unidade_padrao": "item",
+    "icone": "🛏️",
+    "ordem": 7
+  },
+  {
+    "sigla": "MAT",
+    "significado": "Material de Construção / Reparo",
+    "descricao": "Telhas, cimento, canos ou tintas para conserto emergencial de moradias precárias",
+    "unidade_padrao": "verba",
+    "icone": "🧱",
+    "ordem": 8
+  },
+  {
+    "sigla": "OUT",
+    "significado": "Outro Auxílio Emergencial",
+    "descricao": "Apoio material ou financeiro pontual aprovado em conferência para situação imprevista",
+    "unidade_padrao": "verba",
+    "icone": "🤝",
+    "ordem": 9
+  }
+]

@@ -1,0 +1,1686 @@
+/**
+ * @fileoverview Casca do app: barra superior, menu ⋮, gaveta superior, ajuda, barra inferior e gaveta de telas.
+ * Origem: testes/app/t3_casca.html (que veio da testes/material_design/t5_barras_e_ajuda.html).
+ */
+
+/* ==========================================================================
+   2. BARRA SUPERIOR INSTITUCIONAL (SSVP + CONFERÊNCIA + OVERFLOW)
+   ========================================================================== */
+.app-header {
+  position: relative;
+  background-color: var(--md-surface-2);
+  border-bottom: 1px solid var(--md-border-subtle);
+  padding-top: calc(0.55rem + var(--safe-top));
+  padding-bottom: 0.55rem;
+  padding-left: 0.9rem;
+  padding-right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  box-shadow: var(--md-elevation-2);
+  z-index: 60;
+  flex-shrink: 0;
+}
+
+/* Logo Oficial SSVP */
+.header-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+}
+
+.header-logo-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+/* Nome da Conferência em Largura Total */
+.header-title-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.header-conf-name {
+  font-family: var(--font-ui);
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
+body.tema-claro .header-conf-name {
+  color: var(--ssvp-blue);
+}
+
+.header-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.15rem;
+}
+
+.header-cp-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--md-on-surface-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-version-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--md-secondary);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Botão de 3 Pontos Verticais (Overflow Menu M3 - Alvo 48x48px) */
+.btn-header-overflow {
+  width: 3rem;
+  height: 3rem;
+  background-color: var(--cor-botao-barra);
+  border: 1px solid var(--md-border-subtle);
+  color: var(--md-on-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--raio-botao-barra);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+.btn-header-overflow:active {
+  background-color: var(--cor-botao-barra-toque);
+}
+
+.btn-header-overflow svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  fill: currentColor;
+}
+
+/* ==========================================================================
+   3. MENU FLUTUANTE DE CONTEXTO M3 (POP-UP DOS 3 PONTOS)
+   ========================================================================== */
+.popup-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: transparent;
+  z-index: 110;
+  display: none;
+}
+
+.popup-menu-overlay.visivel {
+  display: block;
+}
+
+.popup-menu-card {
+  position: absolute;
+  top: calc(3.4rem + var(--safe-top));
+  right: 0.9rem;
+  background-color: var(--md-surface-3);
+  border: 1px solid var(--md-border-strong);
+  border-radius: 1rem;
+  min-width: 14.5rem;
+  box-shadow: var(--md-elevation-3);
+  padding: 0.4rem 0;
+  animation: animarMenuM3 0.18s cubic-bezier(0, 0, 0.2, 1);
+  z-index: 120;
+}
+
+@keyframes animarMenuM3 {
+  from { opacity: 0; transform: scale(0.9) translateY(-8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.menu-item-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--md-on-surface);
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.menu-item-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.menu-item-btn:active {
+  background-color: rgba(0, 127, 255, 0.16);
+}
+
+.menu-item-btn svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: var(--md-secondary);
+  flex-shrink: 0;
+}
+
+.menu-divisor {
+  height: 1px;
+  background-color: var(--md-border-subtle);
+  margin: 0.35rem 0;
+}
+
+/* ==========================================================================
+   4. GAVETA SUPERIOR MODULAR M3 (TOP SHEET COM ABAS CONTEXTUAIS)
+   ========================================================================== */
+.scrim-overlay-top {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.scrim-overlay-top.aberto {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.top-sheet {
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100dvh - 2.5rem);
+  background-color: var(--md-surface-3);
+  border-radius: 1.5rem;
+  border: 1px solid var(--md-border-strong);
+  box-shadow: var(--md-elevation-3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0;
+  transform: scale(0.95) translateY(-10px);
+  transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.25s ease;
+}
+
+.scrim-overlay-top.aberto .top-sheet {
+  transform: scale(1) translateY(0);
+}
+
+/* Cabeçalho da Gaveta com Abas M3 */
+.sheet-top-header {
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  border-bottom: 1px solid var(--md-border-subtle);
+  flex-shrink: 0;
+  background-color: var(--md-surface-3);
+}
+
+.sheet-nav-tabs {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid var(--md-border-subtle);
+  color: var(--md-on-surface-variant);
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0.35rem 0.25rem;
+  border-radius: var(--raio-botao-barra);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  text-align: center;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tab-btn.ativo {
+  background-color: var(--md-secondary);
+  color: #ffffff;
+  border-color: var(--md-secondary);
+}
+
+.btn-fechar-sheet {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  border-radius: var(--raio-botao-barra);
+  background-color: var(--cor-botao-barra);
+  border: 1px solid var(--md-border-subtle);
+  color: var(--md-on-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.sheet-top-body {
+  flex: 1;
+  padding: 1rem 1.15rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* Rodapé Fixo da Gaveta de Configurações (Padrão t3) */
+.sheet-config-footer {
+  padding: 0.75rem 1.15rem 1.15rem 1.15rem;
+  border-top: 1px solid var(--md-border-subtle);
+  background-color: var(--md-surface-3);
+  flex-shrink: 0;
+}
+
+.btn-m3-filled {
+  width: 100%;
+  min-height: var(--touch-target-min, 3rem);
+  background-color: var(--ssvp-blue);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--raio-botao-barra);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-m3-filled:hover {
+  background-color: #001f44;
+}
+
+.btn-m3-filled:active {
+  transform: scale(0.98);
+}
+
+.modulo-secao {
+  display: none;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.modulo-secao.ativo {
+  display: flex;
+}
+
+/* Cartões Informativos Internos */
+.sheet-card-box {
+  background-color: var(--md-surface-1);
+  border: 1px solid var(--md-border-subtle);
+  border-radius: 1rem;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sheet-card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--md-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sheet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+}
+
+.badge-status-nuvem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  background-color: rgba(21, 128, 61, 0.2);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+body.tema-claro .badge-status-nuvem {
+  color: var(--md-success);
+}
+
+/* Botão de Ação na Gaveta */
+.btn-acao-gaveta {
+  width: 100%;
+  min-height: 3rem;
+  background-color: var(--ssvp-blue);
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem;
+  border-radius: var(--raio-botao-barra);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: var(--md-elevation-1);
+  transition: transform 0.1s ease;
+}
+
+.btn-acao-gaveta:active {
+  transform: scale(0.98);
+}
+
+/* Switches Material Design 3 */
+.m3-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--md-border-subtle);
+}
+
+.m3-switch-label-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.m3-switch-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--md-on-surface);
+}
+
+.m3-switch-desc {
+  font-size: 0.75rem;
+  color: var(--md-on-surface-variant);
+}
+
+.m3-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.m3-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.m3-switch-track {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 16px;
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.m3-switch-thumb {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 6px;
+  bottom: 6px;
+  background-color: #cbd5e1;
+  border-radius: 50%;
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.m3-switch input:checked + .m3-switch-track {
+  background-color: var(--md-secondary);
+  border-color: var(--md-secondary);
+}
+
+.m3-switch input:checked + .m3-switch-track .m3-switch-thumb {
+  transform: translateX(20px);
+  background-color: #ffffff;
+  width: 20px;
+  height: 20px;
+  left: 4px;
+  bottom: 4px;
+}
+
+/* Seletor M3 Dropdown (Simulação de Daltonismo) */
+.m3-select-box {
+  background-color: var(--md-surface-1);
+  border: 1.5px solid var(--md-border-strong);
+  color: var(--md-on-surface);
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.65rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 0.35rem;
+  transition: border-color 0.15s ease;
+}
+
+.m3-select-box:focus {
+  border-color: var(--md-secondary);
+}
+
+/* ==========================================================================
+   5. SISTEMA INTERATIVO DE AJUDA: "O QUE É ISSO?"
+   ========================================================================== */
+.banner-modo-ajuda {
+  background-color: var(--md-amber);
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  z-index: 55;
+  animation: descerBanner 0.2s ease;
+  box-shadow: var(--md-elevation-1);
+}
+
+.banner-modo-ajuda.visivel {
+  display: flex;
+}
+
+@keyframes descerBanner {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+.btn-sair-ajuda {
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+/* Borda Interativa nos Elementos Explicáveis */
+body.modo-ajuda-ativo .ajuda-alvo {
+  outline: 2.5px dashed var(--md-amber) !important;
+  outline-offset: 3px;
+  cursor: help !important;
+  position: relative;
+}
+
+body.modo-ajuda-ativo .ajuda-alvo:active {
+  outline-color: #ffffff !important;
+  transform: scale(0.98);
+}
+
+/* Modal / Card Explicativo "O que é isso?" */
+.modal-ajuda-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.modal-ajuda-overlay.visivel {
+  display: flex;
+}
+
+.modal-ajuda-card {
+  background-color: var(--md-surface-3);
+  border: 2px solid var(--md-amber);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  width: min(100%, 22rem);
+  box-shadow: var(--md-elevation-3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  animation: surgirModal 0.2s ease;
+}
+
+@keyframes surgirModal {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-ajuda-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.modal-ajuda-icone {
+  font-size: 1.8rem;
+}
+
+.modal-ajuda-titulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--md-on-surface);
+}
+
+.modal-ajuda-bloco {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--md-on-surface);
+}
+
+.modal-ajuda-bloco strong {
+  color: var(--md-amber);
+}
+
+.btn-entendi-ajuda {
+  background-color: var(--md-amber);
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem;
+  border-radius: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ==========================================================================
+   PULSO DE LUMINÂNCIA / RESPIRAÇÃO (OPÇÃO 1: GRAVAÇÃO ATIVA - ACESSIBILIDADE WCAG 1.4.1)
+   Variando a luminosidade de fundo e o contorno, perceptível mesmo em escala de cinza
+   ========================================================================== */
+@keyframes pulsoEscutaLuminosa {
+  0% {
+    background-color: rgba(255, 255, 255, 0.16) !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 0 1.5px #ffffff, 0 0 10px rgba(255, 255, 255, 0.35);
+  }
+  50% {
+    background-color: rgba(255, 255, 255, 0.38) !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 0 3.5px #ffffff, 0 0 20px rgba(255, 255, 255, 0.7);
+  }
+  100% {
+    background-color: rgba(255, 255, 255, 0.16) !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 0 1.5px #ffffff, 0 0 10px rgba(255, 255, 255, 0.35);
+  }
+}
+
+@keyframes pulsoEscutaLuminosaClaro {
+  0% {
+    background-color: rgba(0, 100, 182, 0.14) !important;
+    border-color: var(--ssvp-blue) !important;
+    box-shadow: 0 0 0 1.5px var(--ssvp-blue), 0 0 10px rgba(0, 100, 182, 0.35);
+  }
+  50% {
+    background-color: rgba(0, 100, 182, 0.32) !important;
+    border-color: var(--ssvp-blue) !important;
+    box-shadow: 0 0 0 3.5px var(--ssvp-blue), 0 0 20px rgba(0, 100, 182, 0.65);
+  }
+  100% {
+    background-color: rgba(0, 100, 182, 0.14) !important;
+    border-color: var(--ssvp-blue) !important;
+    box-shadow: 0 0 0 1.5px var(--ssvp-blue), 0 0 10px rgba(0, 100, 182, 0.35);
+  }
+}
+
+/* Campo recebendo o ditado (qualquer input ou textarea) */
+.gravando-voz {
+  animation: pulsoEscutaLuminosa 1.3s infinite ease-in-out !important;
+}
+
+body.tema-claro .gravando-voz {
+  animation: pulsoEscutaLuminosaClaro 1.3s infinite ease-in-out !important;
+}
+
+/* Pulso Luminoso no Botão Central Falar enquanto grava */
+.btn-audio-central.gravando-ativo {
+  animation: pulsoBotaoLuminoso 1.3s infinite ease-in-out !important;
+  border-color: #ffffff !important;
+}
+
+@keyframes pulsoBotaoLuminoso {
+  0% {
+    box-shadow: 0 0 0 1.5px #ffffff, 0 0 10px rgba(255, 255, 255, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 4px #ffffff, 0 0 24px rgba(255, 255, 255, 0.85);
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: 0 0 0 1.5px #ffffff, 0 0 10px rgba(255, 255, 255, 0.4);
+    transform: scale(1);
+  }
+}
+
+/* ==========================================================================
+   7. BARRA INFERIOR NO POLEGAR
+   Botões retangulares, um tom mais claros que a barra, todos da mesma altura,
+   repartindo a largura, com espaço entre eles contra toques acidentais.
+   Com quatro botões (Menu | Nuvem | Falar | Sair, 14/11/2026), o espaço caiu de 2rem para 1,25rem (20px):
+   numa tela de 320px cada botão ainda fica com mais de 48px de largura.
+   ========================================================================== */
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--md-surface-2);
+  border-top: 1px solid var(--md-border-subtle);
+  padding-top: 0.6rem;
+  padding-bottom: calc(0.6rem + var(--safe-bottom));
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  align-items: stretch;
+  gap: 1.25rem;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+  z-index: 60;
+}
+
+/* MODO CANHOTO: inverte as duas barras (o ⋮ vai para a esquerda, junto com o Sair) */
+body.layout-canhoto .app-footer,
+body.layout-canhoto .app-header {
+  flex-direction: row-reverse;
+}
+
+body.layout-canhoto .popup-menu-card {
+  right: auto;
+  left: 0.9rem;
+  transform-origin: top left;
+}
+
+/* Botões laterais: Menu e Sair */
+.btn-footer-lateral {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 3.5rem;
+  background-color: var(--cor-botao-barra);
+  border: 1px solid var(--md-border-subtle);
+  border-radius: var(--raio-botao-barra);
+  color: var(--md-on-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+.btn-footer-lateral:active {
+  background-color: var(--cor-botao-barra-toque);
+}
+
+.btn-footer-lateral svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  fill: currentColor;
+}
+
+.footer-btn-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--md-on-surface);
+  pointer-events: none;
+}
+
+/* Sair: mesmo botão, com ícone e texto em vermelho */
+.btn-sair-lateral,
+.btn-sair-lateral .footer-btn-label {
+  color: var(--cor-sair);
+}
+
+/* Botão central: FALAR / OUVIR / PARAR. Mesmo formato; a cor mostra o modo */
+.btn-audio-central {
+  position: relative;
+  flex: 1.25 1 0;
+  min-width: 0;
+  height: 3.5rem;
+  margin: 0;
+  background-color: var(--ssvp-blue);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--raio-botao-barra);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  cursor: pointer;
+  overflow: hidden;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.btn-audio-central:active {
+  background-color: #00579e;
+}
+
+/* Estado: Modo Ouvir (verde) */
+.btn-audio-central.modo-ouvir {
+  background-color: #15803d;
+}
+
+/* Estado: lendo em voz alta (botão "PARAR", pulsando) */
+.btn-audio-central.falando-ativo {
+  background-color: #dc2626 !important;
+  border-color: #ffffff !important;
+  animation: pulsoBotaoParar 1.2s infinite ease-in-out !important;
+}
+
+@keyframes pulsoBotaoParar {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35); }
+}
+
+.btn-audio-central svg,
+.btn-audio-central img {
+  width: 1.45rem;
+  height: 1.45rem;
+  fill: #ffffff;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+}
+
+.audio-central-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* Barra / Indicador Visual de Progresso do Toque Longo */
+.press-indicator-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3.5px;
+  width: 0%;
+  background-color: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  transition: width 0.6s cubic-bezier(0.1, 0.7, 0.1, 1), opacity 0.1s ease;
+}
+
+.btn-audio-central.pressionando .press-indicator-bar {
+  opacity: 1;
+  width: 100%;
+}
+
+.btn-audio-central.pressionando {
+  border-color: #ffffff;
+}
+
+/* ==========================================================================
+   9. GAVETA INFERIOR DE NAVEGAÇÃO DE PÁGINAS (BOTTOM SHEET M3)
+   ========================================================================== */
+.scrim-overlay-bottom {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(3px);
+  z-index: 80;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.scrim-overlay-bottom.aberto {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bottom-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--md-surface-2);
+  border-top: 2px solid var(--md-secondary);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  padding: 1.25rem 1.15rem calc(1.5rem + var(--safe-bottom)) 1.15rem;
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.scrim-overlay-bottom.aberto .bottom-sheet {
+  transform: translateY(0);
+}
+
+.nav-item-btn {
+  width: 100%;
+  min-height: 3.5rem;
+  background-color: var(--cor-botao-barra);
+  border: 1px solid var(--md-border-subtle);
+  border-radius: var(--raio-botao-barra);
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--md-on-surface);
+  cursor: pointer;
+  font-weight: 700;
+  text-align: left;
+}
+
+.nav-item-btn.ativo {
+  background-color: rgba(0, 127, 255, 0.15);
+  border-color: var(--md-secondary);
+}
+
+/* Toast Flutuante de Mensagem Rápida */
+.toast-msg {
+  position: fixed;
+  bottom: calc(5.2rem + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background-color: #002d62;
+  color: #ffffff;
+  border: 1.5px solid var(--md-secondary);
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: var(--md-elevation-3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 150;
+  /* Avisos longos quebram em linhas, sem passar da tela (antes: nowrap, que cortava o texto) */
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  text-align: center;
+  border-radius: 1.25rem;
+}
+
+.toast-msg.visivel {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   10. PEÇAS QUE ANTES ESTAVAM COMO style="" NO HTML
+   ========================================================================== */
+.m3-switch-row-coluna {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.m3-switch-row-coluna .m3-switch-label-group,
+.m3-switch-row-coluna .m3-select-box {
+  width: 100%;
+}
+
+.sheet-card-ajuda {
+  border-color: var(--md-amber);
+}
+
+.sheet-card-ajuda .sheet-card-title {
+  color: var(--md-amber);
+}
+
+.sheet-texto {
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.sheet-lista {
+  font-size: 0.86rem;
+  padding-left: 1.15rem;
+  line-height: 1.5;
+  color: var(--md-on-surface-variant);
+}
+
+.btn-acao-ajuda {
+  background-color: var(--md-amber);
+}
+
+/* Ícone do botão Falar/Ouvir (o JS mostra um dos três com o atributo hidden) */
+.audio-icone-caixa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.audio-icone-caixa img {
+  display: block;
+}
+
+.bottom-sheet-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bottom-sheet-titulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Filtros SVG da simulação de daltonismo: existem, mas não aparecem */
+.filtros-svg {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   BOTÃO NUVEM E ABA SINCRONIZAÇÃO (js/componentes/painel_sync.js; mvp/telas/05_sincronizacao.md)
+   ========================================================================== */
+/* Rótulo mais longo que os outros ("Enviar 12", "Ver erro"): um pouco mais de largura e menos margem interna */
+.btn-nuvem {
+  flex-grow: 1.15;
+  padding-left: 0.15rem;
+  padding-right: 0.15rem;
+}
+
+.btn-nuvem .nuvem-icone {
+  display: inline-flex;
+  pointer-events: none;
+}
+
+.btn-nuvem .icone-sync {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+/* A marca dentro da nuvem tem a cor do botão (não a do cartão) */
+.btn-nuvem .icone-sync .icone-sync-seta,
+.btn-nuvem .icone-sync .icone-sync-marca {
+  fill: var(--cor-botao-barra);
+}
+
+.btn-nuvem .icone-sync .icone-sync-traco {
+  stroke: var(--cor-botao-barra);
+}
+
+.btn-nuvem .footer-btn-label {
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-nuvem[data-estado="recusado"] .footer-btn-label {
+  color: var(--md-error);
+}
+
+/* Pulsa só quando dá para agir (há internet e algo não foi) ou há item recusado.
+   Com "Reduzir animações", a regra geral de base.css desliga o pulso: o ícone e o rótulo bastam. */
+.btn-nuvem.pulsando {
+  animation: pulsoNuvem 1.6s ease-in-out infinite;
+}
+
+.btn-nuvem.pulsando[data-estado="recusado"] {
+  animation-name: pulsoNuvemErro;
+}
+
+@keyframes pulsoNuvem {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 127, 255, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(0, 127, 255, 0.55); }
+}
+
+@keyframes pulsoNuvemErro {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.6); }
+}
+
+.painel-fila {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.painel-texto {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* "Nada para enviar": ícone ao lado do texto */
+.painel-texto-icone {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.painel-subtitulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--md-on-surface-variant);
+}
+
+.lista-fila {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.item-fila {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.6rem;
+  min-height: 3rem;
+  background-color: var(--md-surface-2);
+  border: 1px solid var(--md-border-subtle);
+  border-radius: 0.6rem;
+  color: var(--md-on-surface);
+  font: inherit;
+  text-align: left;
+}
+
+button.item-fila {
+  cursor: pointer;
+}
+
+button.item-fila:active {
+  background-color: var(--md-surface-3);
+}
+
+/* Nos itens, a marca da nuvem tem a cor do fundo do item */
+.item-fila .icone-sync .icone-sync-seta,
+.item-fila .icone-sync .icone-sync-marca {
+  fill: var(--md-surface-2);
+}
+
+.item-fila .icone-sync .icone-sync-traco {
+  stroke: var(--md-surface-2);
+}
+
+.item-fila-texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.item-fila-nome {
+  font-weight: 700;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.item-fila-estado {
+  font-size: 0.8rem;
+  color: var(--md-on-surface-variant);
+}
+
+.item-recusado {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-recusados {
+  border-color: var(--md-error);
+}
+
+.card-recusados .sheet-card-title {
+  color: var(--md-error);
+}
+
+.card-pergunta {
+  border-color: var(--md-amber);
+}
+
+.painel-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.painel-acoes .btn-acao-gaveta {
+  width: auto;
+  flex: 1 1 8rem;
+}
+
+.btn-painel-secundario,
+.btn-painel-perigo {
+  flex: 1 1 6rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--raio-botao-barra);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: var(--cor-botao-barra);
+  color: var(--md-on-surface);
+  border: 1px solid var(--md-border-soft);
+}
+
+.btn-painel-perigo {
+  color: var(--md-error);
+  border-color: var(--md-error);
+}
+
+/* Sem sessão (antes de entrar numa conferência): sem barra inferior; o conteúdo e os avisos descem */
+body.sem-sessao .app-footer {
+  display: none;
+}
+
+body.sem-sessao .display-area {
+  padding-bottom: calc(1.5rem + var(--safe-bottom));
+}
+
+body.sem-sessao .toast-msg {
+  bottom: calc(1.5rem + var(--safe-bottom));
+}
+
+/* ==========================================================================
+   BARRA DA TELA (js/componentes/barra_tela.js; decisões de 15/11/2026)
+   Faixa baixa e fixa abaixo da barra do app: nome da tela, busca e atualizar; nos detalhes, voltar e o nome.
+   ========================================================================== */
+.barra-tela {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 3.25rem;
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  background-color: var(--md-surface-1);
+  border-bottom: 1px solid var(--md-border-subtle);
+  z-index: 50;
+}
+
+.barra-tela:empty,
+body.sem-sessao .barra-tela,
+body.painel-aberto .barra-tela {
+  display: none;
+}
+
+.barra-tela-titulo {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--md-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barra-tela-botao {
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 999px;
+  color: var(--md-on-surface);
+  cursor: pointer;
+}
+
+.barra-tela-botao:active {
+  background-color: var(--md-surface-2);
+}
+
+.barra-tela-botao svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: currentColor;
+}
+
+/* Com a seta de voltar, o título encosta nela */
+.barra-tela-botao[data-barra="voltar"] {
+  margin-left: -0.6rem;
+}
+
+/* Atualizar: a nuvem descendo aparece no lugar da seta enquanto busca na nuvem */
+.barra-tela .btn-atualizar .icone-baixando {
+  display: none;
+}
+
+.barra-tela .btn-atualizar.baixando .icone-atualizar {
+  display: none;
+}
+
+.barra-tela .btn-atualizar.baixando .icone-baixando {
+  display: block;
+}
+
+.barra-tela .icone-atualizar {
+  display: inline-flex;
+}
+
+.barra-tela-busca {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.barra-tela-busca .form-input {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.4rem 0.75rem;
+}
+
+/* Com texto, a borda de destaque lembra que a lista está filtrada */
+.barra-tela-busca.com-texto .form-input {
+  border-color: var(--md-secondary);
+  box-shadow: 0 0 0 1px var(--md-secondary);
+}
+
+/* Na barra da tela, o atualizar tem o mesmo jeito da lupa (redondo, sem borda); vermelho só enquanto baixa */
+.barra-tela .btn-atualizar {
+  width: 2.75rem;
+  height: 2.75rem;
+  background: none;
+  border: none;
+  border-radius: 999px;
+}
+
+.barra-tela .btn-atualizar.baixando {
+  background-color: var(--ssvp-red);
+  color: #ffffff;
+}
+
+/* --- Barra da tela com Opções (15/11/2026): título + resumo + botão Opções --- */
+.barra-tela-textos {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.barra-tela-resumo {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--md-on-surface-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barra-tela-voltar {
+  margin-left: -0.6rem;
+}
+
+.barra-tela-ocupado .card-carregando {
+  margin-left: 0;
+}
+
+/* Botão Opções: funil vazado sem nada ativo; com busca ou filtro, funil cheio, contador e borda grossa
+   (sinais que não dependem da cor; o fundo azul só reforça) */
+.barra-tela-opcoes {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0 0.8rem 0 0.65rem;
+  border: 1px solid var(--md-border-strong);
+  border-radius: 999px;
+  background-color: var(--cor-botao-barra);
+  color: var(--md-on-surface);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.barra-tela-opcoes svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: currentColor;
+}
+
+.barra-tela-opcoes.ativo {
+  border: 2px solid var(--md-secondary);
+  background-color: rgba(0, 127, 255, 0.2);
+}
+
+.barra-tela-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background-color: var(--md-on-surface);
+  color: var(--md-surface-1);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* --- Gaveta das Opções --- */
+.gaveta-opcoes {
+  max-height: 85vh;
+  overflow-y: auto;
+  gap: 1rem;
+}
+
+.gaveta-variavel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.gaveta-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.gaveta-secao {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--md-secondary);
+  padding: 0;
+}
+
+.gaveta-busca {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gaveta-busca > svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: var(--md-on-surface-variant);
+  flex-shrink: 0;
+}
+
+.gaveta-busca .form-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.gaveta-busca.com-texto .form-input {
+  border-color: var(--md-secondary);
+  box-shadow: 0 0 0 1px var(--md-secondary);
+}
+
+.gaveta-filtro {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.5rem 0.8rem;
+  background-color: var(--cor-botao-barra);
+  border: 1px solid var(--md-border-subtle);
+  border-radius: var(--raio-botao-barra);
+  color: var(--md-on-surface);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Escolhido: bolinha cheia, borda grossa e negrito (além da cor) */
+.gaveta-filtro[aria-pressed="true"] {
+  border: 2px solid var(--md-secondary);
+  background-color: rgba(0, 127, 255, 0.18);
+  font-weight: 700;
+}
+
+.gaveta-marca {
+  font-size: 1.1rem;
+  width: 1.2rem;
+  text-align: center;
+}
+
+.gaveta-filtro-texto {
+  flex: 1 1 auto;
+}
+
+.gaveta-acao {
+  min-height: 3rem;
+}
+
+.gaveta-ver {
+  margin-top: 0.25rem;
+}
+
+/* Botão da barra com o que está aplicado ("Vicentinos · “ana”"): cabe até ~60% da barra, com reticências */
+.barra-tela-opcoes {
+  max-width: 62%;
+}
+
+.barra-tela-opcoes-rotulo {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Lupa da gaveta: aplica a busca */
+.gaveta-lupa {
+  flex: 0 0 auto;
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--raio-botao-barra);
+  background-color: var(--ssvp-blue);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.gaveta-lupa svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: currentColor;
+}
+
+/* Digitando na busca: a gaveta fica só com o campo (sem filtros e ações) e o fundo escuro some;
+   a lista filtrando aparece atrás e aceita toques e rolagem (15/11/2026) */
+.scrim-overlay-bottom.so-busca {
+  background-color: transparent;
+  backdrop-filter: none;
+  pointer-events: none;
+}
+
+.scrim-overlay-bottom.so-busca .bottom-sheet {
+  pointer-events: auto;
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.scrim-overlay-bottom.so-busca .gaveta-variavel {
+  display: none;
+}
+
+/* Gaveta das Opções compacta (15/11/2026): no máximo 70% da tela, filtros e ações em duas colunas;
+   o topo (barra do app e barra da tela) continua à vista */
+.gaveta-opcoes {
+  max-height: 70vh;
+  max-height: 70dvh;
+  gap: 0.75rem;
+  padding-top: 0.9rem;
+}
+
+.gaveta-opcoes .bottom-sheet-titulo {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.gaveta-opcoes .btn-fechar-sheet {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.gaveta-variavel {
+  gap: 0.75rem;
+}
+
+fieldset.gaveta-grupo,
+.gaveta-grupo-acoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+fieldset.gaveta-grupo > legend,
+.gaveta-grupo-acoes > .gaveta-secao {
+  grid-column: 1 / -1;
+  margin-bottom: 0.1rem;
+}
+
+.gaveta-filtro {
+  min-height: 2.75rem;
+  padding: 0.35rem 0.6rem;
+  gap: 0.4rem;
+}
+
+.gaveta-filtro .chip-numero {
+  margin-left: auto;
+}
+
+.gaveta-acao {
+  min-height: 2.75rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+.gaveta-busca .form-input {
+  min-height: 2.75rem;
+}
+
+.gaveta-lupa {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+/* A gaveta das Opções desce do TOPO da tela (15/11/2026): ao digitar, ela encolhe para só o campo de busca
+   lá em cima, o teclado fica embaixo e a lista filtrando aparece no meio */
+#scrimOpcoes .gaveta-opcoes {
+  top: 0;
+  bottom: auto;
+  border-top: none;
+  border-bottom: 2px solid var(--md-secondary);
+  border-radius: 0 0 1.5rem 1.5rem;
+  padding: calc(0.9rem + var(--safe-top)) 1.15rem 1.1rem;
+  transform: translateY(-100%);
+}
+
+#scrimOpcoes.aberto .gaveta-opcoes {
+  transform: translateY(0);
+}
+
+/* Digitando: só o título (com o ✕) e o campo; sem o rótulo "Buscar" */
+#scrimOpcoes.so-busca .gaveta-opcoes {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+#scrimOpcoes.so-busca .gaveta-grupo > .gaveta-secao {
+  display: none;
+}
+
+/* Atualizando a lista (ao abrir a tela ou pelo "Atualizar a lista"): o botão da barra fica vermelho, com
+   "Atualizando" e a seta girando (15/11/2026). Com "Reduzir animações", a seta para (regra geral de base.css). */
+.barra-tela-opcoes.atualizando {
+  background-color: var(--ssvp-red);
+  border: 2px solid var(--ssvp-red);
+  color: #ffffff;
+}
+
+.barra-tela-opcoes.atualizando svg {
+  animation: girarAtualizando 1s linear infinite;
+}
+
+@keyframes girarAtualizando {
+  to { transform: rotate(360deg); }
+}
+
+/* Funil e lupa lado a lado no botão da barra: os ícones não encolhem; o texto é que ganha reticências */
+.barra-tela-opcoes svg {
+  flex-shrink: 0;
+}

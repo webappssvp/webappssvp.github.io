@@ -1,0 +1,286 @@
+/* ==========================================================================
+   WebApp SSVP - Base CSS & Design System
+   Conforme Diretrizes: dev/padroes/ (01_marca_ssvp.md a 06_seo_e_compartilhamento.md)
+   ========================================================================== */
+
+:root {
+  /* Paleta Oficial da Marca SSVP */
+  --cor-ssvp-azul: #0064b6;
+  --cor-ssvp-azul-escuro: #002d62;
+  --cor-ssvp-vermelho: #dc2626;
+  --cor-ssvp-vermelho-puro: #ff0000;
+  --cor-ssvp-amarelo: #f59e0b;
+  --cor-ssvp-amarelo-texto: #0f172a;
+  --cor-ssvp-branco: #ffffff;
+  --cor-ssvp-preto: #000000;
+
+  /* Tema Escuro de Interface (Redução de Cansaço Visual) */
+  --cor-fundo: #0b0f19;
+  --cor-card-bg: #1e293b;
+  --cor-card-border: 1px solid rgba(255, 255, 255, 0.08);
+  --cor-texto: #ffffff;
+  --cor-subtexto: #94a3b8;
+  --cor-destaque-audio: #007fff;
+  --cor-sucesso: #16a34a;
+
+  /* Estado Inicial da Barra Superior (Semáforo: Vermelho = Não Conectado) */
+  --cor-semaforo-fundo: var(--cor-ssvp-vermelho);
+  --cor-semaforo-texto: var(--cor-ssvp-branco);
+
+  /* Dimensões Ergonômicas (Foco em Acessibilidade 60+) */
+  --raio-cantos: 1rem;
+  --raio-botoes: 0.75rem;
+  --toque-minimo: 3rem; /* 48x48px mínimo para alvo de toque */
+  --tempo-transicao: 0.25s;
+
+  /* Tipografia Institucional */
+  --fonte-titulos: 'Garamond', 'Georgia', serif;
+  --fonte-interface: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Reset Universal e Prevenção de Zoom Indesejado */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: var(--fonte-interface);
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ==========================================================================
+   Barra Superior Institucional (O Semáforo Vicentino)
+   ========================================================================== */
+.bar-sup {
+  background-color: var(--cor-semaforo-fundo);
+  color: var(--cor-semaforo-texto);
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+  padding-bottom: 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  z-index: 100;
+  position: relative;
+  flex-shrink: 0;
+  transition: background-color var(--tempo-transicao) ease, color var(--tempo-transicao) ease;
+}
+
+/* Círculo do Logotipo Institucional */
+.bar-circle {
+  width: var(--toque-minimo);
+  height: var(--toque-minimo);
+  border-radius: 50%;
+  background-color: var(--cor-ssvp-branco);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  border: none;
+}
+
+.bar-circle img {
+  width: 1.8rem;
+  height: 1.8rem;
+  display: block;
+}
+
+/* Contêiner Central do Semáforo */
+.status-semaforo-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  min-height: var(--toque-minimo);
+  border-radius: var(--raio-botoes);
+  transition: background-color var(--tempo-transicao) ease, transform var(--tempo-transicao) ease;
+  max-width: calc(100% - 7rem);
+}
+
+.status-semaforo-btn:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.status-semaforo-btn:active {
+  transform: scale(0.98);
+}
+
+.status-titulo {
+  font-family: var(--fonte-titulos);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.status-subtitulo {
+  font-family: var(--fonte-interface);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Ação Direita da Barra (Configurações / Informações) */
+.bar-acao-btn {
+  width: var(--toque-minimo);
+  height: var(--toque-minimo);
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color var(--tempo-transicao) ease;
+}
+
+.bar-acao-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.bar-acao-btn:active {
+  transform: scale(0.95);
+}
+
+.bar-acao-btn svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: currentColor;
+}
+
+/* ==========================================================================
+   Classes de Estado do Semáforo
+   ========================================================================== */
+/* Estado 1: 🔴 NÃO CONECTADO (Vermelho Pulsando) */
+.semaforo-vermelho {
+  --cor-semaforo-fundo: var(--cor-ssvp-vermelho);
+  --cor-semaforo-texto: var(--cor-ssvp-branco);
+}
+
+.pulsar-atencao {
+  animation: animarPulsar 1.8s infinite ease-in-out;
+}
+
+@keyframes animarPulsar {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(0.98);
+  }
+}
+
+/* Estado 2: 🟡 NÃO LOGADO (Amarelo com Texto Preto de Alto Contraste) */
+.semaforo-amarelo {
+  --cor-semaforo-fundo: var(--cor-ssvp-amarelo);
+  --cor-semaforo-texto: var(--cor-ssvp-amarelo-texto);
+}
+
+/* Estado 3: 🔵 LOGADO (Azul Oficial SSVP) */
+.semaforo-azul {
+  --cor-semaforo-fundo: var(--cor-ssvp-azul);
+  --cor-semaforo-texto: var(--cor-ssvp-branco);
+}
+
+/* ==========================================================================
+   Banner de Atualização do PWA (Notificação em 1 Toque)
+   ========================================================================== */
+.banner-atualizacao {
+  display: none;
+  background-color: var(--cor-ssvp-azul-escuro);
+  color: var(--cor-ssvp-branco);
+  border-bottom: 2px solid var(--cor-destaque-audio);
+  padding: 0.65rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  font-weight: 500;
+  z-index: 90;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.banner-atualizacao.ativo {
+  display: flex;
+}
+
+.btn-atualizar-pwa {
+  background-color: var(--cor-sucesso);
+  color: var(--cor-ssvp-branco);
+  border: none;
+  border-radius: var(--raio-botoes);
+  padding: 0.5rem 0.85rem;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-atualizar-pwa:active {
+  transform: scale(0.97);
+}
+
+/* ==========================================================================
+   Área de Conteúdo Principal (Container Dinâmico da SPA)
+   ========================================================================== */
+.app-root {
+  flex: 1;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  overflow-y: auto;
+  padding: 1rem;
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Acessibilidade de Foco Visível */
+:focus-visible {
+  outline: 3px solid var(--cor-destaque-audio);
+  outline-offset: 2px;
+}

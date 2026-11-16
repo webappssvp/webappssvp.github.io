@@ -1,0 +1,51 @@
+[
+  {
+    "sigla": "APE",
+    "significado": "A pé",
+    "descricao": "Deslocamento caminhando até a casa da família",
+    "icone": "🚶",
+    "ordem": 1
+  },
+  {
+    "sigla": "ONI",
+    "significado": "Ônibus",
+    "descricao": "Transporte público por ônibus, com ou sem baldeação",
+    "icone": "🚌",
+    "ordem": 2
+  },
+  {
+    "sigla": "MET",
+    "significado": "Metrô / Trem",
+    "descricao": "Transporte público sobre trilhos",
+    "icone": "🚇",
+    "ordem": 3
+  },
+  {
+    "sigla": "CAR",
+    "significado": "Carro próprio",
+    "descricao": "Veículo do próprio vicentino",
+    "icone": "🚗",
+    "ordem": 4
+  },
+  {
+    "sigla": "CAO",
+    "significado": "Carona",
+    "descricao": "Carro de outro vicentino ou de conhecido",
+    "icone": "🤝",
+    "ordem": 5
+  },
+  {
+    "sigla": "APP",
+    "significado": "Aplicativo / Táxi",
+    "descricao": "Transporte por aplicativo ou táxi",
+    "icone": "📱",
+    "ordem": 6
+  },
+  {
+    "sigla": "MIS",
+    "significado": "Misto",
+    "descricao": "Combinação de dois ou mais meios no mesmo trajeto",
+    "icone": "🔀",
+    "ordem": 7
+  }
+]

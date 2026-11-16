@@ -1,0 +1,138 @@
+{
+  "fonte": {
+    "titulo": "Regra da Sociedade de São Vicente de Paulo no Brasil, Edição 2023 (com as alterações de 2025)",
+    "link": "https://www.ssvpbrasil.org.br/source/files/originals/Regra_SSVP_2023-968691.pdf",
+    "nota": "Texto copiado da Regra, sem resumo. A Regra autoriza o uso por Unidades Vicentinas e associados, para fins didáticos e para uso em reuniões e atividades, desde que citada a fonte."
+  },
+  "trechos": {
+    "sindicancia": [
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 118, V, nota 60",
+        "texto": "Conhecido como sindicância, é o ato pelo qual uma \"Comissão\" designada pelo Presidente da Conferência avalia a possibilidade ou não de se adotar uma família como assistida."
+      },
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 118, § 4º",
+        "texto": "O levantamento socioeconômico necessário para averiguação de necessidade de ajuda deve ser feito com muita cautela;"
+      },
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 118, V",
+        "texto": "relato das atividades vicentinas semanais, dos levantamentos socioeconômicos, visitas efetuadas (Artigo 26), das necessidades dos assistidos, do progresso na evangelização e exame das propostas à luz da caridade cristã;"
+      }
+    ],
+    "autonomia": [
+      {
+        "referencia": "Regra da Confederação Internacional, Artigo 1.10 (A promoção da independência da pessoa)",
+        "texto": "Os Vicentinos tentam ajudar os Pobres a serem independentes, na medida do possível, e a dar-se conta de que, de maneira prática, podem forjar e mudar o seu destino e o daqueles que estão à sua volta."
+      },
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 1º",
+        "texto": "[...] suas atividades se destinam à prática da caridade cristã, buscando, através da oração e ação, diminuir o sofrimento, restituir a dignidade humana e promover o resgate da cidadania das famílias assistidas sem distinção de qualquer natureza."
+      },
+      {
+        "referencia": "Estatutos da Confederação Internacional, Requisito Básico nº 6",
+        "texto": "Os Vicentinos devem também promover a autonomia daquele que sofre e preocupar-se com as suas necessidades mais profundas."
+      }
+    ],
+    "familias_assistidas": [
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 25",
+        "texto": "Os membros de uma Conferência têm a obrigação de assistir e visitar um número mínimo de famílias carentes, que não pode ser inferior à metade mais um do número de seus Associados ativos."
+      },
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 26",
+        "texto": "As visitas domiciliares, que serão semanais, devem ser precedidas de oração e contemplar os assuntos materiais e espirituais dos assistidos (Artigo 118, § 2º)."
+      }
+    ],
+    "visita_semanal": [
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 26",
+        "texto": "As visitas domiciliares, que serão semanais, devem ser precedidas de oração e contemplar os assuntos materiais e espirituais dos assistidos (Artigo 118, § 2º)."
+      },
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 118, § 3º",
+        "texto": "As visitas semanais, de preferência em dupla, devem ser feitas com alegria e objetividade, escutando e respeitando os direitos e desejos das pessoas assistidas;"
+      }
+    ],
+    "oracao_visita": [
+      {
+        "referencia": "Orações e Hinos, Orações complementares, 2.7: Oração para uso dos vicentinos antes da visita domiciliar aos assistidos",
+        "texto": "Meu Jesus, ajudai-me no bem que, em vosso nome, desejo fazer; porque, só por mim, nada posso. Estai comigo.\n\nEnchei meu coração daqueles sentimentos que desejo inspirar ao coração desse homem (senhora ou família). Ponde persuasão em meus lábios, verdade em minhas palavras, prudência em meus Conselhos e paciência em minha expectativa.\n\nFazei que a vossa graça ilumine esse meu irmão, enquanto me ouvir... Nada atribuirei a mim no êxito com que vos peço abençoeis minha missão. Sei que sou um instrumento indigno e que nada valho. Porém, tudo me será possível, se vos dignardes assistir-me, ó Jesus, Bom Pastor.\n\nPai dos Pobres, consolador dos aflitos, que com vosso eterno Pai e o Divino Espírito viveis e reinais, em perfeita unidade, por séculos sem fim. Amém."
+      }
+    ],
+    "oracao_antes": [
+      {
+        "referencia": "Regra da Confederação Internacional, Artigo 1.7 (Oração antes dos encontros ou das visitas)",
+        "texto": "Os Vicentinos rogam ao Espírito Santo que os guie durante as visitas e que faça deles instrumentos da paz e da alegria de Cristo."
+      },
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 26",
+        "texto": "As visitas domiciliares, que serão semanais, devem ser precedidas de oração e contemplar os assuntos materiais e espirituais dos assistidos (Artigo 118, § 2º)."
+      }
+    ],
+    "visita_espiritual": [
+      {
+        "referencia": "Regulamento da SSVP no Brasil, Artigo 26, § 2º",
+        "texto": "A visita domiciliar é uma forma de evangelização, não podendo ser restrita a mero atendimento material."
+      },
+      {
+        "referencia": "Regra da Confederação Internacional, Artigo 1.11 (O interesse pelas necessidades mais profundas e pela espiritualidade)",
+        "texto": "Os Vicentinos têm também o cuidado fundamental pela vida interior e pelas exigências espirituais daqueles a quem dão ajuda, tendo sempre profundo respeito por sua consciência e por sua fé e escutando e compreendendo com o coração, para além das palavras e das aparências."
+      }
+    ],
+    "sigilo": [
+      {
+        "referencia": "Regra da Confederação Internacional, Artigo 1.8 (Deferência e estima pelos Pobres)",
+        "texto": "Quando prestam ajuda material e apoio, os Vicentinos praticam sempre o sigilo."
+      }
+    ]
+  },
+  "combinados": {
+    "socorrida_assistida": {
+      "combinado": "A família atendida fica como socorrida ou assistida. Socorrida: recebe ajuda pontual ou de emergência, sem acompanhamento contínuo. Assistida: a conferência a adotou e a acompanha com visitas semanais.",
+      "motivos": [
+        "A Regra fala das famílias assistidas e da sindicância, que decide se a conferência adota uma família como assistida. A palavra \"socorrida\" não está na Regra.",
+        "As planilhas dos Conselhos Centrais já separavam a família socorrida da assistida, e o app manteve essa separação para não mudar o jeito de trabalhar das conferências.",
+        "Quem passa a família de socorrida para assistida é o presidente ou o vice, depois da sindicância."
+      ],
+      "desde": "2026-11-14",
+      "regra": [
+        "sindicancia",
+        "familias_assistidas"
+      ]
+    },
+    "promover_presidente": {
+      "combinado": "Só o presidente da conferência marca uma família como promovida (e desfaz, se foi engano).",
+      "motivos": [
+        "A promoção é a meta da conferência: ajudar a família a ter autonomia (Regra 1.10).",
+        "É o número mais importante dos indicadores. Uma só pessoa confirma, para nenhuma família ser marcada por engano."
+      ],
+      "desde": "2026-11-14",
+      "regra": [
+        "autonomia"
+      ]
+    },
+    "promover_assistida": {
+      "combinado": "Só a família assistida pode ser promovida. A socorrida passa antes a assistida.",
+      "motivos": [
+        "A promoção é o fruto de um acompanhamento: a família assistida é a que a conferência adotou e visita toda semana.",
+        "A socorrida recebe ajuda pontual. Se a conferência passar a acompanhá-la, ela vira assistida, e daí pode chegar à promoção."
+      ],
+      "desde": "2026-11-14",
+      "regra": [
+        "autonomia",
+        "familias_assistidas"
+      ]
+    },
+    "dupla_registra": {
+      "combinado": "Um da dupla registra a visita pelos dois. Os horários do parceiro vêm iguais aos de quem registra.",
+      "motivos": [
+        "Na casa da família, o celular fica no bolso: um só registra, depois, e a conversa não é atrapalhada.",
+        "Sem internet, dois celulares registrando a mesma visita criariam duas visitas na planilha."
+      ],
+      "desde": "2026-11-14",
+      "regra": [
+        "visita_semanal"
+      ]
+    }
+  }
+}

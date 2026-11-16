@@ -1,0 +1,50 @@
+[
+  {
+    "sigla": "VIC",
+    "significado": "Vicentino(a) Ativo(a)",
+    "descricao": "Membro efetivo proclamado que participa das reuniões semanais e visitas",
+    "icone": "✝️",
+    "pode_logar": true,
+    "ordem": 1
+  },
+  {
+    "sigla": "ASP",
+    "significado": "Aspirante",
+    "descricao": "Voluntário em período probatório e de formação vicentina",
+    "icone": "🌱",
+    "pode_logar": true,
+    "ordem": 2
+  },
+  {
+    "sigla": "VIS",
+    "significado": "Visitante / Convidado(a)",
+    "descricao": "Participante ocasional ou em discernimento de vocação",
+    "icone": "👋",
+    "pode_logar": false,
+    "ordem": 3
+  },
+  {
+    "sigla": "AST",
+    "significado": "Pessoa / Família Assistida",
+    "descricao": "Indivíduo ou núcleo familiar acolhido e assistido pela Conferência",
+    "icone": "🏠",
+    "pode_logar": false,
+    "ordem": 4
+  },
+  {
+    "sigla": "SOC",
+    "significado": "Pessoa / Família Socorrida",
+    "descricao": "Indivíduo ou núcleo familiar que recebe auxílio eventual, sem caráter de continuidade",
+    "icone": "🏠",
+    "pode_logar": false,
+    "ordem": 4
+  },
+  {
+    "sigla": "BEN",
+    "significado": "Benfeitor(a) / Doador(a)",
+    "descricao": "Colaborador financeiro ou de alimentos sem frequência ativa nas visitas",
+    "icone": "🎁",
+    "pode_logar": false,
+    "ordem": 5
+  }
+]

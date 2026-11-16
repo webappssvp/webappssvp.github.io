@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>t0_conexao - Barra de conexão</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/views.css">
+</head>
+
+<body>
+
+  <!-- Barra superior: tocar no texto do meio abre a escolha da conferência (js/barra_conexao.js) -->
+  <header class="bar-sup" id="barraSuperior">
+    <a href="index.html" class="bar-circle" title="Voltar ao hub de views" aria-label="Voltar ao hub de views">←</a>
+    <div class="status-header-container" id="statusHeaderBtn">
+      <span class="status-texto-principal pulsar" id="txtStatusPrincipal">Não conectado</span>
+      <span class="status-subtexto" id="txtStatusSub">Toque para conectar</span>
+    </div>
+    <div class="bar-circle" style="background-color: transparent; box-shadow: none; cursor: default;">
+      <span class="versao-badge" id="lblVersaoTopo">t0</span>
+    </div>
+  </header>
+
+  <main class="display-area" role="main">
+    <section style="display: flex; flex-direction: column; gap: 0.6rem;">
+      <h1 class="titulo-garamond" style="font-size: 1.5rem;">Barra de conexão</h1>
+      <p style="font-size: 0.92rem; color: var(--ssvp-text-muted); line-height: 1.5;">
+        Escolha Central → Particular → Conferência e entre com e-mail e senha. Depois de entrar, os selects somem e a
+        conferência aparece na barra; toque nela para trocar. A escolha e a sessão ficam guardadas no IndexedDB.
+      </p>
+      <p style="font-size: 0.85rem; color: var(--ssvp-text-muted); line-height: 1.5;">
+        Em teste (localhost, GitHub Pages), aparecem todos os Centrais e dá para informar o endereço do script de cada um.
+        Link de presidente: <code>?cc=SUD</code> ou <code>?cc=SUD&amp;cf=SP_SUD_ITA_ICO</code>.
+      </p>
+    </section>
+
+    <section class="form-grupo" style="margin-top: 1rem;">
+      <span class="form-label">Sessão desta tela</span>
+      <pre id="txtSessao" style="white-space: pre-wrap; font-size: 0.85rem; background: var(--ssvp-surface-elevated); padding: 0.75rem; border-radius: 0.6rem;">Ainda não entrou.</pre>
+      <button type="button" class="btn-submit" id="btnPerfil" disabled>Testar: pedir o meu perfil ao Central</button>
+      <p class="feedback-msg" id="msgTeste"></p>
+    </section>
+  </main>
+
+  <footer class="bar-inf" role="contentinfo">
+    <a href="index.html" class="btn-barra-inf" title="Hub de Views">
+      <span class="btn-barra-icone">📱</span>
+      <span class="btn-barra-texto">Views</span>
+    </a>
+    <button type="button" class="btn-barra-inf btn-barra-central" id="btn_voz" title="Áudio">
+      <span class="btn-barra-icone">🔊</span>
+      <span class="btn-barra-texto">Ouvir</span>
+    </button>
+    <a href="t2_vicentinos.html" class="btn-barra-inf" title="Vicentinos">
+      <span class="btn-barra-icone">👥</span>
+      <span class="btn-barra-texto">Vicentinos</span>
+    </a>
+  </footer>
+
+  <script type="module">
+    import { inicializarShellComum } from './js/ui_comum.js';
+    import { iniciarBarraConexao, chamarComSessao } from './js/barra_conexao.js';
+
+    const txtSessao = document.getElementById('txtSessao');
+    const btnPerfil = document.getElementById('btnPerfil');
+    const msgTeste = document.getElementById('msgTeste');
+
+    function mostrarSessao(s) {
+      // O token não aparece na tela.
+      txtSessao.textContent = s ? JSON.stringify({ conferencia: s.id_conferencia, perfil: s.perfil, entrou_em: s.entrou_em }, null, 2)
+        : 'Ainda não entrou.';
+      btnPerfil.disabled = !s;
+    }
+
+    btnPerfil.addEventListener('click', async () => {
+      msgTeste.className = 'feedback-msg info';
+      msgTeste.textContent = 'Perguntando ao Central…';
+      try {
+        const r = await chamarComSessao('perfil');
+        msgTeste.className = 'feedback-msg sucesso';
+        msgTeste.textContent = 'O Central respondeu: ' + JSON.stringify(r.perfil || r);
+      } catch (erro) {
+        msgTeste.className = 'feedback-msg erro';
+        msgTeste.textContent = erro.message;
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await inicializarShellComum('t0');
+      await iniciarBarraConexao({ aoConectar: mostrarSessao });
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>T4 – Pessoas cifradas no Drive</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../app/css/base.css">
+
+  <style>
+    html, body {
+      width: 100% !important;
+      height: auto !important;
+      min-height: 100% !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+    }
+
+    body {
+      background-color: var(--ssvp-bg, #0b0f19);
+      color: var(--ssvp-text, #f3f4f6);
+      font-family: var(--font-interface, 'Montserrat', Arial, sans-serif);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.75rem;
+      padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
+      box-sizing: border-box;
+      line-height: 1.5;
+    }
+
+    .barra-topo {
+      width: 100%;
+      max-width: 44rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+      color: var(--ssvp-text-muted, #94a3b8);
+      border-bottom: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.1));
+      margin-bottom: 1rem;
+    }
+
+    .selo {
+      background: rgba(13, 148, 136, 0.2);
+      color: #2dd4bf;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.375rem;
+      font-weight: 700;
+      border: 1px solid rgba(45, 212, 191, 0.3);
+      white-space: nowrap;
+    }
+
+    main {
+      width: 100%;
+      max-width: 44rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .cartao {
+      background: var(--ssvp-surface-card, #121929);
+      border: 1px solid var(--ssvp-border, rgba(255, 255, 255, 0.12));
+      border-radius: 0.875rem;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    h1 {
+      font-family: var(--font-titulo, 'EB Garamond', serif);
+      font-size: 1.6rem;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--ssvp-text-muted, #cbd5e1);
+      font-size: 0.92rem;
+    }
+
+    .aviso {
+      background: rgba(217, 119, 6, 0.15);
+      border: 1px solid rgba(217, 119, 6, 0.4);
+      color: #fbbf24;
+      border-radius: 0.6rem;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    nav a {
+      color: #93c5fd;
+      font-size: 0.85rem;
+      text-decoration: none;
+      border: 1px solid rgba(147, 197, 253, 0.3);
+      border-radius: 0.5rem;
+      padding: 0.35rem 0.6rem;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    input {
+      font: inherit;
+      font-size: 1rem;
+      padding: 0.7rem 0.75rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: #0b1220;
+      color: inherit;
+      min-height: 3rem;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .grade-campos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      gap: 0.75rem;
+    }
+
+    .linha-botoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    button {
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      min-height: 3rem;
+      padding: 0.6rem 1rem;
+      border-radius: 0.7rem;
+      border: none;
+      cursor: pointer;
+      background: #0064B6;
+      color: #fff;
+      flex: 1 1 12rem;
+    }
+
+    button.secundario {
+      background: transparent;
+      border: 1px solid rgba(147, 197, 253, 0.5);
+      color: #bfdbfe;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+
+    .opcao {
+      flex-direction: row;
+      align-items: center;
+      font-weight: 500;
+    }
+
+    .opcao input {
+      width: 1.4rem;
+      min-height: 1.4rem;
+    }
+
+    .status {
+      font-size: 0.88rem;
+      min-height: 1.3rem;
+    }
+
+    .status.ok { color: #4ade80; }
+    .status.erro { color: #f87171; }
+
+    .lista-resultados {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.88rem;
+    }
+
+    .lista-resultados li {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 0.5rem;
+      padding: 0.45rem 0.6rem;
+    }
+
+    .detalhe {
+      display: block;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      overflow-wrap: anywhere;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      text-align: right;
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    th:first-child, td:first-child { text-align: left; }
+
+    .ficha {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 0.7rem;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .ficha-topo {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-weight: 700;
+    }
+
+    .marca-exemplo {
+      background: rgba(217, 119, 6, 0.2);
+      color: #fbbf24;
+      border-radius: 0.4rem;
+      padding: 0.05rem 0.45rem;
+      font-size: 0.72rem;
+    }
+
+    .campo-ficha {
+      font-size: 0.82rem;
+    }
+
+    .campo-ficha code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #a5b4fc;
+      overflow-wrap: anywhere;
+    }
+
+    .campo-ficha .claro {
+      color: #4ade80;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="barra-topo">
+    <span>testes/criptografia/t4_cripto_pessoas_drive.html <strong>v1.0.0</strong></span>
+    <span class="selo">Chave só no back-end</span>
+  </header>
+
+  <main>
+    <section class="cartao">
+      <h1>🔐 Pessoas cifradas no Drive</h1>
+      <p>Testa a criptografia <strong>no Apps Script do CC</strong>: a página envia os dados em claro pelo HTTPS, o script cifra com a chave das propriedades e grava na planilha do Drive. A chave nunca chega a este navegador.</p>
+      <p class="aviso">Use <strong>somente dados fictícios</strong>. Configuração do script: <code>testes/criptografia/privado/t4_appscript/LEIAME.md</code>.</p>
+      <nav aria-label="Outros testes de criptografia">
+        <a href="t1_cripto_gerador.html">T1 Gerador</a>
+        <a href="t2_cripto_pessoas.html">T2 Pessoas (local)</a>
+        <a href="t3_cripto_teste.html">T3 Laboratório</a>
+      </nav>
+    </section>
+
+    <section class="cartao" aria-labelledby="titulo-conexao">
+      <h2 id="titulo-conexao">🔌 Conexão com o script</h2>
+      <label>URL do app da Web (termina em /exec)
+        <input id="campo-url" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/.../exec">
+      </label>
+      <label>Segredo de teste (aparece no registro ao executar configurarTeste)
+        <input id="campo-segredo" type="password" autocomplete="off">
+      </label>
+      <div class="linha-botoes">
+        <button type="button" id="btn-ping">Testar conexão</button>
+      </div>
+      <div id="status-conexao" class="status" aria-live="polite"></div>
+    </section>
+
+    <section class="cartao" aria-labelledby="titulo-autoteste">
+      <h2 id="titulo-autoteste">🧪 Autoteste no servidor</h2>
+      <p>Confere o AES-GCM contra valores de referência, a recusa de cifras alteradas e de chave errada, o HMAC e o PBKDF2, e mede os tempos no Apps Script.</p>
+      <label class="opcao"><input id="opcao-pbkdf2-longo" type="checkbox"> Medir PBKDF2 também com 200.000 e 300.000 repetições (mais lento)</label>
+      <div class="linha-botoes">
+        <button type="button" id="btn-autoteste">Rodar autoteste</button>
+      </div>
+      <div id="status-autoteste" class="status" aria-live="polite"></div>
+      <ul id="lista-autoteste" class="lista-resultados"></ul>
+      <div id="tabela-pbkdf2"></div>
+    </section>
+
+    <section class="cartao" aria-labelledby="titulo-cadastro">
+      <h2 id="titulo-cadastro">👤 Cadastrar pessoa</h2>
+      <div class="grade-campos">
+        <label>Nome de exibição (aberto)
+          <input id="campo-exibicao" type="text" autocomplete="off" value="Pessoa Teste">
+        </label>
+        <label>Nome completo (cifrado)
+          <input id="campo-nome" type="text" autocomplete="off" value="Pessoa Teste Exemplo">
+        </label>
+        <label>E-mail (cifrado + hash)
+          <input id="campo-email" type="email" autocomplete="off" value="ssvp.sp.sud.teste+teste@gmail.com">
+        </label>
+        <label>Celular (cifrado + hash)
+          <input id="campo-celular" type="tel" inputmode="tel" autocomplete="off" value="(11) 90000-0000">
+        </label>
+        <label>CPF fictício (cifrado)
+          <input id="campo-cpf" type="text" inputmode="numeric" autocomplete="off" value="000.000.000-00">
+        </label>
+      </div>
+      <div class="linha-botoes">
+        <button type="button" id="btn-cadastrar">Cadastrar</button>
+        <button type="button" id="btn-ficticios" class="secundario">Gerar 5 pessoas fictícias (faixa 990001+)</button>
+      </div>
+      <div id="status-cadastro" class="status" aria-live="polite"></div>
+    </section>
+
+    <section class="cartao" aria-labelledby="titulo-planilha">
+      <h2 id="titulo-planilha">📄 Aba pessoas da planilha</h2>
+      <div class="linha-botoes">
+        <button type="button" id="btn-ver-cifrado" class="secundario">Ver como está na planilha</button>
+        <button type="button" id="btn-ver-decifrado">Ver decifrado pelo script</button>
+      </div>
+      <div id="status-planilha" class="status" aria-live="polite"></div>
+      <div id="lista-pessoas" class="lista-resultados"></div>
+    </section>
+
+    <section class="cartao" aria-labelledby="titulo-busca">
+      <h2 id="titulo-busca">🔎 Buscar por e-mail (como no login)</h2>
+      <p>O script calcula o HMAC do e-mail e procura na coluna <code>email_hash</code>, sem decifrar ninguém.</p>
+      <label>E-mail
+        <input id="campo-busca" type="email" autocomplete="off" value="SSVP.SP.SUD.TESTE+pessoa1@gmail.com">
+      </label>
+      <div class="linha-botoes">
+        <button type="button" id="btn-buscar">Buscar</button>
+      </div>
+      <div id="status-busca" class="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    /**
+     * @fileoverview T4: página local que conversa com o Apps Script de teste do CC.
+     * A URL fica no localStorage; o segredo de teste, só no sessionStorage (some ao fechar a aba).
+     */
+    'use strict';
+
+    (() => {
+      const CHAVE_URL = 't4_url_api';
+      const CHAVE_SEGREDO = 't4_segredo_teste';
+
+      /** @param {string} id @return {!HTMLElement} */
+      const el = (id) => document.getElementById(id);
+
+      /**
+       * @param {!Storage} armazenamento
+       * @param {string} chave
+       * @return {string}
+       */
+      function lerGuardado(armazenamento, chave) {
+        try {
+          return armazenamento.getItem(chave) || '';
+        } catch (erro) {
+          return '';
+        }
+      }
+
+      /**
+       * @param {!Storage} armazenamento
+       * @param {string} chave
+       * @param {string} valor
+       */
+      function guardar(armazenamento, chave, valor) {
+        try {
+          armazenamento.setItem(chave, valor);
+        } catch (erro) {
+          // Sem armazenamento (janela privada): segue sem lembrar.
+        }
+      }
+
+      /**
+       * @param {string} id
+       * @param {string} texto
+       * @param {string=} tipo 'ok' | 'erro' | ''
+       */
+      function mostrarStatus(id, texto, tipo) {
+        const alvo = el(id);
+        alvo.textContent = texto;
+        alvo.className = 'status' + (tipo ? ' ' + tipo : '');
+      }
+
+      /**
+       * @param {string} tag
+       * @param {string=} classe
+       * @param {string=} texto
+       * @return {!HTMLElement}
+       */
+      function criar(tag, classe, texto) {
+        const no = document.createElement(tag);
+        if (classe) {
+          no.className = classe;
+        }
+        if (texto !== undefined) {
+          no.textContent = texto;
+        }
+        return no;
+      }
+
+      /**
+       * Envia um pedido ao script (POST + text/plain evita a verificação prévia de CORS).
+       * @param {!Object} pedido
+       * @return {!Promise<{resposta: !Object, msTotal: number}>}
+       */
+      async function chamarScript(pedido) {
+        const url = el('campo-url').value.trim();
+        const segredo = el('campo-segredo').value.trim();
+        if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) {
+          throw new Error('Informe a URL do app da Web, terminada em /exec.');
+        }
+        if (!segredo) {
+          throw new Error('Informe o segredo de teste.');
+        }
+        guardar(localStorage, CHAVE_URL, url);
+        guardar(sessionStorage, CHAVE_SEGREDO, segredo);
+
+        const inicio = performance.now();
+        const resposta = await fetch(url, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: {'Content-Type': 'text/plain;charset=utf-8'},
+          body: JSON.stringify(Object.assign({segredo_teste: segredo}, pedido)),
+        });
+        const dados = await resposta.json();
+        const msTotal = Math.round(performance.now() - inicio);
+        if (dados.status === 'erro') {
+          throw new Error(dados.mensagem);
+        }
+        return {resposta: dados, msTotal: msTotal};
+      }
+
+      /**
+       * Desativa o botão enquanto o pedido roda.
+       * @param {string} idBotao
+       * @param {string} idStatus
+       * @param {string} textoAguarde
+       * @param {function(): !Promise<void>} tarefa
+       */
+      async function executar(idBotao, idStatus, textoAguarde, tarefa) {
+        const botao = el(idBotao);
+        botao.disabled = true;
+        mostrarStatus(idStatus, textoAguarde);
+        try {
+          await tarefa();
+        } catch (erro) {
+          mostrarStatus(idStatus, '❌ ' + erro.message, 'erro');
+        } finally {
+          botao.disabled = false;
+        }
+      }
+
+      /** @param {number} msTotal @param {number} msServidor @return {string} */
+      const tempos = (msTotal, msServidor) => `(total ${msTotal} ms; no servidor ${msServidor} ms)`;
+
+      el('btn-ping').addEventListener('click', () => executar('btn-ping', 'status-conexao', 'Conectando…', async () => {
+        const {resposta, msTotal} = await chamarScript({acao: 'ping'});
+        mostrarStatus('status-conexao', `✅ ${resposta.mensagem} Chave atual: ${resposta.versao_chave}. ${tempos(msTotal, resposta.ms_servidor)}`, 'ok');
+      }));
+
+      el('btn-autoteste').addEventListener('click', () => executar('btn-autoteste', 'status-autoteste', 'Rodando no servidor… pode levar até 1 minuto.', async () => {
+        const iteracoes = [1000, 10000, 50000, 100000];
+        if (el('opcao-pbkdf2-longo').checked) {
+          iteracoes.push(200000, 300000);
+        }
+        const {resposta, msTotal} = await chamarScript({acao: 'autoteste', opcoes: {iteracoes: iteracoes, limiteMs: 120000}});
+
+        const lista = el('lista-autoteste');
+        lista.replaceChildren();
+        resposta.resultados.forEach((r) => {
+          const item = criar('li', '', `${r.ok ? '✅' : '❌'} ${r.nome} (${r.ms} ms)`);
+          item.appendChild(criar('span', 'detalhe', r.detalhe));
+          lista.appendChild(item);
+        });
+
+        const tabela = criar('table');
+        const cabecalho = criar('tr');
+        ['PBKDF2: repetições', 'HMAC nativo', 'noble (JS puro)'].forEach((t) => cabecalho.appendChild(criar('th', '', t)));
+        tabela.appendChild(cabecalho);
+        resposta.medicoesPbkdf2.forEach((m) => {
+          const linha = criar('tr');
+          linha.appendChild(criar('td', '', m.iteracoes.toLocaleString('pt-BR')));
+          linha.appendChild(criar('td', '', m.nativoMs === null ? '—' : `${m.nativoMs} ms`));
+          linha.appendChild(criar('td', '', m.nobleMs === null ? '—' : `${m.nobleMs} ms`));
+          tabela.appendChild(linha);
+        });
+        el('tabela-pbkdf2').replaceChildren(tabela);
+
+        const falhas = resposta.resultados.filter((r) => !r.ok).length;
+        mostrarStatus('status-autoteste',
+            (falhas ? `❌ ${falhas} teste(s) falharam. ` : '✅ Todos os testes passaram. ') + tempos(msTotal, resposta.ms_servidor),
+            falhas ? 'erro' : 'ok');
+      }));
+
+      el('btn-cadastrar').addEventListener('click', () => executar('btn-cadastrar', 'status-cadastro', 'Cifrando e gravando…', async () => {
+        const dados = {
+          nome_exibicao: el('campo-exibicao').value,
+          nome_completo: el('campo-nome').value,
+          email: el('campo-email').value,
+          celular: el('campo-celular').value,
+          cpf: el('campo-cpf').value,
+        };
+        const {resposta, msTotal} = await chamarScript({acao: 'inserir_pessoa', dados: dados});
+        mostrarStatus('status-cadastro', `✅ Gravado como ${resposta.registro.id_pessoa}. ${tempos(msTotal, resposta.ms_servidor)}`, 'ok');
+      }));
+
+      el('btn-ficticios').addEventListener('click', () => executar('btn-ficticios', 'status-cadastro', 'Gerando pessoas fictícias…', async () => {
+        const {resposta, msTotal} = await chamarScript({acao: 'gerar_ficticios', quantidade: 5});
+        const ids = resposta.registros.map((r) => r.id_pessoa).join(', ');
+        mostrarStatus('status-cadastro', `✅ Criadas: ${ids}. ${tempos(msTotal, resposta.ms_servidor)}`, 'ok');
+      }));
+
+      /**
+       * @param {!Object} pessoa
+       * @param {boolean} comDecifrado
+       * @return {!HTMLElement}
+       */
+      function montarFicha(pessoa, comDecifrado) {
+        const ficha = criar('div', 'ficha');
+        const topo = criar('div', 'ficha-topo');
+        topo.appendChild(criar('span', '', `${pessoa.id_pessoa} · ${pessoa.nome_exibicao}`));
+        if (pessoa.ficticio === 'SIM') {
+          topo.appendChild(criar('span', 'marca-exemplo', 'EXEMPLO'));
+        }
+        ficha.appendChild(topo);
+
+        [['nome', 'Nome'], ['email', 'E-mail'], ['celular', 'Celular'], ['cpf', 'CPF']].forEach(([campo, rotulo]) => {
+          const linha = criar('div', 'campo-ficha');
+          linha.appendChild(criar('strong', '', `${rotulo}: `));
+          if (comDecifrado) {
+            linha.appendChild(criar('span', 'claro', pessoa.decifrado[campo] || '—'));
+          } else {
+            linha.appendChild(criar('code', '', String(pessoa[campo + '_cifrado'] || '—')));
+          }
+          ficha.appendChild(linha);
+        });
+        if (!comDecifrado) {
+          const hash = criar('div', 'campo-ficha');
+          hash.appendChild(criar('strong', '', 'email_hash: '));
+          hash.appendChild(criar('code', '', String(pessoa.email_hash || '—')));
+          ficha.appendChild(hash);
+        }
+        return ficha;
+      }
+
+      /**
+       * @param {string} idBotao
+       * @param {boolean} decifrar
+       */
+      function listar(idBotao, decifrar) {
+        return executar(idBotao, 'status-planilha', decifrar ? 'Decifrando no servidor…' : 'Lendo a planilha…', async () => {
+          const {resposta, msTotal} = await chamarScript({acao: 'listar_pessoas', decifrar: decifrar});
+          const lista = el('lista-pessoas');
+          lista.replaceChildren(...resposta.linhas.map((p) => montarFicha(p, decifrar)));
+          const extra = decifrar ? ` Decifrar: ${resposta.msDecifrar} ms.` : '';
+          mostrarStatus('status-planilha', `✅ ${resposta.linhas.length} pessoa(s).${extra} ${tempos(msTotal, resposta.ms_servidor)}`, 'ok');
+        });
+      }
+
+      el('btn-ver-cifrado').addEventListener('click', () => listar('btn-ver-cifrado', false));
+      el('btn-ver-decifrado').addEventListener('click', () => listar('btn-ver-decifrado', true));
+
+      el('btn-buscar').addEventListener('click', () => executar('btn-buscar', 'status-busca', 'Buscando…', async () => {
+        const {resposta, msTotal} = await chamarScript({acao: 'buscar_por_email', email: el('campo-busca').value});
+        const texto = resposta.encontrada
+          ? `✅ Encontrada: ${resposta.id_pessoa} · ${resposta.nome_exibicao}.`
+          : '⚠️ Nenhuma pessoa com esse e-mail.';
+        mostrarStatus('status-busca', `${texto} ${tempos(msTotal, resposta.ms_servidor)}`, resposta.encontrada ? 'ok' : '');
+      }));
+
+      el('campo-url').value = lerGuardado(localStorage, CHAVE_URL);
+      el('campo-segredo').value = lerGuardado(sessionStorage, CHAVE_SEGREDO);
+    })();
+  </script>
+</body>
+
+</html>

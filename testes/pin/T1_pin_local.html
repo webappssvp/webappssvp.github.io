@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>T1: Teclado PIN Local Minimalista - SSVP</title>
+
+  <!-- Google Fonts: Montserrat e EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- CSS Compartilhado dos Testes SSVP -->
+  <link rel="stylesheet" href="../testes.css">
+
+  <style>
+    /* =========================================================================
+       VARIÁVEIS DE DESIGN E ERGONOMIA 60+ (T1_pin_local.html - MINIMALISTA)
+       ========================================================================= */
+    :root {
+      --cor-fundo-padrao: #f8fafc;
+      --cor-fundo-verde: #15803d;
+      /* Verde vibrante de sucesso */
+      --cor-fundo-verde-suave: #dcfce7;
+      --cor-fundo-vermelho: #b91c1c;
+      /* Vermelho vibrante de erro */
+      --cor-fundo-vermelho-suave: #fee2e2;
+
+      --pin-btn-size: 4.75rem;
+      /* ~76px para toque amplo 60+ */
+      --pin-btn-bg: #ffffff;
+      --pin-btn-border: #cbd5e1;
+      --pin-btn-text: #0f172a;
+      --pin-btn-active: #e2e8f0;
+
+      --pin-dot-size: 1.25rem;
+      --pin-dot-empty: #cbd5e1;
+      --pin-dot-filled: #002d62;
+
+      --ssvp-navy: #002d62;
+      --ssvp-blue: #007fff;
+      --ssvp-text: #1e293b;
+      --ssvp-muted: #64748b;
+    }
+
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-color: var(--cor-fundo-padrao);
+      color: var(--ssvp-text);
+      margin: 0;
+      padding: 0 0 calc(2rem + env(safe-area-inset-bottom, 0px)) 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background-color 0.4s ease, color 0.3s ease;
+    }
+
+    /* Feedback Cromático de Tela Cheia (T2 Integrado) */
+    body.fundo-verde {
+      background-color: var(--cor-fundo-verde) !important;
+    }
+
+    body.fundo-vermelho {
+      background-color: var(--cor-fundo-vermelho) !important;
+    }
+
+    body.fundo-verde .topo-acoes-teste,
+    body.fundo-vermelho .topo-acoes-teste {
+      background: rgba(0, 0, 0, 0.45);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    body.fundo-verde .topo-acoes-teste .teste-nome-arquivo,
+    body.fundo-vermelho .topo-acoes-teste .teste-nome-arquivo,
+    body.fundo-verde .topo-acoes-teste .teste-versao-topo,
+    body.fundo-vermelho .topo-acoes-teste .teste-versao-topo {
+      color: #ffffff;
+    }
+
+    .teste-container {
+      width: 100%;
+      max-width: 28rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      margin: 0 auto;
+      padding: 0.5rem 1rem;
+      box-sizing: border-box;
+    }
+
+    /* =========================================================================
+       CARD CENTRAL HERO DO TECLADO PIN (MINIMALISTA E ERGONÔMICO)
+       ========================================================================= */
+    .card-teclado-pin {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.5rem;
+      padding: 1.75rem 1.25rem;
+      box-shadow: 0 10px 26px rgba(0, 45, 98, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      box-sizing: border-box;
+      position: relative;
+      transition: transform 0.25s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    body.fundo-verde .card-teclado-pin {
+      border: 3px solid #16a34a;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+    }
+
+    body.fundo-vermelho .card-teclado-pin {
+      border: 3px solid #ef4444;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+      animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    /* Cabeçalho do Card: Toque abre a alteração do PIN */
+    .pin-cabecalho-toque {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 0.4rem 0.6rem;
+      border-radius: 1rem;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .pin-cabecalho-toque:hover {
+      background: #f8fafc;
+    }
+
+    .pin-cabecalho-toque:active {
+      transform: scale(0.98);
+    }
+
+    .pin-titulo-linha {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .pin-titulo {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.95rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+      margin: 0;
+      line-height: 1.15;
+    }
+
+    .icone-editar-pin {
+      width: 1.35rem;
+      height: 1.35rem;
+      fill: var(--ssvp-navy);
+      opacity: 0.7;
+      transition: opacity 0.2s ease, transform 0.2s ease, fill 0.2s ease;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    .pin-cabecalho-toque:hover .icone-editar-pin {
+      opacity: 1;
+      fill: var(--ssvp-blue);
+      transform: scale(1.15);
+    }
+
+    /* Linha de Status do PIN + Botão de Redefinir à Direita */
+    .linha-status-e-redefinir {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .badge-status-pin {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 2rem;
+      font-weight: 700;
+      font-size: 0.825rem;
+      border: 1px solid transparent;
+    }
+
+    .badge-status-pin.padrao {
+      background: #e0f2fe;
+      color: #0369a1;
+      border-color: #bae6fd;
+    }
+
+    .badge-status-pin.personalizado {
+      background: #dcfce7;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+
+    /* Botão Redefinir: Aparece APENAS quando o PIN é personalizado */
+    .btn-redefinir-pin {
+      min-height: 2.35rem;
+      padding: 0.3rem 0.85rem;
+      background: #fff5f5;
+      border: 1.5px solid #fecaca;
+      color: #b91c1c;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn-redefinir-pin:hover,
+    .btn-redefinir-pin:focus-visible {
+      background: #fee2e2;
+      border-color: #ef4444;
+      outline: none;
+    }
+
+    /* =========================================================================
+       CAMPO DOS NÚMEROS INTEGRADO COM BOTÃO EXIBIR/OCULTAR
+       ========================================================================= */
+    .pin-campo-numeros-container {
+      width: 100%;
+      max-width: 23rem;
+      min-height: 4.15rem;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.35rem 0.6rem 0.35rem 0.6rem;
+      box-sizing: border-box;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .pin-campo-numeros-container:focus-within {
+      border-color: var(--ssvp-blue);
+      box-shadow: 0 0 0 3px rgba(0, 127, 255, 0.15);
+    }
+
+    /* Espaçador invisível à esquerda para garantir centralização perfeita dos 6 números */
+    .espacador-olho-campo {
+      width: 3rem;
+      height: 3rem;
+      flex-shrink: 0;
+      visibility: hidden;
+    }
+
+    /* Círculos Indicadores (Dots) */
+    .pin-dots-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex: 1;
+    }
+
+    .pin-dot-item {
+      width: var(--pin-dot-size);
+      height: var(--pin-dot-size);
+      border-radius: 50%;
+      background: var(--pin-dot-empty);
+      border: 2px solid transparent;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+    }
+
+    .pin-dot-item.preenchido {
+      background: var(--pin-dot-filled);
+      transform: scale(1.18);
+      box-shadow: 0 2px 6px rgba(0, 45, 98, 0.3);
+    }
+
+    .pin-dot-item.revelado {
+      background: #e6f0fa;
+      border-color: var(--ssvp-blue);
+      width: 1.85rem;
+      height: 1.85rem;
+      border-radius: 0.45rem;
+      transform: scale(1.1);
+      color: var(--ssvp-navy);
+      font-family: monospace;
+      font-size: 1.25rem;
+    }
+
+    /* Botão Exibir / Ocultar Embutido no Próprio Campo */
+    .btn-olho-campo {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      border: 1.5px solid #cbd5e1;
+      background: #ffffff;
+      color: var(--ssvp-navy);
+      font-size: 1.35rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      user-select: none;
+      flex-shrink: 0;
+      box-shadow: 0 2px 5px rgba(0, 45, 98, 0.08);
+      touch-action: manipulation;
+    }
+
+    .btn-olho-campo:hover {
+      background: #e6f0fa;
+      border-color: var(--ssvp-blue);
+      color: var(--ssvp-blue);
+    }
+
+    .btn-olho-campo.ativo {
+      background: #e6f0fa;
+      border-color: var(--ssvp-blue);
+      color: var(--ssvp-blue);
+      box-shadow: 0 2px 6px rgba(0, 127, 255, 0.2);
+    }
+
+    .btn-olho-campo:active {
+      transform: scale(0.92);
+    }
+
+    /* Ícone Vetorial SVG de Exibir / Ocultar (Material Symbols) */
+    .icone-olho-svg {
+      width: 1.55rem;
+      height: 1.55rem;
+      fill: currentColor;
+      display: block;
+      pointer-events: none;
+      transition: transform 0.15s ease, fill 0.15s ease;
+    }
+
+    .btn-tecla .icone-olho-svg {
+      width: 2.15rem;
+      height: 2.15rem;
+    }
+
+    .btn-olho-modal .icone-olho-svg {
+      width: 1.6rem;
+      height: 1.6rem;
+    }
+
+    .btn-olho-campo:hover .icone-olho-svg,
+    .btn-tecla-utilitaria:hover .icone-olho-svg,
+    .btn-olho-modal:hover .icone-olho-svg {
+      transform: scale(1.08);
+    }
+
+    /* Teclado Numérico 3x4 Amplo (76px por botão) */
+    .pin-grade-teclas {
+      display: grid;
+      grid-template-columns: repeat(3, var(--pin-btn-size));
+      gap: 0.85rem;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+
+    .btn-tecla {
+      width: var(--pin-btn-size);
+      height: var(--pin-btn-size);
+      border-radius: 50%;
+      border: 2px solid var(--pin-btn-border);
+      background: var(--pin-btn-bg);
+      color: var(--pin-btn-text);
+      font-size: 1.75rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 3px 6px rgba(0, 45, 98, 0.08);
+      transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+    }
+
+    .btn-tecla:hover {
+      border-color: var(--ssvp-blue);
+      background: #f8fafc;
+    }
+
+    .btn-tecla:active {
+      transform: scale(0.92);
+      background: var(--pin-btn-active);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-tecla:focus-visible {
+      outline: 3px solid var(--ssvp-blue);
+      outline-offset: 2px;
+    }
+
+    .tecla-letras {
+      font-size: 0.625rem;
+      font-weight: 600;
+      color: var(--ssvp-muted);
+      letter-spacing: 0.12em;
+      margin-top: -0.15rem;
+    }
+
+    .btn-tecla-utilitaria {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      font-size: 1.35rem;
+      color: var(--ssvp-navy);
+    }
+
+    .btn-tecla-utilitaria:hover {
+      background: #f1f5f9;
+      border-color: var(--ssvp-navy);
+    }
+
+    .btn-tecla-utilitaria.ativo {
+      background: #e6f0fa;
+      border-color: var(--ssvp-blue);
+      color: var(--ssvp-blue);
+    }
+
+    .icone-tecla-svg {
+      width: 2.15rem;
+      height: 2.15rem;
+      fill: currentColor;
+      display: block;
+      transition: transform 0.15s ease, fill 0.15s ease;
+      pointer-events: none;
+    }
+
+    .btn-tecla-utilitaria:hover .icone-tecla-svg {
+      fill: var(--ssvp-blue);
+      transform: scale(1.08);
+    }
+
+    /* Banner de Alerta e Resultado */
+    .banner-resultado {
+      width: 100%;
+      min-height: 3.5rem;
+      border-radius: 0.875rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      background: #f1f5f9;
+      color: var(--ssvp-muted);
+      border: 1px solid #cbd5e1;
+    }
+
+    .banner-resultado.sucesso {
+      background: var(--cor-fundo-verde-suave);
+      color: #065f46;
+      border: 2px solid #10b981;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .banner-resultado.erro {
+      background: var(--cor-fundo-vermelho-suave);
+      color: #991b1b;
+      border: 2px solid #ef4444;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Animação de Tremor (Shake) */
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      15% {
+        transform: translateX(-8px);
+      }
+
+      30% {
+        transform: translateX(8px);
+      }
+
+      45% {
+        transform: translateX(-6px);
+      }
+
+      60% {
+        transform: translateX(6px);
+      }
+
+      75% {
+        transform: translateX(-3px);
+      }
+
+      90% {
+        transform: translateX(3px);
+      }
+    }
+
+    /* =========================================================================
+       MODAL DE ALTERAÇÃO DE PIN (COM TOGGLES DE EXIBIR / OCULTAR)
+       ========================================================================= */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .modal-overlay.ativo {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 24rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-sizing: border-box;
+    }
+
+    .modal-titulo {
+      margin: 0;
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.6rem;
+      color: var(--ssvp-navy);
+      font-weight: 700;
+    }
+
+    .modal-subtitulo {
+      margin: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+      line-height: 1.45;
+    }
+
+    .modal-campo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .modal-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--ssvp-text);
+    }
+
+    .campo-com-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .modal-input {
+      flex: 1;
+      font-size: 1.35rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 0.625rem;
+      letter-spacing: 0.25em;
+      text-align: center;
+      font-family: monospace;
+      font-weight: 700;
+      box-sizing: border-box;
+    }
+
+    .modal-input:focus {
+      border-color: var(--ssvp-blue);
+      outline: none;
+    }
+
+    .btn-olho-modal {
+      min-width: 3.25rem;
+      min-height: 3.25rem;
+      border-radius: 0.625rem;
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      color: var(--ssvp-navy);
+      font-size: 1.35rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      user-select: none;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .btn-olho-modal:hover {
+      background: #e6f0fa;
+      border-color: var(--ssvp-blue);
+    }
+
+    .btn-olho-modal.ativo {
+      background: #e6f0fa;
+      border-color: var(--ssvp-blue);
+      color: var(--ssvp-blue);
+    }
+
+    .modal-acoes {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    .btn-modal {
+      min-height: 2.75rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .btn-modal-cancelar {
+      background: #f1f5f9;
+      color: var(--ssvp-text);
+      border: 1px solid #cbd5e1;
+    }
+
+    .btn-modal-cancelar:hover {
+      background: #ffffff;
+    }
+
+    .btn-modal-salvar {
+      background: var(--ssvp-navy);
+      color: #ffffff;
+      border: 1px solid var(--ssvp-navy);
+      font-weight: 700;
+    }
+
+    .btn-modal-salvar:hover {
+      background: #001f44;
+      border-color: var(--ssvp-blue);
+    }
+
+    /* Links de Navegação Discretos */
+    .links-navegacao-teste {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .link-teste-btn {
+      text-decoration: none;
+      color: #ffffff;
+      background: rgba(0, 45, 98, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0.5rem;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: background-color 0.15s ease;
+    }
+
+    .link-teste-btn:hover {
+      background: var(--ssvp-blue);
+    }
+
+    @media (max-width: 360px) {
+      :root {
+        --pin-btn-size: 4.15rem;
+        --pin-dot-size: 1.05rem;
+      }
+
+      .pin-grade-teclas {
+        gap: 0.6rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Barra de Ações do Topo -->
+  <div class="topo-acoes-teste">
+    <div class="teste-nome-arquivo" id="topoNomeArquivo">testes/pin/T1_pin_local.html</div>
+    <div class="teste-versao-topo">v2.5 (Ícones Material Visibility)</div>
+  </div>
+
+  <!-- Container Principal Minimalista -->
+  <main class="teste-container">
+
+    <!-- Card Central do Teclado PIN -->
+    <section class="card-teclado-pin" id="cardTecladoPin" aria-label="Teclado Numérico de Desbloqueio">
+
+      <!-- Cabeçalho Tátil: Toque abre a alteração do PIN -->
+      <div class="pin-cabecalho-toque" id="pinCabecalhoToque" onclick="aoTocarCabecalhoCard(event)"
+        title="Toque para alterar o PIN" role="button" tabindex="0" aria-label="Alterar PIN">
+        <div class="pin-titulo-linha">
+          <h1 class="pin-titulo" id="pinTituloTela">Desbloqueio de Acesso</h1>
+          <svg class="icone-editar-pin" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+            <path
+              d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
+          </svg>
+        </div>
+
+        <!-- Status e Botão Redefinir (o botão aparece apenas se o PIN for personalizado) -->
+        <div class="linha-status-e-redefinir">
+          <span class="badge-status-pin padrao" id="badgeStatusPin">
+            PIN Padrão 123456
+          </span>
+          <button type="button" class="btn-redefinir-pin" id="btnRestaurarPadrao" onclick="restaurarPinPadrao(event)"
+            title="Voltar ao PIN padrão 123456" style="display: none;">
+            🔄 Redefinir
+          </button>
+        </div>
+      </div>
+
+      <!-- Campo dos Números com Botão Exibir / Ocultar Integrado -->
+      <div class="pin-campo-numeros-container" id="pinCampoNumeros" aria-live="polite">
+        <!-- Espaçador à esquerda para manter as bolinhas matematicamente centralizadas -->
+        <div class="espacador-olho-campo" aria-hidden="true"></div>
+
+        <!-- 6 Círculos Indicadores (Dots) -->
+        <div class="pin-dots-wrapper" id="pinDotsWrapper">
+          <div class="pin-dot-item" data-indice="0"></div>
+          <div class="pin-dot-item" data-indice="1"></div>
+          <div class="pin-dot-item" data-indice="2"></div>
+          <div class="pin-dot-item" data-indice="3"></div>
+          <div class="pin-dot-item" data-indice="4"></div>
+          <div class="pin-dot-item" data-indice="5"></div>
+        </div>
+
+        <!-- Botão Exibir / Ocultar Integrado na extremidade direita do campo -->
+        <button type="button" class="btn-olho-campo" id="btnOlhoCampo" onclick="alternarVisibilidadePin()"
+          aria-label="Mostrar números digitados" title="Mostrar números">
+          <svg class="icone-olho-svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+            <path
+              d="M607.5-372.5Q660-425 660-500t-52.5-127.5Q555-680 480-680t-127.5 52.5Q300-575 300-500t52.5 127.5Q405-320 480-320t127.5-52.5Zm-204-51Q372-455 372-500t31.5-76.5Q435-608 480-608t76.5 31.5Q588-545 588-500t-31.5 76.5Q525-392 480-392t-76.5-31.5ZM214-281.5Q94-363 40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200q-146 0-266-81.5ZM480-500Zm207.5 160.5Q782-399 832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280q113 0 207.5-59.5Z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Grade do Teclado Numérico 3x4 (76px por botão) -->
+      <div class="pin-grade-teclas" role="group" aria-label="Teclas Numéricas">
+        <button type="button" class="btn-tecla" onclick="teclarNumero('1')">
+          1 <span class="tecla-letras">&nbsp;</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('2')">
+          2 <span class="tecla-letras">ABC</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('3')">
+          3 <span class="tecla-letras">DEF</span>
+        </button>
+
+        <button type="button" class="btn-tecla" onclick="teclarNumero('4')">
+          4 <span class="tecla-letras">GHI</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('5')">
+          5 <span class="tecla-letras">JKL</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('6')">
+          6 <span class="tecla-letras">MNO</span>
+        </button>
+
+        <button type="button" class="btn-tecla" onclick="teclarNumero('7')">
+          7 <span class="tecla-letras">PQRS</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('8')">
+          8 <span class="tecla-letras">TUV</span>
+        </button>
+        <button type="button" class="btn-tecla" onclick="teclarNumero('9')">
+          9 <span class="tecla-letras">WXYZ</span>
+        </button>
+
+        <!-- Ação Esquerda: Tecla rápida do Olho (Sincronizada) -->
+        <button type="button" class="btn-tecla btn-tecla-utilitaria" id="btnTeclaOlho"
+          onclick="alternarVisibilidadePin()" aria-label="Mostrar números digitados" title="Mostrar números">
+          <svg class="icone-olho-svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+            <path
+              d="M607.5-372.5Q660-425 660-500t-52.5-127.5Q555-680 480-680t-127.5 52.5Q300-575 300-500t52.5 127.5Q405-320 480-320t127.5-52.5Zm-204-51Q372-455 372-500t31.5-76.5Q435-608 480-608t76.5 31.5Q588-545 588-500t-31.5 76.5Q525-392 480-392t-76.5-31.5ZM214-281.5Q94-363 40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200q-146 0-266-81.5ZM480-500Zm207.5 160.5Q782-399 832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280q113 0 207.5-59.5Z" />
+          </svg>
+        </button>
+
+        <!-- Zero -->
+        <button type="button" class="btn-tecla" onclick="teclarNumero('0')">
+          0 <span class="tecla-letras">+</span>
+        </button>
+
+        <!-- Ação Direita: Apagar último número -->
+        <button type="button" class="btn-tecla btn-tecla-utilitaria" onclick="apagarUltimoDigito()"
+          aria-label="Apagar último dígito">
+          <svg class="icone-tecla-svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+            <path
+              d="m456-320 104-104 104 104 56-56-104-104 104-104-56-56-104 104-104-104-56 56 104 104-104 104 56 56Zm-96 160q-19 0-36-8.5T296-192L80-480l216-288q11-15 28-23.5t36-8.5h440q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H360ZM180-480l180 240h440v-480H360L180-480Zm400 0Z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Banner de Resultado Visual e Auditivo -->
+      <div class="banner-resultado" id="bannerResultado">
+        Aguardando digitação dos 6 números...
+      </div>
+
+    </section>
+
+    <!-- Navegação Rápida entre Testes -->
+    <nav class="links-navegacao-teste" aria-label="Outros Testes de PIN">
+      <a href="T2_pin_sistema.html" class="link-teste-btn">➡️ T2 (Feedback Cromático)</a>
+      <a href="index.html" class="link-teste-btn">🏠 Índice de Testes</a>
+    </nav>
+
+  </main>
+
+  <!-- Modal para Alterar o PIN (com botões Exibir/Ocultar em cada campo) -->
+  <div class="modal-overlay" id="modalCadastrarPin" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+    <div class="modal-card">
+      <h3 class="modal-titulo" id="tituloModal">Alterar PIN de Acesso</h3>
+      <p class="modal-subtitulo">
+        Defina um novo código numérico de 6 dígitos da sua preferência (ex: uma data marcante como <code>150854</code>):
+      </p>
+
+      <!-- Campo 1: Novo PIN + Botão Olho -->
+      <div class="modal-campo">
+        <label for="inputNovoPin" class="modal-label">Novo PIN (6 números):</label>
+        <div class="campo-com-toggle">
+          <input type="password" id="inputNovoPin" class="modal-input" maxlength="6" inputmode="numeric"
+            placeholder="••••••">
+          <button type="button" class="btn-olho-modal" id="btnOlhoNovoPin"
+            onclick="alternarOlhoCampo('inputNovoPin', this)" aria-label="Mostrar novo PIN" title="Mostrar novo PIN">
+            <svg class="icone-olho-svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+              <path
+                d="M607.5-372.5Q660-425 660-500t-52.5-127.5Q555-680 480-680t-127.5 52.5Q300-575 300-500t52.5 127.5Q405-320 480-320t127.5-52.5Zm-204-51Q372-455 372-500t31.5-76.5Q435-608 480-608t76.5 31.5Q588-545 588-500t-31.5 76.5Q525-392 480-392t-76.5-31.5ZM214-281.5Q94-363 40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200q-146 0-266-81.5ZM480-500Zm207.5 160.5Q782-399 832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280q113 0 207.5-59.5Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Campo 2: Confirmar PIN + Botão Olho -->
+      <div class="modal-campo">
+        <label for="inputConfirmarPin" class="modal-label">Confirmar Novo PIN:</label>
+        <div class="campo-com-toggle">
+          <input type="password" id="inputConfirmarPin" class="modal-input" maxlength="6" inputmode="numeric"
+            placeholder="••••••">
+          <button type="button" class="btn-olho-modal" id="btnOlhoConfirmarPin"
+            onclick="alternarOlhoCampo('inputConfirmarPin', this)" aria-label="Mostrar confirmação do PIN"
+            title="Mostrar confirmação do PIN">
+            <svg class="icone-olho-svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+              <path
+                d="M607.5-372.5Q660-425 660-500t-52.5-127.5Q555-680 480-680t-127.5 52.5Q300-575 300-500t52.5 127.5Q405-320 480-320t127.5-52.5Zm-204-51Q372-455 372-500t31.5-76.5Q435-608 480-608t76.5 31.5Q588-545 588-500t-31.5 76.5Q525-392 480-392t-76.5-31.5ZM214-281.5Q94-363 40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200q-146 0-266-81.5ZM480-500Zm207.5 160.5Q782-399 832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280q113 0 207.5-59.5Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-acoes">
+        <button type="button" class="btn-modal btn-modal-cancelar" onclick="fecharModalCadastrarPin()">
+          Cancelar
+        </button>
+        <button type="button" class="btn-modal btn-modal-salvar" onclick="confirmarNovoPinPersonalizado()">
+          💾 Salvar Novo PIN
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Compartilhados SSVP -->
+  <script src="../testes.js"></script>
+
+  <script>
+    'use strict';
+
+    /**
+     * @fileoverview Protótipo T1 Minimalista: Teclado PIN Local.
+     * Interface limpa e direta com ergonomia 60+.
+     * Botão exibir/ocultar integrado diretamente no campo dos números.
+     */
+
+    // Constantes de Configuração
+    const PIN_PADRAO_SISTEMA = '123456';
+    const TAMANHO_PIN = 6;
+
+    const DB_CONFIG = {
+      NOME: 'SSVP_Pin_DB',
+      VERSAO: 1,
+      STORE: 'seguranca',
+      CHAVE: 'pin_config'
+    };
+
+    // Ícones Vetoriais Oficiais do Google Material Symbols (visibility e visibility_off)
+    const SVG_VISIBILITY = '<svg class="icone-olho-svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false"><path d="M607.5-372.5Q660-425 660-500t-52.5-127.5Q555-680 480-680t-127.5 52.5Q300-575 300-500t52.5 127.5Q405-320 480-320t127.5-52.5Zm-204-51Q372-455 372-500t31.5-76.5Q435-608 480-608t76.5 31.5Q588-545 588-500t-31.5 76.5Q525-392 480-392t-76.5-31.5ZM214-281.5Q94-363 40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200q-146 0-266-81.5ZM480-500Zm207.5 160.5Q782-399 832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280q113 0 207.5-59.5Z"/></svg>';
+
+    const SVG_VISIBILITY_OFF = '<svg class="icone-olho-svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false"><path d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM222-624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t39-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 1.5-21t4.5-21l-84-82Zm319 93Zm-151 75Z"/></svg>';
+
+    // Estado reativo da aplicação
+    const estado = {
+      possuiPinCustomizado: false,
+      dadosPinDb: null,            // { hash, salt, tamanho, atualizado_em }
+      pinDigitado: '',             // Buffer atual
+      mostrarDigitos: false,       // Olho ativado/desativado no campo principal
+      bloqueadoParaValidacao: false,
+      timerReset: null
+    };
+
+    // =========================================================================
+    // COFRE LOCAL SEGURO E CRIPTOGRAFIA PBKDF2 COM SALT
+    // =========================================================================
+
+    function abrirBancoLocal() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_CONFIG.NOME, DB_CONFIG.VERSAO);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(DB_CONFIG.STORE)) {
+            db.createObjectStore(DB_CONFIG.STORE, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = (e) => reject(new Error('Erro no cofre local: ' + e.target.error));
+      });
+    }
+
+    async function carregarPinLocal() {
+      try {
+        const db = await abrirBancoLocal();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(DB_CONFIG.STORE, 'readonly');
+          const store = tx.objectStore(DB_CONFIG.STORE);
+          const req = store.get(DB_CONFIG.CHAVE);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => reject(req.error);
+        });
+      } catch (err) {
+        console.error('Falha ao consultar cofre local:', err);
+        return null;
+      }
+    }
+
+    async function salvarPinLocal(hash, saltHex) {
+      try {
+        const db = await abrirBancoLocal();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(DB_CONFIG.STORE, 'readwrite');
+          const store = tx.objectStore(DB_CONFIG.STORE);
+          const registro = {
+            id: DB_CONFIG.CHAVE,
+            hash: hash,
+            salt: saltHex,
+            tamanho: TAMANHO_PIN,
+            atualizado_em: new Date().toISOString()
+          };
+          const req = store.put(registro);
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
+        });
+      } catch (err) {
+        console.error('Falha ao salvar no cofre local:', err);
+        return false;
+      }
+    }
+
+    /**
+     * Remove o PIN personalizado e volta ao PIN padrão 123456.
+     * @param {Event} [e] Evento de clique para stopPropagation.
+     */
+    async function restaurarPinPadrao(e) {
+      if (e) {
+        e.stopPropagation();
+      }
+
+      const confirmar = confirm('Deseja realmente voltar ao PIN padrão inicial 123456?');
+      if (!confirmar) return;
+
+      try {
+        const db = await abrirBancoLocal();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(DB_CONFIG.STORE, 'readwrite');
+          const store = tx.objectStore(DB_CONFIG.STORE);
+          const req = store.delete(DB_CONFIG.CHAVE);
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
+        });
+
+        estado.possuiPinCustomizado = false;
+        estado.dadosPinDb = null;
+        atualizarUiEstadoPin();
+        redefinirCorFundoPadrao();
+        definirBanner('ℹ️ Restaurado para o PIN padrão (123456).', 'normal');
+      } catch (err) {
+        alert('Erro ao restaurar PIN padrão: ' + err.message);
+      }
+    }
+
+    function gerarSaltHexAleatorio() {
+      const arr = new Uint8Array(16);
+      crypto.getRandomValues(arr);
+      return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function hexParaBytes(hex) {
+      const bytes = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+      }
+      return bytes;
+    }
+
+    async function derivarHashPbkdf2(pin, saltHex) {
+      const enc = new TextEncoder();
+      const saltBytes = hexParaBytes(saltHex);
+      const chaveMaterial = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(pin),
+        'PBKDF2',
+        false,
+        ['deriveBits']
+      );
+
+      const bitsDerivados = await crypto.subtle.deriveBits(
+        {
+          name: 'PBKDF2',
+          salt: saltBytes,
+          iterations: 100000,
+          hash: 'SHA-256'
+        },
+        chaveMaterial,
+        256
+      );
+
+      const bytes = new Uint8Array(bitsDerivados);
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // =========================================================================
+    // SÍNTESE DE ÁUDIO HARMONIOSA E VIBRAÇÃO HÁPTICA
+    // =========================================================================
+    let audioCtx = null;
+
+    function obterAudioContext() {
+      if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function emitirSomClique() {
+      try {
+        const ctx = obterAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(850, ctx.currentTime + 0.04);
+
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.04);
+      } catch (err) {
+        console.warn('Áudio indisponível:', err);
+      }
+    }
+
+    function emitirSomSucesso() {
+      try {
+        const ctx = obterAudioContext();
+        const agora = ctx.currentTime;
+        const notas = [523.25, 659.25, 783.99]; // C5 -> E5 -> G5
+
+        notas.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, agora + (idx * 0.12));
+          gain.gain.setValueAtTime(0.16, agora + (idx * 0.12));
+          gain.gain.exponentialRampToValueAtTime(0.001, agora + (idx * 0.12) + 0.35);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(agora + (idx * 0.12));
+          osc.stop(agora + (idx * 0.12) + 0.35);
+        });
+      } catch (err) {
+        console.warn('Áudio de sucesso indisponível:', err);
+      }
+    }
+
+    function emitirSomErro() {
+      try {
+        const ctx = obterAudioContext();
+        const agora = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, agora);
+        osc.frequency.exponentialRampToValueAtTime(130, agora + 0.35);
+
+        gain.gain.setValueAtTime(0.18, agora);
+        gain.gain.exponentialRampToValueAtTime(0.001, agora + 0.35);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(agora);
+        osc.stop(agora + 0.35);
+      } catch (err) {
+        console.warn('Áudio de erro indisponível:', err);
+      }
+    }
+
+    function vibrarAparelho(padrao) {
+      if ('vibrate' in navigator) {
+        try {
+          navigator.vibrate(padrao);
+        } catch (e) {
+          // Bloqueado pelo navegador
+        }
+      }
+    }
+
+    // =========================================================================
+    // LÓGICA DO TECLADO E DIGITAÇÃO (76px)
+    // =========================================================================
+
+    function teclarNumero(digito) {
+      if (estado.bloqueadoParaValidacao) return;
+      if (estado.pinDigitado.length >= TAMANHO_PIN) return;
+
+      limparTimerAutoReset();
+      estado.pinDigitado += digito;
+      emitirSomClique();
+      vibrarAparelho(30);
+      atualizarIndicadoresDots();
+
+      if (estado.pinDigitado.length === TAMANHO_PIN) {
+        validarPinDigitado();
+      }
+    }
+
+    function apagarUltimoDigito() {
+      if (estado.bloqueadoParaValidacao) return;
+      if (estado.pinDigitado.length > 0) {
+        limparTimerAutoReset();
+        estado.pinDigitado = estado.pinDigitado.slice(0, -1);
+        emitirSomClique();
+        vibrarAparelho(20);
+        atualizarIndicadoresDots();
+        redefinirCorFundoPadrao();
+        definirBanner('Digite os 6 números.', 'normal');
+      }
+    }
+
+    function redefinirBufferManual() {
+      limparTimerAutoReset();
+      estado.pinDigitado = '';
+      estado.bloqueadoParaValidacao = false;
+      atualizarIndicadoresDots();
+      redefinirCorFundoPadrao();
+      definirBanner('Aguardando digitação dos 6 números...', 'normal');
+    }
+
+    /**
+     * Alterna a visibilidade dos dígitos no campo dos números e sincroniza a tecla de olho.
+     */
+    function alternarVisibilidadePin() {
+      estado.mostrarDigitos = !estado.mostrarDigitos;
+
+      const btnOlhoCampo = document.getElementById('btnOlhoCampo');
+      const btnTecla = document.getElementById('btnTeclaOlho');
+
+      if (estado.mostrarDigitos) {
+        if (btnOlhoCampo) {
+          btnOlhoCampo.innerHTML = SVG_VISIBILITY_OFF;
+          btnOlhoCampo.classList.add('ativo');
+          btnOlhoCampo.setAttribute('aria-label', 'Ocultar números digitados');
+          btnOlhoCampo.setAttribute('title', 'Ocultar números');
+        }
+        if (btnTecla) {
+          btnTecla.innerHTML = SVG_VISIBILITY_OFF;
+          btnTecla.classList.add('ativo');
+          btnTecla.setAttribute('aria-label', 'Ocultar números digitados');
+          btnTecla.setAttribute('title', 'Ocultar números');
+        }
+      } else {
+        if (btnOlhoCampo) {
+          btnOlhoCampo.innerHTML = SVG_VISIBILITY;
+          btnOlhoCampo.classList.remove('ativo');
+          btnOlhoCampo.setAttribute('aria-label', 'Mostrar números digitados');
+          btnOlhoCampo.setAttribute('title', 'Mostrar números');
+        }
+        if (btnTecla) {
+          btnTecla.innerHTML = SVG_VISIBILITY;
+          btnTecla.classList.remove('ativo');
+          btnTecla.setAttribute('aria-label', 'Mostrar números digitados');
+          btnTecla.setAttribute('title', 'Mostrar números');
+        }
+      }
+
+      atualizarIndicadoresDots();
+    }
+
+    function atualizarIndicadoresDots() {
+      const dots = document.querySelectorAll('#pinDotsWrapper .pin-dot-item');
+      dots.forEach((dot, idx) => {
+        if (idx < estado.pinDigitado.length) {
+          if (estado.mostrarDigitos) {
+            dot.textContent = estado.pinDigitado[idx];
+            dot.className = 'pin-dot-item revelado';
+          } else {
+            dot.textContent = '';
+            dot.className = 'pin-dot-item preenchido';
+          }
+        } else {
+          dot.textContent = '';
+          dot.className = 'pin-dot-item';
+        }
+      });
+    }
+
+    // =========================================================================
+    // VALIDAÇÃO (PIN PERSONALIZADO OU PIN PADRÃO 123456)
+    // =========================================================================
+
+    async function validarPinDigitado() {
+      estado.bloqueadoParaValidacao = true;
+      let pinCorreto = false;
+
+      if (estado.possuiPinCustomizado && estado.dadosPinDb) {
+        try {
+          const hashCalculado = await derivarHashPbkdf2(estado.pinDigitado, estado.dadosPinDb.salt);
+          pinCorreto = (hashCalculado === estado.dadosPinDb.hash);
+        } catch (e) {
+          console.error('Erro ao verificar hash:', e);
+          pinCorreto = false;
+        }
+      } else {
+        pinCorreto = (estado.pinDigitado === PIN_PADRAO_SISTEMA);
+      }
+
+      if (pinCorreto) {
+        aplicarFeedbackSucesso();
+      } else {
+        aplicarFeedbackErro();
+      }
+    }
+
+    function aplicarFeedbackSucesso() {
+      document.body.classList.remove('fundo-vermelho');
+      document.body.classList.add('fundo-verde');
+
+      definirBanner('✅ PIN CORRETO! Acesso liberado.', 'sucesso');
+      emitirSomSucesso();
+      vibrarAparelho([60, 40, 100]);
+
+      estado.timerReset = setTimeout(() => {
+        redefinirCorFundoPadrao();
+        estado.pinDigitado = '';
+        estado.bloqueadoParaValidacao = false;
+        atualizarIndicadoresDots();
+        definirBanner('Aguardando digitação dos 6 números...', 'normal');
+      }, 2500);
+    }
+
+    function aplicarFeedbackErro() {
+      document.body.classList.remove('fundo-verde');
+      document.body.classList.add('fundo-vermelho');
+
+      const msgErro = estado.possuiPinCustomizado
+        ? '❌ PIN INCORRETO. Tente novamente.'
+        : '❌ PIN INCORRETO. O código padrão ativo é 123456.';
+
+      definirBanner(msgErro, 'erro');
+      emitirSomErro();
+      vibrarAparelho([140, 60, 140]);
+
+      estado.timerReset = setTimeout(() => {
+        redefinirCorFundoPadrao();
+        estado.pinDigitado = '';
+        estado.bloqueadoParaValidacao = false;
+        atualizarIndicadoresDots();
+        definirBanner('Aguardando digitação dos 6 números...', 'normal');
+      }, 2000);
+    }
+
+    function redefinirCorFundoPadrao() {
+      document.body.classList.remove('fundo-verde');
+      document.body.classList.remove('fundo-vermelho');
+    }
+
+    function limparTimerAutoReset() {
+      if (estado.timerReset) {
+        clearTimeout(estado.timerReset);
+        estado.timerReset = null;
+      }
+    }
+
+    function definirBanner(texto, tipo) {
+      const banner = document.getElementById('bannerResultado');
+      if (!banner) return;
+      banner.textContent = texto;
+      banner.className = 'banner-resultado';
+      if (tipo === 'sucesso') banner.classList.add('sucesso');
+      if (tipo === 'erro') banner.classList.add('erro');
+    }
+
+    // =========================================================================
+    // INTERAÇÃO: AO TOCAR NO CABEÇALHO DO CARD, ABRE A ALTERAÇÃO DO PIN
+    // =========================================================================
+
+    function aoTocarCabecalhoCard(e) {
+      if (e.target && e.target.closest('#btnRestaurarPadrao')) {
+        return;
+      }
+      abrirModalCadastrarPin();
+    }
+
+    function alternarOlhoCampo(inputId, btnEl) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const estaOculto = (input.type === 'password');
+      input.type = estaOculto ? 'text' : 'password';
+
+      if (btnEl) {
+        btnEl.innerHTML = estaOculto ? SVG_VISIBILITY_OFF : SVG_VISIBILITY;
+        btnEl.classList.toggle('ativo', estaOculto);
+        btnEl.setAttribute('aria-label', estaOculto ? 'Ocultar código digitado' : 'Mostrar código digitado');
+        btnEl.setAttribute('title', estaOculto ? 'Ocultar código' : 'Mostrar código');
+      }
+    }
+
+    function abrirModalCadastrarPin() {
+      const modal = document.getElementById('modalCadastrarPin');
+      const input = document.getElementById('inputNovoPin');
+      const inputConf = document.getElementById('inputConfirmarPin');
+      const btnOlho1 = document.getElementById('btnOlhoNovoPin');
+      const btnOlho2 = document.getElementById('btnOlhoConfirmarPin');
+
+      if (modal) {
+        modal.classList.add('ativo');
+
+        if (input) {
+          input.value = '';
+          input.type = 'password';
+        }
+        if (inputConf) {
+          inputConf.value = '';
+          inputConf.type = 'password';
+        }
+
+        if (btnOlho1) {
+          btnOlho1.innerHTML = SVG_VISIBILITY;
+          btnOlho1.classList.remove('ativo');
+          btnOlho1.setAttribute('aria-label', 'Mostrar novo PIN');
+          btnOlho1.setAttribute('title', 'Mostrar novo PIN');
+        }
+        if (btnOlho2) {
+          btnOlho2.innerHTML = SVG_VISIBILITY;
+          btnOlho2.classList.remove('ativo');
+          btnOlho2.setAttribute('aria-label', 'Mostrar confirmação do PIN');
+          btnOlho2.setAttribute('title', 'Mostrar confirmação do PIN');
+        }
+
+        setTimeout(() => { if (input) input.focus(); }, 150);
+      }
+    }
+
+    function fecharModalCadastrarPin() {
+      const modal = document.getElementById('modalCadastrarPin');
+      if (modal) modal.classList.remove('ativo');
+    }
+
+    async function confirmarNovoPinPersonalizado() {
+      const input = document.getElementById('inputNovoPin');
+      const inputConf = document.getElementById('inputConfirmarPin');
+      const val1 = (input ? input.value : '').trim();
+      const val2 = (inputConf ? inputConf.value : '').trim();
+
+      if (!/^\d{6}$/.test(val1)) {
+        alert('O PIN deve conter exatamente 6 números.');
+        return;
+      }
+
+      if (val1 !== val2) {
+        alert('Os dois campos não coincidem. Digite o mesmo PIN nos dois campos.');
+        return;
+      }
+
+      try {
+        const salt = gerarSaltHexAleatorio();
+        const hash = await derivarHashPbkdf2(val1, salt);
+        await salvarPinLocal(hash, salt);
+
+        estado.possuiPinCustomizado = true;
+        estado.dadosPinDb = {
+          hash: hash,
+          salt: salt,
+          tamanho: TAMANHO_PIN,
+          atualizado_em: new Date().toISOString()
+        };
+
+        fecharModalCadastrarPin();
+        atualizarUiEstadoPin();
+        redefinirBufferManual();
+        definirBanner('💾 Novo PIN personalizado ativo com sucesso!', 'sucesso');
+      } catch (err) {
+        alert('Erro ao salvar PIN: ' + err.message);
+      }
+    }
+
+    // =========================================================================
+    // ATUALIZAÇÃO REATIVA DO STATUS E DO BOTÃO REDEFINIR
+    // =========================================================================
+
+    async function inicializarApp() {
+      estado.dadosPinDb = await carregarPinLocal();
+      estado.possuiPinCustomizado = !!(estado.dadosPinDb && estado.dadosPinDb.hash);
+
+      atualizarUiEstadoPin();
+    }
+
+    function atualizarUiEstadoPin() {
+      const badge = document.getElementById('badgeStatusPin');
+      const btnRestaurar = document.getElementById('btnRestaurarPadrao');
+
+      if (estado.possuiPinCustomizado && estado.dadosPinDb) {
+        if (badge) {
+          badge.className = 'badge-status-pin personalizado';
+          badge.textContent = 'PIN Personalizado';
+        }
+        // Ao alterar o PIN, o botão redefinir APARECE à direita do status
+        if (btnRestaurar) {
+          btnRestaurar.style.display = 'inline-flex';
+        }
+      } else {
+        if (badge) {
+          badge.className = 'badge-status-pin padrao';
+          badge.textContent = 'PIN Padrão 123456';
+        }
+        // Se estiver no PIN padrão, o botão redefinir FICA OCULTO
+        if (btnRestaurar) {
+          btnRestaurar.style.display = 'none';
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      inicializarApp();
+    });
+  </script>
+</body>
+
+</html>

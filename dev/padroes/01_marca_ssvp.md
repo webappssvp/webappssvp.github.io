@@ -44,23 +44,15 @@ Para suporte a modo escuro e interfaces de longa visualização em campo, os seg
 
 ## 4. Tipografia Institucional
 
-O manual oficial estabelece duas famílias tipográficas para todas as aplicações:
+O manual oficial estabelece duas famílias: Garamond para títulos institucionais e Montserrat para interface e textos.
 
-```
-Títulos Institucionais:   Garamond (Serifada, clássica, acolhedora e institucional)
-Interface e Textos:       Montserrat (Sem serifa, geométrica, alta legibilidade em telas)
-```
+**No WebApp, usamos só a Montserrat** (decisão de 13/11/2026). Ela é muito legível em telas pequenas, e uma família só deixa o app mais leve e mais uniforme.
 
 ### Aplicação Prática no WebApp:
-1. **Garamond (`font-family: 'Garamond', 'Georgia', serif;`):**
-   * Títulos de telas principais e telas de apresentação institucional.
-   * Cabeçalhos de boas-vindas na tela de identificação.
-   * Documentos para exportação ou impressão (fichas de visita e relatórios oficiais).
-
-2. **Montserrat (`font-family: 'Montserrat', sans-serif;`):**
-   * Textos de interface, campos de formulário (`<input>`, `<textarea>`).
-   * Botões de comando, rótulos de navegação, cards e listagens de assistidos.
-   * Carregada via Google Fonts com pesos `400` (Regular), `500` (Medium), `600` (Semi-Bold) e `700` (Bold).
+* **Montserrat (`font-family: var(--font-ui)`, em `css/base.css`)** em todos os textos: títulos, nome da conferência na barra, campos de formulário, botões, cards e listas.
+* **Destaque é sempre em bold (`font-weight: 700`).** O texto comum fica em `400`. Não usamos outros pesos (500, 600, 800).
+* Carregada pelo Google Fonts só com os pesos `400` e `700`.
+* A Garamond fica para materiais fora do app, como documentos impressos ou apresentações institucionais, quando o manual pedir.
 
 ---
 
@@ -81,7 +73,7 @@ Interface e Textos:       Montserrat (Sem serifa, geométrica, alta legibilidade
 
 ### B. Tela de Autenticação / Boas-Vindas
 * Logotipo apresentado em tamanho de destaque com o nome institucional completo *"Sociedade de São Vicente de Paulo"*.
-* Tipografia Garamond aplicada no título principal.
+* Título principal em Montserrat bold.
 * Evitar papéis de parede fotográficos complexos atrás da marca que prejudiquem o contraste.
 
 ### C. Ícone de Lançamento (PWA & Favicon)

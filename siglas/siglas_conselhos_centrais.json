@@ -1,0 +1,213 @@
+{
+  "_sobre": "Metropolitanos e centrais que o app conhece. sites: endereços do app de cada metropolitano (o app descobre o CM pelo endereço). url_api: endereço do Apps Script do CC publicado como app da web (/exec); null = o CC ainda não usa o app e não aparece no select. Ao mudar, publique o site.",
+  "conselhos_metropolitanos": [
+    {
+      "sigla": "AN",
+      "nome": "Conselho Metropolitano de Anápolis",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "BA",
+      "nome": "Conselho Metropolitano da Bahia",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "BE",
+      "nome": "Conselho Metropolitano de Belém",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "BH",
+      "nome": "Conselho Metropolitano de Belo Horizonte",
+      "uf": "MG",
+      "sites": [
+        "ssvpbh.web.app"
+      ],
+      "conselhos_centrais": [
+        { "sigla": "BHZ", "nome": "Conselho Central Belo Horizonte", "url_api": null },
+        { "sigla": "IMC", "nome": "Conselho Central Imaculada Conceição", "url_api": null },
+        { "sigla": "NSA", "nome": "Conselho Central Nossa Senhora Aparecida", "url_api": null },
+        { "sigla": "SGC", "nome": "Conselho Central Sagrados Corações", "url_api": null },
+        { "sigla": "SFA", "nome": "Conselho Central São Francisco de Assis", "url_api": null },
+        { "sigla": "SLU", "nome": "Conselho Central São Lucas", "url_api": null },
+        { "sigla": "SMT", "nome": "Conselho Central São Mateus", "url_api": null },
+        { "sigla": "SPA", "nome": "Conselho Central São Paulo Apóstolo", "url_api": null },
+        { "sigla": "TDS", "nome": "Conselho Central Todos os Santos", "url_api": null },
+        { "sigla": "NSN", "nome": "Conselho Central Nossa Senhora das Neves", "url_api": null },
+        { "sigla": "NPS", "nome": "Conselho Central Nossa Senhora do Perpétuo Socorro", "url_api": null },
+        { "sigla": "NSP", "nome": "Conselho Central Nossa Senhora da Piedade", "url_api": null },
+        { "sigla": "NPL", "nome": "Conselho Central Nossa Senhora do Pilar", "url_api": null },
+        { "sigla": "SJB", "nome": "Conselho Central São João Batista", "url_api": null },
+        { "sigla": "SLZ", "nome": "Conselho Central Santa Luzia", "url_api": null }
+      ]
+    },
+    {
+      "sigla": "BS",
+      "nome": "Conselho Metropolitano de Brasília",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "CA",
+      "nome": "Conselho Metropolitano de Caratinga",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "CO",
+      "nome": "Conselho Metropolitano de Contagem",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "CR",
+      "nome": "Conselho Metropolitano de Curitiba",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "DI",
+      "nome": "Conselho Metropolitano de Divinópolis",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "FO",
+      "nome": "Conselho Metropolitano de Formiga",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "FZ",
+      "nome": "Conselho Metropolitano de Fortaleza",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "GO",
+      "nome": "Conselho Metropolitano de Goiânia",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "GV",
+      "nome": "Conselho Metropolitano de Governador Valadares",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "JF",
+      "nome": "Conselho Metropolitano de Juiz de Fora",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "MG",
+      "nome": "Conselho Metropolitano de Montes Claros",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "MR",
+      "nome": "Conselho Metropolitano de Maringá",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "OL",
+      "nome": "Conselho Metropolitano de Olinda e Recife",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "OM",
+      "nome": "Conselho Metropolitano de Ouro Preto",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "PA",
+      "nome": "Conselho Metropolitano de Pouso Alegre",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "PT",
+      "nome": "Conselho Metropolitano de Patos de Minas",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "RJ",
+      "nome": "Conselho Metropolitano do Rio de Janeiro",
+      "uf": "RJ",
+      "sites": [
+        "ssvprj.web.app"
+      ],
+      "conselhos_centrais": [
+        { "sigla": "CPS", "nome": "Conselho Central Campos", "url_api": null },
+        { "sigla": "DDC", "nome": "Conselho Central Duque de Caxias", "url_api": null },
+        { "sigla": "ITP", "nome": "Conselho Central Itaperuna", "url_api": null },
+        { "sigla": "LES", "nome": "Conselho Central Leste", "url_api": null },
+        { "sigla": "NIT", "nome": "Conselho Central Niterói", "url_api": null },
+        { "sigla": "NIG", "nome": "Conselho Central Nova Iguaçu", "url_api": null },
+        { "sigla": "OES", "nome": "Conselho Central Oeste", "url_api": null },
+        { "sigla": "PET", "nome": "Conselho Central Petrópolis", "url_api": null },
+        { "sigla": "SGO", "nome": "Conselho Central São Gonçalo", "url_api": null },
+        { "sigla": "SUB", "nome": "Conselho Central Suburbano", "url_api": null },
+        { "sigla": "URB", "nome": "Conselho Central Urbano", "url_api": null }
+      ]
+    },
+    {
+      "sigla": "JC",
+      "nome": "Conselho Metropolitano de São José dos Campos",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "JR",
+      "nome": "Conselho Metropolitano de São João del-Rei",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "SP",
+      "nome": "Conselho Metropolitano de São Paulo",
+      "uf": "SP",
+      "sites": [
+        "ssvpsp.web.app"
+      ],
+      "conselhos_centrais": [
+        { "sigla": "MOG", "nome": "Conselho Central de Mogi das Cruzes", "url_api": null },
+        { "sigla": "SUZ", "nome": "Conselho Central de Suzano", "url_api": null },
+        { "sigla": "SAN", "nome": "Conselho Central de Santo André", "url_api": null },
+        { "sigla": "SBC", "nome": "Conselho Central de São Bernardo do Campo", "url_api": null },
+        { "sigla": "CLI", "nome": "Conselho Central de Campo Limpo", "url_api": null },
+        { "sigla": "LES", "nome": "Conselho Central Leste", "url_api": "https://script.google.com/macros/s/AKfycbxKgrm5S4npA8AaMyoeyYebBo2xprHYF_UdJp8gp4yph-YRZLboT0q_5GisAFr7R5yn/exec" },
+        { "sigla": "NOR", "nome": "Conselho Central Norte", "url_api": null },
+        { "sigla": "OES", "nome": "Conselho Central Oeste", "url_api": null },
+        { "sigla": "SUD", "nome": "Conselho Central Sudeste", "url_api": "https://script.google.com/macros/s/AKfycbwNv2rN437XkShCqWRWRlBn3LIXcY4YJ0IOLlUv7_NgDvaaZ5uix2PEfNcQWdSD3kvI3Q/exec" },
+        { "sigla": "SUL", "nome": "Conselho Central Sul", "url_api": null },
+        { "sigla": "TAT", "nome": "Conselho Central Tatuapé", "url_api": null },
+        { "sigla": "GRU", "nome": "Conselho Central de Guarulhos", "url_api": null },
+        { "sigla": "SVI", "nome": "Conselho Central de São Vicente", "url_api": null },
+        { "sigla": "STS", "nome": "Conselho Central de Santos", "url_api": null }
+      ]
+    },
+    {
+      "sigla": "UB",
+      "nome": "Conselho Metropolitano de Uberaba",
+      "sites": [],
+      "conselhos_centrais": []
+    },
+    {
+      "sigla": "VR",
+      "nome": "Conselho Metropolitano de Volta Redonda",
+      "sites": [],
+      "conselhos_centrais": []
+    }
+  ]
+}

@@ -1,169 +1,201 @@
 /**
- * @fileoverview Ponto de Entrada Principal (Entry Point) da SPA WebApp SSVP.
- * Inicializa o ciclo de vida do PWA, monitoramento de conectividade, IndexedDB v3,
- * configurações M3 (Bottom Sheet), Central de Ajuda "O que é isso?", autenticação hierárquica,
- * voz (STT/TTS com Cápsula Dupla) e painel de visitas.
- * Inclui sincronização dinâmica de altura útil (--vh) e compensação ergonômica inteligente
- * de barras de sistema para Moto Z 1 (3 botões virtuais), Moto E7 (gestos) e iPhone 8.
- * Conformidade estrita com: dev/padroes/02_javascript_google.md
+ * @fileoverview Início do app e roteador por #hash.
+ * Cada tela (js/telas/*.js) exporta renderizar(area, sessao) e devolve o texto do modo Ouvir.
+ * Arquitetura: mvp/arquitetura.md
  */
 
-import { inicializarBanco } from './db.js';
-import { inicializarConfiguracoes } from './config.js';
-import { inicializarSistemaAjuda } from './ajuda.js';
-import { inicializarAuth } from './auth.js';
-import { inicializarModuloVoz } from './voz.js';
-import { inicializarVisitasUI } from './visitas_ui.js';
+import {carregarPreferencias} from './core/preferencias.js';
+import {iniciarBotaoVoz, definirLeitor} from './core/voz.js';
+import {iniciarCasca, ajudaAtiva, avisar, marcarTelaAtual} from './casca.js';
+import {iniciarBarraConexao, sessaoAtual, sairDaConferencia, abrirPainelConexao, chamarNaConferencia,
+  conferenciasComSessao} from './componentes/barra_conexao.js';
+import * as sync from './core/sync.js';
+import {iniciarPainelSync, sincronizarAgora, aoAbrirAba} from './componentes/painel_sync.js';
+import * as cofre from './core/cofre.js';
+import * as db from './core/db.js';
+import {desbloquear} from './telas/pessoa_dados.js';
+import * as pessoas from './telas/pessoas.js';
+import * as familias from './telas/familias.js';
+import * as visita from './telas/visita.js';
+import * as visitas from './telas/visitas.js';
+import * as importarPessoas from './telas/importar_pessoas.js';
+import {voltar} from './telas/comum.js';
+
+/** Telas por #hash. Pessoas é a inicial (mvp/telas/02_pessoas.md). */
+const TELAS = {
+  '#pessoas': pessoas,
+  '#vicentinos': pessoas, // endereço antigo
+  '#familias': familias,
+  '#visitas': visitas,
+  '#visita': visita, // #visita/<id_familia>: registrar uma visita (06_visitas.md, etapa 1)
+  '#importar': importarPessoas,
+};
+const TELA_INICIAL = '#pessoas';
+
+/** Altura real da tela em --vh (celulares sem svh/dvh, como o Moto Z 1). */
+function ajustarAltura() {
+  document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+}
+
+function desenharTela() {
+  // "#pessoas/PES_000002": a tela é "#pessoas" e o resto ("PES_000002") vai para ela.
+  const [base, ...resto] = location.hash.split('/');
+  const hash = TELAS[base] ? base : TELA_INICIAL;
+  const area = document.getElementById('areaConteudo');
+  // Sem sessão, a barra inferior (Menu, Nuvem, Falar, Sair) fica escondida: não há o que usar antes de entrar.
+  document.body.classList.toggle('sem-sessao', !sessaoAtual());
+  const texto = TELAS[hash].renderizar(area, sessaoAtual(), TELAS[base] ? decodeURIComponent(resto.join('/')) : '');
+  // A tela pode devolver uma função: o texto é montado na hora de ler (a lista pode chegar depois).
+  definirLeitor(() => (typeof texto === 'function' ? texto() : texto));
+  marcarTelaAtual(hash === '#vicentinos' ? '#pessoas' : hash === '#visita' ? '#visitas' : hash);
+  area.scrollTop = 0;
+}
 
 /**
- * Calcula e injeta a altura real visível da janela do navegador na variável CSS --vh
- * e detecta se o dispositivo é um Android clássico com barra de navegação virtual de 3 botões.
- * Resolve o conflito ergonômico entre Moto Z 1 (3 botões), Moto E7 (gestos) e iPhone 8.
- * @return {void}
+ * Sair com itens na fila desta conferência: tenta enviar antes; se sobrar algo, pergunta (os dados ficam em claro
+ * no celular, então saem junto; decisão de 14/11/2026).
+ * @return {!Promise<boolean>} Se pode sair.
  */
-export function ajustarAlturaRealViewport() {
-  // Altura visível real (prioriza visualViewport se disponível no navegador)
-  const alturaVisivel = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  const vh = alturaVisivel * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-
-  // Detecção de barra virtual clássica do Android (ex: 3 botões do Moto Z 1)
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  let espacoBarraSistema = '0px';
-
-  if (isAndroid) {
-    // No Android com tela 16:9 clássica (proporção <= 1.92) e barra virtual de 3 botões
-    const ratio = window.screen.height / Math.max(window.screen.width, 1);
-    const diffTela = Math.abs(window.screen.height - window.innerHeight);
-
-    // Se o dispositivo tem proporção clássica e diferença de altura física para útil
-    if (ratio <= 1.92 && diffTela >= 36) {
-      espacoBarraSistema = '2.2rem'; // ~35px adicionais para afastar os botões da barra virtual
-      document.documentElement.classList.add('com-barra-sistema-antiga');
-    } else {
-      document.documentElement.classList.remove('com-barra-sistema-antiga');
-    }
-  } else {
-    document.documentElement.classList.remove('com-barra-sistema-antiga');
+async function confirmarSaidaComFila() {
+  const s = sessaoAtual();
+  if (!s || !(await sync.daConferencia(s.id_conferencia)).length) {
+    return true;
   }
-
-  document.documentElement.style.setProperty('--espaco-barra-sistema', espacoBarraSistema);
+  if (navigator.onLine) {
+    avisar('Enviando o que falta antes de sair…');
+    await sync.enviar({manual: true});
+  }
+  const faltam = (await sync.daConferencia(s.id_conferencia)).length;
+  if (!faltam) {
+    return true;
+  }
+  const texto = (faltam === 1 ? 'Há 1 item que ainda não foi enviado.' : `Há ${faltam} itens que ainda não foram enviados.`) +
+    ' Se sair agora, eles se perdem. Sair mesmo assim?';
+  if (!window.confirm(texto)) {
+    return false;
+  }
+  await sync.apagarDaConferencia(s.id_conferencia);
+  return true;
 }
-
-// Vincula ouvintes para recalcular sempre que a janela for redimensionada ou rotacionada
-window.addEventListener('resize', ajustarAlturaRealViewport);
-window.addEventListener('orientationchange', ajustarAlturaRealViewport);
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', ajustarAlturaRealViewport);
-}
-ajustarAlturaRealViewport();
 
 /**
- * Registra o Service Worker e monitora detecção de novas versões para atualização em 1 toque.
- * Em ambiente de desenvolvimento local (localhost/127.0.0.1), o registro é suspenso
- * para assegurar recargas limpas sem retenção de cache.
- * @return {void}
+ * Sair ou sessão vencida: o cofre (detalhes cifrados) e as listas sem cifra (pessoas, famílias) da conferência
+ * saem do celular (arquitetura.md §5). A fila fica: ao sair, confirmarSaidaComFila já decidiu; com a sessão
+ * vencida, ela espera a pessoa entrar de novo.
+ * @param {string} cf
  */
-function inicializarServiceWorker() {
-  const isLocalhost = Boolean(
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname.startsWith('192.168.')
-  );
+async function apagarDadosDaConferencia(cf) {
+  await cofre.apagar(cf);
+  try {
+    await db.substituirDaConferencia(db.STORES.PESSOAS, cf, []);
+    await db.substituirDaConferencia(db.STORES.FAMILIAS, cf, []);
+  } catch (erro) {
+    // banco indisponível: nada a apagar
+  }
+  ['pessoas_atualizada:', 'pessoas_desde:', 'pessoas_lista:', 'familias_atualizada:', 'familias_desde:']
+      .forEach((k) => db.apagarConfig(k + cf));
+}
 
-  if (isLocalhost) {
-    console.log('[PWA] Modo Desenvolvimento Local ativo. Service Worker desativado para evitar cache.');
+function registrarServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
     return;
   }
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then((registro) => {
-        registro.addEventListener('updatefound', () => {
-          const novoWorker = registro.installing;
-          if (novoWorker) {
-            novoWorker.addEventListener('statechange', () => {
-              if (novoWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                exibirBannerAtualizacao();
-              }
-            });
-          }
-        });
-      }).catch((erro) => {
-        console.error('[PWA] Falha ao registrar Service Worker:', erro.message);
+  navigator.serviceWorker.register('./sw.js').then((registro) => {
+    registro.addEventListener('updatefound', () => {
+      const novo = registro.installing;
+      novo.addEventListener('statechange', () => {
+        if (novo.state === 'installed' && navigator.serviceWorker.controller) {
+          avisar('Há uma versão nova do app. Feche e abra de novo para usar.');
+        }
       });
     });
-  }
-}
-
-/**
- * Exibe o banner de nova versão pronta para atualização com 1 toque.
- * @return {void}
- */
-function exibirBannerAtualizacao() {
-  const banner = document.getElementById('banner-atualizacao');
-  const btnAtualizar = document.getElementById('btn-atualizar-pwa');
-
-  if (banner) {
-    banner.classList.add('ativo');
-  }
-
-  if (btnAtualizar) {
-    btnAtualizar.addEventListener('click', () => {
-      window.location.reload();
-    });
-  }
-}
-
-/**
- * Monitora os eventos de conectividade de rede (Online / Offline).
- * @return {void}
- */
-function inicializarEventosConectividade() {
-  window.addEventListener('online', () => {
-    console.log('[Rede] Dispositivo online.');
-  });
-
-  window.addEventListener('offline', () => {
-    console.log('[Rede] Dispositivo offline. Operando em modo de resiliência local.');
+  }).catch(() => {
+    // sem service worker o app funciona, só não abre offline
   });
 }
 
-/**
- * Inicialização central resiliente da aplicação.
- * @return {Promise<void>}
- */
-async function inicializarAplicacao() {
-  // Garante que o cálculo de altura esteja sincronizado logo no início
-  ajustarAlturaRealViewport();
+async function iniciar() {
+  ajustarAltura();
+  window.addEventListener('resize', ajustarAltura);
+  window.addEventListener('orientationchange', ajustarAltura);
+  // A página não rola (só a área do conteúdo). Se o navegador deslocá-la para mostrar o campo sob o teclado,
+  // o topo some sem volta: devolve a página ao lugar e rola só a área até o campo.
+  window.addEventListener('scroll', () => {
+    if (window.scrollY || document.documentElement.scrollTop) {
+      window.scrollTo(0, 0);
+      const area = document.getElementById('areaConteudo');
+      const campo = document.activeElement;
+      if (campo && area.contains(campo)) {
+        // Só a área rola (scrollIntoView rolaria a página de novo). O campo fica no primeiro terço da área.
+        area.scrollTop += campo.getBoundingClientRect().top - area.getBoundingClientRect().top - area.clientHeight / 3;
+      }
+    }
+  }, {passive: true});
 
-  inicializarServiceWorker();
-  inicializarEventosConectividade();
+  window.addEventListener('banco-bloqueado', () => {
+    window.alert('O app está aberto em outra aba com a versão anterior. Feche as outras abas do app e recarregue ' +
+      'esta página.');
+  });
+  await carregarPreferencias();
+  iniciarCasca({
+    aoSair: async () => {
+      if (!(await confirmarSaidaComFila())) {
+        return;
+      }
+      if (!(await sairDaConferencia())) {
+        avisar('Você ainda não entrou em nenhuma conferência.');
+      }
+    },
+    aoSincronizar: () => sincronizarAgora(),
+    aoAbrirSincronizacao: aoAbrirAba,
+  });
+  iniciarBotaoVoz({avisar, bloqueado: ajudaAtiva});
+  iniciarPainelSync(); // o botão Nuvem mostra a fila guardada já ao abrir, antes de a conexão carregar
 
-  // 1. Inicializa o banco de dados IndexedDB v3
-  await inicializarBanco();
+  document.getElementById('areaConteudo').addEventListener('click', (e) => {
+    if (e.target.closest('[data-acao="abrir-conexao"]')) {
+      abrirPainelConexao();
+    }
+    const botaoVoltar = e.target.closest('[data-voltar]');
+    if (botaoVoltar) {
+      e.preventDefault();
+      voltar(botaoVoltar.getAttribute('href'));
+    }
+  });
+  // A seta de voltar da barra da tela (barra_tela.js) faz o mesmo que o Voltar do celular.
+  document.getElementById('barraTela').addEventListener('click', (e) => {
+    const botaoVoltar = e.target.closest('[data-voltar]');
+    if (botaoVoltar) {
+      e.preventDefault();
+      voltar(botaoVoltar.getAttribute('href'));
+    }
+  });
+  window.addEventListener('hashchange', desenharTela);
 
-  // 2. Inicializa as preferências do usuário e a Gaveta M3 (Bottom Sheet)
-  inicializarConfiguracoes();
+  // A planilha confirmou um cadastro: a tela aberta com o id provisório passa para o definitivo.
+  sync.eventos.addEventListener('confirmado', (e) => {
+    const [base, id] = location.hash.split('/');
+    const definitivo = id && e.detail.trocas[decodeURIComponent(id)];
+    if (definitivo) {
+      location.replace(base + '/' + encodeURIComponent(definitivo));
+    }
+  });
 
-  // 3. Inicializa a Central de Ajuda Interativa "O que é isso?" (t5_barras_e_ajuda)
-  inicializarSistemaAjuda();
-
-  // 4. Inicializa o módulo de comando e leitura de voz universal (STT / TTS) com Cápsula Dupla
-  inicializarModuloVoz();
-
-  // 5. Inicializa a camada de autenticação e semáforo vicentino
-  await inicializarAuth();
-
-  // 6. Inicializa o painel de famílias e visitas
-  await inicializarVisitasUI();
-
-  console.log('[WebApp SSVP] Aplicação inicializada com sucesso na versão modular v1.0.');
+  desenharTela();
+  await iniciarBarraConexao({
+    aoConectar: () => {
+      desenharTela();
+      sync.agendarEnvio(); // entrou de novo (sessão vencida): envia o que esperava por ela
+    },
+    // A senha só existe aqui, na hora do login: vira a chave dos dados guardados para usar sem internet.
+    aoEntrarComSenha: (cf, senha) => desbloquear(cf, senha, {criar: true}),
+    // Sair ou sessão vencida: os dados guardados da conferência saem do celular (cofre e listas).
+    aoEncerrarSessao: (cf) => apagarDadosDaConferencia(cf),
+  });
+  // A chave dos dados guardados lembrada nas últimas 12 horas (cofre.js): reaberto no mesmo dia, não pede a senha.
+  await Promise.all(conferenciasComSessao().map((cf) => cofre.restaurar(cf)));
+  await sync.iniciarSync({chamar: chamarNaConferencia, conferencias: conferenciasComSessao});
+  registrarServiceWorker();
 }
 
-// Inicialização segura que contempla DOMContentLoaded ou execução quando o documento já estiver pronto
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', inicializarAplicacao);
-} else {
-  inicializarAplicacao();
-}
+iniciar();

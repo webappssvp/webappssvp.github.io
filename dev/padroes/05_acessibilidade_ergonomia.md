@@ -48,6 +48,7 @@ O tremor natural das mãos e a perda gradual de precisão motora fina exigem alv
 
 * **Tamanho Mínimo de Alvo de Toque: `48x48px` (`3rem x 3rem`):** Todo botão, ícone clicável, checkbox ou item de menu deve possuir uma área clicável útil de pelo menos `48x48px`. Se o ícone visual for menor (ex: 24px), utilize `padding` interno para expandir a área de toque invisível.
 * **Espaçamento entre Ações Adjacentes:** Mantenha pelo menos `8px` (`0.5rem`) de separação livre entre botões próximos para evitar toques incorretos acidentais.
+* **Voltar nas Telas de Detalhe:** Toda tela de detalhe ou de cadastro começa com o botão **"Voltar para <lista>"** (ex.: "Voltar para pessoas"), antes do título: seta + texto, borda visível, altura mínima de `3rem`. Ele age como o Voltar do celular (recua no histórico se a tela anterior era a lista). Use `botaoVoltar(destino, nomeLista)` de `js/telas/comum.js` e, para voltar por código (depois de salvar), `voltar(destino)`; não use links pequenos como "‹ Pessoas".
 * **Botões de Ação Ergonômicos:** Botões principais de avanço, confirmação ou registro de visita devem ocupar preferencialmente a largura total do contêiner móvel (`width: 100%`) com altura mínima de `3rem` (`48px`).
 
 ```css

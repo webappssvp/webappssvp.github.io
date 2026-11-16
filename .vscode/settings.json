@@ -2,8 +2,8 @@
   "liveServer.settings.host": "192.168.15.87",
   "liveServer.settings.https": {
     "enable": true,
-    "cert": "c:\\github\\webappssvp.github.io\\cert.crt",
-    "key": "c:\\github\\webappssvp.github.io\\cert.key",
+    "cert": "c:\\github\\webappssvp.github.io\\dev_local\\certificados_https\\cert.crt",
+    "key": "c:\\github\\webappssvp.github.io\\dev_local\\certificados_https\\cert.key",
     "passphrase": ""
   },
   "liveServer.settings.AdvanceCustomBrowserCmdLine": "c:\\github\\webappssvp.github.io\\.vscode\\abrir_chrome.bat"

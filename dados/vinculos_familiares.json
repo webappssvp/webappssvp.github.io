@@ -1,0 +1,177 @@
+[
+  {
+    "id_vinculo": "TIT",
+    "categoria": "titular",
+    "nome": "Pessoa de Referência (Titular)",
+    "partilha_cesta": true,
+    "ordem": 1
+  },
+  {
+    "id_vinculo": "CON",
+    "categoria": "nuclear",
+    "nome": "Cônjuge / Companheiro(a)",
+    "partilha_cesta": true,
+    "ordem": 2
+  },
+  {
+    "id_vinculo": "FIL",
+    "categoria": "nuclear",
+    "nome": "Filho(a)",
+    "partilha_cesta": true,
+    "ordem": 3
+  },
+  {
+    "id_vinculo": "PAI",
+    "categoria": "nuclear",
+    "nome": "Pai",
+    "partilha_cesta": true,
+    "ordem": 4
+  },
+  {
+    "id_vinculo": "MAE",
+    "categoria": "nuclear",
+    "nome": "Mãe",
+    "partilha_cesta": true,
+    "ordem": 5
+  },
+  {
+    "id_vinculo": "IRM",
+    "categoria": "nuclear",
+    "nome": "Irmão/Irmã",
+    "partilha_cesta": true,
+    "ordem": 6
+  },
+  {
+    "id_vinculo": "NET",
+    "categoria": "nuclear",
+    "nome": "Neto(a)",
+    "partilha_cesta": true,
+    "ordem": 7
+  },
+  {
+    "id_vinculo": "ENT",
+    "categoria": "afinidade",
+    "nome": "Enteado(a)",
+    "partilha_cesta": true,
+    "ordem": 8
+  },
+  {
+    "id_vinculo": "SOG",
+    "categoria": "afinidade",
+    "nome": "Sogro(a)",
+    "partilha_cesta": true,
+    "ordem": 9
+  },
+  {
+    "id_vinculo": "GEN",
+    "categoria": "afinidade",
+    "nome": "Genro",
+    "partilha_cesta": true,
+    "ordem": 10
+  },
+  {
+    "id_vinculo": "NOR",
+    "categoria": "afinidade",
+    "nome": "Nora",
+    "partilha_cesta": true,
+    "ordem": 11
+  },
+  {
+    "id_vinculo": "CUN",
+    "categoria": "afinidade",
+    "nome": "Cunhado(a)",
+    "partilha_cesta": true,
+    "ordem": 12
+  },
+  {
+    "id_vinculo": "PAD",
+    "categoria": "afinidade",
+    "nome": "Padrasto / Madrasta",
+    "partilha_cesta": true,
+    "ordem": 13
+  },
+  {
+    "id_vinculo": "AVO",
+    "categoria": "colateral",
+    "nome": "Avô/Avó",
+    "partilha_cesta": true,
+    "ordem": 14
+  },
+  {
+    "id_vinculo": "TIO",
+    "categoria": "colateral",
+    "nome": "Tio(a)",
+    "partilha_cesta": true,
+    "ordem": 15
+  },
+  {
+    "id_vinculo": "SOB",
+    "categoria": "colateral",
+    "nome": "Sobrinho(a)",
+    "partilha_cesta": true,
+    "ordem": 16
+  },
+  {
+    "id_vinculo": "PRI",
+    "categoria": "colateral",
+    "nome": "Primo(a)",
+    "partilha_cesta": true,
+    "ordem": 17
+  },
+  {
+    "id_vinculo": "BIS",
+    "categoria": "colateral",
+    "nome": "Bisneto(a)",
+    "partilha_cesta": true,
+    "ordem": 18
+  },
+  {
+    "id_vinculo": "AGR",
+    "categoria": "afetividade",
+    "nome": "Agregado(a) Acolhido(a)",
+    "partilha_cesta": true,
+    "ordem": 19
+  },
+  {
+    "id_vinculo": "AMI",
+    "categoria": "afetividade",
+    "nome": "Amigo(a) Residente",
+    "partilha_cesta": true,
+    "ordem": 20
+  },
+  {
+    "id_vinculo": "AFI",
+    "categoria": "afetividade",
+    "nome": "Afilhado(a)",
+    "partilha_cesta": true,
+    "ordem": 21
+  },
+  {
+    "id_vinculo": "INQ",
+    "categoria": "moradia",
+    "nome": "Inquilino(a) (Independente)",
+    "partilha_cesta": false,
+    "ordem": 22
+  },
+  {
+    "id_vinculo": "PEN",
+    "categoria": "moradia",
+    "nome": "Pensionista",
+    "partilha_cesta": false,
+    "ordem": 23
+  },
+  {
+    "id_vinculo": "CUI",
+    "categoria": "moradia",
+    "nome": "Cuidador(a) Residente",
+    "partilha_cesta": true,
+    "ordem": 24
+  },
+  {
+    "id_vinculo": "OUT",
+    "categoria": "outros",
+    "nome": "Outro Vínculo",
+    "partilha_cesta": false,
+    "ordem": 25
+  }
+]

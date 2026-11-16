@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Laboratório CRUD e API - SSVP</title>
+
+  <!-- Google Fonts: Montserrat e EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,600;0,700;1,600&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS Compartilhado dos Testes SSVP -->
+  <link rel="stylesheet" href="../testes.css">
+
+  <style>
+    /* =========================================================================
+       VARIÁVEIS DE DESIGN E ERGONOMIA 60+ (testes/crud/index.html)
+       ========================================================================= */
+    :root {
+      --ssvp-navy: #002d62;
+      --ssvp-blue: #007fff;
+      --ssvp-text: #1e293b;
+      --ssvp-muted: #64748b;
+      --cor-fundo: #f8fafc;
+      --cor-card-bg: #ffffff;
+      --cor-borda: #e2e8f0;
+
+      /* Cores Temáticas do CRUD */
+      --crud-c-bg: #ecfdf5;
+      --crud-c-border: #a7f3d0;
+      --crud-c-text: #065f46;
+      --crud-c-accent: #10b981;
+
+      --crud-r-bg: #eff6ff;
+      --crud-r-border: #bfdbfe;
+      --crud-r-text: #1e40af;
+      --crud-r-accent: #3b82f6;
+
+      --crud-u-bg: #fffbeb;
+      --crud-u-border: #fde68a;
+      --crud-u-text: #92400e;
+      --crud-u-accent: #f59e0b;
+
+      --crud-d-bg: #f5f3ff;
+      --crud-d-border: #ddd6fe;
+      --crud-d-text: #5b21b6;
+      --crud-d-accent: #8b5cf6;
+    }
+
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-color: var(--cor-fundo);
+      color: var(--ssvp-text);
+      margin: 0;
+      padding: 0 0 calc(3rem + env(safe-area-inset-bottom, 0px)) 0;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .crud-container {
+      width: 100%;
+      max-width: 44rem;
+      margin: 0 auto;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+      box-sizing: border-box;
+    }
+
+    /* Cabeçalho do Portal */
+    .crud-cabecalho {
+      text-align: center;
+      padding: 1.5rem 0.5rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .crud-badge-topo {
+      display: inline-flex;
+      align-items: center;
+      align-self: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .crud-titulo-principal {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      font-weight: 700;
+      color: var(--ssvp-navy);
+      margin: 0;
+      line-height: 1.15;
+    }
+
+    .crud-subtitulo-principal {
+      font-size: 1rem;
+      color: var(--ssvp-muted);
+      margin: 0;
+      max-width: 36rem;
+      align-self: center;
+    }
+
+    /* =========================================================================
+       SEÇÃO PEDAGÓGICA: O QUE É CRUD PARA VICENTINOS LEIGOS?
+       ========================================================================= */
+    .secao-pedagogica {
+      background: var(--cor-card-bg);
+      border: 1px solid var(--cor-borda);
+      border-radius: 1.5rem;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 0 4px 16px rgba(0, 45, 98, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .secao-titulo-bloco {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .secao-titulo {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .secao-descricao {
+      font-size: 0.925rem;
+      color: var(--ssvp-muted);
+      margin: 0;
+      line-height: 1.55;
+    }
+
+    /* Grade dos 4 Cartões do CRUD */
+    .grade-cartoes-crud {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .cartao-letra-crud {
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      border: 1.5px solid transparent;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .cartao-letra-crud:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 45, 98, 0.08);
+    }
+
+    .cartao-letra-crud.card-c {
+      background: var(--crud-c-bg);
+      border-color: var(--crud-c-border);
+      color: var(--crud-c-text);
+    }
+
+    .cartao-letra-crud.card-r {
+      background: var(--crud-r-bg);
+      border-color: var(--crud-r-border);
+      color: var(--crud-r-text);
+    }
+
+    .cartao-letra-crud.card-u {
+      background: var(--crud-u-bg);
+      border-color: var(--crud-u-border);
+      color: var(--crud-u-text);
+    }
+
+    .cartao-letra-crud.card-d {
+      background: var(--crud-d-bg);
+      border-color: var(--crud-d-border);
+      color: var(--crud-d-text);
+    }
+
+    .cartao-topo-linha {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .letra-emblema {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-c .letra-emblema { background: var(--crud-c-accent); }
+    .card-r .letra-emblema { background: var(--crud-r-accent); }
+    .card-u .letra-emblema { background: var(--crud-u-accent); }
+    .card-d .letra-emblema { background: var(--crud-d-accent); }
+
+    .tag-ingles {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.85;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 0.2rem 0.55rem;
+      border-radius: 1rem;
+    }
+
+    .cartao-nome-acao {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .cartao-analogia-vicentina {
+      font-size: 0.875rem;
+      font-weight: 600;
+      opacity: 0.95;
+      margin: 0;
+      border-left: 3px solid currentColor;
+      padding-left: 0.5rem;
+    }
+
+    .cartao-explicacao-sistema {
+      font-size: 0.825rem;
+      line-height: 1.45;
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    /* =========================================================================
+       DESTAQUE ARQUITETURAL: O SEGREDO DA VELOCIDADE E ARQUIVAMENTO EM 3 NÍVEIS
+       ========================================================================= */
+    .box-arquivamento {
+      background: #ffffff;
+      border: 2px solid #e0e7ff;
+      border-radius: 1.5rem;
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 6px 20px rgba(0, 45, 98, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .box-arquivamento::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #002d62, #007fff, #10b981);
+    }
+
+    .box-arquivamento-cabecalho {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+    }
+
+    .icone-lampada {
+      font-size: 2rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .box-arquivamento-textos {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .box-arquivamento-titulo {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+      margin: 0;
+    }
+
+    .box-arquivamento-subtitulo {
+      font-size: 0.9rem;
+      color: var(--ssvp-muted);
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    .grade-etapas-arquivamento {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+      gap: 0.85rem;
+    }
+
+    .etapa-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .etapa-numero {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--ssvp-blue);
+      text-transform: uppercase;
+    }
+
+    .etapa-titulo {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+      margin: 0;
+    }
+
+    .etapa-corpo {
+      font-size: 0.8rem;
+      color: var(--ssvp-text);
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .destaque-familia-ativa {
+      background: #eff6ff;
+      border: 1.5px solid #bfdbfe;
+      border-radius: 0.85rem;
+      padding: 0.85rem 1rem;
+      font-size: 0.875rem;
+      color: #1e3a8a;
+      line-height: 1.45;
+    }
+
+    /* =========================================================================
+       GRADE DE TESTES DE BANCADA (T1 A T4)
+       ========================================================================= */
+    .secao-testes-bancada {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .lista-cards-bancada {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+      gap: 1rem;
+    }
+
+    .card-teste-bancada {
+      background: #ffffff;
+      border: 2px solid var(--cor-borda);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 4px 12px rgba(0, 45, 98, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .card-teste-bancada:hover,
+    .card-teste-bancada:focus-visible {
+      border-color: var(--ssvp-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 45, 98, 0.1);
+      outline: none;
+    }
+
+    .card-teste-cabecalho {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge-teste-versao {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 1rem;
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .card-teste-titulo {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--ssvp-navy);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .card-teste-descricao {
+      font-size: 0.825rem;
+      color: var(--ssvp-muted);
+      line-height: 1.45;
+      margin: 0;
+      flex-grow: 1;
+    }
+
+    .card-teste-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 0.65rem;
+      margin-top: 0.25rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ssvp-blue);
+    }
+
+    .card-teste-bancada:hover .card-teste-footer .seta {
+      transform: translateX(4px);
+    }
+
+    .seta {
+      transition: transform 0.2s ease;
+      font-size: 1rem;
+    }
+
+    /* Links de Navegação Inferiores */
+    .links-rodape {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .link-rodape-btn {
+      text-decoration: none;
+      color: #ffffff;
+      background: var(--ssvp-navy);
+      border-radius: 0.75rem;
+      padding: 0.6rem 1.15rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+      min-height: 3rem; /* 48px para ergonomia 60+ */
+      box-sizing: border-box;
+    }
+
+    .link-rodape-btn:hover {
+      background: var(--ssvp-blue);
+      transform: translateY(-1px);
+    }
+
+    .link-rodape-btn.secundario {
+      background: #ffffff;
+      color: var(--ssvp-navy);
+      border: 1.5px solid #cbd5e1;
+    }
+
+    .link-rodape-btn.secundario:hover {
+      background: #f8fafc;
+      border-color: var(--ssvp-blue);
+      color: var(--ssvp-blue);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra de Ações do Topo -->
+  <div class="topo-acoes-teste">
+    <div class="teste-nome-arquivo" id="topoNomeArquivo">testes/crud/index.html</div>
+    <div class="teste-versao-topo">v1.0 (Laboratório CRUD)</div>
+  </div>
+
+  <main class="crud-container">
+
+    <!-- Cabeçalho Principal -->
+    <header class="crud-cabecalho">
+      <div class="crud-badge-topo">Laboratório de Integração com a Planilha</div>
+      <h1 class="crud-titulo-principal">Operações de Dados: O que é CRUD?</h1>
+      <p class="crud-subtitulo-principal">
+        Como o aplicativo vicentino cuida das informações das nossas famílias e visitas, sem apagar nossa história e mantendo tudo rápido no celular.
+      </p>
+    </header>
+
+    <!-- Seção Pedagógica: O Significado Vicentino do CRUD -->
+    <section class="secao-pedagogica" aria-labelledby="tituloPedagogico">
+      <div class="secao-titulo-bloco">
+        <h2 class="secao-titulo" id="tituloPedagogico">
+          <span>📖</span>
+          <span>As 4 Ações no Dia a Dia da Conferência</span>
+        </h2>
+        <p class="secao-descricao">
+          No mundo dos computadores, usa-se a sigla em inglês <strong>CRUD</strong>. Para nós, vicentinos, ela representa com exatidão as quatro ações que sempre fizemos nas fichas de papel do nosso fichário:
+        </p>
+      </div>
+
+      <!-- Grade dos 4 Cartões do CRUD -->
+      <div class="grade-cartoes-crud">
+        
+        <!-- [ C ] Create / Criar -->
+        <article class="cartao-letra-crud card-c">
+          <div class="cartao-topo-linha">
+            <div class="letra-emblema">C</div>
+            <span class="tag-ingles">Create</span>
+          </div>
+          <h3 class="cartao-nome-acao">Criar (O Acolhimento)</h3>
+          <p class="cartao-analogia-vicentina">"Quando uma nova família é acolhida."</p>
+          <p class="cartao-explicacao-sistema">
+            Abre-se uma ficha cadastral nova. O sistema gera um código próprio permanente (ex: <code>fam_0001</code> ou <code>pes_0001</code>) que nunca mais se perde nem se repete.
+          </p>
+        </article>
+
+        <!-- [ R ] Read / Ler -->
+        <article class="cartao-letra-crud card-r">
+          <div class="cartao-topo-linha">
+            <div class="letra-emblema">R</div>
+            <span class="tag-ingles">Read</span>
+          </div>
+          <h3 class="cartao-nome-acao">Ler (A Consulta de Visita)</h3>
+          <p class="cartao-analogia-vicentina">"Antes de sair para a visita semanal."</p>
+          <p class="cartao-explicacao-sistema">
+            A dupla de vicentinos consulta a ficha no celular para saber os nomes de quem mora na casa, os últimos auxílios entregues e os combinados da semana anterior, sem alterar nada.
+          </p>
+        </article>
+
+        <!-- [ U ] Update / Atualizar -->
+        <article class="cartao-letra-crud card-u">
+          <div class="cartao-topo-linha">
+            <div class="letra-emblema">U</div>
+            <span class="tag-ingles">Update</span>
+          </div>
+          <h3 class="cartao-nome-acao">Atualizar (Acompanhar a Vida)</h3>
+          <p class="cartao-analogia-vicentina">"Anotar as mudanças da família."</p>
+          <p class="cartao-explicacao-sistema">
+            A família mudou de telefone, alguém conseguiu trabalho ou mudou de casa. Atualizamos apenas esses dados, mas <strong>o número da ficha (<code>fam_0001</code>) continua o mesmo</strong>.
+          </p>
+        </article>
+
+        <!-- [ D ] Delete / Desativar -->
+        <article class="cartao-letra-crud card-d">
+          <div class="cartao-topo-linha">
+            <div class="letra-emblema">D</div>
+            <span class="tag-ingles">Delete Lógico</span>
+          </div>
+          <h3 class="cartao-nome-acao">Desativar (A Promoção Humana)</h3>
+          <p class="cartao-analogia-vicentina">"A SSVP nunca apaga registros!"</p>
+          <p class="cartao-explicacao-sistema">
+            Quando a família conquista sua autonomia ou se muda, ela é marcada como <strong>desativada</strong>. Sai da escala semanal de visitas, mas toda a sua <strong>história</strong> fica guardada para sempre.
+          </p>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Destaque: Por que o aplicativo continua rápido mesmo após anos? -->
+    <section class="box-arquivamento" aria-labelledby="tituloArquivamento">
+      <div class="box-arquivamento-cabecalho">
+        <span class="icone-lampada" aria-hidden="true">💡</span>
+        <div class="box-arquivamento-textos">
+          <h2 class="box-arquivamento-titulo" id="tituloArquivamento">
+            Por que o aplicativo não fica lento com o passar dos anos?
+          </h2>
+          <p class="box-arquivamento-subtitulo">
+            Uma família pode ser assistida por anos a fio, mas a planilha ativa cuida estritamente do que é recente:
+          </p>
+        </div>
+      </div>
+
+      <!-- Destaque do Cadastro Ativo -->
+      <div class="destaque-familia-ativa">
+        <strong>📌 A Família Continua Ativa Enquanto Precisar:</strong> O cadastro da família e das pessoas (<code>fam_0001</code>, <code>pes_0001</code>) nunca é removido da planilha ativa enquanto a conferência estiver acompanhando a casa, mesmo que isso leve 3, 5 ou 10 anos.
+      </div>
+
+      <!-- Grade das 3 Etapas -->
+      <div class="grade-etapas-arquivamento">
+        
+        <div class="etapa-item">
+          <span class="etapa-numero">Etapa 1 • Na Ativa</span>
+          <h3 class="etapa-titulo">Últimos 12 Meses</h3>
+          <p class="etapa-corpo">
+            A planilha ativa guarda as famílias atuais e <strong>apenas as visitas e auxílios do último ano</strong>. Isso faz o celular abrir a lista em menos de 1 segundo.
+          </p>
+        </div>
+
+        <div class="etapa-item">
+          <span class="etapa-numero">Etapa 2 • Backup</span>
+          <h3 class="etapa-titulo">Planilha de Reserva</h3>
+          <p class="etapa-corpo">
+            Visitas e auxílios de anos anteriores são transferidos para uma planilha de arquivo da conferência, aliviando a planilha principal do dia a dia.
+          </p>
+        </div>
+
+        <div class="etapa-item">
+          <span class="etapa-numero">Etapa 3 • Cold Storage</span>
+          <h3 class="etapa-titulo">Arquivos Zipados (.zip)</h3>
+          <p class="etapa-corpo">
+            Ao final de cada ano, os dados históricos são compactados em arquivos <code>.zip</code> no Google Drive. Ocupam quase zero espaço e ficam protegidos para sempre.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Seção: Testes Práticos de Bancada da API (T1 a T4) -->
+    <section class="secao-testes-bancada" aria-labelledby="tituloBancada">
+      <div class="secao-titulo-bloco">
+        <h2 class="secao-titulo" id="tituloBancada">
+          <span>🧪</span>
+          <span>Testes de Bancada da API</span>
+        </h2>
+        <p class="secao-descricao">
+          Simulações controladas para testar a comunicação entre o aplicativo e a planilha Google Sheets:
+        </p>
+      </div>
+
+      <div class="lista-cards-bancada">
+
+        <!-- T1: Create -->
+        <a href="t1_create.html" class="card-teste-bancada">
+          <div class="card-teste-cabecalho">
+            <span class="badge-teste-versao">Teste • T1</span>
+            <span style="color: var(--crud-c-accent); font-weight: 700; font-size: 0.85rem;">[ C ] Create</span>
+          </div>
+          <h3 class="card-teste-titulo">
+            <span>➕</span>
+            <span>T1: Inserção Atômica</span>
+          </h3>
+          <p class="card-teste-descricao">
+            Envia um novo cadastro, testa o bloqueio de concorrência (<code>LockService</code>), gera o <code>num_sequencial</code> e confere a criação do código local <code>pes_0001</code>.
+          </p>
+          <div class="card-teste-footer">
+            <span>Testar cadastro atômico</span>
+            <span class="seta">→</span>
+          </div>
+        </a>
+
+        <!-- T2: Read -->
+        <a href="t2_read.html" class="card-teste-bancada">
+          <div class="card-teste-cabecalho">
+            <span class="badge-teste-versao">Teste • T2</span>
+            <span style="color: var(--crud-r-accent); font-weight: 700; font-size: 0.85rem;">[ R ] Read</span>
+          </div>
+          <h3 class="card-teste-titulo">
+            <span>🔍</span>
+            <span>T2: Consulta e Listagem</span>
+          </h3>
+          <p class="card-teste-descricao">
+            Lê registros diretamente da aba da conferência, testando velocidade de resposta, paginação e filtros de famílias ativas.
+          </p>
+          <div class="card-teste-footer">
+            <span>Testar leitura de dados</span>
+            <span class="seta">→</span>
+          </div>
+        </a>
+
+        <!-- T3: Update -->
+        <a href="t3_update.html" class="card-teste-bancada">
+          <div class="card-teste-cabecalho">
+            <span class="badge-teste-versao">Teste • T3</span>
+            <span style="color: var(--crud-u-accent); font-weight: 700; font-size: 0.85rem;">[ U ] Update</span>
+          </div>
+          <h3 class="card-teste-titulo">
+            <span>✏️</span>
+            <span>T3: Atualização Cadastral</span>
+          </h3>
+          <p class="card-teste-descricao">
+            Atualiza telefone, endereço ou observações de um registro existente, garantindo que o número sequencial e o ID permaneçam 100% imutáveis.
+          </p>
+          <div class="card-teste-footer">
+            <span>Testar alteração de dados</span>
+            <span class="seta">→</span>
+          </div>
+        </a>
+
+        <!-- T4: Delete -->
+        <a href="t4_delete.html" class="card-teste-bancada">
+          <div class="card-teste-cabecalho">
+            <span class="badge-teste-versao">Teste • T4</span>
+            <span style="color: var(--crud-d-accent); font-weight: 700; font-size: 0.85rem;">[ D ] Delete</span>
+          </div>
+          <h3 class="card-teste-titulo">
+            <span>📁</span>
+            <span>T4: Desativação Lógica</span>
+          </h3>
+          <p class="card-teste-descricao">
+            Simula a promoção humana de uma família: marca <code>ativa = false</code> e registra a data/motivo sem nunca apagar a linha da planilha.
+          </p>
+          <div class="card-teste-footer">
+            <span>Testar desativação lógica</span>
+            <span class="seta">→</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Rodapé de Ações e Navegação -->
+    <nav class="links-rodape" aria-label="Navegação do Laboratório">
+      <a href="../index.html" class="link-rodape-btn secundario">
+        <span>🏠</span>
+        <span>Voltar ao Índice de Testes</span>
+      </a>
+      <a href="privado/decisoes_api.md" class="link-rodape-btn">
+        <span>📄</span>
+        <span>Ver Decisões Técnicas da API (.md)</span>
+      </a>
+    </nav>
+
+  </main>
+
+  <!-- Scripts Compartilhados SSVP -->
+  <script src="../testes.js"></script>
+
+</body>
+</html>

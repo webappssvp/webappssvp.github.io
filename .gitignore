@@ -6,3 +6,12 @@
 # Dependências do Node.js
 node_modules/
 package-lock.json
+
+# Certificados e chaves privadas (HTTPS local)
+*.key
+*.crt
+*.cer
+*.srl
+
+# Anotações de desenvolvimento
+dados_emails.txt

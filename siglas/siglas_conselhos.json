@@ -1,0 +1,30 @@
+[
+  {
+    "sigla": "CME",
+    "significado": "Conselho Metropolitano",
+    "descricao": "Unidade regional de coordenação superior e representação perante o Conselho Nacional",
+    "nivel_hierarquico": 1,
+    "ordem": 1
+  },
+  {
+    "sigla": "CCE",
+    "significado": "Conselho Central",
+    "descricao": "Coordena os Conselhos Particulares de uma diocese ou macrorregião (ex: CC Sudeste)",
+    "nivel_hierarquico": 2,
+    "ordem": 2
+  },
+  {
+    "sigla": "CPA",
+    "significado": "Conselho Particular",
+    "descricao": "Agrupa e orienta as Conferências de um setor ou conjunto de paróquias (ex: CP Itaim, CP Saúde)",
+    "nivel_hierarquico": 3,
+    "ordem": 3
+  },
+  {
+    "sigla": "CNF",
+    "significado": "Conferência",
+    "descricao": "Célula viva fundamental da SSVP que atua no socorro direto e visita semanal às famílias",
+    "nivel_hierarquico": 4,
+    "ordem": 4
+  }
+]

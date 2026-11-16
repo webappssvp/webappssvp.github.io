@@ -1,13 +1,14 @@
 {
   "name": "WebApp SSVP - Sociedade de São Vicente de Paulo",
-  "short_name": "SSVP Web",
-  "description": "Aplicativo oficial de apoio e gestão fraterna das conferências vicentinas da SSVP Brasil.",
+  "short_name": "SSVP",
+  "description": "Apoio às conferências vicentinas da SSVP Brasil: vicentinos, famílias e visitas, mesmo sem internet.",
+  "lang": "pt-BR",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0B0F19",
-  "theme_color": "#0064B6",
+  "theme_color": "#1B263D",
   "icons": [
     {
       "src": "img/home_app_logo.svg",

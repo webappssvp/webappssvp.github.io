@@ -3,1207 +3,319 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>WebAppSSVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="description" content="Apoio às conferências vicentinas da SSVP Brasil.">
+  <meta name="theme-color" content="#1B263D">
+  <title>WebApp SSVP</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.json">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --cor-fundo: #0b0f19;
-      --cor-barras: #002d62;
-      --cor-card-bg: #1e293b;
-      --cor-card-border: 1px solid rgba(255, 255, 255, 0.08);
-      --cor-texto: #ffffff;
-      --cor-subtexto: #94a3b8;
-      --cor-audio: #007fff;
-      --tempo-transicao: 0.3s;
-      --raio-cantos: 1rem;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: var(--cor-fundo);
-      color: var(--cor-texto);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      height: calc(var(--vh, 1vh) * 100);
-      overflow: hidden;
-    }
-
-    /* Barra Superior */
-    .bar-sup {
-      background-color: var(--cor-barras);
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      z-index: 10;
-      position: relative;
-      flex-shrink: 0;
-    }
-
-    .bar-circle {
-      width: 2.2rem;
-      height: 2.2rem;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.95rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .file-name-label {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: 0.5px;
-    }
-
-    /* Área de Conteúdo Central Scrollável */
-    .display-area {
-      flex: 1;
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      min-height: 0;
-      overflow-y: auto;
-      padding: 1rem;
-    }
-
-    .display-area-content {
-      width: 100%;
-      max-width: 480px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding-bottom: 2rem;
-    }
-
-    /* Título */
-    .pwa-header-title {
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .pwa-header-title h1 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 4px;
-    }
-
-    .pwa-header-title p {
-      font-size: 0.75rem;
-      color: var(--cor-subtexto);
-    }
-
-    /* Cards Expansíveis */
-    .expandable-card {
-      background-color: var(--cor-card-bg);
-      border: var(--cor-card-border);
-      border-radius: var(--raio-cantos);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-      transition: all var(--tempo-transicao) ease;
-    }
-
-    .card-header {
-      padding: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      user-select: none;
-      background-color: rgba(255, 255, 255, 0.02);
-      transition: background-color var(--tempo-transicao);
-    }
-
-    .card-header:active {
-      background-color: rgba(255, 255, 255, 0.06);
-    }
-
-    .card-title-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .card-title-group svg {
-      width: 24px;
-      height: 24px;
-      color: var(--cor-audio);
-      flex-shrink: 0;
-    }
-
-    .card-title-group span {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .arrow-icon {
-      width: 24px;
-      height: 24px;
-      transition: transform var(--tempo-transicao) ease;
-      color: var(--cor-subtexto);
-    }
-
-    /* Corpo do Card (Oculto por padrão) */
-    .card-body {
-      max-height: 0;
-      opacity: 0;
-      transition: max-height var(--tempo-transicao) cubic-bezier(0, 1, 0, 1), opacity var(--tempo-transicao) ease;
-      padding: 0 1.2rem;
-      box-sizing: border-box;
-    }
-
-    .expandable-card.active .card-body {
-      max-height: 2400px;
-      opacity: 1;
-      padding: 1rem 1.2rem 1.5rem 1.2rem;
-      transition: max-height var(--tempo-transicao) cubic-bezier(1, 0, 1, 0), opacity var(--tempo-transicao) ease;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .expandable-card.active .arrow-icon {
-      transform: rotate(180deg);
-      color: var(--cor-audio);
-    }
-
-    /* Estilo de Texto do Card */
-    .card-description {
-      font-size: 0.8rem;
-      line-height: 1.5;
-      color: var(--cor-subtexto);
-      margin-bottom: 12px;
-    }
-
-    .card-description strong {
-      color: #ffffff;
-    }
-
-    .quick-link-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      padding: 0.9rem 1rem;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--cor-audio), #005fe6);
-      color: #ffffff;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 0.85rem;
-      letter-spacing: 0.02em;
-      margin-top: 8px;
-      box-shadow: 0 6px 18px rgba(0, 127, 255, 0.25);
-    }
-
-    .mobile-note {
-      margin-top: 10px;
-      font-size: 0.7rem;
-      color: var(--cor-subtexto);
-      line-height: 1.45;
-    }
-
-    /* Subseções Interativas */
-    .interactive-box {
-      background-color: rgba(0, 0, 0, 0.25);
-      border-radius: 8px;
-      padding: 0.8rem;
-      margin-bottom: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .interactive-box-title {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .interactive-box-title svg {
-      width: 16px;
-      height: 16px;
-      color: var(--cor-audio);
-    }
-
-    .input-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      background-color: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 6px;
-      padding: 0.6rem 0.8rem;
-      color: #ffffff;
-      font-family: inherit;
-      font-size: 0.85rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input[type="text"]:focus {
-      border-color: var(--cor-audio);
-    }
-
-    .icon-btn {
-      background-color: var(--cor-audio);
-      color: #ffffff;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.1s, opacity 0.2s;
-      flex-shrink: 0;
-    }
-
-    .icon-btn:active {
-      transform: scale(0.95);
-    }
-
-    .icon-btn.listening {
-      background-color: #d32f2f;
-      animation: pulseMic 1.2s infinite alternate;
-    }
-
-    @keyframes pulseMic {
-      0% { box-shadow: 0 0 0 0px rgba(211, 47, 47, 0.4); }
-      100% { box-shadow: 0 0 0 8px rgba(211, 47, 47, 0); }
-    }
-
-    .icon-btn svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
-    }
-
-    /* Simulador de Rede e Porteiro */
-    .sim-btn-group {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .sim-action-btn {
-      flex: 1;
-      padding: 0.8rem;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background-color: rgba(255, 255, 255, 0.04);
-      color: #ffffff;
-      font-family: inherit;
-      font-size: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-
-    .sim-action-btn:active {
-      transform: scale(0.98);
-    }
-
-    .sim-action-btn.active {
-      background-color: var(--cor-audio);
-      border-color: var(--cor-audio);
-    }
-
-    /* Barra de Progresso Simulador */
-    .sim-progress-container {
-      height: 6px;
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-      margin: 10px 0;
-      overflow: hidden;
-      display: none;
-    }
-
-    .sim-progress-bar {
-      height: 100%;
-      width: 0%;
-      background-color: #10b981;
-      transition: width 0.1s linear;
-    }
-
-    /* Monitor de Dados Simulados */
-    .sim-console {
-      background-color: #0b0f19;
-      border-radius: 6px;
-      padding: 0.8rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-family: monospace;
-      font-size: 0.7rem;
-      color: #a7f3d0;
-      display: none;
-      word-break: break-all;
-      margin-top: 10px;
-    }
-
-    .sim-console.active {
-      display: block;
-    }
-
-    .vulnerable-highlight {
-      background-color: #ffebee;
-      color: #c62828;
-      padding: 2px 4px;
-      border-radius: 3px;
-      font-weight: bold;
-      border: 1px dashed #c62828;
-      display: inline-block;
-      margin: 2px 0;
-    }
-
-    .secure-highlight {
-      color: #10b981;
-      font-weight: bold;
-    }
-
-    /* Toast de Notificação */
-    .toast-notification {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(11, 15, 25, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #ffffff;
-      padding: 0.6rem 1.2rem;
-      border-radius: 30px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      z-index: 100;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-      pointer-events: none;
-      transition: opacity 0.25s, transform 0.25s;
-      opacity: 0;
-    }
-
-    .toast-notification.show {
-      opacity: 1;
-      transform: translate(-50%, -5px);
-    }
-  </style>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/casca.css">
+  <link rel="stylesheet" href="css/telas.css">
 </head>
 
-<body>
+<!-- sem-sessao: a barra inferior só aparece depois de entrar numa conferência (app.js tira a classe) -->
+<body class="sem-sessao">
 
-  <!-- Barra Superior -->
-  <div class="bar-sup">
-    <div class="bar-circle">SS</div>
-    <span class="file-name-label">WebAppSSVP</span>
-    <div class="bar-circle" style="opacity: 0;"></div>
-  </div>
+  <!-- Barra superior: logo, conferência (toque abre a conexão) e menu ⋮. Casca: mvp/telas/00_casca.md -->
+  <header class="app-header" id="appHeader">
+    <div class="header-logo-container ajuda-alvo" data-ajuda-titulo="Símbolo da SSVP"
+      data-ajuda-texto="Símbolo oficial da Sociedade de São Vicente de Paulo.">
+      <img src="img/marca_ssvp.svg" alt="SSVP Brasil" class="header-logo-img">
+    </div>
 
-  <!-- Área de Desenho Central Scrollável -->
-  <div class="display-area">
-    <div class="display-area-content">
-      <!-- Card de Status: Em Construção & Laboratório de Testes (Topo) -->
-      <div class="expandable-card active" id="card-construction" style="border: 1px solid rgba(245, 158, 11, 0.4); background-color: rgba(245, 158, 11, 0.03); margin-bottom: 4px;">
-        <div class="card-header" onclick="toggleCard('card-construction')">
-          <div class="card-title-group">
-            <!-- Ícone SVG Material: Build / Engineering -->
-            <svg viewBox="0 0 24 24" fill="currentColor" style="color: #f59e0b;">
-              <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.5 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.6z"/>
-            </svg>
-            <span style="color: #f59e0b; font-weight: 700;">Em Construção &amp; Laboratório de Testes</span>
-          </div>
-          <!-- Ícone SVG Material: Keyboard Arrow Down -->
-          <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor" style="color: #f59e0b;">
-            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-          </svg>
-        </div>
-        <div class="card-body">
-          <p class="card-description" style="color: #e2e8f0; font-size: 0.85rem; font-weight: 600; line-height: 1.5;">
-            O aplicativo <strong>WebAppSSVP</strong> está em desenvolvimento ativo para modernizar o cadastro e o acompanhamento das famílias assistidas.
-          </p>
-          <p class="card-description" style="font-size: 0.82rem; line-height: 1.5; margin-top: 6px;">
-            Para garantir que funcione com fluidez no bolso de qualquer vicentino, todos os protótipos são testados e validados na prática em <strong>smartphones Android (modernos e antigos) e iPhones</strong>:
-          </p>
-          <ul style="margin: 8px 0 14px 18px; font-size: 0.8rem; line-height: 1.55; color: var(--cor-subtexto);">
-            <li style="margin-bottom: 4px;"><strong>Material Design 3:</strong> padrão de interface do Google que utiliza sombras, profundidade e geometria limpa para guiar os olhos e os dedos com naturalidade. Adaptado às cores institucionais vicentinas e atendendo públicos de todas as idades;</li>
-            <li style="margin-bottom: 4px;"><strong>Compatibilidade e Desempenho:</strong> calibrado para responder com rapidez tanto em celulares de última geração quanto em aparelhos antigos com memória limitada;</li>
-            <li style="margin-bottom: 4px;"><strong>Ergonomia e Acessibilidade 60+:</strong> botões táteis ampliados (48px) e alto contraste, sem distorções no Chrome (Android) ou no Safari (iOS);</li>
-            <li style="margin-bottom: 4px;"><strong>Voz Inteligente (TTS e STT):</strong> leitura de relatos em voz alta e ditado por microfone direto no navegador;</li>
-            <li style="margin-bottom: 4px;"><strong>Segurança e Nuvem:</strong> funcionamento resiliente mesmo sem sinal de internet e sincronização com o Google Sheets.</li>
-          </ul>
-
-          <!-- Botão de Acesso à Central de Testes -->
-          <a class="quick-link-button" href="./testes/index.html" title="Acessar Central de Testes e Protótipos">
-            🧪 Acessar Central de Testes e Protótipos →
-          </a>
-        </div>
+    <div class="header-title-area ajuda-alvo" id="statusHeaderBtn" aria-controls="painelConexao"
+      data-ajuda-titulo="Conferência"
+      data-ajuda-texto="Mostra a conferência escolhida e quem entrou. Toque aqui para escolher outra conferência, entrar ou sair.">
+      <p class="header-conf-name" id="lblConfName">Escolha a conferência</p>
+      <div class="header-sub-row">
+        <span class="header-cp-name" id="lblConfSub">Toque aqui para conectar</span>
+        <span class="header-version-pill">v0.1</span>
       </div>
+    </div>
 
-      <!-- Card 1: Por que um WebApp? -->
-      <div class="expandable-card" id="card-pwa">
-        <div class="card-header" onclick="toggleCard('card-pwa')">
-          <div class="card-title-group">
-            <!-- Ícone SVG Material: Smartphone -->
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
-            </svg>
-            <span>Por que um WebApp?</span>
-          </div>
-          <!-- Ícone SVG Material: Keyboard Arrow Down -->
-          <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-          </svg>
-        </div>
-        <div class="card-body">
-          <!-- Texto Inicial do Card 1 -->
-          <p class="card-description">
-            O WebAppSSVP é um aplicativo super leve que roda direto no navegador do seu celular. Ele funciona de forma segura mesmo em locais onde não há sinal de internet.
-          </p>
+    <button type="button" class="btn-header-overflow ajuda-alvo" id="btnOverflow" aria-haspopup="menu"
+      aria-label="Mais opções" title="Mais opções"
+      data-ajuda-titulo="Mais opções (3 pontos)"
+      data-ajuda-texto="Abre a Sincronização, as Configurações do aparelho e a Ajuda.">
+      <svg viewBox="0 -960 960 960" aria-hidden="true">
+        <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/>
+      </svg>
+    </button>
+  </header>
 
-          <!-- Ilustração SVG 1.1: 5 Celulares subindo dados para a nuvem de planilhas de Sheets -->
-          <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box;">
-            <svg viewBox="0 0 360 140" width="100%" height="auto" style="background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); padding: 8px; display: block;">
-              <defs>
-                <linearGradient id="gradCelSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#475569" />
-                  <stop offset="100%" stop-color="#1e293b" />
-                </linearGradient>
-                <linearGradient id="gradSheetSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#10b981" />
-                  <stop offset="100%" stop-color="#047857" />
-                </linearGradient>
-                <marker id="arrowSmall" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#94a3b8" />
-                </marker>
-              </defs>
-
-              <!-- Desenho de Nuvem Esticada em SVG Azul por trás das planilhas -->
-              <path d="M 45,35 
-                       a 12,12 0 0,1 12,-16 
-                       a 18,18 0 0,1 25,-8 
-                       a 22,22 0 0,1 36,-4 
-                       h 140 
-                       a 22,22 0 0,1 36,4 
-                       a 18,18 0 0,1 25,8 
-                       a 12,12 0 0,1 12,16 
-                       a 8,8 0 0,1 -6,8 
-                       H 51 
-                       a 8,8 0 0,1 -6,-8 z" 
-                    fill="rgba(0, 127, 255, 0.06)" 
-                    stroke="rgba(0, 127, 255, 0.35)" 
-                    stroke-width="1.5" />
-
-              <!-- 5 Planilhas no Topo (aninhadas na nuvem e centralizadas) -->
-              <g transform="translate(0, 10)">
-                <!-- Planilha 1 -->
-                <g transform="translate(88,0)">
-                  <rect x="0" y="0" width="24" height="28" rx="3" fill="url(#gradSheetSmall)" />
-                  <path d="M 4 8 L 20 8 M 4 13 L 20 13 M 4 18 L 20 18 M 10 4 L 10 24" stroke="rgba(255,255,255,0.4)" stroke-width="1" />
-                </g>
-                <!-- Planilha 2 -->
-                <g transform="translate(128,0)">
-                  <rect x="0" y="0" width="24" height="28" rx="3" fill="url(#gradSheetSmall)" />
-                  <path d="M 4 8 L 20 8 M 4 13 L 20 13 M 4 18 L 20 18 M 10 4 L 10 24" stroke="rgba(255,255,255,0.4)" stroke-width="1" />
-                </g>
-                <!-- Planilha 3 -->
-                <g transform="translate(168,0)">
-                  <rect x="0" y="0" width="24" height="28" rx="3" fill="url(#gradSheetSmall)" />
-                  <path d="M 4 8 L 20 8 M 4 13 L 20 13 M 4 18 L 20 18 M 10 4 L 10 24" stroke="rgba(255,255,255,0.4)" stroke-width="1" />
-                </g>
-                <!-- Planilha 4 -->
-                <g transform="translate(208,0)">
-                  <rect x="0" y="0" width="24" height="28" rx="3" fill="url(#gradSheetSmall)" />
-                  <path d="M 4 8 L 20 8 M 4 13 L 20 13 M 4 18 L 20 18 M 10 4 L 10 24" stroke="rgba(255,255,255,0.4)" stroke-width="1" />
-                </g>
-                <!-- Planilha 5 -->
-                <g transform="translate(248,0)">
-                  <rect x="0" y="0" width="24" height="28" rx="3" fill="url(#gradSheetSmall)" />
-                  <path d="M 4 8 L 20 8 M 4 13 L 20 13 M 4 18 L 20 18 M 10 4 L 10 24" stroke="rgba(255,255,255,0.4)" stroke-width="1" />
-                </g>
-              </g>
-
-              <!-- 5 Celulares embaixo -->
-              <g transform="translate(30, 92)">
-                <!-- Celular 1 -->
-                <g transform="translate(0,0)">
-                  <rect x="0" y="0" width="20" height="34" rx="4" fill="url(#gradCelSmall)" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
-                  <circle cx="10" cy="29" r="1.2" fill="#94a3b8" />
-                  <path d="M 10 4 L 10 4" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-                </g>
-                <!-- Celular 2 -->
-                <g transform="translate(65,0)">
-                  <rect x="0" y="0" width="20" height="34" rx="4" fill="url(#gradCelSmall)" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
-                  <circle cx="10" cy="29" r="1.2" fill="#94a3b8" />
-                  <path d="M 10 4 L 10 4" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-                </g>
-                <!-- Celular 3 -->
-                <g transform="translate(130,0)">
-                  <rect x="0" y="0" width="20" height="34" rx="4" fill="url(#gradCelSmall)" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
-                  <circle cx="10" cy="29" r="1.2" fill="#94a3b8" />
-                  <path d="M 10 4 L 10 4" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-                </g>
-                <!-- Celular 4 -->
-                <g transform="translate(195,0)">
-                  <rect x="0" y="0" width="20" height="34" rx="4" fill="url(#gradCelSmall)" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
-                  <circle cx="10" cy="29" r="1.2" fill="#94a3b8" />
-                  <path d="M 10 4 L 10 4" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-                </g>
-                <!-- Celular 5 -->
-                <g transform="translate(260,0)">
-                  <rect x="0" y="0" width="20" height="34" rx="4" fill="url(#gradCelSmall)" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
-                  <circle cx="10" cy="29" r="1.2" fill="#94a3b8" />
-                  <path d="M 10 4 L 10 4" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-                </g>
-              </g>
-
-              <!-- Linhas de Envio ligando celulares às planilhas correspondentes -->
-              <path d="M 40 92 L 100 38" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.2" stroke-dasharray="3,3" marker-end="url(#arrowSmall)" />
-              <path d="M 105 92 L 140 38" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.2" stroke-dasharray="3,3" marker-end="url(#arrowSmall)" />
-              <path d="M 170 92 L 180 38" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.2" stroke-dasharray="3,3" marker-end="url(#arrowSmall)" />
-              <path d="M 235 92 L 220 38" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.2" stroke-dasharray="3,3" marker-end="url(#arrowSmall)" />
-              <path d="M 300 92 L 260 38" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.2" stroke-dasharray="3,3" marker-end="url(#arrowSmall)" />
-            </svg>
-          </div>
-
-          <!-- Ilustração SVG 1.2: Sincronização em 3 etapas -->
-          <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box;">
-            <svg viewBox="0 0 360 185" width="100%" height="auto" style="background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); padding: 8px; display: block;">
-              <defs>
-                <linearGradient id="gradCelBig" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#334155" />
-                  <stop offset="100%" stop-color="#0f172a" />
-                </linearGradient>
-                <linearGradient id="gradPlanilhaBig" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#10b981" />
-                  <stop offset="100%" stop-color="#047857" />
-                </linearGradient>
-                <linearGradient id="gradHouseBg" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="rgba(255,255,255,0.015)" />
-                  <stop offset="100%" stop-color="rgba(255,255,255,0.04)" />
-                </linearGradient>
-                
-                <marker id="arrowBlueBig" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#007fff" />
-                </marker>
-                <marker id="arrowGreenBig" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
-                </marker>
-                <marker id="arrowWhiteBig" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#94a3b8" />
-                </marker>
-              </defs>
-
-              <!-- CASAS À ESQUERDA E À DIREITA -->
-              <!-- Casa da Esquerda -->
-              <g transform="translate(0, 10)">
-                <polygon points="60,25 10,55 110,55" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
-                <rect x="22" y="55" width="76" height="96" rx="4" fill="url(#gradHouseBg)" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
-              </g>
-
-              <!-- Casa da Direita -->
-              <g transform="translate(0, 10)">
-                <polygon points="300,25 250,55 350,55" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
-                <rect x="262" y="55" width="76" height="96" rx="4" fill="url(#gradHouseBg)" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
-              </g>
-
-              <!-- PLANILHA CENTRAL ÚNICA NO TOPO -->
-              <g transform="translate(180, 5)">
-                <path d="M -30,16 a 4,4 0 0,1 4,-5 a 6,6 0 0,1 8,-3 a 7,7 0 0,1 12,-1 h 12 a 7,7 0 0,1 12,1 a 6,6 0 0,1 8,3 a 4,4 0 0,1 4,5 a 3,3 0 0,1 -2,2 H -28 a 3,3 0 0,1 -2,-2 z" fill="rgba(0, 127, 255, 0.08)" stroke="rgba(0, 127, 255, 0.3)" stroke-width="1.2" transform="scale(1.3) translate(-10, -3)" />
-                <rect x="-16" y="2" width="32" height="38" rx="4" fill="url(#gradPlanilhaBig)" />
-                <path d="M -10 12 L 10 12 M -10 18 L 10 18 M -10 24 L 10 24 M -1 6 L -1 32" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
-              </g>
-
-              <!-- ETAPA 1: ESQUERDA (Celular com WiFi e Banco de Dados) -->
-              <g transform="translate(0, 10)">
-                <g transform="translate(37, 65)">
-                  <rect x="0" y="0" width="46" height="80" rx="8" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
-                  <circle cx="23" cy="73" r="2.5" fill="#94a3b8" />
-                  <line x1="17" y1="5" x2="29" y2="5" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-                  <path d="M 13 18 A 10 10 0 0 1 33 18 M 16 23 A 6 6 0 0 1 30 23 M 20 27 A 3 3 0 0 1 26 27" fill="none" stroke="#007fff" stroke-width="1.5" stroke-linecap="round" />
-                  <g transform="translate(10, 36)">
-                    <ellipse cx="13" cy="18" rx="13" ry="3.5" fill="#007fff" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <path d="M 0 10 L 0 18 A 13 3.5 0 0 0 26 18 L 26 10" fill="#007fff" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <ellipse cx="13" cy="10" rx="13" ry="3.5" fill="#005fcf" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <path d="M 0 2 L 0 10 A 13 3.5 0 0 0 26 10 L 26 2" fill="#005fcf" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <ellipse cx="13" cy="2" rx="13" ry="3.5" fill="#003faf" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                  </g>
-                </g>
-                <path d="M 160 18 Q 80 18 60 72" fill="none" stroke="#007fff" stroke-width="2.5" stroke-dasharray="3,2" marker-end="url(#arrowBlueBig)" />
-                <path d="M 60 90 L 60 106" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhiteBig)" />
-              </g>
-
-              <!-- ETAPA 2: CENTRO (Offline) -->
-              <g transform="translate(0, 10)">
-                <g transform="translate(157, 65)">
-                  <rect x="0" y="0" width="46" height="80" rx="8" fill="#1e293b" stroke="rgba(255,255,255,0.25)" stroke-width="1.8" />
-                  <circle cx="23" cy="73" r="2.5" fill="#94a3b8" />
-                  <line x1="17" y1="5" x2="29" y2="5" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-                  <g>
-                    <path d="M 13 18 A 10 10 0 0 1 33 18 M 16 23 A 6 6 0 0 1 30 23 M 20 27 A 3 3 0 0 1 26 27" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" opacity="0.4" />
-                    <line x1="9" y1="12" x2="37" y2="30" stroke="#d32f2f" stroke-width="2.5" stroke-linecap="round" />
-                  </g>
-                  <g transform="translate(10, 36)">
-                    <ellipse cx="13" cy="18" rx="13" ry="3.5" fill="#007fff" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <path d="M 0 10 L 0 18 A 13 3.5 0 0 0 26 18 L 26 10" fill="#007fff" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <ellipse cx="13" cy="10" rx="13" ry="3.5" fill="#005fcf" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <path d="M 0 2 L 0 10 A 13 3.5 0 0 0 26 10 L 26 2" fill="#005fcf" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <ellipse cx="13" cy="2" rx="13" ry="3.5" fill="#003faf" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <circle cx="13" cy="10" r="20" fill="none" stroke="rgba(0, 127, 255, 0.4)" stroke-width="1" stroke-dasharray="2,2" />
-                  </g>
-                </g>
-              </g>
-
-              <!-- ETAPA 3: DIREITA (Celular com WiFi e Sincronização) -->
-              <g transform="translate(0, 10)">
-                <g transform="translate(277, 65)">
-                  <rect x="0" y="0" width="46" height="80" rx="8" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
-                  <circle cx="23" cy="73" r="2.5" fill="#94a3b8" />
-                  <line x1="17" y1="5" x2="29" y2="5" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-                  <path d="M 13 18 A 10 10 0 0 1 33 18 M 16 23 A 6 6 0 0 1 30 23 M 20 27 A 3 3 0 0 1 26 27" fill="none" stroke="#007fff" stroke-width="1.5" stroke-linecap="round" />
-                  <g transform="translate(10, 36)">
-                    <ellipse cx="13" cy="18" rx="13" ry="3.5" fill="#007fff" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <path d="M 0 10 L 0 18 A 13 3.5 0 0 0 26 18 L 26 10" fill="#007fff" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <ellipse cx="13" cy="10" rx="13" ry="3.5" fill="#005fcf" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <path d="M 0 2 L 0 10 A 13 3.5 0 0 0 26 10 L 26 2" fill="#005fcf" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                    <ellipse cx="13" cy="2" rx="13" ry="3.5" fill="#003faf" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
-                  </g>
-                </g>
-                <path d="M 300 72 Q 280 18 200 18" fill="none" stroke="#10b981" stroke-width="2.5" stroke-dasharray="3,2" marker-end="url(#arrowGreenBig)" />
-                <path d="M 300 106 L 300 90" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowWhiteBig)" />
-              </g>
-
-              <!-- Conexões pontilhadas -->
-              <line x1="120" y1="15" x2="120" y2="165" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4" />
-              <line x1="240" y1="15" x2="240" y2="165" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4" />
-            </svg>
-          </div>
-
-          <p class="card-description" style="font-size: 0.8rem; line-height: 1.5; color: var(--cor-texto); margin-top: 12px; padding: 0 4px;">
-            <strong>Veja como funciona:</strong>
-          </p>
-          <p class="card-description" style="font-size: 0.75rem; line-height: 1.5; color: var(--cor-subtexto); margin-top: 4px; padding: 0 4px; display: flex; flex-direction: column; gap: 8px;">
-            <span><strong>1. Em casa (com WiFi):</strong> O celular carrega a lista de famílias e metas do Sheets.</span>
-            <span><strong>2. Na visita (sem WiFi):</strong> Os relatos e evolução social do assistido ficam salvos de forma protegida apenas no banco de dados interno do celular.</span>
-            <span><strong>3. Na volta (com WiFi):</strong> Ao retornar ao WiFi, o aplicativo sincroniza e consolida automaticamente os dados para a planilha da nuvem e limpa a memória temporária do dispositivo.</span>
-          </p>
-
-          <!-- Interativo A: Teste de Fala -->
-          <div class="interactive-box" style="margin-top: 18px;">
-            <div class="interactive-box-title">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-              </svg>
-              <span>Ouvir Alerta de Voz no Trânsito</span>
-            </div>
-            <p class="card-description" style="font-size: 0.7rem;">
-              Digite e aperte o botão para ouvir o sistema ditar o alerta (simula o vicentino dirigindo).
-            </p>
-            <div class="input-row">
-              <input type="text" id="tts-input" value="Atenção! Você está chegando na casa da Família Silva. Lembrete: Levar cesta básica.">
-              <button class="icon-btn" onclick="speakText(event)" title="Ouvir texto">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Interativo B: Teste de Reconhecimento -->
-          <div class="interactive-box">
-            <div class="interactive-box-title">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
-              </svg>
-              <span>Digitar Falando (Relato de Visita)</span>
-            </div>
-            <p class="card-description" style="font-size: 0.7rem;">
-              Clique no microfone, fale o relato e assista a transcrição automática no campo.
-            </p>
-            <div class="input-row">
-              <input type="text" id="stt-output" placeholder="O resultado de sua fala aparecerá aqui..." readonly>
-              <button class="icon-btn" id="btn-mic" onclick="toggleSpeech(event)" title="Falar">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Card 2: Segurança de Dados e LGPD -->
-      <div class="expandable-card" id="card-security">
-        <div class="card-header" onclick="toggleCard('card-security')">
-          <div class="card-title-group">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-            </svg>
-            <span>Segurança de Dados (LGPD)</span>
-          </div>
-          <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-          </svg>
-        </div>
-        <div class="card-body">
-          <p class="card-description">
-            Os dados de cadastro e visitas das famílias são protegidos pela segurança do Google Drive e Google Sheets.
-          </p>
-          <p class="card-description">
-            As planilhas de dados são descentralizadas. Cada Conselho Central tem seus arquivos de forma isolada. Se um acesso for comprometido por descuido, apenas os dados daquela conferência correm risco. As demais permanecem seguras.
-          </p>
-
-          <!-- Ilustração SVG 2.1: Compartimentação em Nuvem Única -->
-          <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box;">
-            <svg viewBox="0 0 360 175" width="100%" height="auto" style="background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); padding: 8px; display: block;">
-              <defs>
-                <linearGradient id="gradCelBig" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#334155" />
-                  <stop offset="100%" stop-color="#0f172a" />
-                </linearGradient>
-                <linearGradient id="gradPlanilhaBig" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#10b981" />
-                  <stop offset="100%" stop-color="#047857" />
-                </linearGradient>
-                <linearGradient id="gradPlanilhaDanger" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#ef4444" />
-                  <stop offset="100%" stop-color="#991b1b" />
-                </linearGradient>
-                
-                <marker id="arrowBlueBidirectional" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#007fff" />
-                </marker>
-                <marker id="arrowRedBidirectional" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#ef4444" />
-                </marker>
-                <marker id="arrowGreenBidirectional" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
-                </marker>
-              </defs>
-
-              <path d="M 20,52 a 16,16 0 0,1 18,-14 a 24,24 0 0,1 30,-10 a 28,28 0 0,1 36,-6 h 152 a 28,28 0 0,1 36,6 a 24,24 0 0,1 30,10 a 16,16 0 0,1 18,14 H 20 z" fill="rgba(0, 127, 255, 0.05)" stroke="rgba(0, 127, 255, 0.25)" stroke-width="1.5" />
-
-              <!-- Muros de Isolamento -->
-              <g>
-                <rect x="113" y="5" width="14" height="47" rx="3" fill="#334155" stroke="rgba(255,255,255,0.08)" stroke-width="0.8" />
-                <line x1="113" y1="18" x2="127" y2="18" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-                <line x1="113" y1="30" x2="127" y2="30" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-                <line x1="113" y1="42" x2="127" y2="42" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-              </g>
-              <g>
-                <rect x="233" y="5" width="14" height="47" rx="3" fill="#334155" stroke="rgba(255,255,255,0.08)" stroke-width="0.8" />
-                <line x1="233" y1="18" x2="247" y2="18" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-                <line x1="233" y1="30" x2="247" y2="30" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-                <line x1="233" y1="42" x2="247" y2="42" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-              </g>
-
-              <!-- Coluna 1 -->
-              <g>
-                <rect x="41" y="5" width="38" height="45" rx="5" fill="url(#gradPlanilhaBig)" />
-                <path d="M 47 14 L 73 14 M 47 21 L 73 21 M 47 28 L 73 28 M 47 35 L 73 35 M 47 42 L 73 42 M 54 9 L 54 50" stroke="rgba(255,255,255,0.4)" stroke-width="1.2" />
-                <g transform="translate(10, 8)">
-                  <rect x="76" y="27" width="14" height="12" rx="2" fill="#007fff" />
-                  <path d="M 79 27 V 23 A 3 3 0 0 1 85 23 V 27" fill="none" stroke="#007fff" stroke-width="1.5" />
-                </g>
-                <g transform="translate(20, 120)">
-                  <rect x="0" y="0" width="24" height="42" rx="4" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
-                  <circle cx="12" cy="38" r="1.2" fill="#94a3b8" />
-                  <line x1="9" y1="4" x2="15" y2="4" stroke="#94a3b8" stroke-width="0.6" stroke-linecap="round" />
-                </g>
-                <g transform="translate(48, 120)">
-                  <rect x="0" y="0" width="24" height="42" rx="4" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
-                  <circle cx="12" cy="38" r="1.2" fill="#94a3b8" />
-                  <line x1="9" y1="4" x2="15" y2="4" stroke="#94a3b8" stroke-width="0.6" stroke-linecap="round" />
-                </g>
-                <g transform="translate(76, 120)">
-                  <rect x="0" y="0" width="24" height="42" rx="4" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
-                  <circle cx="12" cy="38" r="1.2" fill="#94a3b8" />
-                  <line x1="9" y1="4" x2="15" y2="4" stroke="#94a3b8" stroke-width="0.6" stroke-linecap="round" />
-                </g>
-                <path d="M 32 116 L 48 56" fill="none" stroke="rgba(0,127,255,0.4)" stroke-width="2.2" stroke-dasharray="2,2" marker-start="url(#arrowBlueBidirectional)" marker-end="url(#arrowBlueBidirectional)" />
-                <path d="M 60 116 L 60 56" fill="none" stroke="rgba(0,127,255,0.4)" stroke-width="2.2" stroke-dasharray="2,2" marker-start="url(#arrowBlueBidirectional)" marker-end="url(#arrowBlueBidirectional)" />
-                <path d="M 88 116 L 72 56" fill="none" stroke="rgba(0,127,255,0.4)" stroke-width="2.2" stroke-dasharray="2,2" marker-start="url(#arrowBlueBidirectional)" marker-end="url(#arrowBlueBidirectional)" />
-              </g>
-
-              <!-- Coluna 2 -->
-              <g>
-                <rect x="161" y="5" width="38" height="45" rx="5" fill="url(#gradPlanilhaDanger)" />
-                <path d="M 167 14 L 193 14 M 167 21 L 193 21 M 167 28 L 193 28 M 167 35 L 193 35 M 167 42 L 193 42 M 174 9 L 174 50" stroke="rgba(255,255,255,0.3)" stroke-width="1.2" />
-                <path d="M 184 10 L 171 35 L 181 35 L 176 52 L 192 31 L 182 31 Z" fill="#ffeb3b" stroke="#e65100" stroke-width="1.2" />
-                <g transform="translate(140, 120)">
-                  <rect x="0" y="0" width="24" height="42" rx="4" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
-                  <circle cx="12" cy="38" r="1.2" fill="#94a3b8" />
-                  <line x1="9" y1="4" x2="15" y2="4" stroke="#94a3b8" stroke-width="0.6" stroke-linecap="round" />
-                </g>
-                <g transform="translate(168, 120)">
-                  <rect x="0" y="0" width="24" height="42" rx="4" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
-                  <circle cx="12" cy="38" r="1.2" fill="#94a3b8" />
-                  <line x1="9" y1="4" x2="15" y2="4" stroke="#94a3b8" stroke-width="0.6" stroke-linecap="round" />
-                </g>
-                <g transform="translate(196, 120)">
-                  <rect x="0" y="0" width="24" height="42" rx="4" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
-                  <circle cx="12" cy="38" r="1.2" fill="#94a3b8" />
-                  <line x1="9" y1="4" x2="15" y2="4" stroke="#94a3b8" stroke-width="0.6" stroke-linecap="round" />
-                </g>
-                <path d="M 152 116 L 168 56" fill="none" stroke="rgba(239,68,68,0.4)" stroke-width="2.2" stroke-dasharray="2,2" marker-start="url(#arrowRedBidirectional)" marker-end="url(#arrowRedBidirectional)" />
-                <path d="M 180 116 L 180 56" fill="none" stroke="rgba(239,68,68,0.4)" stroke-width="2.2" stroke-dasharray="2,2" marker-start="url(#arrowRedBidirectional)" marker-end="url(#arrowRedBidirectional)" />
-                <path d="M 208 116 L 192 56" fill="none" stroke="rgba(239,68,68,0.4)" stroke-width="2.2" stroke-dasharray="2,2" marker-start="url(#arrowRedBidirectional)" marker-end="url(#arrowRedBidirectional)" />
-              </g>
-
-              <!-- Coluna 3 -->
-              <g>
-                <rect x="281" y="5" width="38" height="45" rx="5" fill="url(#gradPlanilhaBig)" />
-                <path d="M 287 14 L 313 14 M 287 21 L 313 21 M 287 28 L 313 28 M 287 35 L 313 35 M 287 42 L 313 42 M 294 9 L 294 50" stroke="rgba(255,255,255,0.4)" stroke-width="1.2" />
-                <g transform="translate(10, 8)">
-                  <rect x="316" y="27" width="14" height="12" rx="2" fill="#007fff" />
-                  <path d="M 319 27 V 23 A 3 3 0 0 1 325 23 V 27" fill="none" stroke="#007fff" stroke-width="1.5" />
-                </g>
-                <g transform="translate(260, 120)">
-                  <rect x="0" y="0" width="24" height="42" rx="4" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
-                  <circle cx="12" cy="38" r="1.2" fill="#94a3b8" />
-                  <line x1="9" y1="4" x2="15" y2="4" stroke="#94a3b8" stroke-width="0.6" stroke-linecap="round" />
-                </g>
-                <g transform="translate(288, 120)">
-                  <rect x="0" y="0" width="24" height="42" rx="4" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
-                  <circle cx="12" cy="38" r="1.2" fill="#94a3b8" />
-                  <line x1="9" y1="4" x2="15" y2="4" stroke="#94a3b8" stroke-width="0.6" stroke-linecap="round" />
-                </g>
-                <g transform="translate(316, 120)">
-                  <rect x="0" y="0" width="24" height="42" rx="4" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
-                  <circle cx="12" cy="38" r="1.2" fill="#94a3b8" />
-                  <line x1="9" y1="4" x2="15" y2="4" stroke="#94a3b8" stroke-width="0.6" stroke-linecap="round" />
-                </g>
-                <path d="M 272 116 L 290 56" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="2.2" stroke-dasharray="2,2" marker-start="url(#arrowGreenBidirectional)" marker-end="url(#arrowGreenBidirectional)" />
-                <path d="M 300 116 L 300 56" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="2.2" stroke-dasharray="2,2" marker-start="url(#arrowGreenBidirectional)" marker-end="url(#arrowGreenBidirectional)" />
-                <path d="M 328 116 L 310 56" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="2.2" stroke-dasharray="2,2" marker-start="url(#arrowGreenBidirectional)" marker-end="url(#arrowGreenBidirectional)" />
-              </g>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 3: O Porteiro da SSVP (O Roteador) -->
-      <div class="expandable-card" id="card-router">
-        <div class="card-header" onclick="toggleCard('card-router')">
-          <div class="card-title-group">
-            <!-- Ícone SVG Material: Lock / Vpn Key -->
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
-            </svg>
-            <span>O Porteiro da SSVP (O Roteador)</span>
-          </div>
-          <!-- Ícone SVG Material: Keyboard Arrow Down -->
-          <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-          </svg>
-        </div>
-        <div class="card-body">
-          <p class="card-description">
-            A conta WebAppSSVP funciona como um porteiro. Ela oculta a ID e o link das planilhas das conferências, evitando que fiquem expostos no celular ou em redes públicas de internet.
-          </p>
-
-          <!-- Ilustração SVG 3.1: Hub Porteiro com Hacker Chorando e sem textos -->
-          <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box;">
-            <svg viewBox="0 0 360 380" width="100%" height="auto" style="background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); padding: 8px; display: block;">
-              <defs>
-                <linearGradient id="gradCelBig" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#334155" />
-                  <stop offset="100%" stop-color="#0f172a" />
-                </linearGradient>
-                <linearGradient id="gradPlanilhaBig" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#10b981" />
-                  <stop offset="100%" stop-color="#047857" />
-                </linearGradient>
-                <linearGradient id="gradPorteiro" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#0284c7" />
-                  <stop offset="100%" stop-color="#0369a1" />
-                </linearGradient>
-                
-                <!-- Markers de Seta de Roteador (Tamanho de 4px - 1/3 do tamanho anterior de 12px) -->
-                <marker id="arrowBlueRouter" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#007fff" />
-                </marker>
-                <marker id="arrowGreenRouter" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
-                </marker>
-              </defs>
-
-              <!-- ================= NUVEM GIGANTE ÚNICA NO TOPO (Base reta em y = 75) ================= -->
-              <path d="M 20,52 a 16,16 0 0,1 18,-14 a 24,24 0 0,1 30,-10 a 28,28 0 0,1 36,-6 h 152 a 28,28 0 0,1 36,6 a 24,24 0 0,1 30,10 a 16,16 0 0,1 18,14 H 20 z" fill="rgba(0, 127, 255, 0.05)" stroke="rgba(0, 127, 255, 0.25)" stroke-width="1.5" transform="translate(0, 23)" />
-
-              <!-- ================= AS 3 PLANILHAS NO TOPO (Aumentadas 50%: 57x68px, distribuídas em x=85, 180, 275) ================= -->
-              <!-- Planilha 1 (x = 85) -->
-              <rect x="56.5" y="5" width="57" height="68" rx="7" fill="url(#gradPlanilhaBig)" />
-              <path d="M 64 18 L 105 18 M 64 28 L 105 28 M 64 38 L 105 38 M 64 48 L 105 48 M 64 58 L 105 58 M 74 11 L 74 65" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
-
-              <!-- Planilha 2 (x = 180) -->
-              <rect x="151.5" y="5" width="57" height="68" rx="7" fill="url(#gradPlanilhaBig)" />
-              <path d="M 159 18 L 200 18 M 159 28 L 200 28 M 159 38 L 200 38 M 159 48 L 200 48 M 159 58 L 200 58 M 169 11 L 169 65" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
-
-              <!-- Planilha 3 (x = 275) -->
-              <rect x="246.5" y="5" width="57" height="68" rx="7" fill="url(#gradPlanilhaBig)" />
-              <path d="M 254 18 L 295 18 M 254 28 L 295 28 M 254 38 L 295 38 M 254 48 L 295 48 M 254 58 L 295 58 M 264 11 L 264 65" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
-
-              <!-- ================= CENTRO: O PORTEIRO (Círculo r=39, Servidor 39x42px, y=185) ================= -->
-              <g transform="translate(180, 185)">
-                <!-- Círculo de Escudo do Roteador -->
-                <circle cx="0" cy="0" r="39" fill="rgba(2, 132, 199, 0.04)" stroke="rgba(2, 132, 199, 0.3)" stroke-width="1.2" />
-                <!-- Servidor em Rack -->
-                <rect x="-19.5" y="-21" width="39" height="42" rx="4" fill="url(#gradPorteiro)" stroke="rgba(255,255,255,0.15)" stroke-width="0.5" />
-                <!-- Cadeado no centro do Porteiro -->
-                <rect x="-9" y="-1.5" width="18" height="15" rx="2" fill="#ffffff" />
-                <path d="M -6.75 -1.5 V -7.5 A 6.75 6.75 0 0 1 6.75 -7.5 V -1.5" fill="none" stroke="#ffffff" stroke-width="1.8" />
-                <!-- Led de status ativo -->
-                <circle cx="-12" cy="-12" r="1.8" fill="#4ade80" />
-                <circle cx="-6" cy="-12" r="1.8" fill="#4ade80" />
-                <text x="0" y="-48" fill="#0284c7" font-size="16" font-weight="700" text-anchor="middle">Porteiro da SSVP</text>
-              </g>
-
-              <!-- ================= 3 SMARTPHONES NA BASE (Dobro do tamanho: 48x84px, y=280) ================= -->
-              <!-- Smartphone 1 (x = 85) -->
-              <g transform="translate(61, 280)">
-                <rect x="0" y="0" width="48" height="84" rx="8" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-                <circle cx="24" cy="76" r="2.4" fill="#94a3b8" />
-                <line x1="18" y1="8" x2="30" y2="8" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-              </g>
-
-              <!-- Smartphone 2 (x = 180) -->
-              <g transform="translate(156, 280)">
-                <rect x="0" y="0" width="48" height="84" rx="8" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-                <circle cx="24" cy="76" r="2.4" fill="#94a3b8" />
-                <line x1="18" y1="8" x2="30" y2="8" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-              </g>
-
-              <!-- Smartphone 3 (x = 275) -->
-              <g transform="translate(251, 280)">
-                <rect x="0" y="0" width="48" height="84" rx="8" fill="url(#gradCelBig)" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-                <circle cx="24" cy="76" r="2.4" fill="#94a3b8" />
-                <line x1="18" y1="8" x2="30" y2="8" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
-              </g>
-
-              <!-- ================= SETAS DE CONEXÃO E FLUXOS (Afastadas para não entrar nos limites) ================= -->
-              <!-- Setas Inferiores: Celulares ➔ Porteiro (Internet Pública) -->
-              <path d="M 88 276 L 148 217" fill="none" stroke="rgba(0,127,255,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowBlueRouter)" marker-end="url(#arrowBlueRouter)" />
-              <path d="M 180 276 L 180 229" fill="none" stroke="rgba(0,127,255,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowBlueRouter)" marker-end="url(#arrowBlueRouter)" />
-              <path d="M 272 276 L 212 217" fill="none" stroke="rgba(0,127,255,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowBlueRouter)" marker-end="url(#arrowBlueRouter)" />
-              
-              <!-- Setas Superiores: Porteiro ➔ Planilhas na Nuvem -->
-              <path d="M 148 152 L 88 79" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowGreenRouter)" marker-end="url(#arrowGreenRouter)" />
-              <path d="M 180 125 L 180 79" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowGreenRouter)" marker-end="url(#arrowGreenRouter)" />
-              <path d="M 212 152 L 272 79" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="2.5" stroke-dasharray="3,3" marker-start="url(#arrowGreenRouter)" marker-end="url(#arrowGreenRouter)" />
-
-              <!-- ================= AMBIENTE HACKER (Hacker 50% maior = r=21, chorando e legenda sobre ele) ================= -->
-              <g transform="translate(80, 235)">
-                <!-- Círculo de Alerta Vermelho (r=21) -->
-                <circle cx="2" cy="-2" r="21" fill="rgba(239, 68, 68, 0.1)" stroke="rgba(239, 68, 68, 0.4)" stroke-width="1.8" />
-                <!-- Máscara Hacker / Chapéu tristes -->
-                <polygon points="-15,-15 19,-15 2,-27" fill="#ef4444" />
-                <rect x="-15" y="-15" width="34" height="15" fill="#ef4444" />
-                <!-- Olhos tristes brancos -->
-                <circle cx="-6" cy="-7" r="3" fill="#ffffff" />
-                <circle cx="10" cy="-7" r="3" fill="#ffffff" />
-                <!-- Pupilas pretas tristes -->
-                <circle cx="-6" cy="-6" r="1.2" fill="#000000" />
-                <circle cx="10" cy="-6" r="1.2" fill="#000000" />
-                <!-- Lágrimas Azuis brilhantes escorrendo -->
-                <path d="M -6 -4 L -6 8" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" />
-                <path d="M 10 -4 L 10 8" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" />
-                <!-- Boca triste curvada para baixo -->
-                <path d="M -5 7 Q 2 1 9 7" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" />
-                
-                <!-- Legenda "Hacker" sobre ele -->
-                <text x="2" y="-33" fill="#ef4444" font-size="14" font-weight="700" text-anchor="middle">Hacker</text>
-                
-                <!-- Fio de escuta -->
-                <path d="M 2 -45 L 2 -65" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-dasharray="3,2" />
-              </g>
-            </svg>
-          </div>
-
-
-
-        </div>
-      </div>
-
+  <!-- Menu do ⋮ -->
+  <div class="popup-menu-overlay" id="popupOverlay">
+    <div class="popup-menu-card" role="menu">
+      <!-- Sincronização saiu daqui: abre pelo botão Nuvem da barra inferior (decisão de 14/11/2026) -->
+      <button type="button" class="menu-item-btn" role="menuitem" data-modulo="configuracoes">
+        <svg viewBox="0 -960 960 960" aria-hidden="true"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-1 13.5l103 78-110 190-119-50q-11 8-23 15t-24 12L590-80H370Zm112-280q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z"/></svg>
+        <span>Configurações</span>
+      </button>
+      <div class="menu-divisor"></div>
+      <button type="button" class="menu-item-btn" role="menuitem" data-modulo="ajuda">
+        <svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-38-160h60q0-30 6-42t34-44q33-31 46.5-54t13.5-50q0-54-37-87t-88-33q-47 0-82.5 23.5T344-624l52 22q12-25 34.5-39.5T479-656q33 0 53 19.5t20 46.5q0 22-13 41.5T503-506q-37 32-47 51t-16 55ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
+        <span>Ajuda ("O que é isso?")</span>
+      </button>
     </div>
   </div>
 
-  <!-- Elemento Toast de Notificação -->
-  <div id="toast" class="toast-notification"></div>
+  <!-- Faixa do modo "O que é isso?" -->
+  <aside class="banner-modo-ajuda" id="bannerModoAjuda">
+    <span>💡 <strong>Modo Dúvidas:</strong> toque em qualquer parte da tela para ver a explicação.</span>
+    <button type="button" class="btn-sair-ajuda" id="btnSairAjuda">Sair da Ajuda</button>
+  </aside>
 
-  <!-- Javascript de Controle -->
-  <script>
-    // Correção dinâmica de altura do viewport
-    function resetHeight() {
-      let vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    }
-    window.addEventListener('resize', resetHeight);
-    resetHeight();
+  <!-- Gaveta superior: Sincronização, Configurações e Ajuda -->
+  <div class="scrim-overlay-top" id="scrimTop">
+    <div class="top-sheet" id="topSheet" role="dialog" aria-label="Opções do aplicativo">
+      <div class="sheet-top-header">
+        <div class="sheet-nav-tabs" role="tablist">
+          <button type="button" class="tab-btn ativo" role="tab" data-aba="sincronizacao" aria-controls="moduloSincronizacao"><span aria-hidden="true">🔄</span><span>Sincronização</span></button>
+          <button type="button" class="tab-btn" role="tab" data-aba="configuracoes" aria-controls="moduloConfiguracoes"><span aria-hidden="true">⚙️</span><span>Configurações</span></button>
+          <button type="button" class="tab-btn" role="tab" data-aba="ajuda" aria-controls="moduloAjuda"><span aria-hidden="true">❓</span><span>Ajuda</span></button>
+        </div>
+      </div>
 
-    // Alternar abertura de Cards
-    function toggleCard(cardId) {
-      const card = document.getElementById(cardId);
-      if (!card) return;
+      <div class="sheet-top-body">
+        <!-- Sincronização -->
+        <section class="modulo-secao ativo" id="moduloSincronizacao" role="tabpanel">
+          <div class="sheet-card-box">
+            <span class="sheet-card-title">📡 Conexão</span>
+            <div class="sheet-row">
+              <span>Rede:</span>
+              <span class="badge-status-nuvem" id="badgeRedeStatus">—</span>
+            </div>
+          </div>
+          <!-- Recusados, o que falta enviar e a última sincronização (js/componentes/painel_sync.js) -->
+          <div class="painel-fila" id="painelFila"></div>
+          <button type="button" class="btn-acao-gaveta" id="btnSincronizar">Sincronizar agora</button>
+        </section>
 
-      const isActive = card.classList.contains('active');
-      
-      // Fecha todos os outros cards para focar a leitura
-      document.querySelectorAll('.expandable-card').forEach(c => {
-        c.classList.remove('active');
-      });
+        <!-- Configurações (data-pref = chave em js/core/preferencias.js) -->
+        <section class="modulo-secao" id="moduloConfiguracoes" role="tabpanel">
+          <div class="m3-switch-row">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Fonte Grande</span>
+              <span class="m3-switch-desc">Aumenta todos os textos</span>
+            </div>
+            <label class="m3-switch">
+              <input type="checkbox" data-pref="fonteGrande" aria-label="Fonte grande">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </label>
+          </div>
 
-      if (!isActive) {
-        card.classList.add('active');
-        // Scroll suave até o card aberto
-        setTimeout(() => {
-          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 300);
-      }
-    }
+          <div class="m3-switch-row">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Modo Canhoto</span>
+              <span class="m3-switch-desc">Inverte as barras de cima e de baixo</span>
+            </div>
+            <label class="m3-switch">
+              <input type="checkbox" data-pref="modoCanhoto" aria-label="Modo canhoto">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </label>
+          </div>
 
-    // --- Recurso 1: Texto-para-Voz (TTS) ---
-    const synth = window.speechSynthesis;
-    function speakText(event) {
-      if (event) event.stopPropagation();
-      const text = document.getElementById('tts-input').value;
-      if (!text) {
-        showToast("Por favor, digite um texto para ouvir.");
-        return;
-      }
+          <div class="m3-switch-row">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Tema Claro</span>
+              <span class="m3-switch-desc">Fundo claro para o dia; desligado, fundo escuro</span>
+            </div>
+            <label class="m3-switch">
+              <input type="checkbox" data-pref="temaClaro" aria-label="Tema claro">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </label>
+          </div>
 
-      if (!synth) {
-        showToast("Seu dispositivo não suporta síntese de voz.");
-        return;
-      }
+          <div class="m3-switch-row">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Reduzir Animações</span>
+              <span class="m3-switch-desc">Tira movimentos e transições (celulares lentos)</span>
+            </div>
+            <label class="m3-switch">
+              <input type="checkbox" data-pref="reduzirAnimacoes" aria-label="Reduzir animações">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </label>
+          </div>
 
-      if (synth.speaking) {
-        synth.cancel();
-      }
+          <div class="m3-switch-row">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Vibração ao Tocar</span>
+              <span class="m3-switch-desc">O celular vibra de leve a cada toque</span>
+            </div>
+            <label class="m3-switch">
+              <input type="checkbox" data-pref="vibracaoAtiva" aria-label="Vibração ao tocar">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </label>
+          </div>
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'pt-BR';
-      utterance.rate = 1.0;
-      synth.speak(utterance);
-      showToast("🔊 Reproduzindo áudio...");
-    }
+          <div class="m3-switch-row">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Som ao Tocar</span>
+              <span class="m3-switch-desc">Um bipe suave confirma cada toque</span>
+            </div>
+            <label class="m3-switch">
+              <input type="checkbox" data-pref="somAtivo" aria-label="Som ao tocar">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </label>
+          </div>
 
-    // --- Recurso 2: Voz-para-Texto (STT) ---
-    let recognition = null;
-    let isListening = false;
+          <div class="m3-switch-row">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Sincronizar só em Wi-Fi</span>
+              <span class="m3-switch-desc">Não gasta o pacote de dados do celular</span>
+            </div>
+            <label class="m3-switch">
+              <input type="checkbox" data-pref="somenteWifi" aria-label="Sincronizar só em Wi-Fi">
+              <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+            </label>
+          </div>
 
-    function initSpeechRecognition() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return;
+          <div class="m3-switch-row m3-switch-row-coluna">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">👁️ Simulação Visual (Daltonismo)</span>
+              <span class="m3-switch-desc">Veja a tela como pessoas com outra percepção de cor</span>
+            </div>
+            <select class="m3-select-box" data-pref="simulacaoVisual" aria-label="Simulação visual">
+              <option value="normal">🟢 Normal (cores reais)</option>
+              <option value="deuteranopia">🟡 Deuteranopia (verde-vermelho)</option>
+              <option value="protanopia">🔴 Protanopia (sem vermelho)</option>
+              <option value="tritanopia">🔵 Tritanopia (azul-amarelo)</option>
+              <option value="monocromia">⚫ Tons de cinza</option>
+              <option value="alto-contraste">⚡ Alto contraste</option>
+            </select>
+          </div>
+        </section>
 
-      recognition = new SpeechRecognition();
-      recognition.lang = 'pt-BR';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
+        <!-- Ajuda -->
+        <section class="modulo-secao" id="moduloAjuda" role="tabpanel">
+          <div class="sheet-card-box sheet-card-ajuda">
+            <span class="sheet-card-title">❓ Modo "O que é isso?"</span>
+            <p class="sheet-texto">
+              Ligue o modo de dúvidas e toque em qualquer botão ou texto da tela para ver para que serve, em letras grandes.
+            </p>
+            <button type="button" class="btn-acao-gaveta btn-acao-ajuda" id="btnAtivarAjuda">
+              🔍 Ligar o "O que é isso?"
+            </button>
+          </div>
+          <div class="sheet-card-box">
+            <span class="sheet-card-title">📖 Guia rápido</span>
+            <ul class="sheet-lista">
+              <li><strong>Falar:</strong> toque no campo e depois no botão do meio para ditar sem digitar.</li>
+              <li><strong>Ouvir:</strong> segure o botão do meio para trocar entre Falar e Ouvir. No Ouvir, um toque lê a tela; outro toque para.</li>
+              <li><strong>Menu:</strong> mostra as telas do aplicativo.</li>
+              <li><strong>Sair:</strong> sai da conferência neste celular, para proteger os dados das famílias.</li>
+            </ul>
+          </div>
+        </section>
+      </div>
 
-      recognition.onstart = () => {
-        isListening = true;
-        const btn = document.getElementById('btn-mic');
-        if (btn) btn.classList.add('listening');
-        const output = document.getElementById('stt-output');
-        if (output) output.value = "Ouvindo... Pode falar agora";
-      };
+      <div class="sheet-config-footer">
+        <button type="button" class="btn-m3-filled" data-acao="fechar-gaveta">Fechar</button>
+      </div>
+    </div>
+  </div>
 
-      recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        const output = document.getElementById('stt-output');
-        if (output) {
-          output.value = text;
-          output.focus();
-        }
-        showToast("🎤 Fala transcrita com sucesso!");
-      };
+  <!-- Explicação do modo "O que é isso?" -->
+  <div class="modal-ajuda-overlay" id="modalAjudaOverlay">
+    <div class="modal-ajuda-card" role="dialog" aria-labelledby="lblModalAjudaTitulo">
+      <div class="modal-ajuda-header">
+        <span class="modal-ajuda-icone" aria-hidden="true">💡</span>
+        <h3 class="modal-ajuda-titulo" id="lblModalAjudaTitulo"></h3>
+      </div>
+      <div class="modal-ajuda-bloco" id="lblModalAjudaCorpo"></div>
+      <button type="button" class="btn-entendi-ajuda" id="btnEntendiAjuda">Entendi</button>
+    </div>
+  </div>
 
-      recognition.onend = () => {
-        isListening = false;
-        const btn = document.getElementById('btn-mic');
-        if (btn) btn.classList.remove('listening');
-      };
+  <!-- Área de conteúdo: o roteador (js/app.js) desenha a tela do #hash aqui -->
+  <!-- Barra da tela: nome da tela, busca e atualizar; nos detalhes, voltar e o nome (js/componentes/barra_tela.js) -->
+  <div class="barra-tela" id="barraTela" role="region" aria-label="Barra da tela"></div>
 
-      recognition.onerror = (event) => {
-        console.error("Erro reconhecimento: ", event.error);
-        const output = document.getElementById('stt-output');
-        if (output) {
-          if (event.error === 'not-allowed') {
-            output.value = "Erro: Acesso ao microfone negado.";
-          } else {
-            output.value = "Erro ao tentar ouvir. Tente de novo.";
-          }
-        }
-        isListening = false;
-        const btn = document.getElementById('btn-mic');
-        if (btn) btn.classList.remove('listening');
-      };
-    }
+  <main class="display-area" id="areaConteudo"></main>
 
-    function toggleSpeech(event) {
-      if (event) event.stopPropagation();
+  <!-- Barra inferior: Menu, Nuvem, Falar/Ouvir e Sair (o canhoto espelha) -->
+  <footer class="app-footer" id="appFooter">
+    <button type="button" class="btn-footer-lateral ajuda-alvo" id="btnFooterMenu" title="Telas do aplicativo"
+      data-ajuda-titulo="Botão Menu"
+      data-ajuda-texto="Mostra as telas do aplicativo: Vicentinos, Famílias e Importar pessoas.">
+      <svg viewBox="0 -960 960 960" aria-hidden="true">
+        <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
+      </svg>
+      <span class="footer-btn-label">Menu</span>
+    </button>
 
-      if (!recognition) {
-        initSpeechRecognition();
-      }
+    <button type="button" class="btn-footer-lateral btn-nuvem ajuda-alvo" id="btnFooterNuvem" title="Envio para a nuvem"
+      data-ajuda-titulo="Botão Nuvem"
+      data-ajuda-texto="Mostra se o que você gravou já chegou à nuvem da conferência. Nuvem verde: tudo enviado, pode fechar o app. Banco de dados com número: itens guardados no celular, esperando a internet. Nuvem vermelha: a nuvem recusou algo. Toque para ver e enviar.">
+      <span class="nuvem-icone" id="iconeNuvem" aria-hidden="true"></span>
+      <span class="footer-btn-label" id="lblNuvem">Enviado</span>
+    </button>
 
-      if (!recognition) {
-        showToast("Reconhecimento de voz não suportado neste navegador. Use Google Chrome ou Safari.");
-        return;
-      }
+    <button type="button" class="btn-audio-central ajuda-alvo" id="btnAudioHub"
+      title="Toque: falar ou ouvir. Segure: troca entre Falar e Ouvir"
+      data-ajuda-titulo="Botão Falar / Ouvir"
+      data-ajuda-texto="No Falar, toque num campo e depois aqui para ditar. No Ouvir, toque para ouvir a tela e toque de novo para parar. Segure o botão para trocar entre Falar e Ouvir.">
+      <div class="press-indicator-bar"></div>
+      <span class="audio-icone-caixa">
+        <img src="img/mic.svg" id="imgMicSvg" alt="">
+        <svg id="svgSpeaker" hidden viewBox="0 -960 960 960" aria-hidden="true">
+          <path d="M560-131v-82q90-26 145-100t55-167q0-93-55-167T560-747v-82q124 28 202 125.5T840-480q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-320q46 17 73 57.5t27 92.5q0 52-27 92.5T560-320ZM400-606l-86 86H200v80h114l86 86v-252ZM300-480Z"/>
+        </svg>
+        <svg id="svgStop" hidden viewBox="0 -960 960 960" aria-hidden="true">
+          <path d="M240-240v-480h480v480H240Z"/>
+        </svg>
+      </span>
+      <span class="audio-central-label" id="lblAudioTexto">Falar</span>
+    </button>
 
-      try {
-        if (isListening) {
-          recognition.stop();
-        } else {
-          recognition.start();
-        }
-      } catch (err) {
-        recognition.stop();
-      }
-    }
+    <button type="button" class="btn-footer-lateral btn-sair-lateral ajuda-alvo" id="btnFooterSair" title="Sair da conferência"
+      data-ajuda-titulo="Botão Sair (proteção de dados)"
+      data-ajuda-texto="Sai da conferência neste celular, para proteger a privacidade das famílias. Para voltar, entre de novo com e-mail e senha.">
+      <svg viewBox="0 -960 960 960" aria-hidden="true">
+        <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
+      </svg>
+      <span class="footer-btn-label">Sair</span>
+    </button>
+  </footer>
 
+  <!-- Gaveta de telas (botão Menu) -->
+  <div class="scrim-overlay-bottom" id="scrimBottom">
+    <nav class="bottom-sheet" id="bottomSheet" aria-label="Telas do aplicativo">
+      <div class="bottom-sheet-topo">
+        <h2 class="bottom-sheet-titulo">Telas</h2>
+        <button type="button" class="btn-fechar-sheet" data-acao="fechar-telas" aria-label="Fechar">✕</button>
+      </div>
+      <a class="nav-item-btn" href="#pessoas"><span>👥 Pessoas</span></a>
+      <a class="nav-item-btn" href="#familias"><span>🏠 Famílias</span></a>
+      <a class="nav-item-btn" href="#visitas"><span>🚶 Visitas</span></a>
+      <a class="nav-item-btn" href="#importar"><span>📥 Importar pessoas</span></a>
+    </nav>
+  </div>
 
-    // Toast Utilitário
-    function showToast(text) {
-      const toast = document.getElementById('toast');
-      if (!toast) return;
+  <div class="toast-msg" id="toastMsg" role="status" aria-live="polite"></div>
 
-      toast.textContent = text;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2000);
-    }
-  </script>
+  <!-- Filtros da simulação de daltonismo (WCAG 1.4.1) -->
+  <svg class="filtros-svg" aria-hidden="true">
+    <defs>
+      <filter id="filtro-deuteranopia">
+        <feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0" />
+      </filter>
+      <filter id="filtro-protanopia">
+        <feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0" />
+      </filter>
+      <filter id="filtro-tritanopia">
+        <feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
+      </filter>
+    </defs>
+  </svg>
+
+  <script type="module" src="js/app.js"></script>
 </body>
 
 </html>

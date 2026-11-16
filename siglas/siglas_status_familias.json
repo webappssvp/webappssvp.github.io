@@ -1,0 +1,65 @@
+[
+  {
+    "sigla": "SIN",
+    "significado": "Sindicância / Avaliação",
+    "descricao": "Família indicada ou solicitante em triagem e acolhimento inicial",
+    "icone": "person_search",
+    "cor": "#d97706",
+    "ativa": true,
+    "ordem": 1
+  },
+  {
+    "sigla": "AST",
+    "significado": "Família Assistida",
+    "descricao": "Família acolhida e assistida regularmente pela Conferência com visitas e plano fraterno",
+    "icone": "home",
+    "cor": "#15803d",
+    "ativa": true,
+    "ordem": 2
+  },
+  {
+    "sigla": "SOC",
+    "significado": "Socorrida Emergencial",
+    "descricao": "Atendimento pontual ou emergencial sem acompanhamento contínuo",
+    "icone": "emergency",
+    "cor": "#0284c7",
+    "ativa": false,
+    "ordem": 3
+  },
+  {
+    "sigla": "PRM",
+    "significado": "Promovida / Autonomia",
+    "descricao": "Família que superou a vulnerabilidade e alcançou a dignidade autônoma",
+    "icone": "celebration",
+    "cor": "#7c3aed",
+    "ativa": false,
+    "ordem": 4
+  },
+  {
+    "sigla": "FVC",
+    "significado": "Família Vicentina",
+    "descricao": "Lar com membro(s) vicentino(s) participante(s) das atividades da Conferência",
+    "icone": "volunteer_activism",
+    "cor": "#0064B6",
+    "ativa": false,
+    "ordem": 5
+  },
+  {
+    "sigla": "AFA",
+    "significado": "Afastada / Desligada",
+    "descricao": "Encerramento da assistência por recusa, mudança sem aviso ou conselho",
+    "icone": "person_off",
+    "cor": "#64748b",
+    "ativa": false,
+    "ordem": 6
+  },
+  {
+    "sigla": "TRF",
+    "significado": "Transferida de Conferência",
+    "descricao": "Mudança para área atendida por outra Conferência Vicentina",
+    "icone": "swap_horiz",
+    "cor": "#ea580c",
+    "ativa": false,
+    "ordem": 7
+  }
+]

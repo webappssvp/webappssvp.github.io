@@ -28,10 +28,10 @@ O agente deve alternar estritamente seu comportamento com base nos seguintes com
 
 
 ## Otimização de Processamento em Desenvolvimento
-- **NÃO use o browser automatizado (subagente) para tirar capturas de tela ou screenshots**.
-- Em vez de rodar simulações no navegador de IA, instrua o usuário a abrir a página com o Live Server local dele.
-- Sempre detalhe no chat o que o usuário deve testar e analisar manualmente.
-- **Escopo de Modificação Restrito:** Durante o desenvolvimento e teste de novas funcionalidades em protótipos, o agente deve alterar e criar exclusivamente os arquivos dentro da subpasta específica de testes em `testes/` com a qual estiver trabalhando ativamente (ex: `testes/sincronizacao/`). A SPA principal (`testes/spa/index.html`), outros arquivos de produção, protótipos de outras subpastas de teste ou arquivos da raiz do projeto devem permanecer intocados, servindo como base estável até autorização explícita de consolidação.
+- **Navegador automatizado permitido (desde 10/11/2026):** o agente pode testar as páginas num navegador automatizado (ex.: Chrome sem janela, simulando um celular de 390 px) e tirar capturas de tela para conferir o resultado.
+- Mesmo assim, ao terminar, indique o endereço no Live Server local e detalhe no chat o que o usuário deve testar e analisar manualmente (sobretudo no celular de verdade: voz, vibração, teclado).
+- **A raiz é o app (desde 10/11/2026):** o `index.html` da raiz, com `css/` e `js/`, é o aplicativo em construção (ver `mvp/LEIAME.md`). Telas e funcionalidades novas entram direto na raiz, uma tela por arquivo em `js/telas/`, registrada no roteador `js/app.js`, com as decisões no arquivo da tela em `mvp/telas/`.
+- **`testes/` é para experimentos:** quando for preciso comparar opções antes de decidir, o protótipo fica numa subpasta de `testes/`, e o agente altera só essa subpasta. O resultado escolhido passa para a raiz com a frase **"vamos usar [nome do teste]"**. O protótipo antigo da raiz está em `testes/legado_raiz/` e não deve ser alterado.
 
 
 ## Organização de Planos de Implementação
@@ -41,7 +41,7 @@ O agente deve alternar estritamente seu comportamento com base nos seguintes com
 
 ## Conformidade com os Padrões Técnicos do Projeto (`dev/padroes/`)
 Toda e qualquer criação, refatoração ou manutenção de arquivos do WebApp deve aderir estritamente às diretrizes documentadas na pasta `dev/padroes/`:
-- **Identidade Visual e Marca SSVP (`dev/padroes/01_marca_ssvp.md`):** Seguir as cores oficiais (`#0064B6`, `#FF0000`, tons de interface), tipografia institucional (**Garamond** para títulos e **Montserrat** para interface), área de segurança de 1/5 e respeito à integridade do logotipo.
+- **Identidade Visual e Marca SSVP (`dev/padroes/01_marca_ssvp.md`):** Seguir as cores oficiais (`#0064B6`, `#FF0000`, tons de interface), tipografia **Montserrat** em todo o app, com destaque só em bold, área de segurança de 1/5 e respeito à integridade do logotipo.
 - **Padrão Google JavaScript (`dev/padroes/02_javascript_google.md`):** Uso exclusivo de `const` e `let` (eliminação total de `var`), nomenclatura rigorosa (`camelCase`, `PascalCase`, `UPPER_SNAKE_CASE`), chaves `{}` obrigatórias em qualquer bloco condicional/repetição, tratamento de erros estrito com `new Error(...)`, e anotações JSDoc completas (`@param`, `@return`, `@typedef`) em todas as funções públicas.
 - **Padrão Google HTML e CSS (`dev/padroes/03_html_css_google.md`):** Semântica HTML5 estrita, classes em *kebab-case*, centralização de variáveis em `:root`, ausência absoluta de CSS inline e tags de botões `<button type="button">` explícitas.
 - **Padrão PWA, Resiliência Offline e Performance (`dev/padroes/04_pwa_e_performance.md`):** Cache-First para recursos estáticos do App Shell, Network-First com persistência local de dados, manifest.json completo com ícones *maskable*, monitoramento de status de conexão e métricas Core Web Vitals (LCP < 2.5s, INP < 200ms, CLS < 0.1).

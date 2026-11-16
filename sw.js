@@ -1,102 +1,131 @@
 /**
- * @fileoverview Service Worker Oficial do WebApp SSVP.
- * Responsável pelo cache offline-first do App Shell e resiliência em campo.
- * Padrão: dev/padroes/04_pwa_e_performance.md
+ * @fileoverview Service worker do app (padrão: dev/padroes/04_pwa_e_performance.md).
+ * - Casca (lista ARQUIVOS): cache primeiro. Abre na hora, com ou sem internet.
+ *   Para publicar uma versão nova, aumente a VERSAO: o app avisa e a nova vale ao abrir de novo.
+ * - Demais arquivos deste site: rede primeiro; sem internet, o que estiver guardado.
+ * - No computador do desenvolvedor (localhost, 127.0.0.1, 192.168.*): tudo rede primeiro,
+ *   para cada alteração aparecer sem precisar mudar a VERSAO.
+ * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO_CACHE = 'ssvp-shell-v1.0.2';
+const VERSAO = 'ssvp-casca-v0.8.2';
 
-const ARQUIVOS_APP_SHELL = [
+const EM_DESENVOLVIMENTO = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
+
+const ARQUIVOS = [
   './',
   './index.html',
   './manifest.json',
+  './favicon.svg',
   './css/base.css',
-  './css/app.css',
-  './css/barras.css',
-  './css/modal.css',
+  './css/casca.css',
+  './css/telas.css',
   './js/app.js',
-  './js/db.js',
-  './js/config.js',
-  './js/ajuda.js',
-  './js/auth.js',
-  './js/voz.js',
-  './js/visitas_ui.js',
-  './js/ui.js',
-  './js/api.js',
+  './js/casca.js',
+  './js/core/api_cc.js',
+  './js/core/cep.js',
+  './js/core/cofre.js',
+  './js/core/conselhos.js',
+  './js/core/db.js',
+  './js/core/preferencias.js',
+  './js/core/sync.js',
+  './js/core/voz.js',
+  './js/core/numeros_falados.js',
+  './js/componentes/barra_conexao.js',
+  './js/componentes/barra_tela.js',
+  './js/componentes/carregando.js',
+  './js/componentes/icone_sync.js',
+  './js/componentes/endereco_busca.js',
+  './js/componentes/de_onde_vem.js',
+  './js/componentes/painel_sync.js',
+  './js/componentes/logins_dev.js',
+  './js/telas/comum.js',
+  './js/telas/pessoas.js',
+  './js/telas/pessoa_dados.js',
+  './js/telas/pessoa_detalhe.js',
+  './js/telas/pessoa_nova.js',
+  './js/telas/familias.js',
+  './js/telas/familia_dados.js',
+  './js/telas/familia_detalhe.js',
+  './js/telas/familia_acoes.js',
+  './js/telas/visita.js',
+  './js/telas/visitas.js',
+  './js/telas/visita_completar.js',
+  './js/telas/importar_pessoas.js',
+  './siglas/siglas_conselhos_centrais.json',
+  './siglas/siglas_vinculos.json',
+  './siglas/regra_trechos.json',
+  './siglas/siglas_auxilios.json',
+  './siglas/siglas_meios_transporte.json',
+  './img/marca_ssvp.svg',
+  './img/mic.svg',
   './img/home_app_logo.svg',
-  './img/marca_ssvp.svg'
 ];
 
-// Instalação: Cacheia os arquivos essenciais do App Shell
+/** Endereços completos da casca, para saber se um pedido é dela. */
+const CASCA = new Set(ARQUIVOS.map((a) => new URL(a, self.location).href));
+
 self.addEventListener('install', (evento) => {
-  evento.waitUntil(
-    caches.open(VERSAO_CACHE).then((cache) => {
-      return cache.addAll(ARQUIVOS_APP_SHELL);
-    }).then(() => {
-      return self.skipWaiting();
-    })
-  );
+  evento.waitUntil(caches.open(VERSAO).then((cache) => cache.addAll(ARQUIVOS)));
 });
 
-// Ativação: Assume o controle imediato e limpa caches defasados
 self.addEventListener('activate', (evento) => {
-  evento.waitUntil(
-    caches.keys().then((chaves) => {
-      return Promise.all(
-        chaves.map((chave) => {
-          if (chave !== VERSAO_CACHE) {
-            return caches.delete(chave);
-          }
-        })
-      );
-    }).then(() => {
-      return self.clients.claim();
-    })
-  );
+  // Apaga os caches de versões anteriores (inclusive o do protótipo antigo, ssvp-shell-*).
+  evento.waitUntil(caches.keys().then((nomes) =>
+    Promise.all(nomes.filter((n) => n !== VERSAO).map((n) => caches.delete(n)))).then(() => self.clients.claim()));
 });
 
-// Interceptação de Requisições (Cache-First para ativos locais)
+/** Sinal fraco: depois deste tempo, desiste da rede e usa o que estiver guardado. */
+const ESPERA_REDE_MS = 5000;
+
+/**
+ * Rede primeiro; guarda a resposta; sem rede (ou rede lenta demais), o que estiver guardado.
+ * @param {!Request} pedido
+ * @return {!Promise<!Response>}
+ */
+async function redePrimeiro(pedido) {
+  let espera;
+  const relogio = new Promise((_, falhar) => {
+    espera = setTimeout(() => falhar(new Error('rede lenta')), ESPERA_REDE_MS);
+  });
+  try {
+    const resposta = await Promise.race([fetch(pedido), relogio]);
+    clearTimeout(espera);
+    if (resposta.ok) {
+      const cache = await caches.open(VERSAO);
+      await cache.put(pedido, resposta.clone());
+    }
+    return resposta;
+  } catch (erro) {
+    clearTimeout(espera);
+    const guardada = await caches.match(pedido, {ignoreSearch: true});
+    if (guardada) {
+      return guardada;
+    }
+    if (pedido.mode === 'navigate') {
+      return (await caches.match('./index.html')) || Response.error();
+    }
+    return Response.error();
+  }
+}
+
+/**
+ * Cache primeiro (casca); se não estiver guardado, busca na rede.
+ * @param {!Request} pedido
+ * @return {!Promise<!Response>}
+ */
+async function cachePrimeiro(pedido) {
+  const guardada = await caches.match(pedido, {ignoreSearch: true});
+  return guardada || redePrimeiro(pedido);
+}
+
 self.addEventListener('fetch', (evento) => {
-  // Ignora requisições que não sejam GET (como POST do login)
-  if (evento.request.method !== 'GET') {
+  const pedido = evento.request;
+  const url = new URL(pedido.url);
+  if (pedido.method !== 'GET' || url.origin !== self.location.origin) {
     return;
   }
-
-  const url = new URL(evento.request.url);
-
-  // Se for requisição ao Google Apps Script, deixa ir direto para a rede
-  if (url.hostname.includes('script.google.com') || url.hostname.includes('script.googleusercontent.com')) {
-    return;
-  }
-
-  evento.respondWith(
-    caches.match(evento.request).then((respostaCache) => {
-      if (respostaCache) {
-        return respostaCache;
-      }
-
-      return fetch(evento.request).then((respostaRede) => {
-        // Se a resposta for válida e do mesmo domínio, guarda cópia no cache
-        if (respostaRede && respostaRede.status === 200 && respostaRede.type === 'basic') {
-          const respostaClonada = respostaRede.clone();
-          caches.open(VERSAO_CACHE).then((cache) => {
-            cache.put(evento.request, respostaClonada);
-          });
-        }
-        return respostaRede;
-      }).catch(() => {
-        // Se offline e requisição de navegação, retorna a página inicial
-        if (evento.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
-    })
-  );
-});
-
-// Escuta mensagens do cliente para forçar atualização
-self.addEventListener('message', (evento) => {
-  if (evento.data && evento.data.acao === 'PULAR_ESPERA') {
-    self.skipWaiting();
-  }
+  // Só os arquivos da lista: páginas de testes/ continuam rede primeiro, para não ficarem velhas.
+  const daCasca = CASCA.has(url.origin + url.pathname);
+  evento.respondWith(!EM_DESENVOLVIMENTO && daCasca ? cachePrimeiro(pedido) : redePrimeiro(pedido));
 });
