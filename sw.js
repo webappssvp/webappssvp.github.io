@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.8.3';
+const VERSAO = 'ssvp-casca-v0.8.4';
 
 const EM_DESENVOLVIMENTO = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
 
@@ -60,6 +60,8 @@ const ARQUIVOS = [
   './img/marca_ssvp.svg',
   './img/mic.svg',
   './img/home_app_logo.svg',
+  './img/icones/icone_192.png',
+  './img/icones/apple_touch_icon_180.png',
 ];
 
 /** Endereços completos da casca, para saber se um pedido é dela. */
