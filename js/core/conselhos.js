@@ -7,8 +7,8 @@
 
 const URL_LISTA = new URL('../../siglas/siglas_conselhos_centrais.json', import.meta.url);
 
-/** Endereços em que o app roda em teste (mostra todos os metropolitanos e aceita url_api local). */
-export const EM_TESTE = /^(localhost|127\.0\.0\.1|192\.168\.|.*\.github\.io$)/.test(location.hostname);
+/** Só no computador de quem desenvolve (ou pela rede local): mostra os Centrais sem script e aceita url_api local. */
+export const EM_TESTE = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(location.hostname);
 
 let lista = null;
 
