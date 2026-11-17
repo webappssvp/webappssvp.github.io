@@ -28,7 +28,9 @@ const TEXTO_FALADO = [
   'Três. Depois vai para a planilha. Nuvem amarela: enviando ou esperando resposta. ' +
     'Nuvem verde com um sinal de certo: enviado, não precisa fazer nada. ' +
     'Nuvem vermelha com exclamação: não foi aceito, precisa de você.',
-  'Quatro. Para abrir sem internet, guarde antes. Banco de dados verde: guardado, abre na casa da família. ' +
+  'Quatro. Para abrir sem internet, guarde antes. Guardar é copiar os dados para um banco de dados que fica ' +
+    'dentro do navegador deste celular. A cópia vale só neste aparelho: em outro celular, é preciso guardar de novo. ' +
+    'Banco de dados verde: guardado, abre na casa da família. ' +
     'Banco de dados riscado: não guardado, sem internet não abre. ' +
     'Antes de sair para as visitas, confira o banco verde. O que fica no celular é trancado com a sua senha.',
   'Cinco. Toque nos ícones de qualquer pessoa ou família. Abre uma janelinha para guardar ou enviar só aquele.',
@@ -84,6 +86,8 @@ export function renderizar(area) {
         </ul>`)}
 
       ${passo('4', 'Para abrir sem internet, guarde antes', `
+        <p>Guardar é copiar os dados para um banco de dados que fica dentro do navegador deste celular. A cópia vale
+          só neste aparelho: em outro celular, é preciso guardar de novo.</p>
         <ul class="cf-legendas">
           ${legenda(iconeCelular('guardado'), '<strong>guardado</strong>: abre na casa da família')}
           ${legenda(iconeCelular(''), '<strong>não guardado</strong>: sem internet, não abre')}
