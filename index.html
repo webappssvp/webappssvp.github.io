@@ -44,7 +44,7 @@
     <button type="button" class="btn-header-overflow ajuda-alvo" id="btnOverflow" aria-haspopup="menu"
       aria-label="Mais opções" title="Mais opções"
       data-ajuda-titulo="Mais opções (3 pontos)"
-      data-ajuda-texto="Abre a Sincronização, as Configurações do aparelho e a Ajuda.">
+      data-ajuda-texto="Abre o Para enviar, as Configurações do aparelho e a Ajuda.">
       <svg viewBox="0 -960 960 960" aria-hidden="true">
         <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/>
       </svg>
@@ -73,34 +73,38 @@
     <button type="button" class="btn-sair-ajuda" id="btnSairAjuda">Sair da Ajuda</button>
   </aside>
 
-  <!-- Gaveta superior: Sincronização, Configurações e Ajuda -->
+  <!-- Gaveta superior: Para enviar, Configurações e Ajuda -->
   <div class="scrim-overlay-top" id="scrimTop">
     <div class="top-sheet" id="topSheet" role="dialog" aria-label="Opções do aplicativo">
       <div class="sheet-top-header">
         <div class="sheet-nav-tabs" role="tablist">
-          <button type="button" class="tab-btn ativo" role="tab" data-aba="sincronizacao" aria-controls="moduloSincronizacao"><span aria-hidden="true">🔄</span><span>Sincronização</span></button>
+          <button type="button" class="tab-btn ativo" role="tab" data-aba="sincronizacao" aria-controls="moduloSincronizacao"><span aria-hidden="true">📦</span><span>Para enviar</span></button>
           <button type="button" class="tab-btn" role="tab" data-aba="configuracoes" aria-controls="moduloConfiguracoes"><span aria-hidden="true">⚙️</span><span>Configurações</span></button>
           <button type="button" class="tab-btn" role="tab" data-aba="ajuda" aria-controls="moduloAjuda"><span aria-hidden="true">❓</span><span>Ajuda</span></button>
         </div>
       </div>
 
       <div class="sheet-top-body">
-        <!-- Sincronização -->
+        <!-- Para enviar (antes "Sincronização"; 17/11/2026): js/componentes/painel_sync.js -->
         <section class="modulo-secao ativo" id="moduloSincronizacao" role="tabpanel">
-          <div class="sheet-card-box">
-            <span class="sheet-card-title">📡 Conexão</span>
-            <div class="sheet-row">
-              <span>Rede:</span>
-              <span class="badge-status-nuvem" id="badgeRedeStatus">—</span>
-            </div>
-          </div>
-          <!-- Recusados, o que falta enviar e a última sincronização (js/componentes/painel_sync.js) -->
+          <!-- Não aceitas, cada mudança com Desfazer e a forma de enviar -->
           <div class="painel-fila" id="painelFila"></div>
-          <button type="button" class="btn-acao-gaveta" id="btnSincronizar">Sincronizar agora</button>
+          <button type="button" class="btn-acao-gaveta" id="btnSincronizar">Enviar tudo</button>
         </section>
 
         <!-- Configurações (data-pref = chave em js/core/preferencias.js) -->
         <section class="modulo-secao" id="moduloConfiguracoes" role="tabpanel">
+          <div class="m3-switch-row m3-switch-row-coluna">
+            <div class="m3-switch-label-group">
+              <span class="m3-switch-title">Enviar as mudanças</span>
+              <span class="m3-switch-desc">Na hora, assim que salvar; ou quando você mandar, pela Nuvem. O relato de visita vai sempre na hora.</span>
+            </div>
+            <select class="m3-select-box" data-pref="envio" aria-label="Enviar as mudanças">
+              <option value="na_hora">Na hora</option>
+              <option value="quando_mandar">Quando eu mandar</option>
+            </select>
+          </div>
+
           <div class="m3-switch-row">
             <div class="m3-switch-label-group">
               <span class="m3-switch-title">Fonte Grande</span>
@@ -254,7 +258,7 @@
 
     <button type="button" class="btn-footer-lateral btn-nuvem ajuda-alvo" id="btnFooterNuvem" title="Envio para a nuvem"
       data-ajuda-titulo="Botão Nuvem"
-      data-ajuda-texto="Mostra se o que você gravou já chegou à nuvem da conferência. Nuvem verde: tudo enviado, pode fechar o app. Banco de dados com número: itens guardados no celular, esperando a internet. Nuvem vermelha: a nuvem recusou algo. Toque para ver e enviar.">
+      data-ajuda-texto="Mostra se o que você gravou já chegou à planilha da conferência. Nuvem verde: tudo enviado, pode fechar o app. Contorno de nuvem com número: mudanças gravadas no celular, esperando para enviar. Nuvem vermelha: algo não foi aceito e precisa de você. Toque para conferir e enviar.">
       <span class="nuvem-icone" id="iconeNuvem" aria-hidden="true"></span>
       <span class="footer-btn-label" id="lblNuvem">Enviado</span>
     </button>
@@ -293,6 +297,7 @@
         <h2 class="bottom-sheet-titulo">Telas</h2>
         <button type="button" class="btn-fechar-sheet" data-acao="fechar-telas" aria-label="Fechar">✕</button>
       </div>
+      <a class="nav-item-btn" href="#como-funciona"><span>💡 Como o app guarda e envia</span></a>
       <a class="nav-item-btn" href="#pessoas"><span>👥 Pessoas</span></a>
       <a class="nav-item-btn" href="#familias"><span>🏠 Famílias</span></a>
       <a class="nav-item-btn" href="#visitas"><span>🚶 Visitas</span></a>

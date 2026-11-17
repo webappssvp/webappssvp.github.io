@@ -15,6 +15,8 @@ import * as db from '../core/db.js';
 import * as sync from '../core/sync.js';
 import {NOME_DA_SITUACAO, SITUACOES, atualizarLista} from './familia_dados.js';
 import {chaveRascunho} from './visita.js';
+import {botaoDoItem, guardadosDaLista} from '../componentes/folha_item.js';
+import {eventosDados} from './pessoa_dados.js';
 
 const estado = {
   conferencia: '',
@@ -22,6 +24,8 @@ const estado = {
   emAndamento: new Set(),
   carregando: false,
   erro: '',
+  estados: {}, // id da família -> estado na fila (nuvem)
+  guardados: {}, // id da família -> hora em que foi guardada no celular (banco de dados)
 };
 
 /** @type {?HTMLElement} */
@@ -33,6 +37,11 @@ sync.eventos.addEventListener('mudou', () => {
     lerGuardadas().then(desenhar);
   }
 });
+['guardados', 'mudou'].forEach((tipo) => eventosDados.addEventListener(tipo, () => {
+  if (estado.conferencia) {
+    lerGuardadas().then(desenhar);
+  }
+}));
 
 /**
  * @param {!HTMLElement} area
@@ -58,7 +67,8 @@ export function renderizar(area, sessao) {
 /** A lista guardada, com a fila por cima (a visita salva no celular já conta). */
 async function lerGuardadas() {
   const cf = estado.conferencia;
-  const [guardadas, fila] = await Promise.all([db.listar(db.STORES.FAMILIAS, cf), sync.itens()]);
+  const [guardadas, fila, guardados] = await Promise.all([db.listar(db.STORES.FAMILIAS, cf), sync.itens(),
+    guardadosDaLista(cf, 'familia')]);
   const porId = Object.fromEntries(guardadas.map((f) => [f.id, f]));
   fila.filter((i) => i.conferencia === cf && i.efeito_familia).forEach((i) => {
     if (porId[i.efeito_familia.id]) {
@@ -71,6 +81,8 @@ async function lerGuardadas() {
     return;
   }
   estado.emAndamento = new Set(ids.filter((id, i) => andamento[i]));
+  estado.estados = sync.estadosPorPessoa(fila, cf);
+  estado.guardados = guardados;
   estado.familias = guardadas.length || estado.familias ? Object.values(porId) : null;
 }
 
@@ -141,7 +153,7 @@ function cartao(f, andamento) {
   const visita = ultimaVisita(f);
   const id = encodeURIComponent(f.id);
   return `
-    <li class="visitas-item">
+    <li class="visitas-item"><div class="cartao-com-icones">
       <a class="cartao-pessoa cartao-familia" href="#familias/${id}">
         <span class="avatar-pessoa avatar-familia avatar-${esc(f.situacao.toLowerCase())}" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span>
@@ -153,7 +165,8 @@ function cartao(f, andamento) {
           <span class="familia-visita visita-${visita.nivel}">${esc(visita.texto)}</span>
         </span>
         <span class="cartao-pessoa-seta" aria-hidden="true">›</span>
-      </a>
+      </a>${botaoDoItem({tipo: 'familia', id: f.id, nome: f.nome,
+    estado: estado.estados[f.id] || sync.ESTADOS.CONFIRMADO, guardadoEm: estado.guardados[f.id] || ''})}</div>
       ${registra() ? `<a class="${andamento ? 'btn-submit' : 'btn-secundario'} btn-link visitas-registrar"
         href="#visita/${id}">${andamento ? '▶ Continuar a visita' : 'Registrar visita'}</a>` : ''}
     </li>`;

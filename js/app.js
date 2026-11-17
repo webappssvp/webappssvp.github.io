@@ -19,10 +19,12 @@ import * as familias from './telas/familias.js';
 import * as visita from './telas/visita.js';
 import * as visitas from './telas/visitas.js';
 import * as importarPessoas from './telas/importar_pessoas.js';
+import * as comoFunciona from './telas/como_funciona.js';
 import {voltar} from './telas/comum.js';
 
 /** Telas por #hash. Pessoas é a inicial (mvp/telas/02_pessoas.md). */
 const TELAS = {
+  '#como-funciona': comoFunciona, // "Como o app guarda e envia", o primeiro do menu (05_sincronizacao.md)
   '#pessoas': pessoas,
   '#vicentinos': pessoas, // endereço antigo
   '#familias': familias,
@@ -69,7 +71,8 @@ async function confirmarSaidaComFila() {
   if (!faltam) {
     return true;
   }
-  const texto = (faltam === 1 ? 'Há 1 item que ainda não foi enviado.' : `Há ${faltam} itens que ainda não foram enviados.`) +
+  const texto = (faltam === 1 ? 'Há 1 mudança que ainda não foi enviada.' :
+    `Há ${faltam} mudanças que ainda não foram enviadas.`) +
     ' Se sair agora, eles se perdem. Sair mesmo assim?';
   if (!window.confirm(texto)) {
     return false;
@@ -94,6 +97,26 @@ async function apagarDadosDaConferencia(cf) {
   }
   ['pessoas_atualizada:', 'pessoas_desde:', 'pessoas_lista:', 'familias_atualizada:', 'familias_desde:']
       .forEach((k) => db.apagarConfig(k + cf));
+}
+
+/**
+ * A tela "Como o app guarda e envia" abre sozinha uma vez: na primeira entrada numa conferência, e para quem já
+ * usava o app antes dela (17/11/2026). Depois, só pelo menu e pelos links.
+ */
+async function mostrarComoFuncionaUmaVez() {
+  if (!sessaoAtual() || location.hash.startsWith('#como-funciona') || (await db.lerConfig(comoFunciona.CHAVE_VIU))) {
+    return;
+  }
+  location.hash = '#como-funciona';
+}
+
+/** "Enviar: quando eu mandar" com mudanças paradas há mais de um dia: lembra ao abrir o app. */
+async function lembrarSeEsperando() {
+  const n = await sync.esperandoDemais();
+  if (n) {
+    avisar((n === 1 ? '1 mudança espera' : n + ' mudanças esperam') +
+        ' há mais de um dia no celular. Toque na Nuvem para enviar.');
+  }
 }
 
 function registrarServiceWorker() {
@@ -186,6 +209,7 @@ async function iniciar() {
     aoConectar: () => {
       desenharTela();
       sync.agendarEnvio(); // entrou de novo (sessão vencida): envia o que esperava por ela
+      mostrarComoFuncionaUmaVez();
     },
     // A senha só existe aqui, na hora do login: vira a chave dos dados guardados para usar sem internet.
     aoEntrarComSenha: (cf, senha) => desbloquear(cf, senha, {criar: true}),
@@ -195,6 +219,8 @@ async function iniciar() {
   // A chave dos dados guardados lembrada nas últimas 12 horas (cofre.js): reaberto no mesmo dia, não pede a senha.
   await Promise.all(conferenciasComSessao().map((cf) => cofre.restaurar(cf)));
   await sync.iniciarSync({chamar: chamarNaConferencia, conferencias: conferenciasComSessao});
+  await mostrarComoFuncionaUmaVez();
+  lembrarSeEsperando();
   registrarServiceWorker();
 }
 

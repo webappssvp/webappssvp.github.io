@@ -618,6 +618,102 @@ a.cartao-pessoa:active {
   margin-left: auto;
 }
 
+/*
+ * Par de ícones do item (celular e planilha, 17/11/2026): um botão ao lado do link do cartão, por cima dele,
+ * à esquerda da seta. A seta abre espaço para o botão.
+ */
+.cartao-com-icones {
+  position: relative;
+}
+
+.cartao-com-icones > .cartao-pessoa .cartao-pessoa-seta {
+  margin-left: auto;
+  padding-left: 5.1rem;
+}
+
+.botao-item {
+  position: absolute;
+  top: 50%;
+  right: 2.3rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0.3rem 0.45rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.botao-item:active {
+  background-color: var(--md-surface-2, rgba(255, 255, 255, 0.06));
+}
+
+.botao-item:focus-visible {
+  outline: 2px solid var(--md-secondary);
+  outline-offset: 2px;
+}
+
+.botao-item .icone-sync {
+  margin-left: 0;
+}
+
+.icone-celular-sim { color: var(--md-success); }
+.icone-celular-nao { color: var(--md-on-surface-variant); }
+
+.icone-celular .icone-celular-risco {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.icone-celular .icone-celular-borda {
+  fill: none;
+  stroke: var(--md-surface-1);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+/* "Falta enviar": só o contorno da nuvem, com a seta parada */
+.icone-sync .icone-sync-contorno {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+
+/* Folhinha do item (js/componentes/folha_item.js) */
+.gaveta-item .item-lado {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--md-border-subtle);
+}
+
+.gaveta-item .item-lado:last-of-type {
+  border-bottom: 0;
+}
+
+.gaveta-item .origem-secao {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gaveta-item .item-lado-texto {
+  margin: 0.35rem 0;
+  font-size: 1.05rem;
+}
+
+.gaveta-item .item-lado .btn-secundario {
+  margin-top: 0.4rem;
+  min-height: 48px;
+  padding: 0.6rem 1.2rem;
+}
+
 .icone-sync {
   display: inline-flex;
   flex-shrink: 0;
@@ -1405,3 +1501,271 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
 .visita-auxilio-salvo { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
 .visita-auxilio-salvo.saindo > span { text-decoration: line-through; opacity: 0.7; }
 .visita-acrescentar { margin-top: 0.5rem; min-height: 3rem; }
+
+/* Só para o leitor de tela */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+}
+
+/* Link "O que são esses ícones?" na folhinha do item */
+.gaveta-item .item-o-que-e {
+  margin: 0.75rem 0 0;
+}
+
+/* Tela "Como o app guarda e envia" (js/telas/como_funciona.js) */
+.tela-como-funciona {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding-bottom: 1.5rem;
+}
+
+.cf-intro {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.cf-ouvir {
+  align-self: flex-start;
+  min-height: 48px;
+  padding: 0.6rem 1.2rem;
+}
+
+.cf-passo {
+  padding: 0.9rem 1rem;
+  background-color: var(--md-surface-1);
+  border: 1px solid var(--md-border-subtle);
+  border-radius: 0.75rem;
+}
+
+.cf-passo p {
+  margin: 0.4rem 0 0;
+}
+
+.cf-passo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.cf-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background-color: var(--md-secondary);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.cf-dois-lugares {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.cf-lugar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1 1 0;
+  text-align: center;
+}
+
+.cf-lugar .icone-sync {
+  width: 2.6rem;
+  height: 2.6rem;
+}
+
+.cf-seta {
+  font-size: 1.8rem;
+  color: var(--md-on-surface-variant);
+}
+
+.cf-legendas {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.cf-legenda {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cf-legenda .icone-sync {
+  width: 2rem;
+  height: 2rem;
+}
+
+.cf-dica {
+  font-weight: 700;
+}
+
+.cf-exemplo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.8rem;
+  background-color: var(--md-surface-2, var(--md-surface-1));
+  border: 1px dashed var(--md-border-soft, var(--md-border-subtle));
+  border-radius: 0.75rem;
+}
+
+.cf-exemplo .avatar-pessoa {
+  width: 2.4rem;
+  height: 2.4rem;
+  font-size: 0.9rem;
+}
+
+.cf-exemplo-nome {
+  flex: 1 1 auto;
+  font-weight: 700;
+}
+
+.cf-exemplo-icones {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+/* No exemplo e nas legendas, as marcas da nuvem têm a cor do fundo do passo */
+.cf-passo .icone-sync .icone-sync-seta,
+.cf-passo .icone-sync .icone-sync-marca { fill: var(--md-surface-1); }
+.cf-passo .icone-sync .icone-sync-traco { stroke: var(--md-surface-1); }
+.cf-exemplo .icone-sync .icone-sync-seta,
+.cf-exemplo .icone-sync .icone-sync-marca { fill: var(--md-surface-2, var(--md-surface-1)); }
+.cf-exemplo .icone-sync .icone-sync-traco { stroke: var(--md-surface-2, var(--md-surface-1)); }
+
+.cf-opcoes {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cf-opcao {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  min-height: 48px;
+  border: 1px solid var(--md-border-subtle);
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.cf-opcao input {
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  accent-color: var(--md-secondary);
+}
+
+.cf-opcao:has(input:checked) {
+  border-color: var(--md-secondary);
+}
+
+.cf-entendi {
+  min-height: 52px;
+}
+
+/* "Você mudou e ainda não enviou" (js/componentes/bloco_mudanca.js, 17/11/2026) */
+.bloco-mudanca {
+  border-color: var(--md-secondary);
+}
+
+.bloco-mudanca-recusado {
+  border-color: var(--md-error);
+}
+
+.bloco-mudanca-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bloco-mudanca-titulo .icone-sync {
+  flex-shrink: 0;
+}
+
+.mudanca-tabela {
+  width: 100%;
+  margin: 0.6rem 0 0.2rem;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.95rem;
+}
+
+.mudanca-tabela th,
+.mudanca-tabela td {
+  padding: 0.45rem 0.35rem;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--md-border-subtle);
+}
+
+.mudanca-tabela thead th {
+  font-size: 0.8rem;
+  color: var(--md-on-surface-variant);
+}
+
+.mudanca-tabela tbody th {
+  width: 30%;
+  font-weight: 700;
+  color: var(--md-on-surface-variant);
+}
+
+.mudanca-tabela tbody td:nth-child(2) {
+  font-weight: 700;
+}
+
+.mudanca-igual td {
+  color: var(--md-on-surface-variant);
+}
+
+.mudanca-nota {
+  font-size: 0.8rem;
+}
+
+.mudanca-aviso {
+  margin: 0.6rem 0 0;
+  padding: 0.55rem 0.7rem;
+  border-left: 4px solid var(--md-amber);
+  background-color: var(--md-surface-2, var(--md-surface-1));
+  border-radius: 0.4rem;
+}
+
+.bloco-mudanca-acoes {
+  margin-top: 0.7rem;
+}
+
+/* Na folhinha do item, o bloco não leva a moldura do cartão */
+.gaveta-item .bloco-mudanca {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+}

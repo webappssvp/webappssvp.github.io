@@ -13,6 +13,7 @@
  */
 
 import {vibrar} from '../core/preferencias.js';
+import {iconeSync} from './icone_sync.js';
 
 /** Ícones do Material Symbols (viewBox 0 -960 960 960). */
 const ICONES = {
@@ -40,8 +41,9 @@ const esc = (texto) => String(texto).replace(/[&<>"']/g, (c) => ({'&': '&amp;', 
 /*
  * definirBarra({titulo, voltar?, opcoes?}) — opcoes:
  *   busca:    {valor, rotulo, aoMudar(texto)}
- *   filtros:  [{titulo, valor, padrao, tipo?: 'lista'|'select', itens: [{valor, texto, n?}], aoEscolher(valor)}]
- *   acoes:    [{texto, aoTocar()}]
+ *   filtros:  [{titulo, valor, padrao, tipo?: 'lista'|'select', itens: [{valor, texto, n?, aEnviar?}], aoEscolher(valor)}]
+ *             (aEnviar: quantos do filtro têm mudança esperando; o filtro ganha destaque)
+ *   acoes:    [{texto, aoTocar(), destaque?, contador?, rotulo?}] (destaque: fundo azul; contador: número ao lado)
  *   aoLimpar(): volta busca e filtros ao padrão
  */
 const estado = {
@@ -224,9 +226,13 @@ function htmlDoGrupo(g, indice) {
   i.valor === g.valor ? ' selected' : ''}>${esc(i.texto)}</option>`).join('')}</select></label>`;
   }
   return `<fieldset class="gaveta-grupo"><legend class="gaveta-secao">${esc(g.titulo)}</legend>
-    ${g.itens.map((i) => `<button type="button" class="gaveta-filtro" data-grupo="${indice}" data-valor="${esc(i.valor)}"
-      aria-pressed="${i.valor === g.valor}"><span class="gaveta-marca" aria-hidden="true">${i.valor === g.valor ? '●' : '○'}</span>
-      <span class="gaveta-filtro-texto">${esc(i.texto)}</span>${i.n !== undefined ? `<span class="chip-numero">${i.n}</span>` : ''}
+    ${g.itens.map((i) => `<button type="button" class="gaveta-filtro${i.aEnviar ? ' gaveta-filtro-a-enviar' : ''}"
+      data-grupo="${indice}" data-valor="${esc(i.valor)}" aria-pressed="${i.valor === g.valor}"${i.aEnviar ?
+    ` aria-label="${esc(i.texto + (i.n !== undefined ? ', ' + i.n : '') + ', ' + i.aEnviar +
+      (i.aEnviar === 1 ? ' com mudança a enviar' : ' com mudanças a enviar'))}"` : ''}>
+      <span class="gaveta-marca" aria-hidden="true">${i.valor === g.valor ? '●' : '○'}</span>
+      <span class="gaveta-filtro-texto">${esc(i.texto)}</span>${i.aEnviar ? `<span class="gaveta-filtro-envio" aria-hidden="true">${
+  iconeSync('local')}</span>` : ''}${i.n !== undefined ? `<span class="chip-numero">${i.n}</span>` : ''}
     </button>`).join('')}</fieldset>`;
 }
 
@@ -246,8 +252,10 @@ function desenharGaveta(tudo) {
   const variavel = `
     ${(o.filtros || []).map(htmlDoGrupo).join('')}
     ${(o.acoes || []).length || n ? `<div class="gaveta-grupo gaveta-grupo-acoes"><span class="gaveta-secao">Ações</span>
-      ${(o.acoes || []).map((a, i) => `<button type="button" class="nav-item-btn gaveta-acao" data-acao="${i}">
-        <span>${esc(a.texto)}</span></button>`).join('')}
+      ${(o.acoes || []).map((a, i) => `<button type="button" class="nav-item-btn gaveta-acao${
+  a.destaque ? ' gaveta-acao-destaque' : ''}" data-acao="${i}"${a.rotulo ? ` aria-label="${esc(a.rotulo)}"` : ''}>
+        <span>${esc(a.texto)}</span>${a.contador ? `<span class="gaveta-contador" aria-hidden="true">${
+  esc(a.contador)}</span>` : ''}</button>`).join('')}
       ${n ? '<button type="button" class="nav-item-btn gaveta-acao" data-acao="limpar"><span>Limpar busca e filtros</span></button>' : ''}
     </div>` : ''}`;
   if (tudo) {

@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.8.4';
+const VERSAO = 'ssvp-casca-v0.11.0';
 
 const EM_DESENVOLVIMENTO = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
 
@@ -35,6 +35,9 @@ const ARQUIVOS = [
   './js/componentes/barra_tela.js',
   './js/componentes/carregando.js',
   './js/componentes/icone_sync.js',
+  './js/componentes/folha_item.js',
+  './js/componentes/bloco_mudanca.js',
+  './js/telas/como_funciona.js',
   './js/componentes/endereco_busca.js',
   './js/componentes/de_onde_vem.js',
   './js/componentes/painel_sync.js',

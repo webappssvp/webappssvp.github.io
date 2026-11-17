@@ -264,7 +264,8 @@ export async function guardarFamilia(cf, id, dados) {
     await db.apagar(db.STORES.DETALHES_FAMILIAS, [chave]);
     return;
   }
-  await db.gravar(db.STORES.DETALHES_FAMILIAS, [{chave, conferencia: cf, ...(await cofre.cifrar(cf, dados))}]);
+  await db.gravar(db.STORES.DETALHES_FAMILIAS, [{chave, conferencia: cf, guardado_em: new Date().toISOString(),
+    ...(await cofre.cifrar(cf, dados))}]);
 }
 
 /**
@@ -286,8 +287,9 @@ export async function cifrarTodas(cf, familias, moradores, enderecos,
   const registros = [];
   for (const f of familias) {
     const id = String(f.id_familia);
-    registros.push({chave: cf + '|' + id, conferencia: cf, ...(await cofre.cifrar(cf, montarDetalheFamilia(f,
-        moradoresDe(id), enderecosDe(id), montarVisitas(visitasDe(id), participantesDe, auxiliosDe))))});
+    registros.push({chave: cf + '|' + id, conferencia: cf, guardado_em: new Date().toISOString(),
+      ...(await cofre.cifrar(cf, montarDetalheFamilia(f, moradoresDe(id), enderecosDe(id),
+          montarVisitas(visitasDe(id), participantesDe, auxiliosDe))))});
   }
   return registros;
 }

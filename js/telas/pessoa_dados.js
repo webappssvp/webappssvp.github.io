@@ -294,7 +294,33 @@ export async function guardar(cf, id, dados) {
     await db.apagar(db.STORES.DETALHES, [chave]);
     return;
   }
-  await db.gravar(db.STORES.DETALHES, [{chave, conferencia: cf, ...(await cofre.cifrar(cf, dados))}]);
+  await db.gravar(db.STORES.DETALHES, [{chave, conferencia: cf, guardado_em: new Date().toISOString(),
+    ...(await cofre.cifrar(cf, dados))}]);
+}
+
+/**
+ * Quando cada item foi guardado no celular (o ícone de banco de dados das listas; 05_sincronizacao.md).
+ * Cópias de antes de 17/11/2026 não têm a hora: vale a do último "Guardar" da conferência.
+ * @param {string} cf
+ * @param {string} store db.STORES.DETALHES (pessoas) ou db.STORES.DETALHES_FAMILIAS.
+ * @return {!Promise<!Object<string, string>>} id -> hora (ISO).
+ */
+export async function guardadosEm(cf, store) {
+  const [registros, geral] = await Promise.all([db.listar(store, cf), db.lerConfig(chaveBaixados(cf))]);
+  const porId = {};
+  registros.forEach((r) => {
+    porId[String(r.chave).slice(cf.length + 1)] = r.guardado_em || geral || '';
+  });
+  return porId;
+}
+
+/**
+ * Avisa as telas que estes itens foram guardados de novo (um item só, pela folhinha do ícone).
+ * @param {string} cf
+ * @param {!Array<string>} ids
+ */
+export function avisarGuardados(cf, ids) {
+  eventosDados.dispatchEvent(new CustomEvent('guardados', {detail: {conferencia: cf, ids}}));
 }
 
 /** @param {string} cf @return {!Promise<boolean>} Há detalhes guardados desta conferência. */
@@ -365,7 +391,8 @@ async function baixar(cf, chamar, contatos) {
   for (const p of pessoas.filter((x) => String(x.ativa).toUpperCase() !== 'NÃO')) {
     const id = String(p.id_pessoa);
     const dados = montarDetalhe(p, papeisDe(id), cargosDe(id), enderecosDe(id), vinculosDe(id), enderecosDaFamilia);
-    registros.push({chave: cf + '|' + id, conferencia: cf, ...(await cofre.cifrar(cf, dados))});
+    registros.push({chave: cf + '|' + id, conferencia: cf, guardado_em: new Date().toISOString(),
+      ...(await cofre.cifrar(cf, dados))});
   }
   const registrosFamilias = await cifrarTodas(cf, familias, vinculos, enderecosFamilias,
       {visitas, participantes, auxilios});

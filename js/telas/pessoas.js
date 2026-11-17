@@ -13,7 +13,9 @@ import {atualizarOpcoes, barraOcupada, definirBarra} from '../componentes/barra_
 import {chamarComSessao, conferirSenha} from '../componentes/barra_conexao.js';
 import * as cofre from '../core/cofre.js';
 import {atualizarGuardados, chaveBaixados, estaBaixando, eventosDados} from './pessoa_dados.js';
-import {iconeSync, textoDoEstado} from '../componentes/icone_sync.js';
+import {textoDoEstado} from '../componentes/icone_sync.js';
+import {botaoDoItem, guardadosDaLista} from '../componentes/folha_item.js';
+import {acaoSincronizar} from '../componentes/painel_sync.js';
 import * as db from '../core/db.js';
 import {vibrar} from '../core/preferencias.js';
 import * as sync from '../core/sync.js';
@@ -45,6 +47,7 @@ const estado = {
   erro: '',
   filtro: 'TODOS',
   busca: '',
+  guardados: {}, // id -> hora em que os detalhes foram guardados no celular (ícone de banco de dados)
 };
 
 /** @type {?HTMLElement} */
@@ -60,8 +63,25 @@ function pessoasComFila() {
   return estado.lista ? sync.aplicarFila(estado.lista.pessoas, estado.fila, estado.conferencia) : [];
 }
 
+/** Relê o que está guardado no celular e redesenha os ícones. */
+async function lerGuardados() {
+  const cf = estado.conferencia;
+  if (!cf) {
+    return;
+  }
+  const guardados = await guardadosDaLista(cf, 'pessoa');
+  if (cf === estado.conferencia) {
+    estado.guardados = guardados;
+    desenharLista();
+  }
+}
+
 // Começou ou terminou de guardar os dados para usar sem internet.
-eventosDados.addEventListener('mudou', () => desenharOffline());
+eventosDados.addEventListener('mudou', () => {
+  desenharOffline();
+  lerGuardados();
+});
+eventosDados.addEventListener('guardados', () => lerGuardados());
 
 // A fila mudou: redesenha os ícones. Um envio foi aceito: relê a lista guardada e busca a do servidor.
 sync.eventos.addEventListener('mudou', async () => {
@@ -98,7 +118,8 @@ export function renderizar(area, sessao, rota = '') {
     return pedirConexao(area, 'Pessoas');
   }
   if (estado.conferencia !== sessao.id_conferencia) {
-    Object.assign(estado, {conferencia: sessao.id_conferencia, lista: null, erro: '', filtro: 'TODOS', busca: ''});
+    Object.assign(estado, {conferencia: sessao.id_conferencia, lista: null, erro: '', filtro: 'TODOS', busca: '',
+      guardados: {}});
     abrirConferencia(sessao.id_conferencia);
   }
   estado.euMesmo = String((sessao.perfil && sessao.perfil.id_pessoa) || '');
@@ -116,6 +137,7 @@ export function renderizar(area, sessao, rota = '') {
   }
   areaAtual = area;
   montar(area);
+  lerGuardados();
   return textoParaOuvir;
 }
 
@@ -372,8 +394,12 @@ function montar(area) {
 function filtrosDisponiveis() {
   const pessoas = pessoasComFila();
   const conta = (sigla) => pessoas.filter((p) => p.papeis.includes(sigla)).length;
-  return [{valor: 'TODOS', texto: 'Todos', n: pessoas.length}]
-      .concat(PAPEIS.map((p) => ({valor: p.sigla, texto: p.plural, n: conta(p.sigla)}))
+  // Quantas de cada filtro têm mudança esperando para ir à planilha (o filtro ganha destaque).
+  const estados = sync.estadosPorPessoa(estado.fila, estado.conferencia);
+  const esperando = pessoas.filter((p) => sync.A_ENVIAR.includes(estados[p.id]));
+  const aEnviar = (sigla) => esperando.filter((p) => p.papeis.includes(sigla)).length;
+  return [{valor: 'TODOS', texto: 'Todos', n: pessoas.length, aEnviar: esperando.length}]
+      .concat(PAPEIS.map((p) => ({valor: p.sigla, texto: p.plural, n: conta(p.sigla), aEnviar: aEnviar(p.sigla)}))
           .filter((p) => p.n || p.valor === estado.filtro));
 }
 
@@ -392,8 +418,8 @@ function opcoesDaBarra() {
     acoes: [estado.podeCadastrar ? {texto: '+ Nova pessoa', aoTocar: () => {
       location.hash = '#pessoas/novo';
     }} : null,
-    // Baixa tudo (pega também o que foi mudado à mão na planilha).
-    {texto: 'Atualizar a lista', aoTocar: () => atualizar({completo: true})}].filter(Boolean),
+    // Envia o que espera e baixa tudo (pega também o que foi mudado à mão na planilha).
+    acaoSincronizar(estado.fila, estado.conferencia, () => atualizar({completo: true}))].filter(Boolean),
     resultado: visiveis().length,
     aoLimpar: () => {
       estado.busca = '';
@@ -565,17 +591,18 @@ function cartao(p, situacaoSync, motivo) {
   const exemplo = (p.id === estado.euMesmo ? '<span class="selo-voce">Você</span>' : '') +
     (p.ficticio ? '<span class="selo-exemplo">EXEMPLO</span>' : '');
   const tipo = (p.papeis[0] || 'X').toLowerCase();
+  // O par de ícones é um botão ao lado do link (botão dentro de link não vale): abre a folhinha do item.
   return `
-    <li><a class="cartao-pessoa${p.cargo ? ' da-diretoria' : ''}${p.id === estado.euMesmo ? ' e-voce' : ''}" href="#pessoas/${encodeURIComponent(p.id)}">
+    <li class="cartao-com-icones"><a class="cartao-pessoa${p.cargo ? ' da-diretoria' : ''}${p.id === estado.euMesmo ? ' e-voce' : ''}" href="#pessoas/${encodeURIComponent(p.id)}">
       <span class="avatar-pessoa avatar-${tipo}" aria-hidden="true">${esc(iniciais(p.nome))}</span>
       <span class="cartao-pessoa-texto">
         <span class="cartao-pessoa-nome">${esc(p.nome)}</span>
         <span class="cartao-pessoa-papel">${esc(papeis)}</span>
         ${cargo || exemplo ? `<span class="cartao-pessoa-selos">${cargo}${exemplo}</span>` : ''}
       </span>
-      ${iconeSync(situacaoSync, motivo)}
       <span class="cartao-pessoa-seta" aria-hidden="true">›</span>
-    </a></li>`;
+    </a>${botaoDoItem({tipo: 'pessoa', id: p.id, nome: p.nome, estado: situacaoSync, motivo,
+      guardadoEm: estado.guardados[p.id] || ''})}</li>`;
 }
 
 /** @return {string} O que o modo Ouvir lê. */

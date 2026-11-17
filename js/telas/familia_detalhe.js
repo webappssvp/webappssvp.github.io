@@ -22,6 +22,7 @@ import {vibrar} from '../core/preferencias.js';
 import {lerEmVozAlta} from '../core/voz.js';
 import {temRascunho, textoDaVisita} from './visita.js';
 import {visitasComFila as visitasComFilaDe} from './visita_completar.js';
+import {montarBlocoMudanca} from '../componentes/bloco_mudanca.js';
 
 const estado = {
   id: '',
@@ -189,6 +190,10 @@ function desenhar() {
       ${corpo}
     </div>`;
   ligarEventos(area);
+  const lugar = area.querySelector('[data-bloco-mudanca]');
+  if (lugar && sessaoAtual) {
+    montarBlocoMudanca(lugar, {tipo: 'familia', id: estado.id, nome, cf: sessaoAtual.id_conferencia});
+  }
 }
 
 /** @param {!Object} d @return {string} HTML */
@@ -209,7 +214,12 @@ function visualizacao(d) {
   const moradores = d.moradores.slice().sort((a, b) => (a.id_vinculo === 'TIT' ? -1 : 0) - (b.id_vinculo === 'TIT' ? -1 : 0));
   const visita = estado.resumo && estado.resumo.ultima_visita ? new Date(estado.resumo.ultima_visita + 'T12:00')
       .toLocaleDateString('pt-BR') : '';
+  // Com mudança sua esperando: "Você mudou e ainda não enviou" (js/componentes/bloco_mudanca.js), desenhado depois.
+  const cf = sessaoAtual ? sessaoAtual.id_conferencia : '';
+  const mudanca = (estado.fila || []).some((i) => i.conferencia === cf && i.id_pessoa === estado.id) ?
+    '<div data-bloco-mudanca></div>' : '';
   return `
+    ${mudanca}
     <p class="detalhe-papeis"><span class="selo-situacao selo-${esc(sigla.toLowerCase())}">${
   esc(NOME_DA_SITUACAO[sigla] || sigla || 'Sem situação')}</span>${esc(desde)}</p>
     ${sigla === 'SIN' ? `<p class="origens">${botaoRegra('sindicancia', 'Sindicância: o que diz a Regra')}</p>` : ''}

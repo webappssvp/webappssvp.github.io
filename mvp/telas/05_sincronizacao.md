@@ -1,7 +1,13 @@
 # Tela: Sincronização (fila de envio)
 
-**Hash:** nenhum (aba "Sincronização" da gaveta superior, menu ⋮) · **Arquivos na raiz:** `js/core/sync.js` (fila), `js/componentes/icone_sync.js` (ícone por item), `js/casca.js` (aba), `js/componentes/carregando.js` (buscando/enviando) · **Protótipo:** nenhum
+**Hash:** nenhum (aba "Para enviar" da gaveta superior, aberta pelo botão Nuvem; antes "Sincronização") e `#como-funciona` (a explicação) · **Arquivos na raiz:** `js/core/sync.js` (fila), `js/componentes/icone_sync.js` (ícone por item), `js/casca.js` (aba), `js/componentes/carregando.js` (buscando/enviando) · **Protótipo:** nenhum
 **Versão do app:** 1.0 · **Status:** Em implementação (14/11/2026)
+
+**Andamento (17/11/2026, casca v0.11.0, script do CC 0.5.0):** o bloco **"Você mudou e ainda não enviou"** (`js/componentes/bloco_mudanca.js`) na folhinha do item e nos detalhes da pessoa e da família: compara a sua mudança com a planilha, avisa quem mudou depois de você e deixa escolher "Enviar a minha" ou "Ficar com a da planilha". O script grava `atualizado_por` (modelo v7), implantado no Sudeste e no Leste. Conferido no Chrome headless com servidor falso (a comparação, o aviso com o nome e o "Ficar com a da planilha" esvaziando a fila); o simulador do script passou inteiro.
+
+**Andamento (17/11/2026, casca v0.10.0):** a aba "Sincronização" virou **"Para enviar"** (cada mudança com Desfazer, as não aceitas no topo, "Enviar tudo"); a preferência **"Enviar: na hora | quando eu mandar"** (Configurações e passo 7 da tela nova), com o relato de visita sempre na hora e o lembrete depois de um dia; e a tela **"Como o app guarda e envia"** (`#como-funciona`, `js/telas/como_funciona.js`), primeiro item do menu de telas. A fila foi testada no Node (24 casos, 6 novos do "quando eu mandar"); as telas, no Chrome headless a 360px.
+
+**Andamento (17/11/2026, casca v0.9.0):** dois ícones por item (celular e planilha) em Pessoas, Famílias e Visitas, e a folhinha do item (`js/componentes/folha_item.js`). Cada cópia guardada leva `guardado_em`; as de antes ficam com a hora do último "Guardar" da conferência. Conferido no Chrome headless a 360px, sem internet (as mensagens de "sem internet") e com internet e cofre fechado (pede a senha). Falta conferir o Guardar e o Enviar agora com o servidor de verdade.
 
 **Andamento (14/11/2026, casca v0.7.0):**
 - Feito: a fila está ligada às telas de pessoas. Cadastrar, editar, mudar papel e desativar vão pela fila. A lista vem da store `pessoas` com a fila por cima, e cada cartão mostra o ícone de estado. Nos detalhes aparecem a situação do envio e, quando o item é recusado, as opções Tentar de novo e Descartar. A tela `#pessoas/tmp-…` passa para o id definitivo assim que o servidor confirma. "Sincronizar agora" envia a fila. Ao sair com itens na fila, o app tenta enviar e, se não conseguir, pergunta (por enquanto com o `confirm` do navegador). A lógica da fila foi testada no Node, com banco em memória e servidor falso (18 casos).
@@ -19,17 +25,30 @@ Todos os que entraram numa conferência. Cada um vê só a própria fila (o que 
 
 ## Estados de cada item
 
-O ícone responde a uma pergunta: **"a planilha já tem a minha versão deste item?"** A cor só reforça. Cada estado tem um desenho próprio, para quem não distingue amarelo de verde (WCAG 1.4.1).
+Cada item das listas (Pessoas, Famílias, Visitas) leva **dois ícones lado a lado** (17/11/2026), cada um responde a uma pergunta. A cor só reforça. Cada estado tem um desenho próprio, para quem não distingue amarelo de verde (WCAG 1.4.1).
+
+**Banco de dados: o celular. "Dá para abrir sem internet?"**
 
 | Estado | Ícone | Cor | Quando |
 | :--- | :--- | :--- | :--- |
-| Só no celular | banco de dados (`database`) | azul | Gravado no IndexedDB, esperando na fila |
+| Guardado no celular | banco de dados (`database`) | verde | Os detalhes estão cifrados no celular (stores `detalhes` e `detalhes_familias`), com a hora em `guardado_em` |
+| Não guardado | banco de dados riscado | cinza | Sem a cópia: sem internet, o item não abre |
+
+**Nuvem: a planilha. "A planilha já tem a minha versão deste item?"**
+
+| Estado | Ícone | Cor | Quando |
+| :--- | :--- | :--- | :--- |
+| Falta enviar | contorno de nuvem com seta parada | azul | Gravado no IndexedDB, esperando na fila. Até 16/11/2026 era o banco de dados; mudou para o banco ter um sentido só |
 | Enviando | nuvem com seta subindo, animada | amarelo | Pedido em andamento |
 | Enviado, sem confirmação | nuvem com relógio | amarelo | A conexão caiu ou o tempo acabou depois do envio. O app reenvia sem risco de duplicar (ver Decisões) |
 | Confirmado | nuvem com ✓ (`cloud_done`) | verde | O script respondeu `success`, ou o item veio da planilha e não foi mexido neste celular |
 | Recusado | nuvem com ! | vermelho | O servidor recusou (sem permissão, e-mail já usado, registro desativado). Precisa de alguém |
 
-- **Nas listas, todo item leva o ícone**, inclusive o confirmado. Depois de uma visita são no máximo uns 15 itens para enviar, e a nuvem com ✓ em cada um mostra que o dado foi enviado e recebido: não precisa de atenção. O que não está com ✓ verde se destaca sozinho.
+- **Tocar no par de ícones abre a folhinha do item** (`js/componentes/folha_item.js`), sem agir sozinho: em campo, um toque sem querer é comum, e o resto do cartão abre o item. A folhinha mostra os dois lados e uma ação para cada um:
+  - **No celular:** "Guardado no celular hoje às 14:32" com **Atualizar**, ou "Não guardado" com **Guardar no celular**. Precisa de internet e da senha (se o cofre está fechado, a folhinha pede). O item que ainda não chegou à planilha (id `tmp-`) só pode ser guardado depois.
+  - **Na planilha:** "Falta enviar" ou "sem confirmação" com **Enviar agora** (a fila vai em ordem: o que foi gravado antes vai junto, e assim a visita não chega antes da família cadastrada sem internet); "Recusado: motivo" com **Tentar de novo**.
+  - **Abrir** e **Fechar** embaixo.
+- **Nas listas, todo item leva os dois ícones**, inclusive o confirmado e o guardado. Antes de sair para uma visita, o banco verde em cada família é o que tranquiliza. Depois de uma visita são no máximo uns 15 itens para enviar, e a nuvem com ✓ em cada um mostra que o dado foi enviado e recebido: não precisa de atenção. O que não está com ✓ verde se destaca sozinho.
 - **Botão Nuvem na barra inferior**, entre Menu e Falar (**Menu | Nuvem | Falar | Sair**; o modo canhoto espelha a ordem). É ele que diz se dá para fechar o app tranquilo. Ícone e rótulo mudam com a situação:
 
   | Situação | Ícone | Rótulo | Pulsa? |
@@ -102,6 +121,15 @@ Cada CC tem o seu Apps Script: as mudanças só valem depois de atualizar o scri
 | 14/11/2026 | **Ids offline: o servidor troca.** Id provisório `tmp-<uuid>` no celular; o script numera e devolve o definitivo. Volume esperado: menos de 100 cadastros offline por vez | chat de 14/11/2026 |
 | 14/11/2026 | **A troca fica gravada na planilha** (aba `_ids_provisorios`): vale entre lotes e impede duplicar quando o celular reenvia | chat de 14/11/2026 |
 | 14/11/2026 | **Um caminho só para gravar:** sempre pela fila, com ou sem internet | chat de 14/11/2026 |
+| 17/11/2026 | **Dois ícones por item: banco de dados (o celular) e nuvem (a planilha).** O banco responde "dá para abrir sem internet?" (verde, guardado; riscado, não guardado); a nuvem, "a planilha já tem a minha versão?". O "falta enviar" deixa de ser o banco e vira contorno de nuvem com seta parada, para o banco ter um sentido só | chat de 17/11/2026 |
+| 17/11/2026 | **"Enviar: na hora \| quando eu mandar"** (preferência `envio`, padrão na hora). Para editar várias coisas em casa, conferir e enviar de uma vez. No "quando eu mandar", o automático leva só o **relato de visita** (a dupla e o presidente precisam ver logo), com o que ele precisa antes (a família cadastrada sem internet); o resto espera o "Enviar tudo". Mudanças paradas há mais de **um dia** fazem o app lembrar ao abrir; o Sair continua avisando | chat de 17/11/2026 |
+| 17/11/2026 | **Com mudança sua esperando, qual vale: a sua ou a da planilha.** O bloco "Você mudou e ainda não enviou" mostra só os campos que você mudou, lado a lado ("No celular" e "Na planilha agora", buscado com internet; os cifrados só para quem vê contatos), e dois botões: **Enviar a minha** e **Ficar com a da planilha** (pede confirmação, desfaz a sua no celular com as que dependem dela e baixa a versão da planilha). Cadastro feito no celular: Enviar ou Desfazer o cadastro. Não aceita: Tentar de novo ou Ficar com a da planilha. Na folhinha do item e nos detalhes da pessoa e da família. O "Atualizar" do lado do celular sozinho não resolvia: a sua mudança continuava na fila e ia por cima da planilha | chat de 17/11/2026 |
+| 17/11/2026 | **Quem mudou depois de você, pelo nome de exibição** (os vicentinos da conferência se conhecem). O script grava `atualizado_por` (id de quem entrou no app) em toda gravação: modelo v7, script 0.5.0. O app mostra "⚠ Maria Lima mudou na planilha depois de você (hoje às 15:02)"; sem o nome (mudança direto na planilha ou de antes desta versão), "Mudado na planilha depois de você"; o próprio, "A planilha já tem uma mudança sua"; quem saiu da lista, "Alguém da conferência". Vale para a ficha inteira, não campo a campo | chat de 17/11/2026 |
+| 17/11/2026 | **A última ação das Opções (Pessoas e Famílias) muda com a fila:** com mudanças esperando nesta conferência, **"Sincronizar"** com fundo azul e o número ao lado (envia e busca a lista inteira de novo); sem nenhuma, **"Atualizar a lista"**, sem destaque (só busca, pegando também o que foi mudado à mão na planilha) | chat de 17/11/2026 |
+| 17/11/2026 | **Filtros das Opções com mudanças esperando ganham destaque:** borda azul e um selo com a nuvem de "falta enviar" no canto de cima. Sem o número ao lado (cortaria o nome do filtro); o leitor de tela diz quantas | chat de 17/11/2026 |
+| 17/11/2026 | **A aba Sincronização vira "Para enviar", mais enxuta:** cada mudança numa linha com **Desfazer**; as não aceitas no topo, com o motivo; o botão **Enviar tudo (N)**; "Tudo enviado hoje às 14:32" quando não há nada. Saem o tamanho em KB, o resumo por tipo e o cartão de Conexão. Fica porque os ícones das listas não mostram tudo num lugar só, nem o que não tem cartão (visita, auxílio), nem as outras conferências | chat de 17/11/2026 |
+| 17/11/2026 | **Tela "Como o app guarda e envia" (`#como-funciona`), primeiro item do menu de telas**, para ver e rever sempre. Abre sozinha uma vez (na primeira entrada, e para quem já usava o app). Uma página rolando, com Ouvir e sete passos com os desenhos do app; o passo 7 é a escolha de envio. Links "O que são esses ícones?" no "Para enviar" e na folhinha do item. O vermelho é "não foi aceito: precisa de você", sem a palavra "erro" | chat de 17/11/2026 |
+| 17/11/2026 | **O toque no par de ícones abre a folhinha do item, sem agir sozinho:** Guardar ou Atualizar no celular, Enviar agora ou Tentar de novo na planilha. "Enviar agora" envia a fila em ordem (o que veio antes vai junto) | chat de 17/11/2026 |
 | 14/11/2026 | **Botão Nuvem na barra inferior, entre Menu e Falar.** Nuvem e não o logo do Google Drive (marca do Google; o vicentino acharia que abre o Drive dele; mesmo desenho dos ícones dos itens). Longe do Sair, para o botão que pulsa não ficar ao lado do que pode fazer perder dados. Pulsa só quando dá para agir (há internet e algo não foi) ou quando há item recusado: sem internet, mostra o número parado | chat de 14/11/2026 |
 | 14/11/2026 | **Conflito: o último que chegar vale**, campo a campo. O app manda só os campos alterados (já é assim hoje), então duas pessoas mexendo em campos diferentes não se atrapalham | chat de 14/11/2026 |
 | 14/11/2026 | **Envio automático** ao abrir o app, ao voltar a internet (evento `online`) e logo depois de gravar. Sem envio em segundo plano (o iOS não permite). **Com "Sincronizar só em Wi-Fi" ligado, nos dados móveis não envia sozinho** (ex.: abriu o app na rua, voltando da visita): o botão Nuvem mostra "Enviar 3" parado, sem pulsar. Onde o navegador não informa o tipo de rede (iPhone), não bloqueia (decisão de 10/11/2026 em `00_casca.md`) | chat de 14/11/2026 |

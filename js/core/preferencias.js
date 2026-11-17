@@ -18,12 +18,18 @@ const PADRAO = {
   somAtivo: false,
   somenteWifi: false,
   simulacaoVisual: 'normal',
+  // "na_hora": envia logo depois de salvar; "quando_mandar": junta e envia pela Nuvem (o relato de visita vai
+  // sempre na hora). Decisão de 17/11/2026, mvp/telas/05_sincronizacao.md.
+  envio: 'na_hora',
 };
 
 const SIMULACOES = ['deuteranopia', 'protanopia', 'tritanopia', 'monocromia', 'alto-contraste'];
 
 /** Preferências atuais (leitura livre; para mudar, use definirPreferencia). */
 export const prefs = {...PADRAO};
+
+/** "mudou": {detail: {chave, valor}} uma preferência mudou (a fila e as Configurações escutam). */
+export const eventosPreferencias = new EventTarget();
 
 /** Aplica as preferências na página (classes no <html> e no <body>). */
 function aplicar() {
@@ -67,6 +73,7 @@ export async function definirPreferencia(chave, valor) {
   } catch (erro) {
     // sem IndexedDB a preferência vale só até fechar o app
   }
+  eventosPreferencias.dispatchEvent(new CustomEvent('mudou', {detail: {chave, valor}}));
 }
 
 /** @param {number=} ms */

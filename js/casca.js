@@ -4,7 +4,7 @@
  * Origem: testes/app/t3_casca.html. Decisões: mvp/telas/00_casca.md
  */
 
-import {prefs, definirPreferencia, vibrar, bipar, tipoDeRede} from './core/preferencias.js';
+import {prefs, definirPreferencia, eventosPreferencias, vibrar, bipar, tipoDeRede} from './core/preferencias.js';
 import {pararLeitura} from './core/voz.js';
 
 const estado = {
@@ -164,8 +164,22 @@ function ligarConfiguracoes() {
       controle.addEventListener('change', async () => {
         await definirPreferencia(chave, controle.value);
         vibrar(25);
+        if (chave === 'envio') {
+          avisar(controle.value === 'quando_mandar' ? 'Vai juntar as mudanças: envie pela Nuvem quando quiser.' :
+            'Vai enviar cada mudança assim que salvar.');
+        }
       });
     }
+  });
+  // Mudou em outro lugar (ex.: a tela "Como o app guarda e envia"): o controle mostra o valor novo.
+  eventosPreferencias.addEventListener('mudou', (e) => {
+    document.querySelectorAll(`[data-pref="${e.detail.chave}"]`).forEach((controle) => {
+      if (controle instanceof HTMLInputElement) {
+        controle.checked = Boolean(e.detail.valor);
+      } else {
+        controle.value = String(e.detail.valor);
+      }
+    });
   });
 }
 

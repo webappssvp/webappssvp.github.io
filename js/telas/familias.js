@@ -10,7 +10,9 @@ import {esc, pedirConexao} from './comum.js';
 import {CARD_BAIXANDO} from '../componentes/carregando.js';
 import {atualizarOpcoes, barraOcupada, definirBarra} from '../componentes/barra_tela.js';
 import {chamarComSessao} from '../componentes/barra_conexao.js';
-import {iconeSync} from '../componentes/icone_sync.js';
+import {botaoDoItem, guardadosDaLista} from '../componentes/folha_item.js';
+import {acaoSincronizar} from '../componentes/painel_sync.js';
+import {eventosDados} from './pessoa_dados.js';
 import * as db from '../core/db.js';
 import {vibrar} from '../core/preferencias.js';
 import * as sync from '../core/sync.js';
@@ -34,6 +36,7 @@ const estado = {
   filtro: 'TODAS',
   busca: '',
   bairro: '',
+  guardados: {}, // id -> hora em que os detalhes foram guardados no celular (ícone de banco de dados)
 };
 
 /** @type {?HTMLElement} */
@@ -56,6 +59,22 @@ function familiasComFila() {
   });
   return Object.values(porId);
 }
+
+/** Relê o que está guardado no celular e redesenha os ícones. */
+async function lerGuardados() {
+  const cf = estado.conferencia;
+  if (!cf) {
+    return;
+  }
+  const guardados = await guardadosDaLista(cf, 'familia');
+  if (cf === estado.conferencia) {
+    estado.guardados = guardados;
+    desenharLista();
+  }
+}
+
+eventosDados.addEventListener('guardados', () => lerGuardados());
+eventosDados.addEventListener('mudou', () => lerGuardados());
 
 sync.eventos.addEventListener('mudou', async () => {
   estado.fila = await sync.itens();
@@ -84,7 +103,7 @@ export function renderizar(area, sessao, rota = '') {
   }
   if (estado.conferencia !== sessao.id_conferencia) {
     Object.assign(estado, {conferencia: sessao.id_conferencia, lista: null, erro: '', filtro: 'TODAS', busca: '',
-      bairro: ''});
+      bairro: '', guardados: {}});
     abrirConferencia(sessao.id_conferencia);
   }
   if (rota) {
@@ -94,6 +113,7 @@ export function renderizar(area, sessao, rota = '') {
   }
   areaAtual = area;
   montar(area);
+  lerGuardados();
   return textoParaOuvir;
 }
 
@@ -206,8 +226,12 @@ function montar(area) {
 /** @return {!Object} Opções da barra da tela: buscar, mostrar (situação e bairro) e ações. */
 function opcoesDaBarra() {
   const todas = familiasComFila();
+  // Quantas de cada filtro têm mudança esperando para ir à planilha (o filtro ganha destaque).
+  const estados = sync.estadosPorPessoa(estado.fila, estado.conferencia);
+  const esperando = todas.filter((x) => sync.A_ENVIAR.includes(estados[x.id]));
   const filtros = FILTROS.map((f) => ({valor: f.id, texto: f.plural, n: todas.filter((x) => passaNoFiltro(x, f.id)).length,
-    sempre: f.sempre})).filter((f) => f.n || f.sempre || f.valor === estado.filtro || f.valor === 'TODAS');
+    aEnviar: esperando.filter((x) => passaNoFiltro(x, f.id)).length, sempre: f.sempre}))
+      .filter((f) => f.n || f.sempre || f.valor === estado.filtro || f.valor === 'TODAS');
   const bairros = [...new Set(todas.filter((f) => passaNoFiltro(f, estado.filtro)).map((f) => f.bairro).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, 'pt-BR'));
   const grupos = [{titulo: 'Mostrar', valor: estado.filtro, padrao: 'TODAS', itens: filtros, aoEscolher: (v) => {
@@ -228,8 +252,8 @@ function opcoesDaBarra() {
       desenharLista();
     }},
     filtros: grupos,
-    // Baixa tudo (pega também o que foi mudado à mão na planilha).
-    acoes: [{texto: 'Atualizar a lista', aoTocar: () => atualizar(true)}],
+    // Envia o que espera e baixa tudo (pega também o que foi mudado à mão na planilha).
+    acoes: [acaoSincronizar(estado.fila, estado.conferencia, () => atualizar(true))],
     resultado: visiveis().length,
     aoLimpar: () => {
       estado.busca = '';
@@ -297,7 +321,7 @@ function cartao(f, situacaoSync) {
   const visita = ultimaVisita(f);
   const partes = [f.bairro, f.moradores === 1 ? '1 morador' : f.moradores + ' moradores'].filter(Boolean).join(' · ');
   return `
-    <li><a class="cartao-pessoa cartao-familia${f.situacao === 'PRM' ? ' cartao-promovida' : ''}" href="#familias/${
+    <li class="cartao-com-icones"><a class="cartao-pessoa cartao-familia${f.situacao === 'PRM' ? ' cartao-promovida' : ''}" href="#familias/${
   encodeURIComponent(f.id)}">
       <span class="avatar-pessoa avatar-familia avatar-${esc(f.situacao.toLowerCase())}" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span>
@@ -310,9 +334,9 @@ function cartao(f, situacaoSync) {
         ${f.situacao === 'PRM' ? `<span class="familia-promovida">${esc('Promovida' + (f.encerrada_em ? ' em ' +
     new Date(f.encerrada_em + 'T12:00').toLocaleDateString('pt-BR') : ''))}</span>` : ''}
       </span>
-      ${iconeSync(situacaoSync)}
       <span class="cartao-pessoa-seta" aria-hidden="true">›</span>
-    </a></li>`;
+    </a>${botaoDoItem({tipo: 'familia', id: f.id, nome: f.nome, estado: situacaoSync,
+      guardadoEm: estado.guardados[f.id] || ''})}</li>`;
 }
 
 /** @return {string} */

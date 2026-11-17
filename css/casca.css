@@ -1684,3 +1684,173 @@ fieldset.gaveta-grupo > legend,
 .barra-tela-opcoes svg {
   flex-shrink: 0;
 }
+
+/* "Para enviar" (17/11/2026): cada mudança com Desfazer ao lado; link para a explicação; a forma de enviar */
+.item-para-enviar {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+
+.item-para-enviar .item-fila {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.btn-painel-desfazer {
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.6rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: transparent;
+  color: var(--md-on-surface);
+  border: 1px solid var(--md-border-soft);
+}
+
+.btn-painel-desfazer:active {
+  background-color: var(--md-surface-3);
+}
+
+.painel-ajuda {
+  margin: 0 0 0.5rem;
+}
+
+.link-painel {
+  padding: 0.6rem 0;
+  min-height: 44px;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--md-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.painel-titulo-icone {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.painel-tudo-enviado {
+  margin: 0.25rem 0 0.75rem;
+}
+
+.painel-rodape {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--md-on-surface-variant);
+}
+
+.painel-rodape .link-painel {
+  padding: 0.6rem 0.25rem;
+}
+
+/* O nome da mudança quebra entre palavras; o Desfazer fica estreito ao lado */
+.item-para-enviar .item-fila-nome {
+  overflow-wrap: break-word;
+}
+
+.item-para-enviar .btn-painel-desfazer {
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8rem;
+  max-width: 5.6rem;
+}
+
+/* Ação "Sincronizar" das Opções (17/11/2026): fundo azul e, com mudanças esperando, o número ao lado */
+.gaveta-acao-destaque {
+  background-color: var(--md-secondary);
+  border-color: var(--md-secondary);
+  color: #fff;
+}
+
+.gaveta-acao-destaque:active {
+  filter: brightness(0.9);
+}
+
+.gaveta-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7rem;
+  height: 1.7rem;
+  margin-left: auto;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background-color: #fff;
+  color: var(--md-secondary);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Filtro com mudanças esperando para ir à planilha (17/11/2026): borda azul e a nuvem (o leitor de tela diz quantas) */
+.gaveta-filtro-a-enviar {
+  border-color: var(--md-secondary);
+  box-shadow: inset 0 0 0 1px var(--md-secondary);
+}
+
+.gaveta-filtro-envio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--md-secondary);
+}
+
+.gaveta-filtro-envio .icone-sync {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.gaveta-filtro-a-enviar .chip-numero {
+  margin-left: 0.4rem;
+}
+
+/* O cartão do filtro não passa da coluna: o nome encolhe com reticências, a nuvem e os números ficam */
+.gaveta-filtro {
+  min-width: 0;
+}
+
+.gaveta-filtro .gaveta-filtro-texto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gaveta-filtro-envio,
+.gaveta-filtro .chip-numero {
+  flex-shrink: 0;
+}
+
+/* A nuvem do filtro vira um selo no canto de cima, fora do fluxo: o nome não encolhe */
+.gaveta-filtro-a-enviar {
+  position: relative;
+}
+
+.gaveta-filtro-a-enviar .gaveta-filtro-envio {
+  position: absolute;
+  top: -0.55rem;
+  right: -0.35rem;
+  margin: 0;
+  padding: 0.1rem;
+  border-radius: 50%;
+  background-color: var(--md-surface-1);
+  border: 1px solid var(--md-secondary);
+}
+
+.gaveta-filtro-a-enviar .gaveta-filtro-envio .icone-sync {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.gaveta-filtro-a-enviar .chip-numero {
+  margin-left: auto;
+}

@@ -38,7 +38,7 @@ A tela não decide pelo cargo. Ela usa a lista `permissoes` que o servidor manda
 | IndexedDB | Cópia da lista na store `config`, chave `pessoas_lista:<conferência>` (só id, nome de exibição, papéis, cargo e marca de fictício). Passa para uma store própria quando as stores dos dados forem definidas (`arquitetura.md` §5) |
 
 ## Offline
-Mostra a última cópia guardada, com a data da última atualização. Atualizar a lista exige internet. O cadastro sem internet fica para a fila de sincronização (1.1).
+Mostra a última cópia guardada, com a data da última atualização. Atualizar a lista (ou Sincronizar, quando há mudanças esperando; nas Opções) exige internet. O cadastro sem internet fica para a fila de sincronização (1.1).
 
 ## Decisões
 | Data | Decisão | Origem |

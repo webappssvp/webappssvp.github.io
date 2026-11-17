@@ -12,13 +12,27 @@
  *   Confirmado = saiu da fila.
  * - Envio automático ao abrir o app, ao voltar a internet e logo depois de gravar, respeitando "só Wi-Fi".
  *   O toque no botão Nuvem envia mesmo nos dados móveis (a casca pergunta antes).
+ * - Preferência "Enviar: quando eu mandar" (17/11/2026): o automático leva só o relato de visita (e o que ele
+ *   precisa antes, como a família cadastrada sem internet). O resto espera o "Enviar tudo".
  */
 
+/** Vão na hora mesmo com "quando eu mandar": a dupla e o presidente precisam ver logo. */
+const SEMPRE_NA_HORA = ['visita'];
+
+/** Com "quando eu mandar", mudanças paradas há mais que isso fazem o app lembrar ao abrir. */
+export const LEMBRAR_DEPOIS_MS = 24 * 60 * 60 * 1000;
+
+/** @return {boolean} O vicentino escolheu juntar as mudanças e enviar quando mandar. */
+export const juntando = () => prefs.envio === 'quando_mandar';
+
 import * as db from './db.js';
-import {podeSincronizar} from './preferencias.js';
+import {eventosPreferencias, podeSincronizar, prefs} from './preferencias.js';
 
 export const ESTADOS = {LOCAL: 'local', ENVIANDO: 'enviando', SEM_CONFIRMACAO: 'sem_confirmacao', RECUSADO: 'recusado',
   CONFIRMADO: 'confirmado'};
+
+/** Estados de quem ainda vai para a planilha (o recusado espera alguém decidir). */
+export const A_ENVIAR = ['local', 'sem_confirmacao', 'enviando'];
 
 /** Do menos ao mais grave: o ícone de uma pessoa mostra o pior estado dos itens dela. */
 const GRAVIDADE = {confirmado: 0, local: 1, sem_confirmacao: 2, enviando: 3, recusado: 4};
@@ -63,6 +77,13 @@ export async function iniciarSync(opcoes) {
     await db.gravar(db.STORES.FILA, presos.map((i) => ({...i, estado: ESTADOS.SEM_CONFIRMACAO})));
   }
   window.addEventListener('online', () => agendarEnvio());
+  // Mudou a forma de enviar: o botão Nuvem e a aba se redesenham; voltou para "na hora", o que esperava já vai.
+  eventosPreferencias.addEventListener('mudou', (e) => {
+    if (e.detail.chave === 'envio') {
+      avisar('mudou');
+      agendarEnvio();
+    }
+  });
   avisar('mudou');
   agendarEnvio();
 }
@@ -214,7 +235,12 @@ async function enviarTudo(opcoes) {
     return 'vazia';
   }
   const comSessao = estado.conferencias();
-  const fila = (await itens()).filter((i) => comSessao.includes(i.conferencia) && i.estado !== ESTADOS.RECUSADO);
+  let fila = (await itens()).filter((i) => comSessao.includes(i.conferencia) && i.estado !== ESTADOS.RECUSADO);
+  // "Quando eu mandar": o automático leva só o que vai sempre na hora, com o que ele precisa antes.
+  const so = !opcoes.manual && juntando() ? necessarios(fila) : null;
+  if (so) {
+    fila = fila.filter((i) => so.has(i.id_operacao));
+  }
   if (!fila.length) {
     return 'vazia';
   }
@@ -226,9 +252,39 @@ async function enviarTudo(opcoes) {
   }
   const conferencias = [...new Set(fila.map((i) => i.conferencia))];
   for (const cf of conferencias) {
-    await enviarConferencia(cf);
+    await enviarConferencia(cf, so);
   }
   return '';
+}
+
+/**
+ * Os itens que vão sempre na hora e, antes deles, os que criam os ids provisórios que eles usam.
+ * @param {!Array<!Object>} fila Em ordem.
+ * @return {!Set<string>} id_operacao
+ */
+function necessarios(fila) {
+  const ids = new Set();
+  const precisa = new Set();
+  for (let n = fila.length - 1; n >= 0; n--) {
+    const i = fila[n];
+    if (SEMPRE_NA_HORA.includes(i.tipo) || criados(i).some((t) => precisa.has(t))) {
+      ids.add(i.id_operacao);
+      usados(i).forEach((t) => precisa.add(t));
+    }
+  }
+  return ids;
+}
+
+/**
+ * Com "quando eu mandar": há mudanças esperando há mais de um dia? (a casca lembra ao abrir o app).
+ * @return {!Promise<number>} Quantas estão esperando, se a mais antiga passou do prazo; senão 0.
+ */
+export async function esperandoDemais() {
+  const lista = (await itens()).filter((i) => i.estado !== ESTADOS.RECUSADO);
+  if (!juntando() || !lista.length || Date.now() - new Date(lista[0].criado_em).getTime() < LEMBRAR_DEPOIS_MS) {
+    return 0;
+  }
+  return lista.length;
 }
 
 /** @param {!Object} item @return {!Array<string>} Ids provisórios que o item cria. */
@@ -240,9 +296,13 @@ function usados(item) {
   return [...new Set(JSON.stringify(item.operacoes).match(PADRAO_TMP) || [])].filter((t) => !proprios.includes(t));
 }
 
-/** @param {string} conferencia */
-async function enviarConferencia(conferencia) {
-  const daConferencia = (await itens()).filter((i) => i.conferencia === conferencia);
+/**
+ * @param {string} conferencia
+ * @param {?Set<string>=} so Só estes itens (id_operacao); null: todos.
+ */
+async function enviarConferencia(conferencia, so = null) {
+  const daConferencia = (await itens()).filter((i) => i.conferencia === conferencia &&
+    (!so || so.has(i.id_operacao)));
   // O que depende de um item recusado (ou de outro que depende dele) espera: o servidor não teria o id.
   const bloqueados = new Set();
   daConferencia.forEach((i) => {

@@ -17,7 +17,8 @@ import {campoSenha, esc, voltar} from './comum.js';
 import {definirBarra} from '../componentes/barra_tela.js';
 import {CARD_BAIXANDO, mostrarCarregando} from '../componentes/carregando.js';
 import {chamarComSessao} from '../componentes/barra_conexao.js';
-import {iconeSync, textoDoEstado} from '../componentes/icone_sync.js';
+import {textoDoEstado} from '../componentes/icone_sync.js';
+import {montarBlocoMudanca} from '../componentes/bloco_mudanca.js';
 import {vibrar} from '../core/preferencias.js';
 import * as sync from '../core/sync.js';
 import * as cofre from '../core/cofre.js';
@@ -310,6 +311,10 @@ function desenhar() {
     </div>`;
   ligarEventos(area);
   preencherCifras(area);
+  const lugar = area.querySelector('[data-bloco-mudanca]');
+  if (lugar && sessaoAtual) {
+    montarBlocoMudanca(lugar, {tipo: 'pessoa', id: estado.id, nome, cf: sessaoAtual.id_conferencia});
+  }
 }
 
 /** @param {!Object} d @return {string} HTML */
@@ -371,25 +376,9 @@ function estadoNaFila() {
  * @return {string} HTML ('' se não há nada na fila).
  */
 function situacaoDoEnvio() {
-  const fila = estado.fila || [];
-  if (!fila.length) {
-    return '';
-  }
-  const situacao = estadoNaFila();
-  const recusados = fila.filter((i) => i.estado === sync.ESTADOS.RECUSADO);
-  if (!recusados.length) {
-    const quantos = fila.length === 1 ? '' : ` (${fila.length} mudanças)`;
-    return `<p class="detalhe-sync" role="status">${iconeSync(situacao)}<span>${esc(textoDoEstado(situacao) + quantos)}.</span></p>`;
-  }
-  return recusados.map((i) => `
-    <div class="md-card detalhe-secao detalhe-sync detalhe-sync-recusado" role="alert">
-      <p class="detalhe-sync">${iconeSync('recusado')}<strong>${esc(i.descricao || 'Mudança')}: a nuvem não aceitou.</strong></p>
-      <p class="tela-texto">${esc(i.ultimo_erro || 'Sem motivo informado.')}</p>
-      <div class="detalhe-acoes">
-        <button type="button" class="btn-secundario" data-fila-acao="tentar" data-fila-item="${esc(i.id_operacao)}">Tentar de novo</button>
-        <button type="button" class="btn-perigo" data-fila-acao="descartar" data-fila-item="${esc(i.id_operacao)}">Descartar</button>
-      </div>
-    </div>`).join('');
+  // Com mudança sua esperando: o bloco "Você mudou e ainda não enviou" (js/componentes/bloco_mudanca.js), que
+  // compara com a planilha e deixa escolher qual vale (17/11/2026). Desenhado depois, em desenhar().
+  return (estado.fila || []).length ? '<div data-bloco-mudanca></div>' : '';
 }
 
 /** Sem internet e com o cofre fechado: pede a senha do login. @return {string} HTML */
