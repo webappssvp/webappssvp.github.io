@@ -24,6 +24,7 @@ import {temRascunho, textoDaVisita} from './visita.js';
 import {visitasComFila as visitasComFilaDe} from './visita_completar.js';
 import {montarBlocoMudanca} from '../componentes/bloco_mudanca.js';
 import {enderecoComMapa} from '../componentes/mapa.js';
+import {botaoCompartilhar} from '../componentes/compartilhar.js';
 
 const estado = {
   id: '',
@@ -236,7 +237,9 @@ function visualizacao(d) {
         data-acao-familia="morador">+ Adicionar morador</button>` : ''}
     </section>
     ${cartaoVisitas(d, visita)}
-    ${acoes.botoes(contexto())}`;
+    ${acoes.botoes(contexto())}
+    <div class="detalhe-compartilhar">${botaoCompartilhar('#familias/' + encodeURIComponent(estado.id), cf,
+      'uma família')}</div>`;
 }
 
 /**

@@ -8,6 +8,7 @@
 import {esc, voltar} from './comum.js';
 import {avisar} from '../casca.js';
 import {definirBarra} from '../componentes/barra_tela.js';
+import {botaoCompartilhar} from '../componentes/compartilhar.js';
 import {CARD_BAIXANDO} from '../componentes/carregando.js';
 import {chamarComSessao} from '../componentes/barra_conexao.js';
 import * as cofre from '../core/cofre.js';
@@ -175,7 +176,9 @@ function formulario() {
     <div class="detalhe-acoes visita-salvar">
       <button type="button" class="btn-submit" data-completar="salvar">Salvar</button>
       <a class="btn-secundario btn-link" href="#familias/${encodeURIComponent(estado.id)}">Cancelar</a>
-    </div>`;
+    </div>
+    <div class="detalhe-compartilhar">${botaoCompartilhar('#visita/' + encodeURIComponent(estado.id) + '/' +
+      encodeURIComponent(estado.idVisita), estado.cf, 'uma visita')}</div>`;
 }
 
 /** @param {!HTMLElement} area */

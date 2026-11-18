@@ -20,6 +20,7 @@ import * as visita from './telas/visita.js';
 import * as visitas from './telas/visitas.js';
 import * as importarPessoas from './telas/importar_pessoas.js';
 import * as comoFunciona from './telas/como_funciona.js';
+import {ligarCompartilhar} from './componentes/compartilhar.js';
 import {voltar} from './telas/comum.js';
 
 /** Telas por #hash. Pessoas é a inicial (mvp/telas/02_pessoas.md). */
@@ -217,6 +218,7 @@ function registrarServiceWorker() {
 
 async function iniciar() {
   ouvirServiceWorker();
+  ligarCompartilhar();
   ajustarAltura();
   window.addEventListener('resize', ajustarAltura);
   window.addEventListener('orientationchange', ajustarAltura);

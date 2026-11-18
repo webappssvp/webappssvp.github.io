@@ -1538,6 +1538,34 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
   padding: 0.6rem 1.2rem;
 }
 
+/* Ouvir e Compartilhar lado a lado (18/11/2026) */
+.cf-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cf-botoes .btn-compartilhar {
+  min-height: 48px;
+  padding: 0.6rem 1.2rem;
+}
+
+/* Compartilhar no fim dos detalhes da pessoa, da família e da visita (18/11/2026) */
+.detalhe-compartilhar {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.detalhe-compartilhar:empty {
+  display: none;
+}
+
+.detalhe-compartilhar .btn-compartilhar {
+  min-height: 44px;
+  padding: 0.55rem 1.2rem;
+}
+
 .cf-passo {
   padding: 0.9rem 1rem;
   background-color: var(--md-surface-1);

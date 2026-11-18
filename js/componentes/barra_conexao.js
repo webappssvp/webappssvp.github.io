@@ -174,6 +174,15 @@ function aplicarLink() {
     estado.escolha.cf = cf;
     estado.escolha.cp = cf.split('_').slice(-2)[0];
   }
+  // Usado o link (de convite ou do Compartilhar), ele sai do endereço (18/11/2026): a escolha já fica guardada, e
+  // recarregar a página não volta para a conferência do link se a pessoa trocou de conferência depois.
+  if (cm || cc || cf) {
+    p.delete('cm');
+    p.delete('cc');
+    p.delete('cf');
+    const resto = p.toString();
+    history.replaceState(null, '', location.pathname + (resto ? '?' + resto : '') + location.hash);
+  }
 }
 
 // ---------------------------------------------------------------------------

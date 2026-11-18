@@ -20,6 +20,7 @@ import {chamarComSessao} from '../componentes/barra_conexao.js';
 import {textoDoEstado} from '../componentes/icone_sync.js';
 import {montarBlocoMudanca} from '../componentes/bloco_mudanca.js';
 import {enderecoComMapa} from '../componentes/mapa.js';
+import {botaoCompartilhar} from '../componentes/compartilhar.js';
 import {vibrar} from '../core/preferencias.js';
 import * as sync from '../core/sync.js';
 import * as cofre from '../core/cofre.js';
@@ -362,7 +363,9 @@ function visualizacao(d) {
     ${situacaoDoEnvio()}
     ${contatos}
     ${editar || promover || papel || desativar ?
-    `<div class="detalhe-acoes">${editar}${promover}${papel}${desativar}</div>` : ''}`;
+    `<div class="detalhe-acoes">${editar}${promover}${papel}${desativar}</div>` : ''}
+    <div class="detalhe-compartilhar">${botaoCompartilhar('#pessoas/' + encodeURIComponent(estado.id),
+      sessaoAtual && sessaoAtual.id_conferencia, 'uma pessoa')}</div>`;
 }
 
 /** @return {string} Pior estado dos itens da fila desta pessoa ('confirmado' se não há nenhum). */

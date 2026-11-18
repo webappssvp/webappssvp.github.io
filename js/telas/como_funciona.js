@@ -11,6 +11,7 @@
 
 import {esc} from './comum.js';
 import {definirBarra} from '../componentes/barra_tela.js';
+import {botaoCompartilhar} from '../componentes/compartilhar.js';
 import {iconeCelular, iconeSync} from '../componentes/icone_sync.js';
 import {definirPreferencia, prefs, vibrar} from '../core/preferencias.js';
 import {lerEmVozAlta, pararLeitura} from '../core/voz.js';
@@ -65,7 +66,10 @@ export function renderizar(area) {
   area.innerHTML = `
     <div class="tela-como-funciona">
       <p class="cf-intro">O caminho de tudo o que você grava no app, e o que quer dizer cada ícone.</p>
-      <button type="button" class="btn-secundario cf-ouvir" data-cf="ouvir">🔊 Ouvir</button>
+      <div class="cf-botoes">
+        <button type="button" class="btn-secundario cf-ouvir" data-cf="ouvir">🔊 Ouvir</button>
+        ${botaoCompartilhar('#como-funciona')}
+      </div>
 
       ${passo('1', 'Dois lugares', `
         <p class="cf-dois-lugares">
