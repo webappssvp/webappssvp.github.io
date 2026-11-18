@@ -23,6 +23,7 @@ import {lerEmVozAlta} from '../core/voz.js';
 import {temRascunho, textoDaVisita} from './visita.js';
 import {visitasComFila as visitasComFilaDe} from './visita_completar.js';
 import {montarBlocoMudanca} from '../componentes/bloco_mudanca.js';
+import {enderecoComMapa} from '../componentes/mapa.js';
 
 const estado = {
   id: '',
@@ -158,12 +159,6 @@ function textoEndereco(e) {
   return [rua, e.complemento, e.bairro, cidade].filter(Boolean).join(' · ');
 }
 
-/** @param {?Object} e @return {string} Link do Google Maps (só abre com o toque). */
-function linkDoMapa(e) {
-  const texto = [e.logradouro, e.numero, e.bairro, e.cidade, e.estado_uf, e.cep].filter(Boolean).join(', ');
-  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(texto);
-}
-
 function desenhar() {
   const area = areaAtual;
   const [base, idNaRota] = location.hash.split('/');
@@ -204,10 +199,8 @@ function visualizacao(d) {
   const encerrada = dia(f.data_termino) ? `<p class="tela-texto">Encerrada em ${esc(new Date(dia(f.data_termino) +
     'T12:00').toLocaleDateString('pt-BR'))}${f.motivo_termino ? ': ' + esc(f.motivo_termino) : ''}.</p>` : '';
   const endereco = veContatos() ? (d.endereco ? `
-      <p class="tela-texto detalhe-endereco">${esc(textoEndereco(d.endereco))}</p>
-      ${d.endereco && d.endereco.endereco_conferido === 'NÃO' ? '<p class="endereco-nota endereco-conferir">Endereço a conferir nos Correios: abra Editar e escolha a rua na lista.</p>' : ''}
-      ${d.endereco.logradouro ? `<a class="btn-secundario btn-link" href="${esc(linkDoMapa(d.endereco))}" target="_blank"
-        rel="noopener">Abrir no mapa</a>` : ''}` : '<p class="tela-texto"><span class="detalhe-vazio">não informado</span></p>') :
+      ${enderecoComMapa(esc(textoEndereco(d.endereco)), d.endereco)}
+      ${d.endereco && d.endereco.endereco_conferido === 'NÃO' ? '<p class="endereco-nota endereco-conferir">Endereço a conferir nos Correios: abra Editar e escolha a rua na lista.</p>' : ''}` : '<p class="tela-texto"><span class="detalhe-vazio">não informado</span></p>') :
     `<p class="tela-texto">${esc([d.endereco && d.endereco.bairro, d.endereco && d.endereco.cidade].filter(Boolean)
         .join(' · ') || 'Bairro não informado')}</p>
       <p class="detalhe-nota">O endereço completo é protegido pela LGPD: só os vicentinos da conferência o veem.</p>`;

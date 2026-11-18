@@ -19,6 +19,7 @@ import {CARD_BAIXANDO, mostrarCarregando} from '../componentes/carregando.js';
 import {chamarComSessao} from '../componentes/barra_conexao.js';
 import {textoDoEstado} from '../componentes/icone_sync.js';
 import {montarBlocoMudanca} from '../componentes/bloco_mudanca.js';
+import {enderecoComMapa} from '../componentes/mapa.js';
 import {vibrar} from '../core/preferencias.js';
 import * as sync from '../core/sync.js';
 import * as cofre from '../core/cofre.js';
@@ -340,8 +341,7 @@ function visualizacao(d) {
       <h2 class="detalhe-titulo">Endereço${d.aba_endereco === 'familias_enderecos' ? ' (da família)' : ''}</h2>
       ${d.aba_endereco === 'familias_enderecos' && !d.id_familia ?
     '<p class="tela-texto">Esta pessoa ainda não está ligada a uma família.</p>' :
-    `<p class="tela-texto detalhe-endereco">${esc(textoEndereco(d.endereco)) ||
-      '<span class="detalhe-vazio">não informado</span>'}</p>`}
+    enderecoComMapa(esc(textoEndereco(d.endereco)) || '<span class="detalhe-vazio">não informado</span>', d.endereco)}
       ${d.endereco && d.endereco.endereco_conferido === 'NÃO' ? '<p class="endereco-nota endereco-conferir">Endereço a conferir nos Correios: abra Editar e escolha a rua na lista.</p>' : ''}
     </section>` : dadosProtegidos(d);
   const editar = podeEditar(d.papeis) ?

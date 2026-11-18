@@ -1769,3 +1769,23 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
   background: none;
   border: 0;
 }
+
+/* Endereço com o botão "Abrir no mapa" ao lado (js/componentes/mapa.js, 17/11/2026); em tela estreita, o botão desce */
+.endereco-com-mapa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.endereco-com-mapa .detalhe-endereco {
+  flex: 1 1 12rem;
+  margin: 0;
+}
+
+.endereco-com-mapa .botao-mapa {
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 0.55rem 0.9rem;
+  white-space: nowrap;
+}
