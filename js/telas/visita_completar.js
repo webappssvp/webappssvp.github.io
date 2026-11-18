@@ -8,7 +8,6 @@
 import {esc, voltar} from './comum.js';
 import {avisar} from '../casca.js';
 import {definirBarra} from '../componentes/barra_tela.js';
-import {botaoCompartilhar} from '../componentes/compartilhar.js';
 import {CARD_BAIXANDO} from '../componentes/carregando.js';
 import {chamarComSessao} from '../componentes/barra_conexao.js';
 import * as cofre from '../core/cofre.js';
@@ -114,7 +113,8 @@ function desenhar() {
     return;
   }
   const voltarPara = '#familias/' + encodeURIComponent(estado.id);
-  definirBarra({titulo: 'Completar a visita', voltar: voltarPara});
+  definirBarra({titulo: 'Completar a visita', voltar: voltarPara, compartilhar: {rota: '#visita/' +
+    encodeURIComponent(estado.id) + '/' + encodeURIComponent(estado.idVisita), cf: estado.cf, oQue: 'uma visita'}});
   let corpo;
   if (estado.carregando) {
     corpo = `<p class="tela-texto">Buscando a visita${CARD_BAIXANDO}</p>`;
@@ -176,9 +176,7 @@ function formulario() {
     <div class="detalhe-acoes visita-salvar">
       <button type="button" class="btn-submit" data-completar="salvar">Salvar</button>
       <a class="btn-secundario btn-link" href="#familias/${encodeURIComponent(estado.id)}">Cancelar</a>
-    </div>
-    <div class="detalhe-compartilhar">${botaoCompartilhar('#visita/' + encodeURIComponent(estado.id) + '/' +
-      encodeURIComponent(estado.idVisita), estado.cf, 'uma visita')}</div>`;
+    </div>`;
 }
 
 /** @param {!HTMLElement} area */

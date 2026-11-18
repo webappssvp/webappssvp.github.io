@@ -20,7 +20,6 @@ import {chamarComSessao} from '../componentes/barra_conexao.js';
 import {textoDoEstado} from '../componentes/icone_sync.js';
 import {montarBlocoMudanca} from '../componentes/bloco_mudanca.js';
 import {enderecoComMapa} from '../componentes/mapa.js';
-import {botaoCompartilhar} from '../componentes/compartilhar.js';
 import {vibrar} from '../core/preferencias.js';
 import * as sync from '../core/sync.js';
 import * as cofre from '../core/cofre.js';
@@ -306,7 +305,11 @@ function desenhar() {
   } else {
     corpo = visualizacao(d);
   }
-  definirBarra({titulo: nome, voltar: '#pessoas'});
+  // Compartilhar (18/11/2026): só vendo os dados, e não num cadastro que ainda está só no celular.
+  const vendo = d && !estado.bloqueado && !sync.ehProvisorio(estado.id) && !['editar', 'papel', 'desativar']
+      .includes(estado.modo);
+  definirBarra({titulo: nome, voltar: '#pessoas', compartilhar: vendo && sessaoAtual ? {rota: '#pessoas/' +
+    encodeURIComponent(estado.id), cf: sessaoAtual.id_conferencia, oQue: 'uma pessoa'} : null});
   area.innerHTML = `
     <div class="tela-pessoas tela-detalhe">
       ${corpo}
@@ -363,9 +366,7 @@ function visualizacao(d) {
     ${situacaoDoEnvio()}
     ${contatos}
     ${editar || promover || papel || desativar ?
-    `<div class="detalhe-acoes">${editar}${promover}${papel}${desativar}</div>` : ''}
-    <div class="detalhe-compartilhar">${botaoCompartilhar('#pessoas/' + encodeURIComponent(estado.id),
-      sessaoAtual && sessaoAtual.id_conferencia, 'uma pessoa')}</div>`;
+    `<div class="detalhe-acoes">${editar}${promover}${papel}${desativar}</div>` : ''}`;
 }
 
 /** @return {string} Pior estado dos itens da fila desta pessoa ('confirmado' se não há nenhum). */

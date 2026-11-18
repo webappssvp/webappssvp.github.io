@@ -8,7 +8,8 @@
  *   letra, e a lupa ou o "Ir" do teclado fecham a gaveta (15/11/2026).
  * - Busca ou filtro ativo sem depender da cor (WCAG 1.4.1, tons de cinza): o **funil** aparece (sem filtro, só "Opções"),
  *   **o texto do botão** e a borda grossa; o fundo de destaque só reforça.
- * - Detalhes: seta de voltar e o nome da pessoa ou da família (sem Opções).
+ * - Detalhes: seta de voltar e o nome da pessoa ou da família (sem Opções), e o ícone de compartilhar ao lado do
+ *   nome (18/11/2026; o toque é tratado em compartilhar.js).
  * Cada tela chama definirBarra() ao montar e atualizarOpcoes() quando a lista muda. Sem sessão, a barra some.
  */
 
@@ -27,6 +28,11 @@ const ICONES = {
   // filter_alt: cheio (com busca ou filtro) e vazado (sem nada ativo)
   funilCheio: 'M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240' +
     'q0 17-11.5 28.5T520-160h-80Z',
+  // share
+  compartilhar: 'M680-80q-50 0-85-35t-35-85q0-6 3-28L282-392q-16 15-37 23.5t-45 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35' +
+    'q24 0 45 8.5t37 23.5l281-164q-2-7-2.5-13.5T560-760q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-24 0-45-8.5' +
+    'T598-672L317-508q2 7 2.5 13.5t.5 14.5q0 8-.5 14.5T317-452l281 164q16-15 37-23.5t45-8.5q50 0 85 35t35 85q0 50-35 85' +
+    't-85 35Z',
   funilVazado: 'M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240' +
     'q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z',
 };
@@ -39,7 +45,8 @@ const esc = (texto) => String(texto).replace(/[&<>"']/g, (c) => ({'&': '&amp;', 
   '\'': '&#39;'}[c]));
 
 /*
- * definirBarra({titulo, voltar?, opcoes?}) — opcoes:
+ * definirBarra({titulo, voltar?, compartilhar?, opcoes?}) — compartilhar: {rota, cf, oQue} (ícone ao lado do título)
+ * opcoes:
  *   busca:    {valor, rotulo, aoMudar(texto)}
  *   filtros:  [{titulo, valor, padrao, tipo?: 'lista'|'select', itens: [{valor, texto, n?, aEnviar?}], aoEscolher(valor)}]
  *             (aEnviar: quantos do filtro têm mudança esperando; o filtro ganha destaque)
@@ -180,6 +187,10 @@ function desenharBarra() {
     <div class="barra-tela-textos">
       <h1 class="barra-tela-titulo">${esc(c.titulo)}</h1>
     </div>
+    ${c.compartilhar && !/tmp-/.test(c.compartilhar.rota) ? `<button type="button" class="barra-tela-botao
+      barra-tela-compartilhar" data-compartilhar="${esc(c.compartilhar.rota)}" data-compartilhar-cf="${
+  esc(c.compartilhar.cf || '')}" data-compartilhar-oque="${esc(c.compartilhar.oQue || '')}" aria-label="Compartilhar"
+      title="Compartilhar">${icone('compartilhar')}</button>` : ''}
     ${o ? botaoOpcoes(n, linha) : ''}`;
   const botao = barra.querySelector('[data-barra="opcoes"]');
   if (botao) {

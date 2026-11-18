@@ -24,7 +24,6 @@ import {temRascunho, textoDaVisita} from './visita.js';
 import {visitasComFila as visitasComFilaDe} from './visita_completar.js';
 import {montarBlocoMudanca} from '../componentes/bloco_mudanca.js';
 import {enderecoComMapa} from '../componentes/mapa.js';
-import {botaoCompartilhar} from '../componentes/compartilhar.js';
 
 const estado = {
   id: '',
@@ -180,7 +179,10 @@ function desenhar() {
   } else {
     corpo = visualizacao(d);
   }
-  definirBarra({titulo: nome, voltar: '#familias'});
+  // Compartilhar (18/11/2026): só vendo os dados, e não numa família que ainda está só no celular.
+  const vendo = d && !estado.bloqueado && estado.modo === 'ver' && !sync.ehProvisorio(estado.id);
+  definirBarra({titulo: nome, voltar: '#familias', compartilhar: vendo && sessaoAtual ? {rota: '#familias/' +
+    encodeURIComponent(estado.id), cf: sessaoAtual.id_conferencia, oQue: 'uma família'} : null});
   area.innerHTML = `
     <div class="tela-pessoas tela-detalhe">
       ${corpo}
@@ -237,9 +239,7 @@ function visualizacao(d) {
         data-acao-familia="morador">+ Adicionar morador</button>` : ''}
     </section>
     ${cartaoVisitas(d, visita)}
-    ${acoes.botoes(contexto())}
-    <div class="detalhe-compartilhar">${botaoCompartilhar('#familias/' + encodeURIComponent(estado.id), cf,
-      'uma família')}</div>`;
+    ${acoes.botoes(contexto())}`;
 }
 
 /**
