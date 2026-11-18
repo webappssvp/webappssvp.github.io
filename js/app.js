@@ -125,6 +125,24 @@ function pedirVersao() {
   if (controlador) {
     controlador.postMessage('versao');
   }
+  // Sem resposta (página aberta com Ctrl+Shift+R, que não passa pelo service worker, ou um antigo que não responde):
+  // a página veio da internet, então vale a versão escrita no sw.js do site.
+  setTimeout(versaoPeloArquivo, controlador ? 1500 : 0);
+}
+
+function versaoPeloArquivo() {
+  const etiqueta = document.getElementById('versaoApp');
+  if (!etiqueta || etiqueta.textContent !== 'v…') {
+    return;
+  }
+  fetch('./sw.js', {cache: 'no-store'}).then((r) => r.text()).then((texto) => {
+    const achado = texto.match(/ssvp-casca-v([0-9.]+)/);
+    if (achado && etiqueta.textContent === 'v…') {
+      etiqueta.textContent = 'v' + achado[1];
+    }
+  }).catch(() => {
+    // sem conexão: a etiqueta fica como está
+  });
 }
 
 /**

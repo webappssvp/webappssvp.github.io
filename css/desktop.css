@@ -1,12 +1,13 @@
 /*
  * No computador (18/11/2026): o app é feito para celular (visitas), mas os vicentinos podem conhecê-lo e testá-lo
  * no computador. Com mouse e tela grande, a página vira um celular em pé no meio da tela, e o ponteiro, um círculo
- * cinza meio transparente, como a ponta de um dedo. Celulares e tablets (sem mouse) não mudam.
+ * cinza meio transparente, como a ponta de um dedo. Celulares e tablets (sem mouse) não mudam. Vale "tem mouse ou
+ * touchpad" (any-pointer), e não "o principal é o mouse": notebook com tela de toque diz que o principal é o toque.
  *
  * Como cabe tudo na moldura: o body ganha transform, e assim tudo o que é position: fixed (barras, gavetas, avisos)
  * passa a se posicionar dentro dele, e não na janela inteira.
  */
-@media (hover: hover) and (pointer: fine) and (min-width: 600px) and (min-height: 560px) {
+@media (any-hover: hover) and (any-pointer: fine) and (min-width: 600px) and (min-height: 480px) {
   html {
     --altura-celular: min(844px, calc(100vh - 48px));
     height: 100%;
