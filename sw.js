@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.11.2';
+const VERSAO = 'ssvp-casca-v0.12.0';
 
 const EM_DESENVOLVIMENTO = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
 
@@ -20,6 +20,7 @@ const ARQUIVOS = [
   './css/base.css',
   './css/casca.css',
   './css/telas.css',
+  './css/desktop.css',
   './js/app.js',
   './js/casca.js',
   './js/core/api_cc.js',
@@ -79,6 +80,15 @@ self.addEventListener('activate', (evento) => {
   // Apaga os caches de versões anteriores (inclusive o do protótipo antigo, ssvp-shell-*).
   evento.waitUntil(caches.keys().then((nomes) =>
     Promise.all(nomes.filter((n) => n !== VERSAO).map((n) => caches.delete(n)))).then(() => self.clients.claim()));
+});
+
+// A página pergunta a versão (etiqueta do alto) e pede para trocar já pela versão nova ("Atualizar agora", 18/11/2026).
+self.addEventListener('message', (evento) => {
+  if (evento.data === 'versao' && evento.source) {
+    evento.source.postMessage({versao: VERSAO.replace(/^ssvp-casca-v/, '')});
+  } else if (evento.data === 'atualizar') {
+    self.skipWaiting();
+  }
 });
 
 /** Sinal fraco: depois deste tempo, desiste da rede e usa o que estiver guardado. */

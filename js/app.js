@@ -119,16 +119,76 @@ async function lembrarSeEsperando() {
   }
 }
 
+/** A etiqueta do alto mostra a versão que está rodando (a do service worker que controla a página). */
+function pedirVersao() {
+  const controlador = navigator.serviceWorker && navigator.serviceWorker.controller;
+  if (controlador) {
+    controlador.postMessage('versao');
+  }
+}
+
+/**
+ * Versão nova baixada e esperando (18/11/2026): uma faixa com "Atualizar agora". Tocar troca de versão e recarrega;
+ * o que está guardado no celular (fila, cópias, rascunhos) fica. Sem tocar, a versão nova vale quando todas as
+ * janelas do app forem fechadas.
+ * @param {!ServiceWorker} espera
+ */
+function oferecerAtualizacao(espera) {
+  if (document.getElementById('avisoVersao')) {
+    return;
+  }
+  const faixa = document.createElement('div');
+  faixa.id = 'avisoVersao';
+  faixa.className = 'aviso-versao';
+  faixa.setAttribute('role', 'status');
+  faixa.innerHTML = '<span>Versão nova do app.</span>' +
+    '<button type="button" class="aviso-versao-botao">Atualizar agora</button>' +
+    '<button type="button" class="aviso-versao-fechar" aria-label="Agora não">✕</button>';
+  faixa.querySelector('.aviso-versao-botao').addEventListener('click', () => {
+    estadoAtualizacao.recarregar = true;
+    espera.postMessage('atualizar');
+  });
+  faixa.querySelector('.aviso-versao-fechar').addEventListener('click', () => faixa.remove());
+  document.body.appendChild(faixa);
+}
+
+const estadoAtualizacao = {recarregar: false};
+
+/** Logo ao abrir (antes de esperar a conexão): a etiqueta da versão e a troca de versão pedida pela faixa. */
+function ouvirServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    const etiqueta = document.getElementById('versaoApp');
+    if (e.data && e.data.versao && etiqueta) {
+      etiqueta.textContent = 'v' + e.data.versao;
+    }
+  });
+  // A versão nova assumiu: recarrega se a pessoa pediu ("Atualizar agora"); senão, só acerta a etiqueta.
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (estadoAtualizacao.recarregar) {
+      location.reload();
+    } else {
+      pedirVersao();
+    }
+  });
+  pedirVersao();
+}
+
 function registrarServiceWorker() {
   if (!('serviceWorker' in navigator)) {
     return;
   }
   navigator.serviceWorker.register('./sw.js').then((registro) => {
+    if (registro.waiting && navigator.serviceWorker.controller) {
+      oferecerAtualizacao(registro.waiting);
+    }
     registro.addEventListener('updatefound', () => {
       const novo = registro.installing;
       novo.addEventListener('statechange', () => {
         if (novo.state === 'installed' && navigator.serviceWorker.controller) {
-          avisar('Há uma versão nova do app. Feche e abra de novo para usar.');
+          oferecerAtualizacao(novo);
         }
       });
     });
@@ -138,6 +198,7 @@ function registrarServiceWorker() {
 }
 
 async function iniciar() {
+  ouvirServiceWorker();
   ajustarAltura();
   window.addEventListener('resize', ajustarAltura);
   window.addEventListener('orientationchange', ajustarAltura);

@@ -1854,3 +1854,50 @@ fieldset.gaveta-grupo > legend,
 .gaveta-filtro-a-enviar .chip-numero {
   margin-left: auto;
 }
+
+/* Faixa "Há uma versão nova do app · Atualizar agora" (js/app.js, 18/11/2026), acima da barra de baixo */
+.aviso-versao {
+  position: fixed;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.6rem 0.6rem 0.9rem;
+  background-color: var(--md-surface-3);
+  color: var(--md-on-surface);
+  border: 1px solid var(--md-secondary);
+  border-radius: 0.9rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font-weight: 700;
+}
+
+.aviso-versao span {
+  flex: 1 1 auto;
+}
+
+.aviso-versao-botao {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background-color: var(--md-secondary);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.aviso-versao-fechar {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  font: inherit;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
