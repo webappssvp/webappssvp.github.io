@@ -1045,9 +1045,16 @@ body.tema-claro .cartao-pessoa.e-voce {
 }
 
 .opcao-papel input {
+  flex: 0 0 auto; /* o texto em duas linhas não encolhe o círculo */
   width: 1.3rem;
   height: 1.3rem;
+  margin: 0;
   accent-color: var(--ssvp-blue);
+}
+
+.opcao-papel {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .opcao-papel:has(input:checked) {

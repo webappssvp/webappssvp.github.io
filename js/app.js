@@ -23,6 +23,7 @@ import * as visita from './telas/visita.js';
 import * as visitas from './telas/visitas.js';
 import * as importarPessoas from './telas/importar_pessoas.js';
 import * as comoFunciona from './telas/como_funciona.js';
+import * as sugestoes from './telas/sugestoes.js';
 import {ligarCompartilhar} from './componentes/compartilhar.js';
 import {voltar} from './telas/comum.js';
 
@@ -35,6 +36,7 @@ const TELAS = {
   '#visitas': visitas,
   '#visita': visita, // #visita/<id_familia>: registrar uma visita (06_visitas.md, etapa 1)
   '#importar': importarPessoas,
+  '#sugestoes': sugestoes, // sugestões, opiniões e dúvidas para o CC (homologação, 19/11/2026)
 };
 const TELA_INICIAL = '#pessoas';
 
