@@ -86,7 +86,9 @@ export async function chamarNaConferencia(idConferencia, urlApi, acao, dados = {
   // O script confere que o token é desta conferência: id_conferencia vai em todo pedido.
   let resposta;
   try {
-    resposta = await chamarCC(urlApi, acao, {...dados, id_conferencia: idConferencia, token: sessao.token});
+    // id_acesso: a linha deste login na aba "acessos" do índice (o servidor atualiza o último uso; Acessos.gs).
+    resposta = await chamarCC(urlApi, acao, {...dados, id_conferencia: idConferencia, token: sessao.token,
+      id_acesso: sessao.id_acesso || ''});
   } catch (erro) {
     if (erro.codigo === 'SEM_SESSAO' && estado.sessoes[idConferencia]) {
       // Sessão vencida ou encerrada no servidor: esquece o token e pede a senha de novo.
@@ -693,7 +695,7 @@ function entrar() {
     const senha = el.iptSenha.value;
     let r;
     try {
-      r = await chamarCC(urlAtual(), 'entrar', {id_conferencia: estado.escolha.cf, email, senha});
+      r = await chamarCC(urlAtual(), 'entrar', {id_conferencia: estado.escolha.cf, email, senha, ...doAparelho()});
     } catch (erro) {
       corDoLogin('vermelho');
       throw erro;
@@ -717,7 +719,9 @@ export async function conferirSenha(senha) {
   if (!s.email) {
     throw new Error('Para guardar os dados no celular, saia e entre de novo nesta conferência (só desta vez).');
   }
-  const r = await chamarCC(urlAtual(), 'entrar', {id_conferencia: s.id_conferencia, email: s.email, senha});
+  // sem_acesso: só confere a senha (Atualizar os dados guardados); não é um login novo na aba "acessos".
+  const r = await chamarCC(urlAtual(), 'entrar', {id_conferencia: s.id_conferencia, email: s.email, senha,
+    sem_acesso: true});
   await guardarSessao(r, s.email, senha);
 }
 
@@ -787,7 +791,7 @@ function criarSenha() {
   return ocupado(el.btnCriarSenha, async () => {
     const email = el.iptEmail.value.trim();
     const senha = el.iptSenhaNova.value;
-    const r = await chamarCC(urlAtual(), 'criar_senha', {id_conferencia: estado.escolha.cf,
+    const r = await chamarCC(urlAtual(), 'criar_senha', {id_conferencia: estado.escolha.cf, ...doAparelho(),
       email, codigo: el.iptCodigo.value.trim(), senha_nova: senha});
     await lembrarLogin(estado.escolha.cf, email, senha, r.perfil && r.perfil.nome_exibicao);
     await guardarSessao(r, email, senha);
@@ -801,7 +805,8 @@ function criarSenha() {
  */
 async function guardarSessao(resposta, email, senha) {
   const cf = estado.escolha.cf;
-  estado.sessoes[cf] = {token: resposta.token, perfil: resposta.perfil || {}, cm: estado.escolha.cm,
+  const idAcesso = resposta.id_acesso || (estado.sessoes[cf] && estado.sessoes[cf].id_acesso) || '';
+  estado.sessoes[cf] = {token: resposta.token, perfil: resposta.perfil || {}, cm: estado.escolha.cm, id_acesso: idAcesso,
     cc: estado.escolha.cc, email, entrou_em: new Date().toISOString()};
   await salvarSessoes();
   if (estado.aoEntrarComSenha) {
@@ -836,8 +841,25 @@ function sairDeTodos() {
   });
 }
 
+/** Para a aba "acessos" do índice: o tipo de aparelho (sem mais nada dele) e a versão do app. @return {!Object} */
+function doAparelho() {
+  const ua = navigator.userAgent;
+  const aparelho = /iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? 'iPad' :
+    /iPhone|iPod/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : 'Computador';
+  const versao = ((document.getElementById('versaoApp') || {}).textContent || '').replace(/^v/, '');
+  return {aparelho, versao_app: /^\d/.test(versao) ? versao : ''};
+}
+
 async function sair() {
   const cf = estado.escolha.cf;
+  const s = estado.sessoes[cf];
+  // A linha deste login na aba "acessos" ganha a saída. Sem internet ou demorando, sai assim mesmo.
+  if (s && s.token && navigator.onLine) {
+    await Promise.race([
+      chamarCC(urlAtual(), 'sair', {id_conferencia: cf, token: s.token, id_acesso: s.id_acesso || ''}).catch(() => 0),
+      new Promise((r) => setTimeout(r, 4000)),
+    ]);
+  }
   delete estado.sessoes[cf];
   await salvarSessoes();
   if (estado.aoEncerrarSessao) {
