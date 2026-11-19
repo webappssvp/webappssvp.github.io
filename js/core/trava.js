@@ -213,15 +213,17 @@ export async function embrulhar(chave) {
 
 /**
  * @param {?Object} registro O que embrulhar() devolveu.
- * @return {!Promise<?CryptoKey>} A chave (sem poder ser exportada), ou null.
+ * @param {boolean=} exportavel Só para trocar a tranca: a chave volta podendo ser exportada, para ser embrulhada
+ *     de novo pela tranca nova.
+ * @return {!Promise<?CryptoKey>} A chave (sem poder ser exportada, salvo exportavel), ou null.
  */
-export async function desembrulhar(registro) {
+export async function desembrulhar(registro, exportavel = false) {
   if (!estado.chave || !registro || !registro.embrulhada) {
     return null;
   }
   try {
     return await crypto.subtle.unwrapKey('raw', registro.embrulhada, estado.chave,
-        {name: 'AES-GCM', iv: new Uint8Array(registro.iv)}, {name: 'AES-GCM', length: 256}, false,
+        {name: 'AES-GCM', iv: new Uint8Array(registro.iv)}, {name: 'AES-GCM', length: 256}, exportavel,
         ['encrypt', 'decrypt']);
   } catch (erro) {
     return null;

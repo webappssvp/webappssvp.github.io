@@ -52,6 +52,38 @@ async function lembrar(cf, exportavel) {
   }
 }
 
+/**
+ * Trocar o desenho ou o PIN (19/11/2026), antes de criar o novo: as chaves lembradas, abertas com a tranca atual e
+ * podendo ser exportadas (só na memória), com o prazo de cada uma.
+ * @param {!Array<string>} cfs
+ * @return {!Promise<!Object<string, {chave: !CryptoKey, ate: number}>>}
+ */
+export async function chavesParaTrocarTrava(cfs) {
+  const chaves = {};
+  for (const cf of cfs) {
+    const lembrada = await db.lerConfig(chaveLembrada(cf));
+    if (lembrada && lembrada.embrulhada && lembrada.ate > Date.now()) {
+      const chave = await trava.desembrulhar(lembrada, true);
+      if (chave) {
+        chaves[cf] = {chave, ate: lembrada.ate};
+      }
+    }
+  }
+  return chaves;
+}
+
+/** Depois de criar a tranca nova: embrulha de novo as chaves, com o mesmo prazo. @param {!Object} chaves */
+export async function lembrarComTravaNova(chaves) {
+  for (const [cf, {chave, ate}] of Object.entries(chaves)) {
+    try {
+      const embrulho = await trava.embrulhar(chave);
+      await db.salvarConfig(chaveLembrada(cf), {...embrulho, ate});
+    } catch (erro) {
+      await db.apagarConfig(chaveLembrada(cf)); // sem internet, pede a senha uma vez
+    }
+  }
+}
+
 /** A tranca acabou de ser criada ou aberta: lembra as chaves que esperavam por ela. */
 export async function lembrarPendentes() {
   await Promise.all(Object.keys(pendentes).map((cf) => lembrar(cf, pendentes[cf])));

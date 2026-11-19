@@ -132,20 +132,50 @@ async function garantirTrava() {
   await salvarSessoes();
 }
 
-/** Cada toque adia a tranca; passados trava.minutos() sem uso (ou ao voltar para o app), pede o desenho. */
-function vigiarTrava() {
+/**
+ * "Trocar o desenho ou o PIN" das Configurações (19/11/2026): confirma o atual (os mesmos 5 erros), cria o novo e
+ * tranca de novo, com ele, a sessão e a chave dos dados guardados (sem sair da conferência nem pedir a senha).
+ */
+async function trocarTrava() {
+  if (!trava.configurada() || !conferenciasComSessao().length) {
+    avisar('O desenho é criado depois de entrar numa conferência.');
+    return;
+  }
+  if (!(await telaTrava.pedir('abrir', {aoEsquecer: esquecerTudoNoCelular, trocando: true}))) {
+    return;
+  }
+  const chaves = await cofre.chavesParaTrocarTrava(conferenciasComSessao());
+  if (!(await telaTrava.pedir('criar', {aoEsquecer: esquecerTudoNoCelular, trocando: true}))) {
+    return; // cancelou: fica o desenho de antes
+  }
+  await cofre.lembrarComTravaNova(chaves);
+  await salvarSessoes();
+  avisar(trava.tipo() === 'pin' ? 'Pronto: o app agora abre com o PIN novo.' :
+    'Pronto: o app agora abre com o desenho novo.');
+}
+
+/** A barra de conexão já carregou as sessões (antes disso, vale a sessão guardada). */
+let barraCarregada = false;
+
+/**
+ * Cada toque adia a tranca; passados trava.minutos() sem uso (ou ao voltar para o app), pede o desenho. Começa logo
+ * ao abrir, sem esperar a lista de conferências (que pode demorar sem internet boa), e confere a cada 5 segundos.
+ * @param {boolean} comSessaoGuardada Havia sessão guardada ao abrir (antes de a barra carregar as sessões).
+ */
+function vigiarTrava(comSessaoGuardada) {
   ['pointerdown', 'keydown'].forEach((evento) => document.addEventListener(evento, () => {
     if (!telaTrava.mostrando()) {
       trava.marcarUso();
     }
   }, {passive: true, capture: true}));
   const conferir = () => {
-    if (trava.configurada() && conferenciasComSessao().length && !telaTrava.mostrando() && trava.venceu()) {
+    const comSessao = conferenciasComSessao().length > 0 || (comSessaoGuardada && !barraCarregada);
+    if (trava.configurada() && comSessao && !telaTrava.mostrando() && trava.venceu()) {
       trava.trancar();
       telaTrava.pedir('abrir', {aoEsquecer: esquecerTudoNoCelular});
     }
   };
-  setInterval(conferir, 20000);
+  setInterval(conferir, 5000);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       conferir();
@@ -349,6 +379,11 @@ async function iniciar() {
     await telaTrava.pedir('criar', {aoEsquecer: esquecerTudoNoCelular});
     await trancarSessoesGuardadas();
   }
+  vigiarTrava(comSessaoGuardada);
+  const botaoTrocar = document.getElementById('btnTrocarTrava');
+  if (botaoTrocar) {
+    botaoTrocar.addEventListener('click', trocarTrava);
+  }
   desenharTela();
   await iniciarBarraConexao({
     aoConectar: () => {
@@ -365,7 +400,7 @@ async function iniciar() {
     // Sair ou sessão vencida: os dados guardados da conferência saem do celular (cofre e listas).
     aoEncerrarSessao: (cf) => apagarDadosDaConferencia(cf),
   });
-  vigiarTrava();
+  barraCarregada = true;
   // A chave dos dados guardados lembrada nas últimas 12 horas (cofre.js), trancada pelo desenho: reaberto no mesmo
   // dia, não pede a senha.
   await Promise.all(conferenciasComSessao().map((cf) => cofre.restaurar(cf)));

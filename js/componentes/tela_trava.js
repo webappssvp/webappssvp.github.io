@@ -25,10 +25,11 @@ let aberta = null; // a tela em uso (uma por vez)
 /**
  * Mostra a tela e espera terminar.
  * @param {string} modo 'criar' ou 'abrir'
- * @param {{aoEsquecer: function(): !Promise<void>, aposLogin: (boolean|undefined)}} opcoes aoEsquecer: apaga as
- *     sessões e os dados guardados (esqueci o desenho, erros demais). aposLogin: acabou de entrar com a senha;
- *     "esqueci o desenho" só troca o desenho, sem sair.
- * @return {!Promise<void>} Resolve com a tranca aberta (criada ou desenhada certo).
+ * @param {{aoEsquecer: function(): !Promise<void>, aposLogin: (boolean|undefined),
+ *     trocando: (boolean|undefined)}} opcoes aoEsquecer: apaga as sessões e os dados guardados (esqueci o desenho,
+ *     erros demais). aposLogin: acabou de entrar com a senha; "esqueci o desenho" só troca o desenho, sem sair.
+ *     trocando: "Trocar o desenho ou o PIN" das Configurações (títulos próprios e Cancelar no lugar de Esqueci).
+ * @return {!Promise<boolean>} true com a tranca aberta (criada ou desenhada certo); false se cancelou.
  */
 export function pedir(modo, opcoes) {
   if (aberta) {
@@ -46,11 +47,11 @@ export function pedir(modo, opcoes) {
   document.body.appendChild(fundo);
   document.body.classList.add('com-trava');
   aberta = {promessa, fundo, modo, opcoes, usarPin: modo === 'abrir' ? trava.tipo() === 'pin' : false, primeiro: '',
-    concluir: () => {
+    concluir: (feito = true) => {
       fundo.remove();
       document.body.classList.remove('com-trava');
       aberta = null;
-      concluir();
+      concluir(feito);
     }};
   desenhar();
   return promessa;
@@ -66,12 +67,15 @@ function desenhar(aviso = '', tipoAviso = '') {
   const criando = t.modo === 'criar';
   const repetindo = criando && Boolean(t.primeiro);
   const nome = t.usarPin ? 'PIN' : 'desenho';
-  const titulo = criando ? (repetindo ? `Repita o ${nome}` : (t.usarPin ? 'Crie um PIN para abrir o app' :
-    'Crie um desenho para abrir o app')) : (t.usarPin ? 'Digite o seu PIN' : 'Desenhe para abrir o app');
+  const trocando = Boolean(t.opcoes.trocando);
+  const titulo = criando ? (repetindo ? `Repita o ${nome}` : (t.usarPin ? (trocando ? 'Crie o PIN novo' :
+    'Crie um PIN para abrir o app') : (trocando ? 'Crie o desenho novo' : 'Crie um desenho para abrir o app'))) :
+    (trocando ? (t.usarPin ? 'Digite o PIN atual' : 'Faça o desenho atual') :
+      (t.usarPin ? 'Digite o seu PIN' : 'Desenhe para abrir o app'));
   const explica = criando ? (repetindo ? 'Para conferir.' : `O app tranca quando fica parado e pede o ${nome}. ` +
     `Se o celular for perdido, ninguém abre a conferência sem ele.` +
     (t.usarPin ? ' De 4 a 6 números.' : ` Ligue ${MINIMO_PONTOS} pontos ou mais.`)) :
-    'Por segurança, o app trancou.';
+    (trocando ? 'Para trocar, primeiro confirme que é você.' : 'Por segurança, o app trancou.');
   t.fundo.innerHTML = `
     <div class="trava-caixa">
       <h2 class="trava-titulo" id="travaTitulo">${esc(titulo)}</h2>
@@ -98,7 +102,8 @@ function desenhar(aviso = '', tipoAviso = '') {
         ${criando && !repetindo ? `<button type="button" class="link-conexao" data-trava="trocar">${t.usarPin ?
     'Prefiro desenhar' : 'Prefiro números (PIN)'}</button>` : ''}
         ${repetindo ? '<button type="button" class="link-conexao" data-trava="recomecar">Começar de novo</button>' : ''}
-        ${!criando ? `<button type="button" class="link-conexao" data-trava="esqueci">Esqueci o ${nome}</button>` : ''}
+        ${!criando && !trocando ? `<button type="button" class="link-conexao" data-trava="esqueci">Esqueci o ${nome}</button>` : ''}
+        ${trocando ? '<button type="button" class="link-conexao" data-trava="cancelar">Cancelar</button>' : ''}
       </div>
     </div>`;
   ligar();
@@ -121,6 +126,10 @@ function ligar() {
       t.primeiro = '';
       desenhar();
     });
+  }
+  const cancelar = f.querySelector('[data-trava="cancelar"]');
+  if (cancelar) {
+    cancelar.addEventListener('click', () => t.concluir(false));
   }
   const esqueci = f.querySelector('[data-trava="esqueci"]');
   if (esqueci) {
