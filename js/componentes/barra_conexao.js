@@ -152,7 +152,7 @@ export async function iniciarBarraConexao(opcoes = {}) {
   }
   const logado = estado.escolha.cf && estado.sessoes[estado.escolha.cf];
   await atualizarBarra();
-  abrirPainel(!logado);
+  abrirPainel(!logado && !naAjuda());
   if (logado && estado.aoConectar) {
     estado.aoConectar(sessaoAtual());
   }
@@ -286,6 +286,7 @@ function montarPainel() {
   el.selCc.addEventListener('change', () => escolher({cc: el.selCc.value, cp: '', cf: ''}));
   el.selCp.addEventListener('change', () => escolher({cp: el.selCp.value, cf: ''}));
   el.selCf.addEventListener('change', () => escolher({cf: el.selCf.value}));
+  [el.selCm, el.selCc, el.selCp, el.selCf].forEach((s) => s.addEventListener('change', () => corDoSelect(s)));
   el.btnMostrarUrl.addEventListener('click', () => {
     el.grpUrl.hidden = false;
     el.btnMostrarUrl.hidden = true;
@@ -300,6 +301,12 @@ function montarPainel() {
     entrar();
   });
   el.btnPrimeiroAcesso.addEventListener('click', pedirCodigo);
+  // Depois do vermelho (não entrou), mexer no e-mail ou na senha volta os dois ao amarelo.
+  [el.iptEmail, el.iptSenha].forEach((campo) => campo.addEventListener('input', () => {
+    if (campo.classList.contains('sinal-vermelho')) {
+      corDoLogin('amarelo');
+    }
+  }));
   el.selDevLogin.addEventListener('change', escolherLoginDev);
   el.areaCodigo.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -324,6 +331,11 @@ function montarPainel() {
 
 /** @param {boolean} aberto */
 function abrirPainel(aberto) {
+  // Sem sessão na conferência escolhida, o painel não fecha: é a única coisa na tela (19/11/2026). Em "Como o app
+  // guarda e envia", que abre sem login (link compartilhado), fecha: senão cobriria a explicação.
+  if (!aberto && !estado.sessoes[estado.escolha.cf] && !naAjuda()) {
+    aberto = true;
+  }
   el.painelConexao.hidden = !aberto;
   document.body.classList.toggle('painel-aberto', Boolean(aberto));
   if (aberto) {
@@ -355,6 +367,7 @@ function mostrarArea(qual) {
   el.areaEntrar.hidden = qual !== 'entrar';
   if (qual === 'entrar') {
     preencherLoginsDev();
+    corDoLogin('amarelo');
   }
   el.areaCodigo.hidden = qual !== 'codigo';
   el.areaConectado.hidden = qual !== 'conectado';
@@ -399,6 +412,27 @@ function preencher(select, opcoes, escolhido, vazio) {
   select.appendChild(new Option(vazio, ''));
   opcoes.forEach((o) => select.appendChild(new Option(o.texto, o.valor, false, o.valor === escolhido)));
   select.disabled = !opcoes.length;
+  corDoSelect(select);
+}
+
+/**
+ * Semáforo da escolha da conferência (19/11/2026): vermelho = ainda não dá para escolher (falta o de cima);
+ * amarelo = pronto para escolher; verde = escolhido. Sem depender só da cor: o texto do campo já diz "Escolha o …".
+ * @param {!HTMLElement} campo
+ * @param {string} cor vermelho, amarelo ou verde
+ */
+function sinal(campo, cor) {
+  ['vermelho', 'amarelo', 'verde'].forEach((c) => campo.classList.toggle('sinal-' + c, c === cor));
+}
+
+/** @param {!HTMLSelectElement} select */
+function corDoSelect(select) {
+  sinal(select, select.value ? 'verde' : (select.disabled ? 'vermelho' : 'amarelo'));
+}
+
+/** E-mail e senha: amarelos ao aparecer (falta preencher); vermelhos se não conseguiu entrar. @param {string} cor */
+function corDoLogin(cor) {
+  [el.iptEmail, el.iptSenha].forEach((campo) => sinal(campo, cor));
 }
 
 function preencherMetropolitanos() {
@@ -586,7 +620,13 @@ function entrar() {
   return ocupado(el.btnEntrar, async () => {
     const email = el.iptEmail.value.trim();
     const senha = el.iptSenha.value;
-    const r = await chamarCC(urlAtual(), 'entrar', {id_conferencia: estado.escolha.cf, email, senha});
+    let r;
+    try {
+      r = await chamarCC(urlAtual(), 'entrar', {id_conferencia: estado.escolha.cf, email, senha});
+    } catch (erro) {
+      corDoLogin('vermelho');
+      throw erro;
+    }
     await lembrarLogin(estado.escolha.cf, email, senha, r.perfil && r.perfil.nome_exibicao);
     await guardarSessao(r, email, senha);
   });
@@ -738,7 +778,13 @@ export async function sairDaConferencia() {
 }
 
 /** Abre o painel de conexão (para a casca e as telas). */
+/** @return {boolean} Na tela "Como o app guarda e envia" (abre sem login). */
+const naAjuda = () => location.hash.startsWith('#como-funciona');
+
 export function abrirPainelConexao() {
+  if (!el.painelConexao) {
+    return; // ainda montando: iniciarBarraConexao abre o painel se não houver sessão
+  }
   abrirPainel(true);
   el.painelConexao.scrollIntoView({block: 'nearest'});
 }

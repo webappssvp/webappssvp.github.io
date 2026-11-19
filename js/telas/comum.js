@@ -4,6 +4,7 @@
  */
 
 import {definirBarra} from '../componentes/barra_tela.js';
+import {abrirPainelConexao} from '../componentes/barra_conexao.js';
 
 /**
  * Escapa texto para colocar em HTML.
@@ -76,12 +77,10 @@ export function telaEmConstrucao(area, t) {
  */
 export function pedirConexao(area, titulo) { // eslint-disable-line no-unused-vars
   // Sem sessão, nenhuma tela tem conteúdo: sem o título dela (ex.: "Pessoas" embaixo do painel de login, logo
-  // depois do Sair), só o convite para entrar (14/11/2026).
-  area.innerHTML = `
-    <article class="md-card">
-      <p class="tela-texto">Escolha a sua conferência e entre com o seu e-mail e senha para começar.</p>
-      <button type="button" class="btn-submit" data-acao="abrir-conexao">Escolher a conferência e entrar</button>
-    </article>`;
+  // depois do Sair; 14/11/2026). Sem o card "Escolha a sua conferência" (19/11/2026): o painel de entrar fica aberto
+  // em cima (barra_conexao.js), e as cores dos campos mostram o que falta escolher.
+  area.innerHTML = '';
+  abrirPainelConexao();
   return 'Escolha a sua conferência e entre com o seu e-mail e senha para começar.';
 }
 

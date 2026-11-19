@@ -162,6 +162,69 @@
   cursor: not-allowed;
 }
 
+/*
+ * Semáforo da escolha da conferência e do login (19/11/2026, barra_conexao.js): vermelho = ainda não dá (ou não
+ * conseguiu entrar); amarelo = pronto para escolher ou preencher; verde = escolhido.
+ */
+/* Cores sólidas: escuras no tema escuro, claras no tema claro (o texto segue o do tema e fica legível). */
+.form-select.sinal-vermelho,
+.form-input.sinal-vermelho {
+  background-color: #7f1d1d;
+  border-color: #b91c1c;
+}
+
+.form-select.sinal-amarelo,
+.form-input.sinal-amarelo {
+  background-color: #7a6500;
+  border-color: #eab308;
+}
+
+.form-select.sinal-verde,
+.form-input.sinal-verde {
+  background-color: #14532d;
+  border-color: #16a34a;
+}
+
+body.tema-claro .form-select.sinal-vermelho,
+body.tema-claro .form-input.sinal-vermelho {
+  background-color: #fecaca;
+  border-color: #dc2626;
+}
+
+body.tema-claro .form-select.sinal-amarelo,
+body.tema-claro .form-input.sinal-amarelo {
+  background-color: #fde68a;
+  border-color: #ca8a04;
+}
+
+body.tema-claro .form-select.sinal-verde,
+body.tema-claro .form-input.sinal-verde {
+  background-color: #bbf7d0;
+  border-color: #16a34a;
+}
+
+/* O vermelho do campo que ainda não dá para escolher aparece inteiro (sem o apagado dos desativados). */
+.form-select.sinal-vermelho:disabled {
+  opacity: 0.85;
+}
+
+/*
+ * A lista que abre do select: no tema escuro ela vinha branca (o navegador usava o fundo transparente do campo
+ * sobre o branco). Fundo e texto do tema, e color-scheme para a seta e a rolagem.
+ */
+.form-select {
+  color-scheme: dark;
+}
+
+body.tema-claro .form-select {
+  color-scheme: light;
+}
+
+.form-select option {
+  background-color: var(--md-surface-2);
+  color: var(--md-on-surface);
+}
+
 /* Campo de senha com o botão de olho dentro, à direita */
 .campo-senha {
   position: relative;
