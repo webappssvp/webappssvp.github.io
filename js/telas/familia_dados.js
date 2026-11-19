@@ -121,7 +121,10 @@ export function aplicarLinhas(porId, linhas) {
  * @return {!Promise<{familias: !Array<!Object>, mudou: boolean}>}
  */
 export async function atualizarLista(cf, chamar, completo) {
-  const desde = completo ? null : await db.lerConfig(chaveDesdeFamilias(cf));
+  // Sem nenhuma família guardada no celular, baixa tudo (19/11/2026; como na lista de pessoas): a marca "desde"
+  // pode ter sobrado de uma lista apagada.
+  const guardadas = completo ? [] : await db.listar(db.STORES.FAMILIAS, cf);
+  const desde = completo || !guardadas.length ? null : await db.lerConfig(chaveDesdeFamilias(cf));
   // Famílias encerradas também vêm (filtro "Encerradas"); vínculos e endereços, só os ativos.
   const pedir = (aba, soAtivas) => chamar('listar', desde ? {aba, desde} :
     {aba, filtros: soAtivas ? {apenas_ativas: true} : {}});
@@ -133,7 +136,7 @@ export async function atualizarLista(cf, chamar, completo) {
   let lista;
   if (desde) {
     const porId = {};
-    (await db.listar(db.STORES.FAMILIAS, cf)).forEach((r) => {
+    guardadas.forEach((r) => {
       const {chave, conferencia, ...resto} = r; // eslint-disable-line no-unused-vars
       porId[r.id] = resto;
     });

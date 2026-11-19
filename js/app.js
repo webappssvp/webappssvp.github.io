@@ -96,8 +96,8 @@ async function apagarDadosDaConferencia(cf) {
   } catch (erro) {
     // banco indisponível: nada a apagar
   }
-  ['pessoas_atualizada:', 'pessoas_desde:', 'pessoas_lista:', 'familias_atualizada:', 'familias_desde:']
-      .forEach((k) => db.apagarConfig(k + cf));
+  await Promise.all(['pessoas_atualizada:', 'pessoas_desde:', 'pessoas_lista:', 'familias_atualizada:',
+    'familias_desde:'].map((k) => db.apagarConfig(k + cf)));
 }
 
 /**

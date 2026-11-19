@@ -193,7 +193,10 @@ async function atualizar(opcoes = {}) {
   estado.erro = '';
   desenharLista();
   try {
-    const desde = opcoes.completo ? null : await db.lerConfig(chaveDesdeLista(id));
+    // Sem nenhuma pessoa guardada no celular, baixa tudo (19/11/2026): se a lista foi apagada (Sair, sessão
+    // vencida) e a marca "desde" sobrou, pedir só o que mudou dava uma lista vazia ("Ninguém com esse papel").
+    const guardadas = opcoes.completo ? [] : await db.listar(db.STORES.PESSOAS, id);
+    const desde = opcoes.completo || !guardadas.length ? null : await db.lerConfig(chaveDesdeLista(id));
     // Só o que mudou vem sem "apenas_ativas": uma desativação também é mudança.
     const listar = (aba) => chamarComSessao('listar', desde ? {aba, desde} : {aba, filtros: {apenas_ativas: true}});
     const respostas = await Promise.all([listar('pessoas'), listar('pessoas_papeis'), listar('pessoas_cargos')]);
@@ -202,7 +205,7 @@ async function atualizar(opcoes = {}) {
     }
     const [pessoas, papeis, cargos] = respostas.map((r) => r.registros);
     const mudou = !desde || pessoas.length || papeis.length || cargos.length;
-    const lista = desde ? mesclar(await db.listar(db.STORES.PESSOAS, id), pessoas, papeis, cargos) :
+    const lista = desde ? mesclar(guardadas, pessoas, papeis, cargos) :
       juntar(pessoas, papeis, cargos);
     const agora = new Date().toISOString();
     if (mudou) {
