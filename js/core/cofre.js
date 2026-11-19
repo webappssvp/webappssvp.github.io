@@ -10,9 +10,13 @@
  *   exportada, para o app reaberto no mesmo dia não pedir a senha. Passado o prazo, ou no Sair, é esquecida.
  * - Depois do prazo, sem internet, abrir pede a senha de novo. Senha errada: a chave não desembrulha e nada é lido.
  * - Senha trocada (o login com a senha nova não abre o cofre antigo): o cofre e os dados guardados são refeitos.
+ * - Tranca (19/11/2026, trava.js): a chave lembrada fica embrulhada pela chave do desenho ou do PIN. Sem tranca
+ *   aberta, a chave não é lembrada no banco: fica na memória esperando a tranca ser criada (lembrarPendentes).
+ *   A lembrada do formato anterior (sem tranca) é esquecida: sem internet, a senha é pedida uma vez.
  */
 
 import * as db from './db.js';
+import * as trava from './trava.js';
 
 /** OWASP 2023 para PBKDF2-SHA-256. Em celulares antigos leva cerca de 1 s, uma vez por uso. */
 const ITERACOES = 600000;
@@ -26,16 +30,31 @@ const LEMBRAR_HORAS = 12;
 /** @param {string} cf @return {string} */
 const chaveLembrada = (cf) => 'cofre_lembrado:' + cf;
 
+/** Chaves (que podem ser exportadas) esperando a tranca ser criada para serem lembradas. @type {!Object<string, !CryptoKey>} */
+const pendentes = {};
+
 /**
- * Guarda a chave aberta por LEMBRAR_HORAS (a partir de agora; usar não renova).
+ * Guarda a chave aberta por LEMBRAR_HORAS (a partir de agora; usar não renova), embrulhada pela tranca.
  * @param {string} cf
+ * @param {!CryptoKey} exportavel A mesma chave dos dados, que pode ser exportada (só para embrulhar).
  */
-async function lembrar(cf) {
-  try {
-    await db.salvarConfig(chaveLembrada(cf), {chave: abertas[cf], ate: Date.now() + LEMBRAR_HORAS * 3600 * 1000});
-  } catch (erro) {
-    // navegador que não guarda CryptoKey no IndexedDB: pede a senha a cada abertura, como antes
+async function lembrar(cf, exportavel) {
+  if (!trava.aberta()) {
+    pendentes[cf] = exportavel;
+    return;
   }
+  delete pendentes[cf];
+  try {
+    const embrulho = await trava.embrulhar(exportavel);
+    await db.salvarConfig(chaveLembrada(cf), {...embrulho, ate: Date.now() + LEMBRAR_HORAS * 3600 * 1000});
+  } catch (erro) {
+    // sem guardar: pede a senha a cada abertura sem internet
+  }
+}
+
+/** A tranca acabou de ser criada ou aberta: lembra as chaves que esperavam por ela. */
+export async function lembrarPendentes() {
+  await Promise.all(Object.keys(pendentes).map((cf) => lembrar(cf, pendentes[cf])));
 }
 
 /**
@@ -48,9 +67,12 @@ export async function restaurar(cf) {
     return true;
   }
   const lembrada = await db.lerConfig(chaveLembrada(cf));
-  if (lembrada && lembrada.chave && lembrada.ate > Date.now()) {
-    abertas[cf] = lembrada.chave;
-    return true;
+  if (lembrada && lembrada.embrulhada && lembrada.ate > Date.now()) {
+    const chave = await trava.desembrulhar(lembrada);
+    if (chave) {
+      abertas[cf] = chave;
+      return true;
+    }
   }
   if (lembrada) {
     await db.apagarConfig(chaveLembrada(cf));
@@ -96,10 +118,11 @@ export async function abrir(cf, senha, opcoes) {
   if (guardado) {
     try {
       const chave = await chaveDaSenha(senha, new Uint8Array(guardado.sal), guardado.iteracoes);
-      abertas[cf] = await crypto.subtle.unwrapKey('raw', guardado.embrulhada, chave,
-          {name: 'AES-GCM', iv: new Uint8Array(guardado.iv)}, {name: 'AES-GCM', length: 256}, false,
+      const desembrulhar = (exportavel) => crypto.subtle.unwrapKey('raw', guardado.embrulhada, chave,
+          {name: 'AES-GCM', iv: new Uint8Array(guardado.iv)}, {name: 'AES-GCM', length: 256}, exportavel,
           ['encrypt', 'decrypt']);
-      await lembrar(cf);
+      abertas[cf] = await desembrulhar(false);
+      await lembrar(cf, await desembrulhar(true));
       return true;
     } catch (erro) {
       if (!opcoes.criar) {
@@ -119,7 +142,7 @@ export async function abrir(cf, senha, opcoes) {
   // Na memória, a mesma chave sem poder ser exportada.
   abertas[cf] = await crypto.subtle.unwrapKey('raw', embrulhada, chave, {name: 'AES-GCM', iv},
       {name: 'AES-GCM', length: 256}, false, ['encrypt', 'decrypt']);
-  await lembrar(cf);
+  await lembrar(cf, dados);
   return true;
 }
 
@@ -159,6 +182,7 @@ export async function decifrar(cf, registro) {
 /** Esquece a chave e apaga o cofre e os dados guardados da conferência (Sair, sessão vencida). @param {string} cf */
 export async function apagar(cf) {
   delete abertas[cf];
+  delete pendentes[cf];
   await db.apagarConfig(chaveDoCofre(cf));
   await db.apagarConfig(chaveLembrada(cf));
   await db.apagarConfig('detalhes_baixados:' + cf);

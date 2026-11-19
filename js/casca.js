@@ -164,6 +164,10 @@ function ligarConfiguracoes() {
       controle.addEventListener('change', async () => {
         await definirPreferencia(chave, controle.value);
         vibrar(25);
+        if (chave === 'trancar') {
+          avisar('O app tranca depois de ' + (controle.value === '1' ? '1 minuto' : controle.value + ' minutos') +
+            ' parado.');
+        }
         if (chave === 'envio') {
           avisar(controle.value === 'quando_mandar' ? 'Vai juntar as mudanças: envie pela Nuvem quando quiser.' :
             'Vai enviar cada mudança assim que salvar.');

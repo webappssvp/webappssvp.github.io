@@ -15,6 +15,7 @@
 
 import {esc, voltar} from './comum.js';
 import {definirBarra} from '../componentes/barra_tela.js';
+import {campoConfirmarEmail, ligarConfirmarEmail} from '../componentes/confirmar_email.js';
 import {avisar} from '../casca.js';
 import * as sync from '../core/sync.js';
 import {ligarEndereco} from '../componentes/endereco_busca.js';
@@ -34,6 +35,8 @@ const ATENDIDOS = ['AST', 'SOC'];
 
 /** Busca do endereço nos Correios no formulário aberto (js/componentes/endereco_busca.js). */
 let buscaEndereco = null;
+/** "Confirme o novo e-mail" (confirmar_email.js). */
+let confirmacaoEmail = null;
 
 /**
  * @param {!Array<string>} permissoes
@@ -123,6 +126,7 @@ export function renderizarNova(area, sessao, opcoes) {
           ${campo('novo_celular', 'Celular com DDD', 'type="tel" inputmode="tel" autocomplete="off"')}
           ${campo('novo_email', 'E-mail', 'type="email" inputmode="email" autocomplete="off" autocapitalize="none" maxlength="200"',
       'É com este e-mail que a pessoa entra no app e recebe o código de acesso.')}
+          ${campoConfirmarEmail('novo_email_confirma')}
         </fieldset>
         <fieldset class="md-card detalhe-secao form-conjunto">
           <legend class="detalhe-titulo" id="legendaEndereco">Endereço</legend>
@@ -153,6 +157,7 @@ export function renderizarNova(area, sessao, opcoes) {
     cadastrar(area, sessao, papelEscolhido());
   });
   ligarNomeDeExibicao(area, opcoes.nomesNaConferencia || null);
+  confirmacaoEmail = ligarConfirmarEmail(form, 'novo_email', 'novo_email_confirma');
   // Rua e CEP conferidos na base dos Correios enquanto preenche (15/11/2026).
   buscaEndereco = ligarEndereco(form, 'novo_');
   area.querySelector('#novo_celular').addEventListener('blur', (e) => {
@@ -241,6 +246,11 @@ async function cadastrar(area, sessao, papel) {
   if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     erro(msg, 'Confira o e-mail: falta o @ ou o ponto.');
     area.querySelector('#novo_email').focus();
+    return;
+  }
+  const semConfirmar = email && confirmacaoEmail ? confirmacaoEmail.conferir() : '';
+  if (semConfirmar) {
+    erro(msg, semConfirmar);
     return;
   }
   const endereco = {};

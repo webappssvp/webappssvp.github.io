@@ -21,6 +21,8 @@ const PADRAO = {
   // "na_hora": envia logo depois de salvar; "quando_mandar": junta e envia pela Nuvem (o relato de visita vai
   // sempre na hora). Decisão de 17/11/2026, mvp/telas/05_sincronizacao.md.
   envio: 'na_hora',
+  // Minutos parado até a tranca pedir o desenho ou o PIN (19/11/2026, trava.js): '1', '5', '10' ou '15'.
+  trancar: '15',
 };
 
 const SIMULACOES = ['deuteranopia', 'protanopia', 'tritanopia', 'monocromia', 'alto-contraste'];

@@ -22,6 +22,7 @@ import {EM_TESTE, carregarMetropolitanos, metropolitanoDoSite, urlApiDo, definir
 
 import {mostrarCarregando} from './carregando.js';
 import {LOGINS_DEV_ATIVOS, lembrarLogin, loginsDaConferencia, esquecerLogins} from './logins_dev.js';
+import * as trava from '../core/trava.js';
 
 const CHAVE_ESCOLHA = 'conexao_escolha';
 const CHAVE_SESSOES = 'conexao_sessoes';
@@ -90,7 +91,7 @@ export async function chamarNaConferencia(idConferencia, urlApi, acao, dados = {
     if (erro.codigo === 'SEM_SESSAO' && estado.sessoes[idConferencia]) {
       // Sessão vencida ou encerrada no servidor: esquece o token e pede a senha de novo.
       delete estado.sessoes[idConferencia];
-      await db.salvarConfig(CHAVE_SESSOES, estado.sessoes);
+      await salvarSessoes();
       if (estado.aoEncerrarSessao) {
         await estado.aoEncerrarSessao(idConferencia); // os dados guardados saem junto com a sessão
       }
@@ -107,9 +108,69 @@ export async function chamarNaConferencia(idConferencia, urlApi, acao, dados = {
   }
   if (resposta.token_novo && estado.sessoes[idConferencia]) {
     estado.sessoes[idConferencia].token = resposta.token_novo;
-    await db.salvarConfig(CHAVE_SESSOES, estado.sessoes);
+    await salvarSessoes();
   }
   return resposta;
+}
+
+/**
+ * Guarda as sessões. Com tranca (19/11/2026, trava.js), o token vai cifrado pela chave do desenho; com a tranca
+ * criada mas fechada, não grava (a cópia guardada continua a trancada). Sem tranca ainda (logo antes de criá-la),
+ * grava como antes, e salvarSessoes() é chamada de novo assim que ela é criada.
+ */
+export async function salvarSessoes() {
+  if (trava.configurada() && !trava.aberta()) {
+    return;
+  }
+  const guardar = {};
+  for (const [cf, s] of Object.entries(estado.sessoes)) {
+    const {token, ...resto} = s;
+    guardar[cf] = trava.configurada() ? {...resto, token_cifrado: await trava.cifrarTexto(token)} : s;
+  }
+  await db.salvarConfig(CHAVE_SESSOES, guardar);
+}
+
+/**
+ * As sessões guardadas, com o token aberto pela tranca. A que não abre (tranca esquecida e refeita) fica de fora.
+ * @param {!Object} guardadas
+ * @return {!Promise<!Object>}
+ */
+async function abrirSessoes(guardadas) {
+  const abertas = {};
+  for (const [cf, s] of Object.entries(guardadas)) {
+    if (s.token_cifrado) {
+      const token = await trava.decifrarTexto(s.token_cifrado);
+      if (token) {
+        const {token_cifrado: _, ...resto} = s; // eslint-disable-line no-unused-vars
+        abertas[cf] = {...resto, token};
+      }
+    } else if (s.token) {
+      abertas[cf] = s;
+    }
+  }
+  return abertas;
+}
+
+/** @return {!Promise<!Array<string>>} As conferências com sessão guardada (antes de abrir a tranca). */
+export async function conferenciasGuardadas() {
+  return Object.keys((await db.lerConfig(CHAVE_SESSOES)) || {});
+}
+
+/** Tranca criada antes de a barra carregar (quem entrou antes da tranca): cifra os tokens guardados já. */
+export async function trancarSessoesGuardadas() {
+  const guardadas = (await db.lerConfig(CHAVE_SESSOES)) || {};
+  const trancadas = {};
+  for (const [cf, s] of Object.entries(guardadas)) {
+    const {token, ...resto} = s;
+    trancadas[cf] = token && trava.aberta() ? {...resto, token_cifrado: await trava.cifrarTexto(token)} : s;
+  }
+  await db.salvarConfig(CHAVE_SESSOES, trancadas);
+}
+
+/** Esquece todas as sessões deste celular (erros demais na tranca, esqueci o desenho). */
+export async function esquecerSessoesGuardadas() {
+  estado.sessoes = {};
+  await db.salvarConfig(CHAVE_SESSOES, {});
 }
 
 /** @return {!Array<string>} As conferências em que a pessoa entrou neste celular. */
@@ -139,7 +200,7 @@ export async function iniciarBarraConexao(opcoes = {}) {
   }
   estado.cmDoSite = await metropolitanoDoSite();
   estado.escolha = {...estado.escolha, ...((await db.lerConfig(CHAVE_ESCOLHA)) || {})};
-  estado.sessoes = (await db.lerConfig(CHAVE_SESSOES)) || {};
+  estado.sessoes = await abrirSessoes((await db.lerConfig(CHAVE_SESSOES)) || {});
   if (estado.cmDoSite) {
     estado.escolha.cm = estado.cmDoSite.sigla;
   }
@@ -223,19 +284,20 @@ function montarPainel() {
     <div class="form-grupo" id="grpCf"><label class="form-label" for="selCf">Conferência</label>
       <select id="selCf" class="form-select" disabled></select></div>
 
-    <form id="areaEntrar" class="painel-area" hidden autocomplete="on">
+    <form id="areaEntrar" class="painel-area" hidden autocomplete="off">
       <div class="form-grupo grupo-dev" id="grpDevLogin" hidden>
         <label class="form-label" for="selDevLogin">Contas salvas (só em desenvolvimento)</label>
         <select id="selDevLogin" class="form-select"></select></div>
       <div class="form-grupo"><label class="form-label" for="iptEmail">Seu e-mail</label>
-        <input id="iptEmail" class="form-input" type="email" autocomplete="username" inputmode="email" required></div>
+        <input id="iptEmail" class="form-input" type="email" autocomplete="off" inputmode="email" required></div>
       <div class="form-grupo"><label class="form-label" for="iptSenha">Sua senha</label>
         <div class="campo-senha">
-          <input id="iptSenha" class="form-input" type="password" autocomplete="current-password" required>
+          <input id="iptSenha" class="form-input" type="password" autocomplete="off" required>
           ${botaoOlho('btnOlhoEntrar')}
         </div></div>
       <button type="submit" class="btn-submit" id="btnEntrar">Entrar</button>
       <button type="button" class="link-conexao" id="btnPrimeiroAcesso">Primeiro acesso ou esqueci a senha</button>
+      <button type="button" class="link-conexao" id="btnPerdiCelular">Perdi o celular</button>
     </form>
 
     <form id="areaCodigo" class="painel-area" hidden>
@@ -244,11 +306,11 @@ function montarPainel() {
         <input id="iptCodigo" class="form-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
       <div class="form-grupo"><label class="form-label" for="iptSenhaNova">Nova senha (8 ou mais caracteres)</label>
         <div class="campo-senha">
-          <input id="iptSenhaNova" class="form-input" type="password" autocomplete="new-password" minlength="8" required>
+          <input id="iptSenhaNova" class="form-input" type="password" autocomplete="off" minlength="8" required>
           ${botaoOlho('btnOlhoSenha')}
         </div></div>
       <div class="form-grupo"><label class="form-label" for="iptSenhaConfirma">Confirme a nova senha</label>
-        <input id="iptSenhaConfirma" class="form-input" type="password" autocomplete="new-password" required
+        <input id="iptSenhaConfirma" class="form-input" type="password" autocomplete="off" required
           aria-describedby="erroSenhaConfirma">
         <p class="campo-erro" id="erroSenhaConfirma" role="alert" hidden>As duas senhas não são iguais. Escreva a mesma senha nos dois campos.</p></div>
       <button type="submit" class="btn-submit" id="btnCriarSenha">Criar senha e entrar</button>
@@ -259,13 +321,15 @@ function montarPainel() {
       <p class="painel-texto" id="txtConectado"></p>
       <button type="button" class="btn-submit" id="btnFecharPainel">Continuar</button>
       <button type="button" class="link-conexao" id="btnSair">Sair desta conferência</button>
+      <button type="button" class="link-conexao link-perigo" id="btnSairTodos">Perdi um celular: sair de todos os
+        aparelhos</button>
     </div>
 
     <p class="feedback-msg" id="msgConexao" role="status"></p>`;
   barra.insertAdjacentElement('afterend', painel);
   ['painelConexao', 'grpCm', 'selCm', 'grpCc', 'selCc', 'grpUrl', 'iptUrl', 'btnUrl', 'btnMostrarUrl', 'grpCp', 'selCp', 'grpCf', 'selCf',
     'areaEntrar', 'grpDevLogin', 'selDevLogin', 'iptEmail', 'iptSenha', 'btnOlhoEntrar', 'btnEntrar', 'btnPrimeiroAcesso', 'areaCodigo', 'txtCodigo', 'iptCodigo',
-    'iptSenhaNova', 'btnOlhoSenha', 'iptSenhaConfirma', 'erroSenhaConfirma', 'btnCriarSenha', 'btnVoltarEntrar', 'areaConectado', 'txtConectado', 'btnFecharPainel', 'btnSair',
+    'iptSenhaNova', 'btnOlhoSenha', 'iptSenhaConfirma', 'erroSenhaConfirma', 'btnCriarSenha', 'btnVoltarEntrar', 'areaConectado', 'txtConectado', 'btnFecharPainel', 'btnSair', 'btnSairTodos', 'btnPerdiCelular',
     'msgConexao'].forEach((id) => {
     el[id] = document.getElementById(id);
   });
@@ -327,6 +391,10 @@ function montarPainel() {
   el.btnVoltarEntrar.addEventListener('click', () => mostrarArea('entrar'));
   el.btnFecharPainel.addEventListener('click', () => abrirPainel(false));
   el.btnSair.addEventListener('click', sair);
+  el.btnSairTodos.addEventListener('click', sairDeTodos);
+  el.btnPerdiCelular.addEventListener('click', () => mensagem('Entre aqui com o seu e-mail e a sua senha e toque em ' +
+    '"Perdi um celular: sair de todos os aparelhos". O celular perdido sai da conferência na próxima vez que usar a ' +
+    'internet. Se não lembrar a senha, use "Esqueci a senha": a senha nova também tira todos os aparelhos.', 'info'));
 }
 
 /** @param {boolean} aberto */
@@ -732,7 +800,7 @@ async function guardarSessao(resposta, email, senha) {
   const cf = estado.escolha.cf;
   estado.sessoes[cf] = {token: resposta.token, perfil: resposta.perfil || {}, cm: estado.escolha.cm,
     cc: estado.escolha.cc, email, entrou_em: new Date().toISOString()};
-  await db.salvarConfig(CHAVE_SESSOES, estado.sessoes);
+  await salvarSessoes();
   if (estado.aoEntrarComSenha) {
     await estado.aoEntrarComSenha(cf, senha);
   }
@@ -749,10 +817,26 @@ async function guardarSessao(resposta, email, senha) {
   }
 }
 
+/**
+ * "Perdi um celular" (19/11/2026): o servidor encerra a sessão em todos os aparelhos (sessao_versao + 1), inclusive
+ * neste. O perdido, ao usar a internet, recebe "sessão terminou" e apaga os dados guardados.
+ */
+function sairDeTodos() {
+  if (!window.confirm('Sair desta conferência em todos os aparelhos, inclusive neste? Depois, entre de novo aqui.')) {
+    return Promise.resolve();
+  }
+  return ocupado(el.btnSairTodos, async () => {
+    await chamarComSessao('sair_de_todos');
+    await sair();
+    mensagem('Pronto: você saiu em todos os aparelhos. O celular perdido sai na próxima vez que usar a internet. ' +
+      'Entre de novo neste.', 'sucesso');
+  });
+}
+
 async function sair() {
   const cf = estado.escolha.cf;
   delete estado.sessoes[cf];
-  await db.salvarConfig(CHAVE_SESSOES, estado.sessoes);
+  await salvarSessoes();
   if (estado.aoEncerrarSessao) {
     await estado.aoEncerrarSessao(cf);
   }

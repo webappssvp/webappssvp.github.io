@@ -8,7 +8,10 @@ import {carregarPreferencias} from './core/preferencias.js';
 import {iniciarBotaoVoz, definirLeitor} from './core/voz.js';
 import {iniciarCasca, ajudaAtiva, avisar, marcarTelaAtual} from './casca.js';
 import {iniciarBarraConexao, sessaoAtual, sairDaConferencia, abrirPainelConexao, chamarNaConferencia,
-  conferenciasComSessao} from './componentes/barra_conexao.js';
+  conferenciasComSessao, conferenciasGuardadas, esquecerSessoesGuardadas, salvarSessoes, trancarSessoesGuardadas,
+} from './componentes/barra_conexao.js';
+import * as trava from './core/trava.js';
+import * as telaTrava from './componentes/tela_trava.js';
 import * as sync from './core/sync.js';
 import {iniciarPainelSync, sincronizarAgora, aoAbrirAba} from './componentes/painel_sync.js';
 import * as cofre from './core/cofre.js';
@@ -98,6 +101,56 @@ async function apagarDadosDaConferencia(cf) {
   }
   await Promise.all(['pessoas_atualizada:', 'pessoas_desde:', 'pessoas_lista:', 'familias_atualizada:',
     'familias_desde:'].map((k) => db.apagarConfig(k + cf)));
+}
+
+/**
+ * Tranca esquecida (esqueci o desenho, erros demais; 19/11/2026): as sessões e os dados guardados de todas as
+ * conferências saem deste celular, e o app recomeça no e-mail e na senha. A fila fica, como na sessão vencida:
+ * espera a pessoa entrar de novo.
+ */
+async function esquecerTudoNoCelular() {
+  const cfs = new Set([...conferenciasComSessao(), ...(await conferenciasGuardadas())]);
+  for (const cf of cfs) {
+    await apagarDadosDaConferencia(cf);
+  }
+  await esquecerSessoesGuardadas();
+  await trava.esquecer();
+  location.reload();
+}
+
+/**
+ * Depois de entrar com a senha: cria a tranca (primeira vez) ou pede o desenho (já havia). Então a chave dos dados
+ * guardados é lembrada e as sessões são guardadas trancadas.
+ */
+async function garantirTrava() {
+  if (!trava.configurada()) {
+    await telaTrava.pedir('criar', {aoEsquecer: esquecerTudoNoCelular, aposLogin: true});
+  } else if (!trava.aberta()) {
+    await telaTrava.pedir('abrir', {aoEsquecer: esquecerTudoNoCelular, aposLogin: true});
+  }
+  await cofre.lembrarPendentes();
+  await salvarSessoes();
+}
+
+/** Cada toque adia a tranca; passados trava.minutos() sem uso (ou ao voltar para o app), pede o desenho. */
+function vigiarTrava() {
+  ['pointerdown', 'keydown'].forEach((evento) => document.addEventListener(evento, () => {
+    if (!telaTrava.mostrando()) {
+      trava.marcarUso();
+    }
+  }, {passive: true, capture: true}));
+  const conferir = () => {
+    if (trava.configurada() && conferenciasComSessao().length && !telaTrava.mostrando() && trava.venceu()) {
+      trava.trancar();
+      telaTrava.pedir('abrir', {aoEsquecer: esquecerTudoNoCelular});
+    }
+  };
+  setInterval(conferir, 20000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      conferir();
+    }
+  });
 }
 
 /**
@@ -285,6 +338,17 @@ async function iniciar() {
     }
   });
 
+  // Tranca (19/11/2026): com sessão guardada e a tranca fechada (mais de 15 minutos sem uso), o desenho vem antes
+  // de tudo: sem ele, os tokens e a chave dos dados guardados não abrem.
+  await trava.iniciar();
+  const comSessaoGuardada = (await conferenciasGuardadas()).length > 0;
+  if (comSessaoGuardada && trava.configurada() && !trava.aberta()) {
+    await telaTrava.pedir('abrir', {aoEsquecer: esquecerTudoNoCelular});
+  } else if (comSessaoGuardada && !trava.configurada()) {
+    // Quem já tinha entrado antes da tranca: cria o desenho agora (uma vez); as sessões são trancadas logo abaixo.
+    await telaTrava.pedir('criar', {aoEsquecer: esquecerTudoNoCelular});
+    await trancarSessoesGuardadas();
+  }
   desenharTela();
   await iniciarBarraConexao({
     aoConectar: () => {
@@ -293,11 +357,17 @@ async function iniciar() {
       mostrarComoFuncionaUmaVez();
     },
     // A senha só existe aqui, na hora do login: vira a chave dos dados guardados para usar sem internet.
-    aoEntrarComSenha: (cf, senha) => desbloquear(cf, senha, {criar: true}),
+    // Depois, a tranca: criar o desenho (primeira vez) ou desenhar (garantirTrava).
+    aoEntrarComSenha: async (cf, senha) => {
+      await desbloquear(cf, senha, {criar: true});
+      await garantirTrava();
+    },
     // Sair ou sessão vencida: os dados guardados da conferência saem do celular (cofre e listas).
     aoEncerrarSessao: (cf) => apagarDadosDaConferencia(cf),
   });
-  // A chave dos dados guardados lembrada nas últimas 12 horas (cofre.js): reaberto no mesmo dia, não pede a senha.
+  vigiarTrava();
+  // A chave dos dados guardados lembrada nas últimas 12 horas (cofre.js), trancada pelo desenho: reaberto no mesmo
+  // dia, não pede a senha.
   await Promise.all(conferenciasComSessao().map((cf) => cofre.restaurar(cf)));
   await sync.iniciarSync({chamar: chamarNaConferencia, conferencias: conferenciasComSessao});
   await mostrarComoFuncionaUmaVez();

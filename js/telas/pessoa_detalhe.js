@@ -20,6 +20,7 @@ import {chamarComSessao} from '../componentes/barra_conexao.js';
 import {textoDoEstado} from '../componentes/icone_sync.js';
 import {montarBlocoMudanca} from '../componentes/bloco_mudanca.js';
 import {enderecoComMapa} from '../componentes/mapa.js';
+import {campoConfirmarEmail, ligarConfirmarEmail} from '../componentes/confirmar_email.js';
 import {vibrar} from '../core/preferencias.js';
 import * as sync from '../core/sync.js';
 import * as cofre from '../core/cofre.js';
@@ -59,6 +60,8 @@ let areaAtual = null;
 let sessaoAtual = null;
 /** Busca do endereço nos Correios no formulário de edição aberto (js/componentes/endereco_busca.js). */
 let buscaEndereco = null;
+/** "Confirme o novo e-mail" do formulário de edição (confirmar_email.js). */
+let confirmacaoEmail = null;
 
 /**
  * Aviso depois de pôr na fila: sem internet, diz que fica guardado.
@@ -568,7 +571,8 @@ function formularioEdicao(d) {
         ${contatos ? campo('ed_nome', 'Nome completo', p.nome, 'maxlength="200"') +
           campo('ed_celular', 'Celular com DDD', formatarCelular(p.celular), 'type="tel" inputmode="tel"') +
           campo('ed_email', 'E-mail (usado para entrar no app)', p.email,
-              'type="email" inputmode="email" autocomplete="off"') : ''}
+              'type="email" inputmode="email" autocomplete="off" autocapitalize="none"') +
+          campoConfirmarEmail('ed_email_confirma') : ''}
       </fieldset>
       ${endereco}
       <p class="feedback-msg" id="msgEditar" role="status"></p>
@@ -693,6 +697,8 @@ function ligarEventos(area) {
     // Rua e CEP conferidos na base dos Correios enquanto edita (15/11/2026).
     buscaEndereco = ligarEndereco(formEditar, 'end_',
         {conferido: Boolean(estado.dados && estado.dados.endereco && estado.dados.endereco.endereco_conferido === 'SIM')});
+    confirmacaoEmail = ligarConfirmarEmail(formEditar, 'ed_email', 'ed_email_confirma',
+        estado.dados && estado.dados.pessoa ? estado.dados.pessoa.email : '');
     formEditar.addEventListener('submit', (e) => {
       e.preventDefault();
       salvar(area);
@@ -790,6 +796,11 @@ async function salvar(area) {
   if (novos.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(novos.email)) {
     mostrar(msg, 'Confira o e-mail: falta o @ ou o ponto.');
     area.querySelector('#ed_email').focus();
+    return;
+  }
+  const semConfirmar = confirmacaoEmail ? confirmacaoEmail.conferir() : '';
+  if (semConfirmar) {
+    mostrar(msg, semConfirmar);
     return;
   }
   const antes = d.pessoa;

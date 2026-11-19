@@ -1901,3 +1901,148 @@ fieldset.gaveta-grupo > legend,
   font-size: 1.1rem;
   cursor: pointer;
 }
+
+/* ---------------------------------------------------------------------------
+ * Tranca do app (19/11/2026, js/componentes/tela_trava.js): desenho de 9 pontos ou PIN, por cima de tudo
+ * --------------------------------------------------------------------------- */
+.tela-trava {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: var(--md-surface-0);
+  overflow-y: auto;
+}
+
+.trava-caixa {
+  width: 100%;
+  max-width: 22rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.trava-titulo {
+  margin: 0;
+  font-size: 1.35rem;
+  color: var(--md-on-surface);
+}
+
+.trava-texto {
+  margin: 0;
+  color: var(--md-on-surface-variant);
+}
+
+.trava-desenho {
+  width: min(80vw, 18rem);
+  height: min(80vw, 18rem);
+  touch-action: none; /* o dedo desenha, não rola a tela */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.trava-ponto-aro {
+  fill: transparent;
+  stroke: var(--md-border-strong);
+  stroke-width: 2;
+}
+
+.trava-ponto-miolo {
+  fill: var(--md-on-surface-variant, #94a3b8);
+}
+
+.trava-ponto.ligado .trava-ponto-aro {
+  stroke: var(--md-secondary, #3b82f6);
+  stroke-width: 3;
+}
+
+.trava-ponto.ligado .trava-ponto-miolo {
+  fill: var(--md-secondary, #3b82f6);
+}
+
+.trava-linha,
+.trava-linha-dedo {
+  fill: none;
+  stroke: var(--md-secondary, #3b82f6);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.trava-pin {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.trava-pin-campo {
+  text-align: center;
+  font-size: 1.6rem;
+  letter-spacing: 0.5em;
+}
+
+.trava-aviso {
+  min-height: 1.4em;
+  margin: 0;
+  color: var(--md-on-surface-variant);
+}
+
+.trava-aviso.erro {
+  color: #f87171;
+}
+
+body.tema-claro .trava-aviso.erro {
+  color: #b91c1c;
+}
+
+.trava-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* "Perdi um celular: sair de todos os aparelhos" */
+.link-perigo {
+  color: #f87171;
+}
+
+body.tema-claro .link-perigo {
+  color: #b91c1c;
+}
+
+/* Tempo até trancar, logo depois de criar o desenho ou o PIN */
+.trava-tempos {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.trava-tempo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  padding: 0 1rem;
+  border: 1px solid var(--md-border-soft);
+  border-radius: var(--raio-botao-barra);
+  background-color: var(--md-surface-1);
+  color: var(--md-on-surface);
+  font-size: 1.05rem;
+  text-align: left;
+}
+
+.trava-tempo input {
+  width: 1.25rem;
+  height: 1.25rem;
+}
