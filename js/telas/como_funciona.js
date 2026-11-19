@@ -2,7 +2,7 @@
  * @fileoverview Tela "Como o app guarda e envia" (#como-funciona), o primeiro item do menu de telas.
  * Decisões: mvp/telas/05_sincronizacao.md (17/11/2026).
  *
- * Explica, em sete passos curtos e com os mesmos desenhos do app, o caminho de cada mudança: o celular (banco de
+ * Explica, em passos curtos e com os mesmos desenhos do app, o caminho de cada mudança: o celular (banco de
  * dados) e a planilha da conferência (nuvem), o "guardar para abrir sem internet", o toque nos ícones, o botão
  * Nuvem e a escolha "Enviar: na hora | quando eu mandar". Abre sozinha uma vez, na primeira entrada numa
  * conferência (e uma vez para quem já usava o app); depois, pelo menu e pelos links "O que são esses ícones?".
@@ -136,6 +136,12 @@ export function renderizar(area) {
         </ul>
         <p class="detalhe-nota">Esqueceu? Entre com o e-mail e a senha e crie outro. 5 erros seguidos tiram a
           conferência deste celular. O tempo até trancar fica nas Configurações.</p>`)}
+
+      ${passo('9', 'O app está em teste', `
+        <p>Junto com o que você envia, o app manda ao Conselho Central como está sendo usado: quais telas, quanto
+          tempo leva, onde aparecem avisos e erros. Nunca o que você escreve, nem dados das famílias.</p>
+        <p class="detalhe-nota">Para não mandar, desligue "Ajudar a melhorar o app" nas Configurações. Para contar algo,
+          use "Sugestões e opiniões" no Menu.</p>`)}
 
       <a class="btn-submit btn-link cf-entendi" href="#pessoas">Entendi</a>
     </div>`;

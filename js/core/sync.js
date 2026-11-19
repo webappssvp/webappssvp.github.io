@@ -27,6 +27,7 @@ export const juntando = () => prefs.envio === 'quando_mandar';
 
 import * as db from './db.js';
 import {eventosPreferencias, podeSincronizar, prefs} from './preferencias.js';
+import {formularioSalvo} from './uso.js';
 
 export const ESTADOS = {LOCAL: 'local', ENVIANDO: 'enviando', SEM_CONFIRMACAO: 'sem_confirmacao', RECUSADO: 'recusado',
   CONFIRMADO: 'confirmado'};
@@ -121,6 +122,7 @@ export async function enfileirar(item) {
   const gravado = {...item, operacoes, id_operacao: novoProvisorio().slice(4), estado: ESTADOS.LOCAL, tentativas: 0,
     ultimo_erro: '', criado_em: new Date().toISOString(), enviado_em: ''};
   await db.gravar(db.STORES.FILA, [gravado]);
+  formularioSalvo(); // uso do app: o formulário começado foi salvo (uso.js)
   avisar('mudou');
   agendarEnvio();
   return gravado;

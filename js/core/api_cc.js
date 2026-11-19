@@ -6,6 +6,8 @@
  * Módulo: js/core/api_cc.js
  */
 
+import {respostaDoServidor} from './uso.js';
+
 /** Tempo máximo de espera por resposta do script (o Apps Script pode demorar a "acordar"). */
 const ESPERA_MS = 30000;
 
@@ -30,6 +32,25 @@ export class ErroCC extends Error {
  * @return {Promise<!Object>} A resposta com status 'success'.
  */
 export async function chamarCC(urlApi, acao, dados = {}) {
+  if (acao === 'registrar_uso') {
+    return chamarCCSemMedir(urlApi, acao, dados); // o envio do resumo não entra no resumo
+  }
+  const inicio = performance.now();
+  try {
+    const corpo = await chamarCCSemMedir(urlApi, acao, dados);
+    respostaDoServidor(acao, performance.now() - inicio, false);
+    return corpo;
+  } catch (erro) {
+    // Sem resposta ou resposta estranha conta como falha; recusa normal (senha errada) é resposta.
+    if (erro.codigo !== 'SEM_INTERNET' && erro.codigo !== 'SEM_URL_API') {
+      respostaDoServidor(acao, performance.now() - inicio, ['SEM_CONEXAO', 'RESPOSTA_INVALIDA'].includes(erro.codigo));
+    }
+    throw erro;
+  }
+}
+
+/** @param {string} urlApi @param {string} acao @param {!Object} dados @return {!Promise<!Object>} */
+async function chamarCCSemMedir(urlApi, acao, dados) {
   if (!urlApi) {
     throw new ErroCC('Este Conselho Central ainda não está ligado ao aplicativo.', 'SEM_URL_API');
   }

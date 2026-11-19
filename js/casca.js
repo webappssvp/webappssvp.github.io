@@ -155,6 +155,10 @@ function ligarConfiguracoes() {
         await definirPreferencia(chave, controle.checked);
         vibrar(25);
         bipar(600);
+        if (chave === 'ajudarApp') {
+          avisar(controle.checked ? 'Obrigado! O app vai mandar como está sendo usado, nunca o que você escreve.' :
+            'Desligado: o app não manda mais como está sendo usado.');
+        }
         if (chave === 'somenteWifi') {
           avisar(controle.checked ? '📶 Vai sincronizar só no Wi-Fi' : '📶 Vai sincronizar no Wi-Fi e nos dados móveis');
         }

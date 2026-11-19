@@ -23,6 +23,8 @@ const PADRAO = {
   envio: 'na_hora',
   // Minutos parado até a tranca pedir o desenho ou o PIN (19/11/2026, trava.js): '1', '5', '10' ou '15'.
   trancar: '15',
+  // Homologação (19/11/2026, uso.js): manda ao CC um resumo de como o app é usado (telas, tempos, erros).
+  ajudarApp: true,
 };
 
 const SIMULACOES = ['deuteranopia', 'protanopia', 'tritanopia', 'monocromia', 'alto-contraste'];

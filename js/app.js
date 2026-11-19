@@ -26,6 +26,7 @@ import * as comoFunciona from './telas/como_funciona.js';
 import * as sugestoes from './telas/sugestoes.js';
 import {ligarCompartilhar} from './componentes/compartilhar.js';
 import {voltar} from './telas/comum.js';
+import * as uso from './core/uso.js';
 
 /** Telas por #hash. Pessoas é a inicial (mvp/telas/02_pessoas.md). */
 const TELAS = {
@@ -423,6 +424,7 @@ async function iniciar() {
       'esta página.');
   });
   await carregarPreferencias();
+  await uso.iniciar(); // homologação: resumo de como o app é usado (uso.js; Configurações > Ajudar a melhorar o app)
   iniciarCasca({
     aoSair: async () => {
       if (!(await confirmarSaidaComFila())) {
@@ -505,6 +507,7 @@ async function iniciar() {
     aoEncerrarSessao: (cf) => apagarDadosDaConferencia(cf),
   });
   barraCarregada = true;
+  uso.appAberto();
   mostrarVoltarAoInicio();
   // A chave dos dados guardados lembrada nas últimas 12 horas (cofre.js), trancada pelo desenho: reaberto no mesmo
   // dia, não pede a senha.

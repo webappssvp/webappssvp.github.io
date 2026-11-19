@@ -13,6 +13,7 @@ import {esc, pedirConexao} from './comum.js';
 import {definirBarra} from '../componentes/barra_tela.js';
 import {chamarComSessao} from '../componentes/barra_conexao.js';
 import {vibrar} from '../core/preferencias.js';
+import {formularioSalvo} from '../core/uso.js';
 
 const TIPOS = [
   {valor: 'Sugestão', explica: 'uma ideia para o app ficar melhor'},
@@ -136,6 +137,7 @@ async function enviar(area) {
     const versao = (document.getElementById('versaoApp') || {}).textContent || '';
     await chamarComSessao('enviar_sugestao', {tipo: estado.tipo, texto, tela: estado.tela,
       versao_app: versao.replace(/^v/, '')});
+    formularioSalvo();
     estado.texto = '';
     estado.tipo = '';
     area.querySelector('#textoSugestao').value = '';

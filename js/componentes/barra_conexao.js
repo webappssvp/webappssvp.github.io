@@ -23,6 +23,7 @@ import {EM_TESTE, carregarMetropolitanos, metropolitanoDoSite, urlApiDo, definir
 import {mostrarCarregando} from './carregando.js';
 import {LOGINS_DEV_ATIVOS, lembrarLogin, loginsDaConferencia, esquecerLogins} from './logins_dev.js';
 import * as trava from '../core/trava.js';
+import * as uso from '../core/uso.js';
 
 const CHAVE_ESCOLHA = 'conexao_escolha';
 const CHAVE_SESSOES = 'conexao_sessoes';
@@ -85,11 +86,19 @@ export async function chamarNaConferencia(idConferencia, urlApi, acao, dados = {
   }
   // O script confere que o token é desta conferência: id_conferencia vai em todo pedido.
   let resposta;
+  // O resumo de uso do app (uso.js) vai junto com o envio da fila e com o Sincronizar (aba "uso"; Uso.gs).
+  const resumoUso = acao === 'lote' || acao === 'registrar_uso' ? uso.separar() : null;
   try {
     // id_acesso: a linha deste login na aba "acessos" do índice (o servidor atualiza o último uso; Acessos.gs).
     resposta = await chamarCC(urlApi, acao, {...dados, id_conferencia: idConferencia, token: sessao.token,
-      id_acesso: sessao.id_acesso || ''});
+      id_acesso: sessao.id_acesso || '', ...(resumoUso ? {uso: resumoUso} : {})});
+    if (resumoUso) {
+      uso.enviado(true);
+    }
   } catch (erro) {
+    if (resumoUso) {
+      uso.enviado(false); // o servidor só grava o resumo quando o pedido dá certo: vai no próximo
+    }
     if (erro.codigo === 'SEM_SESSAO' && estado.sessoes[idConferencia]) {
       // Sessão vencida ou encerrada no servidor: esquece o token e pede a senha de novo.
       delete estado.sessoes[idConferencia];

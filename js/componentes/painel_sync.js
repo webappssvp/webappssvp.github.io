@@ -21,7 +21,8 @@ import {prefs, tipoDeRede, vibrar} from '../core/preferencias.js';
 import {abrirGaveta, avisar, fecharGaveta} from '../casca.js';
 import {iconeSync, textoDoEstado} from './icone_sync.js';
 import {mostrarCarregando} from './carregando.js';
-import {nomeConferencia, sessaoAtual} from './barra_conexao.js';
+import {chamarComSessao, nomeConferencia, sessaoAtual} from './barra_conexao.js';
+import * as uso from '../core/uso.js';
 
 /** Tipos de item que abrem a família (os outros abrem a pessoa). */
 const DA_FAMILIA = ['familia', 'visita'];
@@ -99,6 +100,10 @@ export async function sincronizarAgora(confirmado = false) {
   let motivo;
   try {
     motivo = await sync.enviar({manual: true});
+    // Sem nada na fila, o resumo de uso do app (uso.js) vai sozinho.
+    if (uso.temPendente() && sessaoAtual()) {
+      await chamarComSessao('registrar_uso').catch(() => 0);
+    }
   } finally {
     botao.disabled = false;
   }
