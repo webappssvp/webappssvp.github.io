@@ -170,6 +170,61 @@ function mostrarVoltarAoInicio() {
 }
 
 /**
+ * A tela que explica o que acontece e pede para escrever o nome da conferência.
+ * @param {string} nome
+ * @return {!Promise<?string>} O que foi escrito, ou null se cancelou.
+ */
+function confirmarVoltaAoInicio(nome) {
+  return new Promise((resolver) => {
+    const fundo = document.createElement('div');
+    fundo.className = 'tela-trava tela-voltar-inicio';
+    fundo.setAttribute('role', 'dialog');
+    fundo.setAttribute('aria-modal', 'true');
+    fundo.setAttribute('aria-labelledby', 'voltarTitulo');
+    const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
+      '\'': '&#39;'}[c]));
+    fundo.innerHTML = `
+      <form class="trava-caixa voltar-caixa" autocomplete="off">
+        <h2 class="trava-titulo" id="voltarTitulo">Voltar ${esc(nome)} ao estado inicial?</h2>
+        <p class="trava-texto">É para recomeçar os testes. A conferência volta ao que a importação dos .xlsx deixou.</p>
+        <ul class="voltar-lista">
+          <li><strong>Tudo o que foi feito depois da importação se perde:</strong> cadastros, mudanças, famílias e
+            visitas novas.</li>
+          <li><strong>Todos os vicentinos desta conferência saem do app</strong>, em todos os aparelhos, inclusive
+            você. O que ainda não foi enviado é descartado.</li>
+          <li><strong>As contas voltam à senha da demonstração.</strong> Para continuar, entre de novo.</li>
+          <li>Só vale para esta conferência de teste. As outras não mudam.</li>
+        </ul>
+        <label class="form-label" for="voltarNome">Para confirmar, escreva o nome da conferência:
+          <strong>${esc(nome)}</strong></label>
+        <input id="voltarNome" class="form-input" autocomplete="off" autocapitalize="none" required>
+        <p class="trava-aviso erro" role="alert"></p>
+        <button type="submit" class="btn-perigo">Voltar ao estado inicial</button>
+        <button type="button" class="link-conexao" data-voltar-cancelar>Cancelar</button>
+      </form>`;
+    const fechar = (valor) => {
+      fundo.remove();
+      resolver(valor);
+    };
+    const normal = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+        .replace(/\s+/g, ' ').trim();
+    fundo.querySelector('[data-voltar-cancelar]').addEventListener('click', () => fechar(null));
+    fundo.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const escrito = fundo.querySelector('#voltarNome').value;
+      if (normal(escrito) !== normal(nome)) {
+        fundo.querySelector('.trava-aviso').textContent = 'O nome não confere. Escreva ' + nome + '.';
+        fundo.querySelector('#voltarNome').focus();
+        return;
+      }
+      fechar(escrito);
+    });
+    document.body.appendChild(fundo);
+    fundo.querySelector('#voltarNome').focus();
+  });
+}
+
+/**
  * "Voltar ao estado inicial" (19/11/2026): o script do CC copia de volta a foto da importação e tira todos do app.
  * Aqui, como numa sessão encerrada: o que esperava envio nesta conferência e os dados guardados saem do celular.
  */
@@ -179,9 +234,7 @@ async function voltarAoInicio() {
     return;
   }
   const nome = (s.perfil && s.perfil.nome_conferencia) || document.getElementById('lblConfName').textContent;
-  const escrito = window.prompt('Voltar a conferência ' + nome + ' ao estado inicial?\n\nTudo o que foi feito ' +
-    'depois da importação se perde, e todos os vicentinos dela saem do app em todos os aparelhos. As contas voltam ' +
-    'à senha da demonstração.\n\nPara confirmar, escreva o nome da conferência:');
+  const escrito = await confirmarVoltaAoInicio(nome);
   if (escrito === null) {
     return;
   }

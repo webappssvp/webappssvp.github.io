@@ -2056,3 +2056,30 @@ body.tema-claro .link-perigo {
   color: var(--md-on-surface);
   font-size: 0.95rem;
 }
+
+/* "Voltar a conferência ao estado inicial" (19/11/2026): a explicação e a confirmação */
+.voltar-caixa {
+  align-items: stretch;
+  text-align: left;
+}
+
+.voltar-caixa .trava-titulo,
+.voltar-caixa .trava-texto {
+  text-align: center;
+}
+
+.voltar-lista {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: var(--md-on-surface);
+}
+
+/* A última configuração, separada das outras */
+.linha-voltar-inicio {
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--md-border-soft);
+  padding-top: 0.75rem;
+}
