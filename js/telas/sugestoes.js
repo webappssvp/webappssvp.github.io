@@ -1,6 +1,6 @@
 /**
- * @fileoverview Tela "Sugestões e dúvidas" (#sugestoes; homologação, pedido de 19/11/2026): o vicentino escreve (ou
- * dita, com o botão Falar) uma sugestão, opinião, dúvida ou algo que não funcionou, e o app manda para a aba
+ * @fileoverview Tela "Sugestões e opiniões" (#sugestoes; homologação, pedido de 19/11/2026): o vicentino escreve (ou
+ * dita, com o botão Falar) uma sugestão, uma opinião ou algo que não funcionou (sem "Dúvida", 19/11/2026), e o app manda para a aba
  * "sugestoes" da planilha do índice do CC (Sugestoes.gs). O Conselho Central lê e filtra por tipo e por tela.
  *
  * - Só logado: a conferência e a conta vão pelo token.
@@ -17,7 +17,6 @@ import {vibrar} from '../core/preferencias.js';
 const TIPOS = [
   {valor: 'Sugestão', explica: 'uma ideia para o app ficar melhor'},
   {valor: 'Opinião', explica: 'o que achou de usar'},
-  {valor: 'Dúvida', explica: 'como fazer alguma coisa'},
   {valor: 'Algo não funcionou', explica: 'um erro ou algo estranho'},
 ];
 
@@ -51,12 +50,12 @@ window.addEventListener('hashchange', (e) => {
  */
 export function renderizar(area, sessao) {
   if (!sessao) {
-    return pedirConexao(area, 'Sugestões e dúvidas');
+    return pedirConexao(area, 'Sugestões e opiniões');
   }
-  definirBarra({titulo: 'Sugestões e dúvidas'});
+  definirBarra({titulo: 'Sugestões e opiniões'});
   area.innerHTML = `
     <div class="tela-pessoas tela-detalhe tela-sugestoes">
-      <p class="tela-texto">O app está em teste. Conte o que achou, o que não entendeu ou o que não funcionou: o
+      <p class="tela-texto">O app está em teste. Conte o que achou, o que pode melhorar ou o que não funcionou: o
         Conselho Central lê todas as mensagens e atende primeiro o que mais aparece.</p>
       <form class="detalhe-form" id="formSugestao" novalidate autocomplete="off">
         <fieldset class="md-card detalhe-secao form-conjunto">
@@ -97,7 +96,7 @@ export function renderizar(area, sessao) {
     e.preventDefault();
     enviar(area);
   });
-  return 'Sugestões e dúvidas. O app está em teste. Escolha se é uma sugestão, uma opinião, uma dúvida ou algo que ' +
+  return 'Sugestões e opiniões. O app está em teste. Escolha se é uma sugestão, uma opinião ou algo que ' +
     'não funcionou, escreva ou dite o que quer contar e toque em Enviar. Não escreva nomes nem dados das famílias ' +
     'atendidas.';
 }
@@ -117,7 +116,7 @@ async function enviar(area) {
     return;
   }
   if (!estado.tipo) {
-    mostrar(msg, 'Escolha se é sugestão, opinião, dúvida ou algo que não funcionou.', 'erro');
+    mostrar(msg, 'Escolha se é sugestão, opinião ou algo que não funcionou.', 'erro');
     return;
   }
   if (texto.length < 5) {
@@ -135,7 +134,7 @@ async function enviar(area) {
   botao.textContent = 'Enviando…';
   try {
     const versao = (document.getElementById('versaoApp') || {}).textContent || '';
-    const r = await chamarComSessao('enviar_sugestao', {tipo: estado.tipo, texto, tela: estado.tela,
+    await chamarComSessao('enviar_sugestao', {tipo: estado.tipo, texto, tela: estado.tela,
       versao_app: versao.replace(/^v/, '')});
     estado.texto = '';
     estado.tipo = '';
@@ -143,7 +142,7 @@ async function enviar(area) {
     area.querySelectorAll('input[name="tipoSugestao"]').forEach((i) => {
       i.checked = false;
     });
-    mostrar(msg, r.mensagem || 'Recebido. Obrigado!', 'sucesso');
+    mostrar(msg, 'Recebido. Obrigado!', 'sucesso');
   } catch (erro) {
     mostrar(msg, erro.message + ' O texto continua aqui.', 'erro');
   } finally {
