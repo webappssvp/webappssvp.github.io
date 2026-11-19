@@ -154,6 +154,50 @@ async function trocarTrava() {
     'Pronto: o app agora abre com o desenho novo.');
 }
 
+/** Quem pode voltar a conferência ao estado inicial (EstadoInicial.gs no script do CC). */
+const CARGOS_QUE_VOLTAM = ['PRE', 'VIC'];
+
+/** O botão das Configurações aparece só para o presidente e o vice, numa conferência de teste. */
+function mostrarVoltarAoInicio() {
+  const linha = document.getElementById('linhaVoltarInicio');
+  if (!linha) {
+    return;
+  }
+  const s = sessaoAtual();
+  const perfil = (s && s.perfil) || {};
+  linha.hidden = !(s && perfil.teste !== false &&
+    (perfil.cargos || []).some((c) => CARGOS_QUE_VOLTAM.includes(String(c).toUpperCase())));
+}
+
+/**
+ * "Voltar ao estado inicial" (19/11/2026): o script do CC copia de volta a foto da importação e tira todos do app.
+ * Aqui, como numa sessão encerrada: o que esperava envio nesta conferência e os dados guardados saem do celular.
+ */
+async function voltarAoInicio() {
+  const s = sessaoAtual();
+  if (!s) {
+    return;
+  }
+  const nome = (s.perfil && s.perfil.nome_conferencia) || document.getElementById('lblConfName').textContent;
+  const escrito = window.prompt('Voltar a conferência ' + nome + ' ao estado inicial?\n\nTudo o que foi feito ' +
+    'depois da importação se perde, e todos os vicentinos dela saem do app em todos os aparelhos. As contas voltam ' +
+    'à senha da demonstração.\n\nPara confirmar, escreva o nome da conferência:');
+  if (escrito === null) {
+    return;
+  }
+  avisar('Voltando ao estado inicial…');
+  let resposta;
+  try {
+    resposta = await chamarNaConferencia(s.id_conferencia, s.url_api, 'voltar_ao_inicio', {confirmacao: escrito});
+  } catch (erro) {
+    avisar(erro.message);
+    return;
+  }
+  await sync.apagarDaConferencia(s.id_conferencia);
+  await sairDaConferencia();
+  avisar(resposta.mensagem || 'A conferência voltou ao estado inicial. Entre de novo.');
+}
+
 /** A barra de conexão já carregou as sessões (antes disso, vale a sessão guardada). */
 let barraCarregada = false;
 
@@ -384,9 +428,14 @@ async function iniciar() {
   if (botaoTrocar) {
     botaoTrocar.addEventListener('click', trocarTrava);
   }
+  const botaoVoltarInicio = document.getElementById('btnVoltarInicio');
+  if (botaoVoltarInicio) {
+    botaoVoltarInicio.addEventListener('click', voltarAoInicio);
+  }
   desenharTela();
   await iniciarBarraConexao({
     aoConectar: () => {
+      mostrarVoltarAoInicio();
       desenharTela();
       sync.agendarEnvio(); // entrou de novo (sessão vencida): envia o que esperava por ela
       mostrarComoFuncionaUmaVez();
@@ -401,6 +450,7 @@ async function iniciar() {
     aoEncerrarSessao: (cf) => apagarDadosDaConferencia(cf),
   });
   barraCarregada = true;
+  mostrarVoltarAoInicio();
   // A chave dos dados guardados lembrada nas últimas 12 horas (cofre.js), trancada pelo desenho: reaberto no mesmo
   // dia, não pede a senha.
   await Promise.all(conferenciasComSessao().map((cf) => cofre.restaurar(cf)));
