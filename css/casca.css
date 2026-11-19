@@ -2046,3 +2046,13 @@ body.tema-claro .link-perigo {
   width: 1.25rem;
   height: 1.25rem;
 }
+
+/* Dica de como escolher o desenho ou o PIN (19/11/2026) */
+.trava-dica {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background-color: var(--md-amber-bg);
+  color: var(--md-on-surface);
+  font-size: 0.95rem;
+}

@@ -76,6 +76,9 @@ function desenhar(aviso = '', tipoAviso = '') {
     <div class="trava-caixa">
       <h2 class="trava-titulo" id="travaTitulo">${esc(titulo)}</h2>
       <p class="trava-texto">${esc(explica)}</p>
+      ${criando && !repetindo ? `<p class="trava-dica">${t.usarPin ?
+    'Dica: 6 números, sem data de nascimento, sequência (123456) ou repetidos (111111).' :
+    'Dica: diferente do desenho que desbloqueia o celular, com 5 pontos ou mais. Evite L, Z, quadrado e linha reta.'}</p>` : ''}
       ${t.usarPin ? `
         <form class="trava-pin" data-trava="pin" autocomplete="off">
           <label class="visualmente-oculto" for="travaPin">${esc(titulo)}</label>

@@ -39,6 +39,11 @@ const TEXTO_FALADO = [
   'Sete. Como você prefere enviar? Na hora: assim que salvar, com internet. ' +
     'Ou quando eu mandar: você junta as mudanças e envia tudo pela Nuvem. O relato de visita vai sempre na hora. ' +
     'Dá para mudar depois nas Configurações, nos três pontinhos no alto da tela.',
+  'Oito. O app tranca quando fica parado e pede o seu desenho ou PIN. Se o celular for perdido, ninguém abre a ' +
+    'conferência sem ele. Use um desenho diferente do que desbloqueia o celular, com cinco pontos ou mais, e evite ' +
+    'as formas que todo mundo usa: L, Z, quadrado e linha reta. No PIN, seis números, sem data de nascimento, ' +
+    'sequência ou números repetidos. Na visita, desenhe de costas para quem está por perto. Esqueceu? Entre com o ' +
+    'e-mail e a senha e crie outro. Cinco erros seguidos tiram a conferência deste celular.',
 ].join(' ');
 
 /** @param {string} numero @param {string} titulo @param {string} corpo @return {string} HTML de um passo. */
@@ -119,6 +124,18 @@ export function renderizar(area) {
             'O relato de visita vai sempre na hora.')}
         </fieldset>
         <p class="detalhe-nota">Dá para mudar depois nas Configurações (os três pontinhos, no alto da tela).</p>`)}
+
+      ${passo('8', 'O app tranca com o seu desenho', `
+        <p>Parado por um tempo, o app pede o seu desenho ou PIN. Se o celular for perdido, ninguém abre a conferência
+          sem ele.</p>
+        <ul class="cf-dicas">
+          <li><strong>Diferente</strong> do desenho que desbloqueia o celular.</li>
+          <li><strong>5 pontos ou mais</strong>, sem as formas que todo mundo usa: L, Z, quadrado, linha reta.</li>
+          <li>No PIN, <strong>6 números</strong>: sem data de nascimento, sequência (123456) ou repetidos (111111).</li>
+          <li>Na visita, desenhe de costas para quem está por perto.</li>
+        </ul>
+        <p class="detalhe-nota">Esqueceu? Entre com o e-mail e a senha e crie outro. 5 erros seguidos tiram a
+          conferência deste celular. O tempo até trancar fica nas Configurações.</p>`)}
 
       <a class="btn-submit btn-link cf-entendi" href="#pessoas">Entendi</a>
     </div>`;

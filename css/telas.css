@@ -1864,3 +1864,12 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
   padding: 0.55rem 0.9rem;
   white-space: nowrap;
 }
+
+/* Passo 8 de "Como o app guarda e envia": dicas do desenho e do PIN (19/11/2026) */
+.cf-dicas {
+  margin: 0.5rem 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}

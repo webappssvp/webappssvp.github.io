@@ -326,6 +326,9 @@ function montarPainel() {
     </div>
 
     <p class="feedback-msg" id="msgConexao" role="status"></p>`;
+  // Em "Como o app guarda e envia" (abre sem login, link compartilhado) o painel começa fechado: senão ficaria por
+  // cima da explicação enquanto a lista de conferências carrega.
+  painel.hidden = naAjuda();
   barra.insertAdjacentElement('afterend', painel);
   ['painelConexao', 'grpCm', 'selCm', 'grpCc', 'selCc', 'grpUrl', 'iptUrl', 'btnUrl', 'btnMostrarUrl', 'grpCp', 'selCp', 'grpCf', 'selCf',
     'areaEntrar', 'grpDevLogin', 'selDevLogin', 'iptEmail', 'iptSenha', 'btnOlhoEntrar', 'btnEntrar', 'btnPrimeiroAcesso', 'areaCodigo', 'txtCodigo', 'iptCodigo',
