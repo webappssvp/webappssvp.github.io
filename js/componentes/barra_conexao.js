@@ -275,8 +275,8 @@ function aplicarLink() {
  */
 function botaoOlho(id) {
   return `<button type="button" class="btn-olho" id="${id}" aria-pressed="false" aria-label="Mostrar a senha">
-    <svg viewBox="0 0 24 24" aria-hidden="true" data-olho="aberto"><path d="M12 5C6.5 5 2.3 8.6 1 12c1.3 3.4 5.5 7 11 7s9.7-3.6 11-7c-1.3-3.4-5.5-7-11-7zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
-    <svg viewBox="0 0 24 24" aria-hidden="true" data-olho="fechado" hidden><path d="M2.3 3.7 3.7 2.3l18 18-1.4 1.4-3.4-3.4A12 12 0 0 1 12 19C6.5 19 2.3 15.4 1 12a12.6 12.6 0 0 1 4-5.3zM12 5c5.5 0 9.7 3.6 11 7a12.4 12.4 0 0 1-3 4.5l-3.3-3.3A4.5 4.5 0 0 0 10.8 7.3L8.4 4.9A12 12 0 0 1 12 5zm-4.4 5.4a4.5 4.5 0 0 0 6 6z"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true" data-olho="aberto" hidden><path d="M12 5C6.5 5 2.3 8.6 1 12c1.3 3.4 5.5 7 11 7s9.7-3.6 11-7c-1.3-3.4-5.5-7-11-7zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true" data-olho="fechado"><path d="M2.3 3.7 3.7 2.3l18 18-1.4 1.4-3.4-3.4A12 12 0 0 1 12 19C6.5 19 2.3 15.4 1 12a12.6 12.6 0 0 1 4-5.3zM12 5c5.5 0 9.7 3.6 11 7a12.4 12.4 0 0 1-3 4.5l-3.3-3.3A4.5 4.5 0 0 0 10.8 7.3L8.4 4.9A12 12 0 0 1 12 5zm-4.4 5.4a4.5 4.5 0 0 0 6 6z"/></svg>
   </button>`;
 }
 
@@ -774,8 +774,9 @@ function alternarOlho(botao, campos, mostrar) {
   const plural = campos.length > 1 ? 'as senhas' : 'a senha';
   botao.setAttribute('aria-pressed', String(ver));
   botao.setAttribute('aria-label', (ver ? 'Esconder ' : 'Mostrar ') + plural);
-  botao.querySelector('[data-olho="aberto"]').toggleAttribute('hidden', ver);
-  botao.querySelector('[data-olho="fechado"]').toggleAttribute('hidden', !ver);
+  // O ícone mostra o estado (20/11/2026): olho riscado = senha escondida; olho aberto = senha à vista.
+  botao.querySelector('[data-olho="aberto"]').toggleAttribute('hidden', !ver);
+  botao.querySelector('[data-olho="fechado"]').toggleAttribute('hidden', ver);
 }
 
 /** Volta a esconder todas as senhas (depois de entrar). */
