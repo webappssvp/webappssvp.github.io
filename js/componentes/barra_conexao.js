@@ -233,9 +233,12 @@ export async function iniciarBarraConexao(opcoes = {}) {
 /** ?cm=SP&cc=SUD&cf=SP_SUD_ITA_ICO (link enviado pelo presidente). */
 function aplicarLink() {
   const p = new URLSearchParams(location.search);
-  const cm = (p.get('cm') || '').toUpperCase();
-  const cc = (p.get('cc') || '').toUpperCase();
   const cf = (p.get('cf') || '').toUpperCase();
+  // Só ?cf= basta (20/11/2026): o metropolitano e o CC são as duas primeiras partes do código (SP_SUD_ITA_ICO).
+  // Os links antigos, com ?cm= e ?cc=, continuam valendo.
+  const partes = cf.split('_');
+  const cm = (p.get('cm') || (partes.length >= 3 ? partes[0] : '')).toUpperCase();
+  const cc = (p.get('cc') || (partes.length >= 3 ? partes[1] : '')).toUpperCase();
   if (cm && !estado.cmDoSite) {
     estado.escolha.cm = cm;
   }
@@ -916,6 +919,10 @@ async function atualizarBarra() {
     return;
   }
   if (!cf) {
+    const pillDev = document.getElementById('pillDev');
+    if (pillDev) {
+      pillDev.hidden = true;
+    }
     titulo.textContent = 'Escolha a conferência';
     sub.textContent = 'Toque aqui para conectar';
     return;
@@ -923,6 +930,11 @@ async function atualizarBarra() {
   const s = estado.sessoes[cf];
   const cp = estado.lista && estado.lista.conselhos_particulares.find((x) => x.sigla === estado.escolha.cp);
   titulo.textContent = nomeConferencia(cf);
+  // Acesso DEV (Dev.gs): a etiqueta vermelha mostra que está com todas as permissões.
+  const pillDev = document.getElementById('pillDev');
+  if (pillDev) {
+    pillDev.hidden = !(s && s.perfil && s.perfil.dev);
+  }
   if (s) {
     const nome = s.perfil && s.perfil.nome_exibicao ? s.perfil.nome_exibicao : 'vicentino(a)';
     sub.textContent = (cp ? cp.nome + ' • ' : '') + nome;

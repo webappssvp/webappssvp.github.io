@@ -92,6 +92,22 @@ body.tema-claro .header-conf-name {
   flex-shrink: 0;
 }
 
+/* Acesso DEV (20/11/2026, Dev.gs): todas as permissões numa conferência de teste. */
+.header-dev-pill {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background-color: #b91c1c;
+  color: #ffffff;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.header-dev-pill[hidden] {
+  display: none;
+}
+
 /* Botão de 3 Pontos Verticais (Overflow Menu M3 - Alvo 48x48px) */
 .btn-header-overflow {
   width: 3rem;

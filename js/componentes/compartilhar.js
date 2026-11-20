@@ -1,7 +1,8 @@
 /**
  * @fileoverview Botão "Compartilhar" (18/11/2026): manda por WhatsApp, e-mail etc. o link de uma tela do app.
  *
- * - O link leva a conferência (?cm=SP&cc=SUD&cf=SP_SUD_TES_TEA): cada conferência tem a sua numeração, e o mesmo
+ * - O link leva a conferência (?cf=SP_SUD_TES_TEA; o metropolitano e o CC saem do próprio código, 20/11/2026):
+ *   cada conferência tem a sua numeração, e o mesmo
  *   código (PES_000002) existe em todas. Quem recebe cai na conferência certa (barra_conexao.js, aplicarLink) e,
  *   se não estiver logado nela, entra primeiro; a tela abre depois.
  * - O texto da mensagem não leva nome nem dado nenhum de quem é atendido: só o link, que traz o código. Quem abre
@@ -26,9 +27,7 @@ export function linkDaTela(rota, cf) {
   if (!cf) {
     return base + rota;
   }
-  const [cm, cc] = cf.split('_');
-  return base + '?cm=' + encodeURIComponent(cm) + '&cc=' + encodeURIComponent(cc) + '&cf=' +
-    encodeURIComponent(cf) + rota;
+  return base + '?cf=' + encodeURIComponent(cf) + rota;
 }
 
 /**
