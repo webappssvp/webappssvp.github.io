@@ -1880,3 +1880,47 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
   flex-direction: column;
   gap: 0.35rem;
 }
+
+/* ==========================================================================
+   Semáforo de acesso ao app na tela Pessoas (só a diretoria; 20/11/2026)
+   Verde cheio: usando agora · amarelo pela metade: já entrou · vermelho vazio: ainda não entrou.
+   A forma muda junto com a cor (WCAG 1.4.1), e o texto diz o mesmo.
+   ========================================================================== */
+.sinal-acesso {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--md-on-surface-variant);
+}
+
+.sinal-acesso::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 0.75rem;
+  height: 0.75rem;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+}
+
+.sinal-acesso-verde::before {
+  border-color: #22c55e;
+  background-color: #22c55e;
+}
+
+.sinal-acesso-amarelo::before {
+  border-color: #eab308;
+  background: linear-gradient(90deg, #eab308 50%, transparent 50%);
+}
+
+.sinal-acesso-vermelho::before {
+  border-color: #ef4444;
+  background: none;
+}
+
+.sinal-acesso-verde {
+  color: var(--md-on-surface);
+}

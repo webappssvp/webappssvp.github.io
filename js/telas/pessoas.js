@@ -5,6 +5,8 @@
  * (listar pessoas, pessoas_papeis e pessoas_cargos) e fica guardada no celular (store "pessoas", um registro por
  * pessoa) para abrir sem internet. Só nomes de exibição, papéis e cargos: nada cifrado é pedido aqui.
  * O que está na fila de sincronização (js/core/sync.js) aparece por cima, com o ícone de estado em cada cartão.
+ * Para a diretoria (presidente, vice, secretário; 20/11/2026), o semáforo de acesso ao app em cada pessoa que entra no
+ * app: verde, usando agora; amarelo, já entrou (com o último acesso); vermelho, ainda não entrou (Acessos.gs).
  */
 
 import {campoSenha, esc, pedirConexao} from './comum.js';
@@ -37,6 +39,18 @@ const NOME_DO_PAPEL = Object.fromEntries(PAPEIS.map((p) => [p.sigla, p.nome]));
 const CARGOS = {PRE: 'Presidente', VIC: 'Vice-presidente', SEC: 'Secretário(a)', TES: 'Tesoureiro(a)'};
 const ORDEM_CARGO = ['PRE', 'VIC', 'SEC', 'TES'];
 
+/** Papéis que entram no app (os que têm semáforo de acesso). */
+const PAPEIS_COM_LOGIN = ['VIC', 'ASP', 'VIS', 'BEN'];
+/** Quem vê o semáforo de acesso. */
+const CARGOS_QUE_VEEM_ACESSOS = ['PRE', 'VIC', 'SEC'];
+/** Os acessos são pedidos de novo, no máximo, a cada tanto (ao voltar para a tela). */
+const ACESSOS_DE_NOVO_MS = 60 * 1000;
+const ACESSO = {
+  verde: {texto: 'Usando o app', plural: 'Usando agora'},
+  amarelo: {texto: 'Já entrou no app', plural: 'Já entraram'},
+  vermelho: {texto: 'Ainda não entrou no app', plural: 'Não entraram'},
+};
+
 /** Estado da tela (continua igual ao voltar para ela). */
 const estado = {
   conferencia: '',
@@ -48,6 +62,10 @@ const estado = {
   filtro: 'TODOS',
   busca: '',
   guardados: {}, // id -> hora em que os detalhes foram guardados no celular (ícone de banco de dados)
+  veAcessos: false, // diretoria: semáforo de acesso ao app
+  acessos: null, // {ID_PESSOA: {entrou, ultimo, agora}} do servidor (acessos_da_conferencia)
+  acessosEm: 0,
+  filtroAcesso: 'TODOS', // TODOS, verde, amarelo ou vermelho
 };
 
 /** @type {?HTMLElement} */
@@ -119,11 +137,13 @@ export function renderizar(area, sessao, rota = '') {
   }
   if (estado.conferencia !== sessao.id_conferencia) {
     Object.assign(estado, {conferencia: sessao.id_conferencia, lista: null, erro: '', filtro: 'TODOS', busca: '',
-      guardados: {}});
+      guardados: {}, acessos: null, acessosEm: 0, filtroAcesso: 'TODOS'});
     abrirConferencia(sessao.id_conferencia);
   }
   estado.euMesmo = String((sessao.perfil && sessao.perfil.id_pessoa) || '');
   estado.podeCadastrar = papeisQuePodeCadastrar((sessao.perfil && sessao.perfil.permissoes) || []).length > 0;
+  const perfil = sessao.perfil || {};
+  estado.veAcessos = Boolean(perfil.dev) || (perfil.cargos || []).some((c) => CARGOS_QUE_VEEM_ACESSOS.includes(c));
   if (rota === 'novo') {
     areaAtual = null;
     // Os nomes de exibição de quem já está na conferência, para a sugestão do nome da pessoa nova (null: lista não carregada).
@@ -138,6 +158,7 @@ export function renderizar(area, sessao, rota = '') {
   areaAtual = area;
   montar(area);
   lerGuardados();
+  buscarAcessos(false);
   return textoParaOuvir;
 }
 
@@ -224,6 +245,9 @@ async function atualizar(opcoes = {}) {
     estado.carregando = false;
     if (estado.conferencia === id) {
       desenharLista();
+      if (!estado.erro) {
+        buscarAcessos(true);
+      }
       if (estado.deNovo) {
         estado.deNovo = false;
         atualizar();
@@ -360,6 +384,61 @@ function simplificar(texto) {
   return String(texto).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
 
+/**
+ * Diretoria: pede ao servidor quem está usando o app, o último acesso e quem nunca entrou (só com internet; sem ela,
+ * o semáforo some).
+ * @param {boolean} forcar Pede mesmo que tenha pedido há menos de ACESSOS_DE_NOVO_MS.
+ */
+async function buscarAcessos(forcar) {
+  const cf = estado.conferencia;
+  // Sem forcar, com a lista sendo buscada (ou ainda por buscar): espera, porque o fim da busca pede os acessos.
+  if (!estado.veAcessos || !cf || !navigator.onLine ||
+      (!forcar && (estado.carregando || !estado.lista || Date.now() - estado.acessosEm < ACESSOS_DE_NOVO_MS))) {
+    return;
+  }
+  estado.acessosEm = Date.now();
+  try {
+    const r = await chamarComSessao('acessos_da_conferencia');
+    if (estado.conferencia === cf) {
+      estado.acessos = r.acessos || {};
+      desenharLista();
+    }
+  } catch (erro) {
+    // sem o semáforo: a lista continua igual
+  }
+}
+
+/**
+ * @param {!Object} p
+ * @return {string} verde, amarelo, vermelho ou '' (não entra no app, cadastro ainda no celular, ou sem os acessos).
+ */
+function corDoAcesso(p) {
+  if (!estado.veAcessos || !estado.acessos || sync.ehProvisorio(p.id) ||
+      !p.papeis.some((s) => PAPEIS_COM_LOGIN.includes(s))) {
+    return '';
+  }
+  const a = estado.acessos[String(p.id).toUpperCase()];
+  return a && a.agora ? 'verde' : a && a.entrou ? 'amarelo' : 'vermelho';
+}
+
+/** @param {!Object} p @return {string} HTML do semáforo de acesso no cartão. */
+function sinalDeAcesso(p) {
+  const cor = corDoAcesso(p);
+  if (!cor) {
+    return '';
+  }
+  let texto = ACESSO[cor].texto;
+  const a = estado.acessos[String(p.id).toUpperCase()];
+  if (cor === 'amarelo' && a && a.ultimo) {
+    const d = new Date(a.ultimo);
+    const dias = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(d).setHours(0, 0, 0, 0)) / 86400000);
+    const hora = d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+    texto = 'Último acesso: ' + (dias === 0 ? 'hoje às ' + hora : dias === 1 ? 'ontem às ' + hora :
+      d.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}));
+  }
+  return `<span class="sinal-acesso sinal-acesso-${cor}">${esc(texto)}</span>`;
+}
+
 /** @return {!Array<!Object>} As pessoas que passam pelo filtro e pela busca, já ordenadas. */
 function visiveis() {
   if (!estado.lista) {
@@ -367,6 +446,7 @@ function visiveis() {
   }
   const busca = simplificar(estado.busca.trim());
   return pessoasComFila()
+      .filter((p) => estado.filtroAcesso === 'TODOS' || corDoAcesso(p) === estado.filtroAcesso)
       .filter((p) => estado.filtro === 'TODOS' || p.papeis.includes(estado.filtro))
       .filter((p) => !busca || simplificar(p.nome).includes(busca))
       .sort(ordenar);
@@ -406,6 +486,22 @@ function filtrosDisponiveis() {
           .filter((p) => p.n || p.valor === estado.filtro));
 }
 
+/** @return {!Array<!Object>} Diretoria, com os acessos: o filtro pelo semáforo (Opções > Acesso ao app). */
+function filtroDeAcesso() {
+  if (!estado.veAcessos || !estado.acessos) {
+    return [];
+  }
+  const pessoas = pessoasComFila();
+  const conta = (cor) => pessoas.filter((p) => corDoAcesso(p) === cor).length;
+  return [{titulo: 'Acesso ao app', valor: estado.filtroAcesso, padrao: 'TODOS',
+    itens: [{valor: 'TODOS', texto: 'Todos'}].concat(['verde', 'amarelo', 'vermelho']
+        .map((cor) => ({valor: cor, texto: ACESSO[cor].plural, n: conta(cor)}))),
+    aoEscolher: (v) => {
+      estado.filtroAcesso = v;
+      desenharLista();
+    }}];
+}
+
 /** @return {!Object} Opções da barra da tela: buscar, mostrar e ações. */
 function opcoesDaBarra() {
   return {
@@ -417,7 +513,7 @@ function opcoesDaBarra() {
       aoEscolher: (v) => {
         estado.filtro = v;
         desenharLista();
-      }}],
+      }}].concat(filtroDeAcesso()),
     acoes: [estado.podeCadastrar ? {texto: '+ Nova pessoa', aoTocar: () => {
       location.hash = '#pessoas/novo';
     }} : null,
@@ -427,6 +523,7 @@ function opcoesDaBarra() {
     aoLimpar: () => {
       estado.busca = '';
       estado.filtro = 'TODOS';
+      estado.filtroAcesso = 'TODOS';
       desenharLista();
     },
   };
@@ -602,6 +699,7 @@ function cartao(p, situacaoSync, motivo) {
         <span class="cartao-pessoa-nome">${esc(p.nome)}</span>
         <span class="cartao-pessoa-papel">${esc(papeis)}</span>
         ${cargo || exemplo ? `<span class="cartao-pessoa-selos">${cargo}${exemplo}</span>` : ''}
+        ${sinalDeAcesso(p)}
       </span>
       <span class="cartao-pessoa-seta" aria-hidden="true">›</span>
     </a>${botaoDoItem({tipo: 'pessoa', id: p.id, nome: p.nome, estado: situacaoSync, motivo,

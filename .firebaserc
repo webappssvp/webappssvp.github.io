@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "ssvpsp-a1ce2"
+  },
+  "targets": {
+    "ssvpsp-a1ce2": {
+      "hosting": {
+        "sp": ["ssvpsp"]
+      }
+    }
+  }
+}

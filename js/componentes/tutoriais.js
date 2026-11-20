@@ -61,6 +61,10 @@ export const TUTORIAIS = {
           'for preciso.'},
       {alvo: '#listaPessoas .selo-voce', titulo: 'Você',
         texto: 'O selo "Você" marca o seu próprio cadastro. Toque nele para conferir os seus dados.'},
+      {alvo: '#listaPessoas .sinal-acesso', titulo: 'Quem usa o app',
+        texto: 'Só a diretoria vê. Verde: usou o app nos últimos 15 minutos. Amarelo: já entrou, com o dia do último ' +
+          'acesso. Vermelho: ainda não entrou; talvez precise de ajuda no primeiro acesso. Em Opções dá para mostrar ' +
+          'só um dos grupos.'},
       {...ICONES_DO_CARTAO('da pessoa'), alvo: '#listaPessoas .botao-item'},
       ...CASCA,
       AJUDA,
