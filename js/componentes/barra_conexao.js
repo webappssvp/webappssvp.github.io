@@ -220,7 +220,11 @@ export async function iniciarBarraConexao(opcoes = {}) {
 
   preencherMetropolitanos();
   if (estado.escolha.cc) {
-    await carregarLista(false);
+    // A lista guardada aparece na hora e o painel abre já com e-mail e senha; a do servidor (o Apps Script leva uns
+    // segundos para responder) atualiza os selects quando chegar, sem segurar a tela (20/11/2026).
+    estado.lista = await db.lerConfig(chaveLista(estado.escolha.cm, estado.escolha.cc));
+    preencherCentrais();
+    carregarLista(false);
   }
   const logado = estado.escolha.cf && estado.sessoes[estado.escolha.cf];
   await atualizarBarra();
@@ -590,12 +594,15 @@ async function carregarLista(avisarErro) {
   }
   try {
     const r = await chamarCC(url, 'conferencias');
-    estado.lista = {nome_central: r.nome_central || '', conselhos_particulares: r.conselhos_particulares || [],
+    const lista = {nome_central: r.nome_central || '', conselhos_particulares: r.conselhos_particulares || [],
       conferencias: r.conferencias || []};
-    await db.salvarConfig(chaveLista(cm, cc), estado.lista);
+    await db.salvarConfig(chaveLista(cm, cc), lista);
+    // Trocou de Central enquanto esta lista chegava: guarda, mas não põe na tela.
     if (estado.escolha.cm === cm && estado.escolha.cc === cc) {
+      estado.lista = lista;
       mensagem('');
       preencherParticulares();
+      await atualizarBarra(); // o nome da conferência pode ter mudado
     }
   } catch (erro) {
     if (avisarErro || !estado.lista) {
