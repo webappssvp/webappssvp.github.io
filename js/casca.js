@@ -1,14 +1,15 @@
 /**
  * @fileoverview Casca do app: menu ⋮, gaveta superior (Sincronização, Configurações, Ajuda),
- * modo "O que é isso?", gaveta de telas (Menu), botão Sair e avisos.
+ * gaveta de telas (Menu), botão Sair e avisos. O modo "O que é isso?" saiu em 20/11/2026: a Ajuda de cada tela está
+ * em js/componentes/tutorial.js.
  * Origem: testes/app/t3_casca.html. Decisões: mvp/telas/00_casca.md
  */
 
 import {prefs, definirPreferencia, eventosPreferencias, vibrar, bipar, tipoDeRede} from './core/preferencias.js';
 import {pararLeitura} from './core/voz.js';
+import {mostrarAvisosDeNovo} from './componentes/tutorial.js';
 
 const estado = {
-  ajudaAtiva: false,
   timerAviso: null,
   aoSair: async () => {},
   aoSincronizar: async () => {},
@@ -36,11 +37,6 @@ export function iniciarCasca(opcoes) {
   mostrarRede();
 }
 
-/** @return {boolean} Modo "O que é isso?" ligado (os botões só explicam, não agem). */
-export function ajudaAtiva() {
-  return estado.ajudaAtiva;
-}
-
 /** Aviso curto no rodapé da tela. @param {string} texto */
 export function avisar(texto) {
   const t = $('toastMsg');
@@ -57,9 +53,6 @@ export function avisar(texto) {
 function ligarMenuOverflow() {
   const overlay = $('popupOverlay');
   $('btnOverflow').addEventListener('click', (e) => {
-    if (estado.ajudaAtiva) {
-      return;
-    }
     e.stopPropagation();
     vibrar(25);
     overlay.classList.toggle('visivel');
@@ -192,54 +185,17 @@ function ligarConfiguracoes() {
 }
 
 // ---------------------------------------------------------------------------
-// Modo "O que é isso?"
+// Ajuda (gaveta do alto)
 // ---------------------------------------------------------------------------
 
 function ligarAjuda() {
-  $('btnAtivarAjuda').addEventListener('click', () => {
-    fecharGaveta();
-    estado.ajudaAtiva = true;
-    document.body.classList.add('modo-ajuda-ativo');
-    $('bannerModoAjuda').classList.add('visivel');
-    bipar(659.25);
-    avisar('Toque em qualquer botão ou texto para ver a explicação.');
-  });
-  $('btnSairAjuda').addEventListener('click', (e) => {
-    e.stopPropagation();
-    estado.ajudaAtiva = false;
-    document.body.classList.remove('modo-ajuda-ativo');
-    $('bannerModoAjuda').classList.remove('visivel');
+  $('btnAvisosAjuda').addEventListener('click', async () => {
+    await mostrarAvisosDeNovo();
     vibrar(25);
+    fecharGaveta();
+    avisar('Os avisos de primeira vez voltam a aparecer em cada tela.');
+    window.dispatchEvent(new HashChangeEvent('hashchange')); // a tela aberta redesenha a barra, com o aviso
   });
-  // Na fase de captura: com a ajuda ligada, o toque explica e não age.
-  document.addEventListener('click', (e) => {
-    if (!estado.ajudaAtiva || e.target.closest('#bannerModoAjuda, #modalAjudaOverlay')) {
-      return;
-    }
-    const alvo = e.target.closest('.ajuda-alvo');
-    e.preventDefault();
-    e.stopPropagation();
-    if (alvo) {
-      abrirExplicacao(alvo.dataset.ajudaTitulo || 'Parte da tela',
-          alvo.dataset.ajudaTexto || 'Esta parte ainda não tem explicação.');
-    }
-  }, true);
-  const modal = $('modalAjudaOverlay');
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.classList.remove('visivel');
-    }
-  });
-  $('btnEntendiAjuda').addEventListener('click', () => modal.classList.remove('visivel'));
-}
-
-/** @param {string} titulo @param {string} texto */
-function abrirExplicacao(titulo, texto) {
-  $('lblModalAjudaTitulo').textContent = titulo;
-  $('lblModalAjudaCorpo').textContent = texto;
-  $('modalAjudaOverlay').classList.add('visivel');
-  vibrar(40);
-  bipar(784);
 }
 
 // ---------------------------------------------------------------------------

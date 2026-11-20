@@ -62,6 +62,11 @@ export function iniciarBotaoVoz(opcoes) {
  * A tela atual diz o que o modo Ouvir lê.
  * @param {function(): string} leitor
  */
+/** @return {function(): string} O leitor atual (o tutorial guarda e devolve ao fechar). */
+export function leitorAtual() {
+  return estado.leitor;
+}
+
 export function definirLeitor(leitor) {
   estado.leitor = leitor || (() => '');
   pararLeitura();

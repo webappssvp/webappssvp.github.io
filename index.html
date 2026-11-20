@@ -28,14 +28,11 @@
 
   <!-- Barra superior: logo, conferência (toque abre a conexão) e menu ⋮. Casca: mvp/telas/00_casca.md -->
   <header class="app-header" id="appHeader">
-    <div class="header-logo-container ajuda-alvo" data-ajuda-titulo="Símbolo da SSVP"
-      data-ajuda-texto="Símbolo oficial da Sociedade de São Vicente de Paulo.">
+    <div class="header-logo-container">
       <img src="img/marca_ssvp.svg" alt="SSVP Brasil" class="header-logo-img">
     </div>
 
-    <div class="header-title-area ajuda-alvo" id="statusHeaderBtn" aria-controls="painelConexao"
-      data-ajuda-titulo="Conferência"
-      data-ajuda-texto="Mostra a conferência escolhida e quem entrou. Toque aqui para escolher outra conferência, entrar ou sair.">
+    <div class="header-title-area" id="statusHeaderBtn" aria-controls="painelConexao">
       <p class="header-conf-name" id="lblConfName">Escolha a conferência</p>
       <div class="header-sub-row">
         <span class="header-cp-name" id="lblConfSub">Toque aqui para conectar</span>
@@ -44,10 +41,8 @@
       </div>
     </div>
 
-    <button type="button" class="btn-header-overflow ajuda-alvo" id="btnOverflow" aria-haspopup="menu"
-      aria-label="Mais opções" title="Mais opções"
-      data-ajuda-titulo="Mais opções (3 pontos)"
-      data-ajuda-texto="Abre o Para enviar, as Configurações do aparelho e a Ajuda.">
+    <button type="button" class="btn-header-overflow" id="btnOverflow" aria-haspopup="menu"
+      aria-label="Mais opções" title="Mais opções">
       <svg viewBox="0 -960 960 960" aria-hidden="true">
         <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/>
       </svg>
@@ -65,16 +60,10 @@
       <div class="menu-divisor"></div>
       <button type="button" class="menu-item-btn" role="menuitem" data-modulo="ajuda">
         <svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-38-160h60q0-30 6-42t34-44q33-31 46.5-54t13.5-50q0-54-37-87t-88-33q-47 0-82.5 23.5T344-624l52 22q12-25 34.5-39.5T479-656q33 0 53 19.5t20 46.5q0 22-13 41.5T503-506q-37 32-47 51t-16 55ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
-        <span>Ajuda ("O que é isso?")</span>
+        <span>Ajuda</span>
       </button>
     </div>
   </div>
-
-  <!-- Faixa do modo "O que é isso?" -->
-  <aside class="banner-modo-ajuda" id="bannerModoAjuda">
-    <span>💡 <strong>Modo Dúvidas:</strong> toque em qualquer parte da tela para ver a explicação.</span>
-    <button type="button" class="btn-sair-ajuda" id="btnSairAjuda">Sair da Ajuda</button>
-  </aside>
 
   <!-- Gaveta superior: Para enviar, Configurações e Ajuda -->
   <div class="scrim-overlay-top" id="scrimTop">
@@ -247,12 +236,13 @@
         <!-- Ajuda -->
         <section class="modulo-secao" id="moduloAjuda" role="tabpanel">
           <div class="sheet-card-box sheet-card-ajuda">
-            <span class="sheet-card-title">❓ Modo "O que é isso?"</span>
+            <span class="sheet-card-title">❓ Ajuda em cada tela</span>
             <p class="sheet-texto">
-              Ligue o modo de dúvidas e toque em qualquer botão ou texto da tela para ver para que serve, em letras grandes.
+              Na barra de cada tela há o botão <strong>Ajuda</strong>: ele mostra, passo a passo, para que serve cada
+              botão e o que escrever em cada campo.
             </p>
-            <button type="button" class="btn-acao-gaveta btn-acao-ajuda" id="btnAtivarAjuda">
-              🔍 Ligar o "O que é isso?"
+            <button type="button" class="btn-acao-gaveta btn-acao-ajuda" id="btnAvisosAjuda">
+              Mostrar de novo os avisos de primeira vez
             </button>
           </div>
           <div class="sheet-card-box">
@@ -273,18 +263,6 @@
     </div>
   </div>
 
-  <!-- Explicação do modo "O que é isso?" -->
-  <div class="modal-ajuda-overlay" id="modalAjudaOverlay">
-    <div class="modal-ajuda-card" role="dialog" aria-labelledby="lblModalAjudaTitulo">
-      <div class="modal-ajuda-header">
-        <span class="modal-ajuda-icone" aria-hidden="true">💡</span>
-        <h3 class="modal-ajuda-titulo" id="lblModalAjudaTitulo"></h3>
-      </div>
-      <div class="modal-ajuda-bloco" id="lblModalAjudaCorpo"></div>
-      <button type="button" class="btn-entendi-ajuda" id="btnEntendiAjuda">Entendi</button>
-    </div>
-  </div>
-
   <!-- Área de conteúdo: o roteador (js/app.js) desenha a tela do #hash aqui -->
   <!-- Barra da tela: nome da tela, busca e atualizar; nos detalhes, voltar e o nome (js/componentes/barra_tela.js) -->
   <div class="barra-tela" id="barraTela" role="region" aria-label="Barra da tela"></div>
@@ -293,26 +271,20 @@
 
   <!-- Barra inferior: Menu, Nuvem, Falar/Ouvir e Sair (o canhoto espelha) -->
   <footer class="app-footer" id="appFooter">
-    <button type="button" class="btn-footer-lateral ajuda-alvo" id="btnFooterMenu" title="Telas do aplicativo"
-      data-ajuda-titulo="Botão Menu"
-      data-ajuda-texto="Mostra as telas do aplicativo: Vicentinos, Famílias e Importar pessoas.">
+    <button type="button" class="btn-footer-lateral" id="btnFooterMenu" title="Telas do aplicativo">
       <svg viewBox="0 -960 960 960" aria-hidden="true">
         <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
       </svg>
       <span class="footer-btn-label">Menu</span>
     </button>
 
-    <button type="button" class="btn-footer-lateral btn-nuvem ajuda-alvo" id="btnFooterNuvem" title="Envio para a nuvem"
-      data-ajuda-titulo="Botão Nuvem"
-      data-ajuda-texto="Mostra se o que você gravou já chegou à planilha da conferência. Nuvem verde: tudo enviado, pode fechar o app. Contorno de nuvem com número: mudanças gravadas no celular, esperando para enviar. Nuvem vermelha: algo não foi aceito e precisa de você. Toque para conferir e enviar.">
+    <button type="button" class="btn-footer-lateral btn-nuvem" id="btnFooterNuvem" title="Envio para a nuvem">
       <span class="nuvem-icone" id="iconeNuvem" aria-hidden="true"></span>
       <span class="footer-btn-label" id="lblNuvem">Enviado</span>
     </button>
 
-    <button type="button" class="btn-audio-central ajuda-alvo" id="btnAudioHub"
-      title="Toque: falar ou ouvir. Segure: troca entre Falar e Ouvir"
-      data-ajuda-titulo="Botão Falar / Ouvir"
-      data-ajuda-texto="No Falar, toque num campo e depois aqui para ditar. No Ouvir, toque para ouvir a tela e toque de novo para parar. Segure o botão para trocar entre Falar e Ouvir.">
+    <button type="button" class="btn-audio-central" id="btnAudioHub"
+      title="Toque: falar ou ouvir. Segure: troca entre Falar e Ouvir">
       <div class="press-indicator-bar"></div>
       <span class="audio-icone-caixa">
         <img src="img/mic.svg" id="imgMicSvg" alt="">
@@ -326,9 +298,7 @@
       <span class="audio-central-label" id="lblAudioTexto">Falar</span>
     </button>
 
-    <button type="button" class="btn-footer-lateral btn-sair-lateral ajuda-alvo" id="btnFooterSair" title="Sair da conferência"
-      data-ajuda-titulo="Botão Sair (proteção de dados)"
-      data-ajuda-texto="Sai da conferência neste celular, para proteger a privacidade das famílias. Para voltar, entre de novo com e-mail e senha.">
+    <button type="button" class="btn-footer-lateral btn-sair-lateral" id="btnFooterSair" title="Sair da conferência">
       <svg viewBox="0 -960 960 960" aria-hidden="true">
         <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
       </svg>

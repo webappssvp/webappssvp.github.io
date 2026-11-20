@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.20.0';
+const VERSAO = 'ssvp-casca-v0.21.0';
 
 const EM_DESENVOLVIMENTO = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
 
@@ -43,6 +43,8 @@ const ARQUIVOS = [
   './js/componentes/tela_trava.js',
   './js/core/trava.js',
   './js/core/uso.js',
+  './js/componentes/tutorial.js',
+  './js/componentes/tutoriais.js',
   './js/componentes/bloco_mudanca.js',
   './js/telas/como_funciona.js',
   './js/telas/sugestoes.js',

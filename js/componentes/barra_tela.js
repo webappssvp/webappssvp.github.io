@@ -15,6 +15,8 @@
 
 import {vibrar} from '../core/preferencias.js';
 import {iconeSync} from './icone_sync.js';
+import {avisoDePrimeiraVez, precisaAviso} from './tutorial.js';
+import {chaveDoTutorial} from './tutoriais.js';
 
 /** Ícones do Material Symbols (viewBox 0 -960 960 960). */
 const ICONES = {
@@ -33,6 +35,12 @@ const ICONES = {
     'q24 0 45 8.5t37 23.5l281-164q-2-7-2.5-13.5T560-760q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-24 0-45-8.5' +
     'T598-672L317-508q2 7 2.5 13.5t.5 14.5q0 8-.5 14.5T317-452l281 164q16-15 37-23.5t45-8.5q50 0 85 35t35 85q0 50-35 85' +
     't-85 35Z',
+  // help (Material Symbols): o botão Ajuda (tutorial.js)
+  ajuda: 'M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-38-160' +
+    'h60q0-30 6-42t34-44q33-31 46.5-54t13.5-50q0-54-37-87t-88-33q-47 0-82.5 23.5T344-624l52 22q12-25 34.5-39.5T479-656' +
+    'q33 0 53 19.5t20 46.5q0 22-13 41.5T503-506q-37 32-47 51t-16 55ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480' +
+    'q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197' +
+    'q-54 54-127 85.5T480-80Z',
   funilVazado: 'M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240' +
     'q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z',
 };
@@ -181,6 +189,9 @@ function desenharBarra() {
   const o = c.opcoes;
   const n = ativos(o);
   const linha = resumo(o);
+  // Ajuda (20/11/2026, tutorial.js): na tela que tem tutorial; na primeira vez, o aviso e o ícone pulsando.
+  const tutorial = chaveDoTutorial(location.hash);
+  const aviso = precisaAviso(tutorial);
   barra.innerHTML = `
     ${c.voltar ? `<button type="button" class="barra-tela-botao barra-tela-voltar" data-voltar href="${esc(c.voltar)}"
       aria-label="Voltar">${icone('voltar')}</button>` : ''}
@@ -191,7 +202,10 @@ function desenharBarra() {
       barra-tela-compartilhar" data-compartilhar="${esc(c.compartilhar.rota)}" data-compartilhar-cf="${
   esc(c.compartilhar.cf || '')}" data-compartilhar-oque="${esc(c.compartilhar.oQue || '')}" aria-label="Compartilhar"
       title="Compartilhar">${icone('compartilhar')}</button>` : ''}
-    ${o ? botaoOpcoes(n, linha) : ''}`;
+    ${tutorial ? `<button type="button" class="barra-tela-ajuda${aviso ? ' pulsando' : ''}" data-barra="ajuda"
+      aria-label="Ajuda: como esta tela funciona">${icone('ajuda')}<span>Ajuda</span></button>` : ''}
+    ${o ? botaoOpcoes(n, linha) : ''}
+    ${aviso ? avisoDePrimeiraVez() : ''}`;
   const botao = barra.querySelector('[data-barra="opcoes"]');
   if (botao) {
     botao.addEventListener('click', () => {

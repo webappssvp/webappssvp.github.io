@@ -6,7 +6,8 @@
 
 import {carregarPreferencias} from './core/preferencias.js';
 import {iniciarBotaoVoz, definirLeitor} from './core/voz.js';
-import {iniciarCasca, ajudaAtiva, avisar, marcarTelaAtual} from './casca.js';
+import {iniciarCasca, avisar, marcarTelaAtual} from './casca.js';
+import {iniciarTutoriais} from './componentes/tutorial.js';
 import {iniciarBarraConexao, sessaoAtual, sairDaConferencia, abrirPainelConexao, chamarNaConferencia,
   conferenciasComSessao, conferenciasGuardadas, esquecerSessoesGuardadas, salvarSessoes, trancarSessoesGuardadas,
 } from './componentes/barra_conexao.js';
@@ -424,6 +425,7 @@ async function iniciar() {
       'esta página.');
   });
   await carregarPreferencias();
+  await iniciarTutoriais(); // Ajuda de cada tela (tutorial.js)
   await uso.iniciar(); // homologação: resumo de como o app é usado (uso.js; Configurações > Ajudar a melhorar o app)
   iniciarCasca({
     aoSair: async () => {
@@ -437,7 +439,7 @@ async function iniciar() {
     aoSincronizar: () => sincronizarAgora(),
     aoAbrirSincronizacao: aoAbrirAba,
   });
-  iniciarBotaoVoz({avisar, bloqueado: ajudaAtiva});
+  iniciarBotaoVoz({avisar, bloqueado: () => false});
   iniciarPainelSync(); // o botão Nuvem mostra a fila guardada já ao abrir, antes de a conexão carregar
 
   document.getElementById('areaConteudo').addEventListener('click', (e) => {

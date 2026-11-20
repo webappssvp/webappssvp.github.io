@@ -535,127 +535,224 @@ body.tema-claro .badge-status-nuvem {
 }
 
 /* ==========================================================================
-   5. SISTEMA INTERATIVO DE AJUDA: "O QUE É ISSO?"
+   5. AJUDA DE CADA TELA (js/componentes/tutorial.js; 20/11/2026, no lugar do "O que é isso?")
    ========================================================================== */
-.banner-modo-ajuda {
-  background-color: var(--md-amber);
-  color: #ffffff;
-  padding: 0.5rem 1rem;
-  font-size: 0.82rem;
-  font-weight: 700;
-  display: none;
+.barra-tela {
+  position: relative; /* o aviso de primeira vez fica logo abaixo */
+}
+
+.barra-tela-ajuda {
+  flex: 0 0 auto;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.2rem;
+  min-height: 2.75rem;
+  padding: 0 0.55rem 0 0.4rem;
+  background: none;
+  border: 1px solid var(--md-border-soft);
+  border-radius: 999px;
+  color: var(--md-on-surface);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.barra-tela-ajuda svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: var(--md-secondary);
+}
+
+.barra-tela-ajuda:active {
+  background-color: var(--md-surface-2);
+}
+
+/* Primeira vez na tela: o ícone pulsa (tamanho e brilho, perceptível sem cor) */
+.barra-tela-ajuda.pulsando svg {
+  animation: pulsoAjuda 1.4s ease-in-out infinite;
+}
+
+@keyframes pulsoAjuda {
+  0%, 100% { transform: scale(1); filter: none; }
+  50% { transform: scale(1.25); filter: drop-shadow(0 0 4px var(--md-secondary)); }
+}
+
+body.sem-animacoes .barra-tela-ajuda.pulsando svg {
+  animation: none;
+}
+
+body.sem-animacoes .barra-tela-ajuda.pulsando {
+  border-width: 2px;
+  border-color: var(--md-secondary);
+}
+
+.aviso-ajuda {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
-  z-index: 55;
-  animation: descerBanner 0.2s ease;
+  padding: 0.45rem 0.5rem 0.45rem 1rem;
+  background-color: var(--md-surface-2);
+  border-bottom: 1px solid var(--md-border-subtle);
+  color: var(--md-on-surface-variant);
+  font-size: 0.85rem;
+  line-height: 1.35;
   box-shadow: var(--md-elevation-1);
 }
 
-.banner-modo-ajuda.visivel {
-  display: flex;
+.aviso-ajuda span {
+  flex: 1 1 auto;
 }
 
-@keyframes descerBanner {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
+.aviso-ajuda strong {
+  color: var(--md-on-surface);
 }
 
-.btn-sair-ajuda {
-  background-color: #ffffff;
-  color: #000000;
+.aviso-ajuda-fechar {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: none;
   border: none;
-  padding: 0.25rem 0.65rem;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 0.76rem;
+  border-radius: 999px;
+  color: var(--md-on-surface-variant);
+  font-size: 1rem;
   cursor: pointer;
 }
 
-/* Borda Interativa nos Elementos Explicáveis */
-body.modo-ajuda-ativo .ajuda-alvo {
-  outline: 2.5px dashed var(--md-amber) !important;
-  outline-offset: 3px;
-  cursor: help !important;
-  position: relative;
-}
-
-body.modo-ajuda-ativo .ajuda-alvo:active {
-  outline-color: #ffffff !important;
-  transform: scale(0.98);
-}
-
-/* Modal / Card Explicativo "O que é isso?" */
-.modal-ajuda-overlay {
+/* Tutorial aberto: a tela continua usável (só o card recebe toques da camada) */
+.tutorial {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  z-index: 200;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem;
+  z-index: 2500;
+  pointer-events: none;
 }
 
-.modal-ajuda-overlay.visivel {
-  display: flex;
+.tutorial-destaque {
+  position: fixed;
+  border-radius: 10px;
+  outline: 3px solid #ffffff;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  transition: left 0.2s ease, top 0.2s ease, width 0.2s ease, height 0.2s ease;
 }
 
-.modal-ajuda-card {
+.tutorial-card {
+  position: fixed;
+  box-sizing: border-box;
+  padding: 0.75rem 1rem 0.75rem;
   background-color: var(--md-surface-3);
-  border: 2px solid var(--md-amber);
-  border-radius: 1.25rem;
-  padding: 1.25rem;
-  width: min(100%, 22rem);
+  color: var(--md-on-surface);
+  border: 1px solid var(--md-border-strong);
+  border-radius: 14px;
   box-shadow: var(--md-elevation-3);
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  animation: surgirModal 0.2s ease;
+  pointer-events: auto;
 }
 
-@keyframes surgirModal {
-  from { opacity: 0; transform: scale(0.92); }
-  to { opacity: 1; transform: scale(1); }
+body.sem-animacoes .tutorial-destaque {
+  transition: none;
 }
 
-.modal-ajuda-header {
+/* A seta: um triângulo da cor do ícone da Ajuda, saindo da borda do card */
+.tutorial-seta {
+  position: absolute;
+  width: 0;
+  height: 0;
+  margin-left: -11px;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+}
+
+.tutorial-seta[hidden] {
+  display: none;
+}
+
+.tutorial-card.seta-em-cima .tutorial-seta {
+  top: -12px;
+  border-bottom: 12px solid var(--md-secondary);
+}
+
+.tutorial-card.seta-embaixo .tutorial-seta {
+  bottom: -12px;
+  border-top: 12px solid var(--md-secondary);
+}
+
+.tutorial-topo {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: space-between;
+  margin-bottom: 0.15rem;
 }
 
-.modal-ajuda-icone {
-  font-size: 1.8rem;
-}
-
-.modal-ajuda-titulo {
-  font-size: 1.15rem;
+.tutorial-contagem {
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--md-on-surface);
+  color: var(--md-on-surface-variant);
 }
 
-.modal-ajuda-bloco {
-  font-size: 0.88rem;
-  line-height: 1.4;
-  color: var(--md-on-surface);
-}
-
-.modal-ajuda-bloco strong {
-  color: var(--md-amber);
-}
-
-.btn-entendi-ajuda {
-  background-color: var(--md-amber);
-  color: #ffffff;
+.tutorial-fechar {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: -0.6rem;
+  background: none;
   border: none;
-  padding: 0.65rem;
-  border-radius: 0.65rem;
-  font-weight: 700;
+  border-radius: 999px;
+  color: var(--md-on-surface-variant);
+  font-size: 1.05rem;
   cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+}
+
+.tutorial-titulo {
+  margin: 0 0 0.3rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  outline: none;
+}
+
+.tutorial-texto {
+  margin: 0 0 0.65rem;
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+
+.tutorial-acoes {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.tutorial-passo {
+  min-width: 3.25rem;
+  height: 2.9rem;
+  padding: 0 1rem;
+  background-color: var(--md-surface-1);
+  border: 1px solid var(--md-border-soft);
+  border-radius: 999px;
+  color: var(--md-on-surface);
+  font: inherit;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tutorial-passo:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.tutorial-seguir {
+  background-color: var(--md-secondary);
+  border-color: var(--md-secondary);
+  color: #ffffff;
+}
+
+.tutorial-pronto {
+  font-size: 1rem;
+  padding: 0 1.4rem;
 }
 
 /* ==========================================================================
