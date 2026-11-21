@@ -1924,3 +1924,34 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
 .sinal-acesso-verde {
   color: var(--md-on-surface);
 }
+
+/* Moradores no cartão da família (21/11/2026) */
+.familia-moradores {
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--md-on-surface-variant);
+}
+
+.familia-moradores strong {
+  color: var(--md-on-surface);
+}
+
+/* Cartão de família: os ícones sobem para a linha do nome e liberam a largura do texto (21/11/2026) */
+.cartao-familia + .botao-item {
+  top: 0;
+  right: 0.35rem;
+  transform: none;
+}
+
+.cartao-com-icones > .cartao-familia .cartao-pessoa-seta {
+  padding-left: 0;
+  margin-top: 1.25rem; /* fora da área de toque dos ícones, mesmo no cartão baixo */
+}
+
+.cartao-familia .cartao-pessoa-texto {
+  flex: 1 1 auto;
+}
+
+.cartao-familia .cartao-pessoa-nome {
+  padding-right: 4.4rem; /* o nome não passa por baixo dos ícones */
+}

@@ -5,7 +5,9 @@
   "targets": {
     "ssvpsp-a1ce2": {
       "hosting": {
-        "sp": ["ssvpsp"]
+        "testes": [
+          "ssvptestes"
+        ]
       }
     }
   }

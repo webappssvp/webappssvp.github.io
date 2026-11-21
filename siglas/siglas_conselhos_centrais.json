@@ -4,19 +4,19 @@
     {
       "sigla": "AN",
       "nome": "Conselho Metropolitano de Anápolis",
-      "sites": [],
+      "sites": ["ssvpan.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "BA",
       "nome": "Conselho Metropolitano da Bahia",
-      "sites": [],
+      "sites": ["ssvpba.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "BE",
       "nome": "Conselho Metropolitano de Belém",
-      "sites": [],
+      "sites": ["ssvpbe.web.app"],
       "conselhos_centrais": []
     },
     {
@@ -47,97 +47,97 @@
     {
       "sigla": "BS",
       "nome": "Conselho Metropolitano de Brasília",
-      "sites": [],
+      "sites": ["ssvpbs.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "CA",
       "nome": "Conselho Metropolitano de Caratinga",
-      "sites": [],
+      "sites": ["ssvpca.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "CO",
       "nome": "Conselho Metropolitano de Contagem",
-      "sites": [],
+      "sites": ["ssvpco.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "CR",
       "nome": "Conselho Metropolitano de Curitiba",
-      "sites": [],
+      "sites": ["ssvpcr.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "DI",
       "nome": "Conselho Metropolitano de Divinópolis",
-      "sites": [],
+      "sites": ["ssvpdi.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "FO",
       "nome": "Conselho Metropolitano de Formiga",
-      "sites": [],
+      "sites": ["ssvpfo.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "FZ",
       "nome": "Conselho Metropolitano de Fortaleza",
-      "sites": [],
+      "sites": ["ssvpfz.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "GO",
       "nome": "Conselho Metropolitano de Goiânia",
-      "sites": [],
+      "sites": ["ssvpgo.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "GV",
       "nome": "Conselho Metropolitano de Governador Valadares",
-      "sites": [],
+      "sites": ["ssvpgv.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "JF",
       "nome": "Conselho Metropolitano de Juiz de Fora",
-      "sites": [],
+      "sites": ["ssvpjf.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "MG",
       "nome": "Conselho Metropolitano de Montes Claros",
-      "sites": [],
+      "sites": ["ssvpmg.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "MR",
       "nome": "Conselho Metropolitano de Maringá",
-      "sites": [],
+      "sites": ["ssvpmr.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "OL",
       "nome": "Conselho Metropolitano de Olinda e Recife",
-      "sites": [],
+      "sites": ["ssvpol.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "OM",
       "nome": "Conselho Metropolitano de Ouro Preto",
-      "sites": [],
+      "sites": ["ssvpom.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "PA",
       "nome": "Conselho Metropolitano de Pouso Alegre",
-      "sites": [],
+      "sites": ["ssvppa.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "PT",
       "nome": "Conselho Metropolitano de Patos de Minas",
-      "sites": [],
+      "sites": ["ssvppt.web.app"],
       "conselhos_centrais": []
     },
     {
@@ -164,13 +164,13 @@
     {
       "sigla": "JC",
       "nome": "Conselho Metropolitano de São José dos Campos",
-      "sites": [],
+      "sites": ["ssvpjc.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "JR",
       "nome": "Conselho Metropolitano de São João del-Rei",
-      "sites": [],
+      "sites": ["ssvpjr.web.app"],
       "conselhos_centrais": []
     },
     {
@@ -200,13 +200,13 @@
     {
       "sigla": "UB",
       "nome": "Conselho Metropolitano de Uberaba",
-      "sites": [],
+      "sites": ["ssvpub.web.app"],
       "conselhos_centrais": []
     },
     {
       "sigla": "VR",
       "nome": "Conselho Metropolitano de Volta Redonda",
-      "sites": [],
+      "sites": ["ssvpvr.web.app"],
       "conselhos_centrais": []
     }
   ]

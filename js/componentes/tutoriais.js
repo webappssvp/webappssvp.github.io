@@ -51,8 +51,8 @@ export const TUTORIAIS = {
     titulo: 'Pessoas',
     passos: [
       {alvo: '.barra-tela-titulo', titulo: 'A tela Pessoas',
-        texto: 'Aqui estão todas as pessoas da conferência: vicentinos, aspirantes, assistidos, benfeitores. Use as ' +
-          'setas para ver cada parte da tela.'},
+        texto: 'Aqui estão os membros da conferência e o responsável de cada família atendida. Os outros moradores ' +
+          'ficam na tela Famílias. Use as setas para ver cada parte da tela.'},
       {alvo: '[data-barra="opcoes"]', titulo: 'Opções',
         texto: 'Toque para buscar alguém pelo nome, mostrar só um grupo (por exemplo, só os vicentinos), cadastrar ' +
           'uma pessoa nova ou atualizar a lista.'},
@@ -154,6 +154,9 @@ export const TUTORIAIS = {
           'encerradas, escolher um bairro ou atualizar a lista.'},
       {alvo: '#listaFamilias .cartao-familia', titulo: 'Cada família',
         texto: 'O cartão mostra o nome, a situação, o bairro e quantos moram na casa. Toque para ver os detalhes.'},
+      {alvo: '#listaFamilias .familia-moradores', titulo: 'Quem mora na casa',
+        texto: 'O responsável vem primeiro. Depois, os outros moradores e o vínculo de cada um. A busca também acha ' +
+          'a família pelo nome de um morador.'},
       {alvo: '#listaFamilias .familia-visita', titulo: 'Última visita',
         texto: 'Quando foi a última visita. Verde: até 7 dias. Amarelo: mais de 7 dias. Vermelho: mais de 14 dias.'},
       {...ICONES_DO_CARTAO('da família'), alvo: '#listaFamilias .botao-item'},

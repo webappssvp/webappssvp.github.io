@@ -207,7 +207,10 @@ function visualizacao(d) {
     `<p class="tela-texto">${esc([d.endereco && d.endereco.bairro, d.endereco && d.endereco.cidade].filter(Boolean)
         .join(' · ') || 'Bairro não informado')}</p>
       <p class="detalhe-nota">O endereço completo é protegido pela LGPD: só os vicentinos da conferência o veem.</p>`;
-  const moradores = d.moradores.slice().sort((a, b) => (a.id_vinculo === 'TIT' ? -1 : 0) - (b.id_vinculo === 'TIT' ? -1 : 0));
+  const todos = d.moradores.slice().sort((a, b) => (a.id_vinculo === 'TIT' ? -1 : 0) - (b.id_vinculo === 'TIT' ? -1 : 0));
+  // Visitante e benfeitor: só o resumo, o responsável e quantos moram na casa (21/11/2026; o servidor não manda o resto).
+  const moradores = veContatos() ? todos : todos.filter((m) => m.id_vinculo === 'TIT');
+  const reservados = todos.length - moradores.length;
   const visita = estado.resumo && estado.resumo.ultima_visita ? new Date(estado.resumo.ultima_visita + 'T12:00')
       .toLocaleDateString('pt-BR') : '';
   // Com mudança sua esperando: "Você mudou e ainda não enviou" (js/componentes/bloco_mudanca.js), desenhado depois.
@@ -227,14 +230,16 @@ function visualizacao(d) {
       ${endereco}
     </section>
     <section class="md-card detalhe-secao">
-      <h2 class="detalhe-titulo">Moradores (${moradores.length})</h2>
+      <h2 class="detalhe-titulo">Moradores (${todos.length})</h2>
       ${moradores.length ? `<ul class="lista-moradores">${moradores.map((m) => `
         <li class="morador-linha"><a class="morador" href="#pessoas/${encodeURIComponent(m.id_pessoa)}">
           <span class="morador-nome">${esc(estado.nomes[m.id_pessoa] || m.nome || 'Pessoa ' + m.id_pessoa)}</span>
           <span class="morador-vinculo">${esc((vinculos && vinculos[m.id_vinculo]) || m.id_vinculo || 'Vínculo não informado')}${
   m.detalhes_vinculo ? ' · ' + esc(m.detalhes_vinculo) : ''}</span>
         </a>${acoes.podeRetirar(contexto()) ? `<button type="button" class="btn-secundario btn-retirar" data-acao-familia="retirar"
-          data-morador="${esc(m.id_pessoa_familia)}" aria-label="Retirar ${esc(estado.nomes[m.id_pessoa] || m.nome || '')} da família">Retirar</button>` : ''}</li>`).join('')}</ul>` : '<p class="tela-texto">Nenhum morador ligado a esta família.</p>'}
+          data-morador="${esc(m.id_pessoa_familia)}" aria-label="Retirar ${esc(estado.nomes[m.id_pessoa] || m.nome || '')} da família">Retirar</button>` : ''}</li>`).join('')}</ul>` : reservados ? '' : '<p class="tela-texto">Nenhum morador ligado a esta família.</p>'}
+      ${reservados ? `<p class="detalhe-nota">${reservados === 1 ? 'Mais 1 morador' : 'Mais ' + reservados + ' moradores'}. Os
+        detalhes aparecem só para vicentinos e aspirantes.</p>` : ''}
       ${acoes.podeRetirar(contexto()) ? `<button type="button" class="btn-secundario btn-adicionar-morador"
         data-acao-familia="morador">+ Adicionar morador</button>` : ''}
     </section>

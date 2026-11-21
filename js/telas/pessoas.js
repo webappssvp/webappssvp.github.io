@@ -7,6 +7,8 @@
  * O que está na fila de sincronização (js/core/sync.js) aparece por cima, com o ícone de estado em cada cartão.
  * Para a diretoria (presidente, vice, secretário; 20/11/2026), o semáforo de acesso ao app em cada pessoa que entra no
  * app: verde, usando agora; amarelo, já entrou (com o último acesso); vermelho, ainda não entrou (Acessos.gs).
+ * Dos atendidos, a lista mostra só o responsável (titular) de cada família; os outros moradores ficam na tela Famílias
+ * e a busca ainda os encontra, para quem pode ver os contatos (21/11/2026).
  */
 
 import {campoSenha, esc, pedirConexao} from './comum.js';
@@ -15,6 +17,7 @@ import {atualizarOpcoes, barraOcupada, definirBarra} from '../componentes/barra_
 import {chamarComSessao, conferirSenha} from '../componentes/barra_conexao.js';
 import * as cofre from '../core/cofre.js';
 import {atualizarGuardados, chaveBaixados, estaBaixando, eventosDados} from './pessoa_dados.js';
+import {atualizarLista, eventosFamilias, ligacoesDasPessoas, moradoresComFila} from './familia_dados.js';
 import {textoDoEstado} from '../componentes/icone_sync.js';
 import {botaoDoItem, guardadosDaLista} from '../componentes/folha_item.js';
 import {acaoSincronizar} from '../componentes/painel_sync.js';
@@ -39,6 +42,8 @@ const NOME_DO_PAPEL = Object.fromEntries(PAPEIS.map((p) => [p.sigla, p.nome]));
 const CARGOS = {PRE: 'Presidente', VIC: 'Vice-presidente', SEC: 'Secretário(a)', TES: 'Tesoureiro(a)'};
 const ORDEM_CARGO = ['PRE', 'VIC', 'SEC', 'TES'];
 
+/** Papéis de quem é atendido: destes, a lista mostra só o responsável pela família. */
+const ATENDIDOS = ['AST', 'SOC'];
 /** Papéis que entram no app (os que têm semáforo de acesso). */
 const PAPEIS_COM_LOGIN = ['VIC', 'ASP', 'VIS', 'BEN'];
 /** Quem vê o semáforo de acesso. */
@@ -66,6 +71,8 @@ const estado = {
   acessos: null, // {ID_PESSOA: {entrou, ultimo, agora}} do servidor (acessos_da_conferencia)
   acessosEm: 0,
   filtroAcesso: 'TODOS', // TODOS, verde, amarelo ou vermelho
+  familias: null, // lista guardada (familia_dados.js), para saber quem é responsável e quem é morador
+  veMoradores: false, // CONTATOS_VER: a busca acha os moradores e diz em que família moram
 };
 
 /** @type {?HTMLElement} */
@@ -73,8 +80,27 @@ let areaAtual = null;
 
 /** @param {string} id @return {string} Chave (store config) da hora em que a lista foi baixada. */
 const chaveAtualizada = (id) => 'pessoas_atualizada:' + id;
+/** @param {string} id @return {string} Marca: este celular já trocou a lista completa pelo resumo (visitante, benfeitor). */
+const chaveResumoMoradores = (id) => 'resumo_moradores_v1:' + id;
 /** @param {string} id @return {string} Pacote antigo (store config, antes da store "pessoas"). */
 const chaveAntiga = (id) => 'pessoas_lista:' + id;
+
+/** @return {!Object} Em que família cada pessoa mora (com o que está na fila). */
+function ligacoes() {
+  return estado.familias ?
+    ligacoesDasPessoas(moradoresComFila(estado.familias, estado.fila, estado.conferencia)) : {};
+}
+
+/**
+ * Sai da lista quem só é atendido e mora numa família que tem outro titular.
+ * @param {!Object} p
+ * @param {!Object} ligadas ligacoes()
+ * @return {boolean}
+ */
+function ehMorador(p, ligadas) {
+  const l = ligadas[p.id];
+  return Boolean(l && !l.titular && l.temTitular && p.papeis.length && p.papeis.every((s) => ATENDIDOS.includes(s)));
+}
 
 /** As pessoas com o que está na fila por cima (cadastros, nomes, papéis, desativações). @return {!Array<!Object>} */
 function pessoasComFila() {
@@ -100,6 +126,12 @@ eventosDados.addEventListener('mudou', () => {
   lerGuardados();
 });
 eventosDados.addEventListener('guardados', () => lerGuardados());
+eventosFamilias.addEventListener('mudou', async (e) => {
+  if (e.detail.conferencia === estado.conferencia) {
+    estado.familias = await db.listar(db.STORES.FAMILIAS, estado.conferencia);
+    desenharLista();
+  }
+});
 
 // A fila mudou: redesenha os ícones. Um envio foi aceito: relê a lista guardada e busca a do servidor.
 sync.eventos.addEventListener('mudou', async () => {
@@ -137,12 +169,13 @@ export function renderizar(area, sessao, rota = '') {
   }
   if (estado.conferencia !== sessao.id_conferencia) {
     Object.assign(estado, {conferencia: sessao.id_conferencia, lista: null, erro: '', filtro: 'TODOS', busca: '',
-      guardados: {}, acessos: null, acessosEm: 0, filtroAcesso: 'TODOS'});
+      guardados: {}, acessos: null, acessosEm: 0, filtroAcesso: 'TODOS', familias: null});
     abrirConferencia(sessao.id_conferencia);
   }
   estado.euMesmo = String((sessao.perfil && sessao.perfil.id_pessoa) || '');
   estado.podeCadastrar = papeisQuePodeCadastrar((sessao.perfil && sessao.perfil.permissoes) || []).length > 0;
   const perfil = sessao.perfil || {};
+  estado.veMoradores = (perfil.permissoes || []).includes('CONTATOS_VER');
   estado.veAcessos = Boolean(perfil.dev) || (perfil.cargos || []).some((c) => CARGOS_QUE_VEEM_ACESSOS.includes(c));
   if (rota === 'novo') {
     areaAtual = null;
@@ -184,11 +217,13 @@ async function lerGuardada(id) {
 
 /** Mostra a cópia guardada e busca a lista nova em seguida. @param {string} id */
 async function abrirConferencia(id) {
-  const [, fila] = await Promise.all([estado.lista ? null : lerGuardada(id), sync.itens()]);
+  const [, fila, familias] = await Promise.all([estado.lista ? null : lerGuardada(id), sync.itens(),
+    db.listar(db.STORES.FAMILIAS, id)]);
   if (estado.conferencia !== id) {
     return;
   }
   estado.fila = fila;
+  estado.familias = familias.length ? familias : null;
   desenharLista();
   atualizar();
 }
@@ -214,6 +249,11 @@ async function atualizar(opcoes = {}) {
   estado.erro = '';
   desenharLista();
   try {
+    // Visitante e benfeitor (21/11/2026): o que este celular guardou antes do resumo é trocado uma vez, com internet.
+    const trocarPeloResumo = !estado.veMoradores && navigator.onLine && !(await db.lerConfig(chaveResumoMoradores(id)));
+    if (trocarPeloResumo) {
+      opcoes = {...opcoes, completo: true};
+    }
     // Sem nenhuma pessoa guardada no celular, baixa tudo (19/11/2026): se a lista foi apagada (Sair, sessão
     // vencida) e a marca "desde" sobrou, pedir só o que mudou dava uma lista vazia ("Ninguém com esse papel").
     const guardadas = opcoes.completo ? [] : await db.listar(db.STORES.PESSOAS, id);
@@ -238,6 +278,16 @@ async function atualizar(opcoes = {}) {
     await db.salvarConfig(chaveAtualizada(id), agora);
     await db.apagarConfig(chaveAntiga(id));
     estado.lista = {pessoas: lista, atualizado_em: agora};
+    if (trocarPeloResumo) {
+      await Promise.all([db.substituirDaConferencia(db.STORES.DETALHES, id, []),
+        db.substituirDaConferencia(db.STORES.DETALHES_FAMILIAS, id, [])]);
+    }
+    eventosFamilias.dispatchEvent(new CustomEvent('pessoas', {detail: {conferencia: id}}));
+    if (navigator.onLine) {
+      // Quem é responsável vem da lista de famílias; se falhar, fica a guardada.
+      atualizarLista(id, (acao, dados) => chamarComSessao(acao, dados), Boolean(opcoes.completo)).then(() =>
+        (trocarPeloResumo ? db.salvarConfig(chaveResumoMoradores(id), new Date().toISOString()) : 0)).catch(() => 0);
+    }
     atualizarGuardados(Boolean(opcoes.completo) && cofre.aberto(id)); // a cópia para usar sem internet também
   } catch (erro) {
     estado.erro = erro.message;
@@ -445,7 +495,9 @@ function visiveis() {
     return [];
   }
   const busca = simplificar(estado.busca.trim());
+  const ligadas = ligacoes();
   return pessoasComFila()
+      .filter((p) => !ehMorador(p, ligadas) || (estado.veMoradores && busca && simplificar(p.nome).includes(busca)))
       .filter((p) => estado.filtroAcesso === 'TODOS' || corDoAcesso(p) === estado.filtroAcesso)
       .filter((p) => estado.filtro === 'TODOS' || p.papeis.includes(estado.filtro))
       .filter((p) => !busca || simplificar(p.nome).includes(busca))
@@ -475,7 +527,8 @@ function montar(area) {
 
 /** @return {!Array<{valor: string, texto: string, n: number}>} Os papéis que têm alguém, mais o escolhido. */
 function filtrosDisponiveis() {
-  const pessoas = pessoasComFila();
+  const ligadas = ligacoes();
+  const pessoas = pessoasComFila().filter((p) => !ehMorador(p, ligadas));
   const conta = (sigla) => pessoas.filter((p) => p.papeis.includes(sigla)).length;
   // Quantas de cada filtro têm mudança esperando para ir à planilha (o filtro ganha destaque).
   const estados = sync.estadosPorPessoa(estado.fila, estado.conferencia);
@@ -541,13 +594,14 @@ function desenharLista() {
   area.querySelector('#situacaoPessoas').className = 'pessoas-situacao' + (estado.erro ? ' com-erro' : '');
   barraOcupada(estado.carregando);
   const estados = sync.estadosPorPessoa(estado.fila, estado.conferencia);
+  const ligadas = ligacoes();
   const motivos = {};
   estado.fila.filter((i) => i.conferencia === estado.conferencia && i.estado === sync.ESTADOS.RECUSADO)
       .forEach((i) => {
         motivos[i.id_pessoa] = i.ultimo_erro;
       });
   area.querySelector('#listaPessoas').innerHTML = lista.map((p) => cartao(p, estados[p.id] || sync.ESTADOS.CONFIRMADO,
-      motivos[p.id] || '')).join('');
+      motivos[p.id] || '', ligadas)).join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -665,7 +719,11 @@ function situacao(n) {
   const hora = quando.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
   const data = hoje ? 'hoje às ' + hora : quando.toLocaleDateString('pt-BR') + ' às ' + hora;
   const vazio = n ? '' : (estado.busca ? 'Ninguém com esse nome. ' : 'Ninguém com esse papel. ');
-  const contagem = vazio + (n === 1 ? '1 pessoa' : n + ' pessoas');
+  const ligadas = ligacoes();
+  const moradores = estado.busca.trim() || estado.filtro !== 'TODOS' || estado.filtroAcesso !== 'TODOS' ? 0 :
+    pessoasComFila().filter((p) => ehMorador(p, ligadas)).length;
+  const contagem = vazio + (n === 1 ? '1 pessoa' : n + ' pessoas') +
+    (moradores ? ' + ' + moradores + (moradores === 1 ? ' morador' : ' moradores') + ' em Famílias' : '');
   if (estado.erro) {
     return esc(contagem + ' · lista guardada no celular, de ' + data + '. ' + estado.erro);
   }
@@ -682,10 +740,17 @@ function iniciais(nome) {
  * @param {!Object} p Pessoa de juntar().
  * @param {string} situacaoSync Estado na fila (confirmado se não está nela).
  * @param {string} motivo Mensagem do servidor, se recusado.
+ * @param {!Object} ligadas ligacoes()
  * @return {string} HTML
  */
-function cartao(p, situacaoSync, motivo) {
-  const papeis = p.papeis.map((s) => NOME_DO_PAPEL[s] || s).join(' · ') || 'Sem papel ativo';
+function cartao(p, situacaoSync, motivo, ligadas) {
+  const l = ligadas[p.id];
+  const morador = ehMorador(p, ligadas);
+  const destino = morador ? '#familias/' + encodeURIComponent(l.id_familia) : '#pessoas/' + encodeURIComponent(p.id);
+  const responsavel = Boolean(l && l.titular && p.papeis.some((s) => ATENDIDOS.includes(s)));
+  const papeis = morador ? 'Mora na ' + (/^fam[ií]lia\s/i.test(l.nome_familia) ? '' : 'família ') + l.nome_familia :
+    (p.papeis.map((s) => NOME_DO_PAPEL[s] || s).join(' · ') || 'Sem papel ativo') +
+    (responsavel ? ' · responsável pela família' : '');
   const cargo = p.cargo ? `<span class="selo-cargo">${esc(CARGOS[p.cargo] || p.cargo)}${p.provisorio ?
     ' (provisório)' : ''}</span>` : '';
   const exemplo = (p.id === estado.euMesmo ? '<span class="selo-voce">Você</span>' : '') +
@@ -693,7 +758,7 @@ function cartao(p, situacaoSync, motivo) {
   const tipo = (p.papeis[0] || 'X').toLowerCase();
   // O par de ícones é um botão ao lado do link (botão dentro de link não vale): abre a folhinha do item.
   return `
-    <li class="cartao-com-icones"><a class="cartao-pessoa${p.cargo ? ' da-diretoria' : ''}${p.id === estado.euMesmo ? ' e-voce' : ''}" href="#pessoas/${encodeURIComponent(p.id)}">
+    <li class="cartao-com-icones"><a class="cartao-pessoa${p.cargo ? ' da-diretoria' : ''}${p.id === estado.euMesmo ? ' e-voce' : ''}" href="${esc(destino)}">
       <span class="avatar-pessoa avatar-${tipo}" aria-hidden="true">${esc(iniciais(p.nome))}</span>
       <span class="cartao-pessoa-texto">
         <span class="cartao-pessoa-nome">${esc(p.nome)}</span>

@@ -10,6 +10,15 @@ import * as db from '../core/db.js';
 import * as cofre from '../core/cofre.js';
 
 /**
+ * "mudou": {detail: {conferencia}} a lista de famílias foi atualizada; "pessoas": a lista de pessoas foi atualizada.
+ * A tela Pessoas usa as famílias para saber quem é responsável; a tela Famílias usa os nomes das pessoas (21/11/2026).
+ */
+export const eventosFamilias = new EventTarget();
+
+/** Busca em andamento por conferência: Pessoas e Famílias não pedem a mesma lista duas vezes. */
+const buscando = {};
+
+/**
  * Situações de família desta versão (decisões de 14/11/2026): FVC fica de fora; a sindicância é uma visita
  * (o levantamento socioeconômico que decide se a família socorrida vira assistida, Regulamento Art. 118, V, nota 60),
  * não uma situação. Família com SIN na planilha (dados antigos) conta como socorrida, com o selo "Em sindicância".
@@ -120,7 +129,26 @@ export function aplicarLinhas(porId, linhas) {
  * @param {boolean} completo
  * @return {!Promise<{familias: !Array<!Object>, mudou: boolean}>}
  */
-export async function atualizarLista(cf, chamar, completo) {
+export function atualizarLista(cf, chamar, completo) {
+  if (buscando[cf] && !completo) {
+    return buscando[cf];
+  }
+  const busca = baixarLista(cf, chamar, completo).finally(() => {
+    if (buscando[cf] === busca) {
+      delete buscando[cf];
+    }
+  });
+  buscando[cf] = busca;
+  return busca;
+}
+
+/**
+ * @param {string} cf
+ * @param {function(string, !Object): !Promise<!Object>} chamar
+ * @param {boolean} completo
+ * @return {!Promise<{familias: !Array<!Object>, mudou: boolean}>}
+ */
+async function baixarLista(cf, chamar, completo) {
   // Sem nenhuma família guardada no celular, baixa tudo (19/11/2026; como na lista de pessoas): a marca "desde"
   // pode ter sobrado de uma lista apagada.
   const guardadas = completo ? [] : await db.listar(db.STORES.FAMILIAS, cf);
@@ -150,7 +178,59 @@ export async function atualizarLista(cf, chamar, completo) {
   const menor = Math.min(...respostas.map((r) => new Date(r.gerado_em || Date.now()).getTime()));
   await db.salvarConfig(chaveDesdeFamilias(cf), new Date(menor - 2 * 60 * 1000).toISOString());
   await db.salvarConfig(chaveFamiliasAtualizada(cf), new Date().toISOString());
+  eventosFamilias.dispatchEvent(new CustomEvent('mudou', {detail: {conferencia: cf}}));
   return {familias: lista, mudou};
+}
+
+/**
+ * As famílias com as mudanças de moradores que ainda estão na fila (entrou, saiu, novo titular).
+ * @param {!Array<!Object>} familias
+ * @param {!Array<!Object>} fila sync.itens()
+ * @param {string} cf
+ * @return {!Array<!Object>} Cópia.
+ */
+export function moradoresComFila(familias, fila, cf) {
+  const copia = familias.map((f) => ({...f, moradores_ids: {...(f.moradores_ids || {})}}));
+  const porId = Object.fromEntries(copia.map((f) => [f.id, f]));
+  fila.filter((i) => i.conferencia === cf).forEach((i) => {
+    (i.operacoes || []).filter((op) => op.aba === 'familias_pessoas').forEach((op) => {
+      const dados = op.dados || {};
+      if (op.acao === 'inserir' && porId[dados.id_familia]) {
+        porId[dados.id_familia].moradores_ids[op.temp_uuid || 'fila:' + dados.id_pessoa] = {
+          id_pessoa: String(dados.id_pessoa), vinculo: String(dados.id_vinculo || '').toUpperCase()};
+      } else if (op.acao === 'desativar') {
+        copia.forEach((f) => delete f.moradores_ids[op.id_registro]);
+      } else if (op.acao === 'atualizar' && dados.id_vinculo) {
+        copia.filter((f) => f.moradores_ids[op.id_registro]).forEach((f) => {
+          f.moradores_ids[op.id_registro] = {...f.moradores_ids[op.id_registro],
+            vinculo: String(dados.id_vinculo).toUpperCase()};
+        });
+      }
+    });
+  });
+  return copia;
+}
+
+/**
+ * Em que família ativa cada pessoa mora. Quem é titular em alguma família fica como titular; uma família sem titular
+ * é marcada, para os moradores dela não sumirem da tela Pessoas (21/11/2026).
+ * @param {!Array<!Object>} familias
+ * @return {!Object<string, {id_familia: string, nome_familia: string, titular: boolean, temTitular: boolean}>}
+ */
+export function ligacoesDasPessoas(familias) {
+  const ligacoes = {};
+  familias.filter((f) => !f.encerrada).forEach((f) => {
+    const moradores = Object.values(f.moradores_ids || {});
+    const temTitular = moradores.some((m) => m.vinculo === 'TIT');
+    moradores.forEach((m) => {
+      const titular = m.vinculo === 'TIT';
+      const antes = ligacoes[m.id_pessoa];
+      if (!antes || (!antes.titular && (titular || !temTitular))) {
+        ligacoes[m.id_pessoa] = {id_familia: f.id, nome_familia: f.nome, titular, temTitular};
+      }
+    });
+  });
+  return ligacoes;
 }
 
 // ---------------------------------------------------------------------------

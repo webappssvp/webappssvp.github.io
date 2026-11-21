@@ -1,7 +1,7 @@
 {
   "hosting": [
     {
-      "target": "sp",
+      "target": "testes",
       "public": ".",
       "ignore": [
         "firebase.json",
@@ -19,15 +19,30 @@
       "headers": [
         {
           "source": "**/*.@(html|js|css|json|webmanifest)",
-          "headers": [{"key": "Cache-Control", "value": "no-cache"}]
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
         },
         {
           "source": "/",
-          "headers": [{"key": "Cache-Control", "value": "no-cache"}]
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
         },
         {
           "source": "**/*.@(svg|png|jpg|jpeg|webp|ico|woff2)",
-          "headers": [{"key": "Cache-Control", "value": "public, max-age=86400"}]
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=86400"
+            }
+          ]
         }
       ]
     }
