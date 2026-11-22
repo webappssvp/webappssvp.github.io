@@ -25,6 +25,7 @@ import * as visitas from './telas/visitas.js';
 import * as importarPessoas from './telas/importar_pessoas.js';
 import * as comoFunciona from './telas/como_funciona.js';
 import * as sugestoes from './telas/sugestoes.js';
+import * as sobre from './telas/sobre.js';
 import {ligarCompartilhar} from './componentes/compartilhar.js';
 import {voltar} from './telas/comum.js';
 import * as uso from './core/uso.js';
@@ -38,6 +39,7 @@ const TELAS = {
   '#visitas': visitas,
   '#visita': visita, // #visita/<id_familia>: registrar uma visita (06_visitas.md, etapa 1)
   '#importar': importarPessoas,
+  '#sobre': sobre, // apresentação para quem ainda não usa, sem login (22/11/2026)
   '#sugestoes': sugestoes, // sugestões, opiniões e dúvidas para o CC (homologação, 19/11/2026)
 };
 const TELA_INICIAL = '#pessoas';
@@ -288,6 +290,22 @@ function vigiarTrava(comSessaoGuardada) {
  * A tela "Como o app guarda e envia" abre sozinha uma vez: na primeira entrada numa conferência, e para quem já
  * usava o app antes dela (17/11/2026). Depois, só pelo menu e pelos links.
  */
+/**
+ * Primeira vez neste aparelho: abre a apresentação. Quem já escolheu uma conferência, já entrou ou chegou por um link
+ * vai direto ao que pediu.
+ */
+async function abrirApresentacaoNaPrimeiraVez() {
+  const p = new URLSearchParams(location.search);
+  if (['cm', 'cc', 'cf'].some((c) => p.has(c)) || !['', '#', '#pessoas'].includes(location.hash)) {
+    return;
+  }
+  const [viu, escolha, sessoes] = await Promise.all([db.lerConfig(sobre.CHAVE_VIU), db.lerConfig('conexao_escolha'),
+    db.lerConfig('conexao_sessoes')]);
+  if (!viu && !(escolha && escolha.cf) && !(sessoes && Object.keys(sessoes).length)) {
+    history.replaceState(null, '', location.pathname + location.search + '#sobre');
+  }
+}
+
 async function mostrarComoFuncionaUmaVez() {
   if (!sessaoAtual() || location.hash.startsWith('#como-funciona') || (await db.lerConfig(comoFunciona.CHAVE_VIU))) {
     return;
@@ -513,6 +531,12 @@ async function iniciar() {
     }
   });
   window.addEventListener('hashchange', desenharTela);
+  // Saiu da apresentação sem ter entrado: o login aparece.
+  window.addEventListener('hashchange', (e) => {
+    if (new URL(e.oldURL).hash.startsWith('#sobre') && !sessaoAtual() && !location.hash.startsWith('#como-funciona')) {
+      abrirPainelConexao();
+    }
+  });
 
   // A planilha confirmou um cadastro: a tela aberta com o id provisório passa para o definitivo.
   sync.eventos.addEventListener('confirmado', (e) => {
@@ -543,6 +567,7 @@ async function iniciar() {
   if (botaoVoltarInicio) {
     botaoVoltarInicio.addEventListener('click', voltarAoInicio);
   }
+  await abrirApresentacaoNaPrimeiraVez();
   desenharTela();
   await iniciarBarraConexao({
     aoConectar: () => {

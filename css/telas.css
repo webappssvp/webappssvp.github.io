@@ -1969,3 +1969,94 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
 .cartao-familia .cartao-pessoa-nome {
   padding-right: 4.4rem; /* o nome não passa por baixo dos ícones */
 }
+
+/* Apresentação para quem ainda não usa o app (#sobre, 22/11/2026) */
+.tela-sobre {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+}
+
+.sobre-titulo {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: var(--md-on-surface);
+}
+
+.sobre-intro {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--md-on-surface-variant);
+}
+
+.sobre-perguntas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.sobre-pergunta {
+  background-color: var(--md-surface-1);
+  border: 1px solid var(--md-border-subtle);
+  border-radius: 0.75rem;
+}
+
+.sobre-pergunta summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  padding: 0.6rem 1rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--md-on-surface);
+  cursor: pointer;
+  list-style: none;
+}
+
+.sobre-pergunta summary::-webkit-details-marker {
+  display: none;
+}
+
+.sobre-pergunta summary::after {
+  content: '+';
+  flex: 0 0 auto;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--md-secondary);
+}
+
+.sobre-pergunta[open] summary::after {
+  content: '−';
+}
+
+.sobre-resposta {
+  padding: 0 1rem 0.9rem;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--md-on-surface-variant);
+}
+
+.sobre-resposta p {
+  margin: 0 0 0.6rem;
+}
+
+.sobre-resposta ul {
+  margin: 0 0 0.6rem;
+  padding-left: 1.15rem;
+}
+
+.sobre-resposta li + li {
+  margin-top: 0.3rem;
+}
+
+.sobre-resposta strong {
+  color: var(--md-on-surface);
+}

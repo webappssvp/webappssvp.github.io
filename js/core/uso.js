@@ -31,7 +31,7 @@ const TELA_MAX_MS = 30 * 60 * 1000;
 const NOMES = {
   '#pessoas': 'Pessoas', '#vicentinos': 'Pessoas', '#familias': 'Famílias', '#visitas': 'Visitas',
   '#visita': 'Registrar visita', '#como-funciona': 'Como o app guarda e envia', '#importar': 'Importar pessoas',
-  '#sugestoes': 'Sugestões e opiniões',
+  '#sugestoes': 'Sugestões e opiniões', '#sobre': 'Apresentação',
 };
 
 /**

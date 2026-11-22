@@ -912,7 +912,7 @@ async function mudarPapel(area) {
       const idFamilia = sync.novoProvisorio();
       depois.id_familia = idFamilia;
       operacoes.push({acao: 'inserir', aba: 'familias', temp_uuid: idFamilia, dados: {
-        nome_referencia: d.pessoa.nome || d.pessoa.nome_exibicao, id_status_familia: novo, data_inicio: hoje}});
+        nome_referencia: d.pessoa.nome_exibicao, id_status_familia: novo, data_inicio: hoje}});
       operacoes.push({acao: 'inserir', aba: 'familias_pessoas', dados: {id_pessoa: estado.id, id_familia: idFamilia,
         id_vinculo: 'TIT', data_inicio: hoje}});
       const endereco = !atendidoAntes ? copiaEndereco(true) : null;

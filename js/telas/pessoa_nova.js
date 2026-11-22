@@ -287,7 +287,8 @@ async function cadastrar(area, sessao, papel) {
     }
     operacoes = [pedido];
     if (papel === 'AST') {
-      operacoes.push(...familiaDoAssistido(idNovo, nome, temEndereco ? endereco : null));
+      // O nome da família fica aberto na planilha: o de exibição, nunca o completo (22/11/2026).
+      operacoes.push(...familiaDoAssistido(idNovo, nomeExibicao, temEndereco ? endereco : null));
     }
   }
   try {

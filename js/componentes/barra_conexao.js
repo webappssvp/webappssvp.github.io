@@ -316,6 +316,7 @@ function montarPainel() {
       <button type="submit" class="btn-submit" id="btnEntrar">Entrar</button>
       <button type="button" class="link-conexao" id="btnPrimeiroAcesso">Primeiro acesso ou esqueci a senha</button>
       <button type="button" class="link-conexao" id="btnPerdiCelular">Perdi o celular</button>
+      <button type="button" class="link-conexao" id="btnOQueE">O que é este app?</button>
     </form>
 
     <form id="areaCodigo" class="painel-area" hidden>
@@ -349,7 +350,7 @@ function montarPainel() {
   painel.hidden = naAjuda();
   barra.insertAdjacentElement('afterend', painel);
   ['painelConexao', 'grpCm', 'selCm', 'grpCc', 'selCc', 'grpUrl', 'iptUrl', 'btnUrl', 'btnMostrarUrl', 'grpCp', 'selCp', 'grpCf', 'selCf',
-    'areaEntrar', 'grpDevLogin', 'selDevLogin', 'iptEmail', 'iptSenha', 'btnOlhoEntrar', 'btnEntrar', 'btnPrimeiroAcesso', 'areaCodigo', 'txtCodigo', 'iptCodigo',
+    'areaEntrar', 'grpDevLogin', 'selDevLogin', 'iptEmail', 'iptSenha', 'btnOlhoEntrar', 'btnEntrar', 'btnPrimeiroAcesso', 'btnOQueE', 'areaCodigo', 'txtCodigo', 'iptCodigo',
     'iptSenhaNova', 'btnOlhoSenha', 'iptSenhaConfirma', 'erroSenhaConfirma', 'btnCriarSenha', 'btnVoltarEntrar', 'areaConectado', 'txtConectado', 'btnFecharPainel', 'btnSair', 'btnSairTodos', 'btnPerdiCelular',
     'msgConexao'].forEach((id) => {
     el[id] = document.getElementById(id);
@@ -386,6 +387,10 @@ function montarPainel() {
     entrar();
   });
   el.btnPrimeiroAcesso.addEventListener('click', pedirCodigo);
+  el.btnOQueE.addEventListener('click', () => {
+    location.hash = '#sobre';
+    abrirPainel(false);
+  });
   // Depois do vermelho (não entrou), mexer no e-mail ou na senha volta os dois ao amarelo.
   [el.iptEmail, el.iptSenha].forEach((campo) => campo.addEventListener('input', () => {
     if (campo.classList.contains('sinal-vermelho')) {
@@ -932,7 +937,7 @@ export async function sairDaConferencia() {
 
 /** Abre o painel de conexão (para a casca e as telas). */
 /** @return {boolean} Na tela "Como o app guarda e envia" (abre sem login). */
-const naAjuda = () => location.hash.startsWith('#como-funciona');
+const naAjuda = () => location.hash.startsWith('#como-funciona') || location.hash.startsWith('#sobre');
 
 export function abrirPainelConexao() {
   if (!el.painelConexao) {

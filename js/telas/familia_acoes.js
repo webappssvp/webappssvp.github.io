@@ -119,6 +119,7 @@ export function formulario(modo, ctx, alvo) {
         <fieldset class="md-card detalhe-secao form-conjunto">
           <legend class="detalhe-titulo">Dados da família</legend>
           ${campo('fam_nome', 'Nome de referência (aparece na lista)', ctx.d.familia.nome_referencia, 'required maxlength="120"')}
+          <p class="detalhe-nota">Este nome não é criptografado: use um nome curto, nunca o nome completo.</p>
         </fieldset>
         ${endereco}
         ${botoesFim('Salvar')}
