@@ -451,12 +451,33 @@ function mensagem(texto, tipo, carregando) {
   }
 }
 
-/** @param {string} qual entrar, codigo, conectado ou '' */
+/**
+ * E-mail, senha e os botões de entrar ficam à vista, desabilitados, até a conferência ser escolhida (22/11/2026).
+ * Sem conferência, a senha digitada não fica no campo.
+ * @return {boolean} Está sem conferência.
+ */
+function aplicarTravaDoLogin() {
+  const semConferencia = !estado.escolha.cf;
+  [el.iptEmail, el.iptSenha, el.btnOlhoEntrar, el.btnEntrar, el.btnPrimeiroAcesso].forEach((campo) => {
+    campo.disabled = semConferencia;
+  });
+  if (semConferencia) {
+    el.iptSenha.value = '';
+    alternarOlho(el.btnOlhoEntrar, [el.iptSenha], false);
+    el.grpDevLogin.hidden = true;
+  }
+  return semConferencia;
+}
+
+/** @param {string} qual entrar, codigo ou conectado */
 function mostrarArea(qual) {
   el.areaEntrar.hidden = qual !== 'entrar';
   if (qual === 'entrar') {
-    preencherLoginsDev();
-    corDoLogin('amarelo');
+    const semConferencia = aplicarTravaDoLogin();
+    if (!semConferencia) {
+      preencherLoginsDev();
+    }
+    corDoLogin(semConferencia ? 'vermelho' : 'amarelo');
   }
   el.areaCodigo.hidden = qual !== 'codigo';
   el.areaConectado.hidden = qual !== 'conectado';
@@ -465,7 +486,7 @@ function mostrarArea(qual) {
 function mostrarAreaDaEscolha() {
   const cf = estado.escolha.cf;
   if (!cf) {
-    mostrarArea('');
+    mostrarArea('entrar'); // à vista e desabilitado
   } else if (estado.sessoes[cf]) {
     const s = estado.sessoes[cf];
     el.txtConectado.textContent = 'Você está na ' + nomeConferencia(cf) + ' como ' +
@@ -676,6 +697,9 @@ async function ocupado(botao, tarefa) {
   } finally {
     botao.disabled = false;
     botao.textContent = texto;
+    if (!el.areaEntrar.hidden) {
+      aplicarTravaDoLogin(); // a conferência pode ter sido desmarcada enquanto esperava
+    }
   }
 }
 

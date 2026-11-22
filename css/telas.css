@@ -204,8 +204,22 @@ body.tema-claro .form-input.sinal-verde {
 }
 
 /* O vermelho do campo que ainda não dá para escolher aparece inteiro (sem o apagado dos desativados). */
-.form-select.sinal-vermelho:disabled {
+.form-select.sinal-vermelho:disabled,
+.form-input.sinal-vermelho:disabled {
   opacity: 0.85;
+}
+
+/* Login antes de escolher a conferência (22/11/2026): os botões aparecem, desabilitados. */
+.btn-olho:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.link-conexao:disabled {
+  color: var(--md-on-surface-variant);
+  opacity: 0.65;
+  text-decoration: none;
+  cursor: not-allowed;
 }
 
 /*
