@@ -64,7 +64,12 @@ const PERGUNTAS = [
 const INTRO = 'Ajuda os vicentinos a preparar, registrar e acompanhar as visitas às famílias, mesmo sem internet. É um ' +
   'projeto em teste, ainda não é um serviço oficial.';
 
-const TEXTO_FALADO = [TITULO + '.', INTRO].concat(PERGUNTAS.map((p) => p.titulo + ' ' + p.fala)).join(' ');
+/** Importante (22/11/2026): à vista, sem precisar abrir nenhuma pergunta. */
+const AVISO_FICTICIOS = 'Este é um ambiente de teste. Os conselhos e as conferências são exemplos, e as pessoas e ' +
+  'famílias são fictícias (Pessoa 01, Pessoa 02, Pessoa 03 etc.).';
+const AVISO_SEM_DADOS_REAIS = 'Não cadastre pessoas nem famílias reais.';
+
+const TEXTO_FALADO = [TITULO + '.', INTRO, 'Importante. ' + AVISO_FICTICIOS, AVISO_SEM_DADOS_REAIS].concat(PERGUNTAS.map((p) => p.titulo + ' ' + p.fala)).join(' ');
 
 /**
  * @param {!HTMLElement} area
@@ -77,6 +82,8 @@ export function renderizar(area, sessao) {
   area.innerHTML = `
     <div class="tela-sobre">
       <p class="sobre-intro">${esc(INTRO)}</p>
+      <p class="sobre-aviso" role="note"><strong>Importante:</strong> ${esc(AVISO_FICTICIOS)}
+        <strong>${esc(AVISO_SEM_DADOS_REAIS)}</strong></p>
       <a class="btn-submit btn-link sobre-entrar" href="#pessoas">${sessao ? 'Ir para o app' : 'Já uso, quero entrar'}</a>
       <button type="button" class="btn-secundario sobre-ouvir" data-sobre="ouvir">🔊 Ouvir</button>
       <div class="sobre-perguntas">

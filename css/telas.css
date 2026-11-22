@@ -1987,6 +1987,18 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
   color: var(--md-on-surface-variant);
 }
 
+.sobre-aviso {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  background-color: var(--md-surface-1);
+  border: 1px solid var(--md-border-subtle);
+  border-left: 4px solid var(--md-amber);
+  border-radius: 0.6rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--md-on-surface);
+}
+
 .sobre-perguntas {
   display: flex;
   flex-direction: column;
