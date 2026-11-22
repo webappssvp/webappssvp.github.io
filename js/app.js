@@ -333,7 +333,8 @@ function versaoPeloArquivo() {
 /**
  * Versão nova baixada e esperando (18/11/2026): uma faixa com "Atualizar agora". Tocar troca de versão e recarrega;
  * o que está guardado no celular (fila, cópias, rascunhos) fica. Sem tocar, a versão nova vale quando todas as
- * janelas do app forem fechadas.
+ * janelas do app forem fechadas. A faixa diz "Versão Nova" e o código dela; os dois códigos pulsam, o da faixa e o da
+ * versão atual na barra do alto (22/11/2026).
  * @param {!ServiceWorker} espera
  */
 function oferecerAtualizacao(espera) {
@@ -344,18 +345,54 @@ function oferecerAtualizacao(espera) {
   faixa.id = 'avisoVersao';
   faixa.className = 'aviso-versao';
   faixa.setAttribute('role', 'status');
-  faixa.innerHTML = '<span>Versão nova do app.</span>' +
+  faixa.innerHTML = '<span class="aviso-versao-textos"><strong>Versão Nova</strong>' +
+    '<span class="aviso-versao-codigo versao-pulsando" id="avisoVersaoCodigo">v…</span></span>' +
     '<button type="button" class="aviso-versao-botao">Atualizar agora</button>' +
     '<button type="button" class="aviso-versao-fechar" aria-label="Agora não">✕</button>';
   faixa.querySelector('.aviso-versao-botao').addEventListener('click', () => {
     estadoAtualizacao.recarregar = true;
     espera.postMessage('atualizar');
   });
-  faixa.querySelector('.aviso-versao-fechar').addEventListener('click', () => faixa.remove());
+  faixa.querySelector('.aviso-versao-fechar').addEventListener('click', fecharAvisoVersao);
   document.body.appendChild(faixa);
+  const atual = document.getElementById('versaoApp');
+  if (atual) {
+    atual.classList.add('versao-pulsando');
+  }
+  estadoAtualizacao.espera = espera;
+  espera.postMessage('versao');
+  setTimeout(codigoNovoPeloArquivo, 1500); // sem resposta do service worker novo: a versão escrita no sw.js do site
 }
 
-const estadoAtualizacao = {recarregar: false};
+/** Tira a faixa e para o pulso da versão atual. */
+function fecharAvisoVersao() {
+  const faixa = document.getElementById('avisoVersao');
+  if (faixa) {
+    faixa.remove();
+  }
+  const atual = document.getElementById('versaoApp');
+  if (atual) {
+    atual.classList.remove('versao-pulsando');
+  }
+  estadoAtualizacao.espera = null;
+}
+
+function codigoNovoPeloArquivo() {
+  const codigo = document.getElementById('avisoVersaoCodigo');
+  if (!codigo || codigo.textContent !== 'v…') {
+    return;
+  }
+  fetch('./sw.js', {cache: 'no-store'}).then((r) => r.text()).then((texto) => {
+    const achado = texto.match(/ssvp-casca-v([0-9.]+)/);
+    if (achado && codigo.textContent === 'v…') {
+      codigo.textContent = 'v' + achado[1];
+    }
+  }).catch(() => {
+    // sem conexão: a faixa fica sem o número
+  });
+}
+
+const estadoAtualizacao = {recarregar: false, espera: null};
 
 /** Logo ao abrir (antes de esperar a conexão): a etiqueta da versão e a troca de versão pedida pela faixa. */
 function ouvirServiceWorker() {
@@ -363,8 +400,19 @@ function ouvirServiceWorker() {
     return;
   }
   navigator.serviceWorker.addEventListener('message', (e) => {
+    if (!e.data || !e.data.versao) {
+      return;
+    }
+    // Quem responde é o service worker que espera: é o código da versão nova, não o da que está rodando.
+    if (estadoAtualizacao.espera && e.source === estadoAtualizacao.espera) {
+      const codigo = document.getElementById('avisoVersaoCodigo');
+      if (codigo) {
+        codigo.textContent = 'v' + e.data.versao;
+      }
+      return;
+    }
     const etiqueta = document.getElementById('versaoApp');
-    if (e.data && e.data.versao && etiqueta) {
+    if (etiqueta) {
       etiqueta.textContent = 'v' + e.data.versao;
     }
   });
@@ -373,6 +421,7 @@ function ouvirServiceWorker() {
     if (estadoAtualizacao.recarregar) {
       location.reload();
     } else {
+      fecharAvisoVersao(); // a versão nova já assumiu (por outra janela)
       pedirVersao();
     }
   });
@@ -383,14 +432,17 @@ function registrarServiceWorker() {
   if (!('serviceWorker' in navigator)) {
     return;
   }
+  // Só é versão nova se a página já veio de um service worker. Na primeira instalação ele assume a página logo em
+  // seguida (clients.claim) e, olhando o controller depois, parecia uma atualização (22/11/2026).
+  const jaInstalado = Boolean(navigator.serviceWorker.controller);
   navigator.serviceWorker.register('./sw.js').then((registro) => {
-    if (registro.waiting && navigator.serviceWorker.controller) {
+    if (registro.waiting && jaInstalado) {
       oferecerAtualizacao(registro.waiting);
     }
     registro.addEventListener('updatefound', () => {
       const novo = registro.installing;
       novo.addEventListener('statechange', () => {
-        if (novo.state === 'installed' && navigator.serviceWorker.controller) {
+        if (novo.state === 'installed' && jaInstalado) {
           oferecerAtualizacao(novo);
         }
       });
