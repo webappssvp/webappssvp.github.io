@@ -12,6 +12,7 @@ import * as cofre from '../core/cofre.js';
 /**
  * "mudou": {detail: {conferencia}} a lista de famílias foi atualizada; "pessoas": a lista de pessoas foi atualizada.
  * A tela Pessoas usa as famílias para saber quem é responsável; a tela Famílias usa os nomes das pessoas (21/11/2026).
+ * "saiu": {detail: {conferencia}} a sessão acabou: as telas esquecem as listas que têm na memória (22/11/2026).
  */
 export const eventosFamilias = new EventTarget();
 

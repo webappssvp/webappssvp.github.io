@@ -128,6 +128,12 @@ async function lerVinculos() {
 
 eventosDados.addEventListener('guardados', () => lerGuardados());
 eventosDados.addEventListener('mudou', () => lerGuardados());
+eventosFamilias.addEventListener('saiu', (e) => {
+  if (e.detail.conferencia === estado.conferencia) {
+    Object.assign(estado, {conferencia: '', lista: null, erro: '', filtro: 'TODAS', busca: '', bairro: '', guardados: {},
+      nomes: {}, pessoasDaRede: null, carregando: false});
+  }
+});
 eventosFamilias.addEventListener('pessoas', (e) => {
   if (e.detail.conferencia === estado.conferencia) {
     lerNomes();

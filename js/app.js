@@ -26,6 +26,7 @@ import * as importarPessoas from './telas/importar_pessoas.js';
 import * as comoFunciona from './telas/como_funciona.js';
 import * as sugestoes from './telas/sugestoes.js';
 import * as sobre from './telas/sobre.js';
+import {eventosFamilias} from './telas/familia_dados.js';
 import {ligarCompartilhar} from './componentes/compartilhar.js';
 import {voltar} from './telas/comum.js';
 import * as uso from './core/uso.js';
@@ -98,6 +99,8 @@ async function confirmarSaidaComFila() {
  * @param {string} cf
  */
 async function apagarDadosDaConferencia(cf) {
+  // As telas esquecem o que têm na memória: o próximo login baixa e guarda a lista de novo (22/11/2026).
+  eventosFamilias.dispatchEvent(new CustomEvent('saiu', {detail: {conferencia: cf}}));
   await cofre.apagar(cf);
   try {
     await db.substituirDaConferencia(db.STORES.PESSOAS, cf, []);
@@ -412,6 +415,9 @@ function codigoNovoPeloArquivo() {
 
 const estadoAtualizacao = {recarregar: false, espera: null};
 
+/** O Sair está em andamento (pode estar enviando o que falta antes). */
+let saindo = false;
+
 /** Logo ao abrir (antes de esperar a conexão): a etiqueta da versão e a troca de versão pedida pela faixa. */
 function ouvirServiceWorker() {
   if (!('serviceWorker' in navigator)) {
@@ -499,11 +505,19 @@ async function iniciar() {
   await uso.iniciar(); // homologação: resumo de como o app é usado (uso.js; Configurações > Ajudar a melhorar o app)
   iniciarCasca({
     aoSair: async () => {
-      if (!(await confirmarSaidaComFila())) {
-        return;
+      if (saindo) {
+        return; // segundo toque enquanto envia o que falta
       }
-      if (!(await sairDaConferencia())) {
-        avisar('Você ainda não entrou em nenhuma conferência.');
+      saindo = true;
+      try {
+        if (!(await confirmarSaidaComFila())) {
+          return;
+        }
+        if (!(await sairDaConferencia())) {
+          avisar('Você ainda não entrou em nenhuma conferência.');
+        }
+      } finally {
+        saindo = false;
       }
     },
     aoSincronizar: () => sincronizarAgora(),

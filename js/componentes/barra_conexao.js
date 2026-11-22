@@ -40,6 +40,7 @@ const estado = {
   aoConectar: null,
   aoEntrarComSenha: null, // (cf, senha) => Promise: abre o cofre dos dados guardados
   aoEncerrarSessao: null, // (cf) => Promise: Sair ou sessão vencida; apaga os dados guardados
+  limpeza: null, // Promise da limpeza do último Sair: um novo login espera por ela
 };
 const el = {};
 
@@ -118,6 +119,12 @@ export async function chamarNaConferencia(idConferencia, urlApi, acao, dados = {
       }
     }
     throw erro;
+  }
+  // Saiu enquanto o pedido ia: a resposta não pode voltar a gravar dados no celular (22/11/2026).
+  if (!estado.sessoes[idConferencia]) {
+    const saiu = new Error('Você saiu desta conferência.');
+    saiu.codigo = 'SEM_SESSAO';
+    throw saiu;
   }
   if (resposta.token_novo && estado.sessoes[idConferencia]) {
     estado.sessoes[idConferencia].token = resposta.token_novo;
@@ -858,6 +865,7 @@ function criarSenha() {
  * @param {string} senha Não é guardada: só vai para aoEntrarComSenha (abre o cofre dos dados guardados).
  */
 async function guardarSessao(resposta, email, senha) {
+  await estado.limpeza; // o Sair anterior terminou de apagar: não apaga o que este login vai guardar
   const cf = estado.escolha.cf;
   const idAcesso = resposta.id_acesso || (estado.sessoes[cf] && estado.sessoes[cf].id_acesso) || '';
   estado.sessoes[cf] = {token: resposta.token, perfil: resposta.perfil || {}, cm: estado.escolha.cm, id_acesso: idAcesso,
@@ -907,24 +915,25 @@ function doAparelho() {
 async function sair() {
   const cf = estado.escolha.cf;
   const s = estado.sessoes[cf];
-  // A linha deste login na aba "acessos" ganha a saída. Sem internet ou demorando, sai assim mesmo.
-  if (s && s.token && navigator.onLine) {
-    await Promise.race([
-      chamarCC(urlAtual(), 'sair', {id_conferencia: cf, token: s.token, id_acesso: s.id_acesso || ''}).catch(() => 0),
-      new Promise((r) => setTimeout(r, 4000)),
-    ]);
-  }
+  // Sai na hora (22/11/2026): a sessão acaba e a tela muda antes de qualquer espera.
   delete estado.sessoes[cf];
-  await salvarSessoes();
-  if (estado.aoEncerrarSessao) {
-    await estado.aoEncerrarSessao(cf);
+  // A linha deste login na aba "acessos" ganha a saída, em segundo plano: a rede não segura a saída.
+  if (s && s.token && navigator.onLine) {
+    chamarCC(urlAtual(), 'sair', {id_conferencia: cf, token: s.token, id_acesso: s.id_acesso || ''}).catch(() => 0);
   }
-  await atualizarBarra();
-  mostrarAreaDaEscolha();
-  mensagem('Você saiu desta conferência neste celular.', 'info');
+  estado.limpeza = (async () => {
+    await salvarSessoes();
+    if (estado.aoEncerrarSessao) {
+      await estado.aoEncerrarSessao(cf);
+    }
+  })().catch(() => 0);
+  atualizarBarra();
   if (estado.aoConectar) {
     estado.aoConectar(null);
   }
+  abrirPainel(true);
+  mensagem('Você saiu desta conferência neste celular.', 'info');
+  await estado.limpeza;
 }
 
 /**
@@ -935,8 +944,7 @@ export async function sairDaConferencia() {
   if (!sessaoAtual()) {
     return false;
   }
-  await sair();
-  abrirPainel(true);
+  await sair(); // já abre o painel, com o aviso de que saiu
   return true;
 }
 

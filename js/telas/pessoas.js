@@ -133,6 +133,14 @@ eventosFamilias.addEventListener('mudou', async (e) => {
   }
 });
 
+// A sessão acabou: nada desta conferência fica na memória da tela.
+eventosFamilias.addEventListener('saiu', (e) => {
+  if (e.detail.conferencia === estado.conferencia) {
+    Object.assign(estado, {conferencia: '', lista: null, erro: '', filtro: 'TODOS', busca: '', guardados: {},
+      acessos: null, acessosEm: 0, filtroAcesso: 'TODOS', familias: null, carregando: false, deNovo: false});
+  }
+});
+
 // A fila mudou: redesenha os ícones. Um envio foi aceito: relê a lista guardada e busca a do servidor.
 sync.eventos.addEventListener('mudou', async () => {
   estado.fila = await sync.itens();

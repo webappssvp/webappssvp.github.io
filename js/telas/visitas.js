@@ -13,7 +13,7 @@ import {CARD_BAIXANDO} from '../componentes/carregando.js';
 import {chamarComSessao} from '../componentes/barra_conexao.js';
 import * as db from '../core/db.js';
 import * as sync from '../core/sync.js';
-import {NOME_DA_SITUACAO, SITUACOES, atualizarLista} from './familia_dados.js';
+import {eventosFamilias, NOME_DA_SITUACAO, SITUACOES, atualizarLista} from './familia_dados.js';
 import {chaveRascunho} from './visita.js';
 import {botaoDoItem, guardadosDaLista} from '../componentes/folha_item.js';
 import {eventosDados} from './pessoa_dados.js';
@@ -31,6 +31,12 @@ const estado = {
 /** @type {?HTMLElement} */
 let areaAtual = null;
 let sessaoAtual = null;
+
+eventosFamilias.addEventListener('saiu', (e) => {
+  if (e.detail.conferencia === estado.conferencia) {
+    Object.assign(estado, {conferencia: '', familias: null, erro: '', estados: {}, guardados: {}, carregando: false});
+  }
+});
 
 sync.eventos.addEventListener('mudou', () => {
   if (estado.conferencia) {
