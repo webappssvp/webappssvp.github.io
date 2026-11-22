@@ -11,6 +11,7 @@
   html {
     --altura-celular: min(844px, calc(100vh - 48px));
     height: 100%;
+    overflow: hidden; /* sem isto, o overflow do body vai para a janela e a tela não acompanha os cantos da moldura */
     display: flex;
     align-items: center;
     justify-content: center;
