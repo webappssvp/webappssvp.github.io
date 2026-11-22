@@ -1980,13 +1980,6 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
   padding: 1.25rem 1rem 2rem;
 }
 
-.sobre-titulo {
-  margin: 0;
-  font-size: 1.5rem;
-  line-height: 1.2;
-  color: var(--md-on-surface);
-}
-
 .sobre-intro {
   margin: 0;
   font-size: 1rem;

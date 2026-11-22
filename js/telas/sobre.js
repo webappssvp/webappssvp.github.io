@@ -15,52 +15,54 @@ import * as db from '../core/db.js';
 /** Config: a apresentação já abriu neste aparelho. */
 export const CHAVE_VIU = 'viu_apresentacao';
 
-const TITULO = 'Web App para vicentinos';
+/** O nome do app nesta tela: na barra do alto (sem login) ou na barra da tela (com login). */
+export const TITULO = 'WebApp para visitas';
 
 const PERGUNTAS = [
   {titulo: 'Por que um webapp?', html: `
-    <p>Abre pelo navegador, em qualquer celular ou computador, sem loja de aplicativos. Quando sai uma melhoria, ela
-      chega sozinha.</p>`,
-  fala: 'Abre pelo navegador, em qualquer celular ou computador, sem loja de aplicativos. Quando sai uma melhoria, ' +
-    'ela chega sozinha.'},
+    <p>Porque abre pelo navegador, em qualquer celular ou computador, sem passar por loja de aplicativos. As melhorias
+      chegam sozinhas: basta um toque para atualizar.</p>`,
+  fala: 'Porque abre pelo navegador, em qualquer celular ou computador, sem passar por loja de aplicativos. As ' +
+    'melhorias chegam sozinhas: basta um toque para atualizar.'},
   {titulo: 'O que é um PWA?', html: `
-    <p>É um site que funciona como aplicativo (<em lang="en">Progressive Web Application</em>): você pode instalar como
-      se fosse um aplicativo nativo, mas o app ocupa só cerca de <strong>1 MB</strong>, mais os dados da sua
+    <p>É um site que funciona como aplicativo (<em lang="en">Progressive Web Application</em>). Você pode instalar como
+      se fosse um aplicativo nativo, mas ele ocupa só cerca de <strong>1 MB</strong>, mais os dados da sua
       conferência.</p>
-    <p>Ele ganha um ícone na tela do celular, abre em tela cheia e <strong>funciona sem internet</strong>. O que você
-      registrar na visita fica guardado e é enviado quando a conexão voltar.</p>`,
+    <p>Na casa da família, <strong>funciona sem internet</strong>: o que você registrar fica guardado no celular e é
+      enviado quando a conexão voltar. Antes de sair, guarde as famílias que vai visitar.</p>`,
   fala: 'É um site que funciona como aplicativo, em inglês Progressive Web Application. Você pode instalar como se ' +
-    'fosse um aplicativo nativo, mas o app ocupa só cerca de um mega, mais os dados da sua conferência. Ele ganha um ' +
-    'ícone na tela do celular, abre em tela cheia e funciona sem internet. O que você registrar na visita fica ' +
-    'guardado e é enviado quando a conexão voltar.'},
+    'fosse um aplicativo nativo, mas ele ocupa só cerca de um mega, mais os dados da sua conferência. Na casa da ' +
+    'família, funciona sem internet: o que você registrar fica guardado no celular e é enviado quando a conexão ' +
+    'voltar. Antes de sair, guarde as famílias que vai visitar.'},
   {titulo: 'Onde os dados ficam gravados?', html: `
     <p>Em dois lugares:</p>
     <ul>
       <li><strong>Na planilha da conferência</strong>, na conta Google do Conselho Central.</li>
-      <li><strong>No seu celular</strong>, para usar sem internet. Um desenho ou PIN tranca o app, e ao tocar em Sair
-        os dados da conferência saem do aparelho.</li>
+      <li><strong>No seu celular</strong>, para a visita funcionar sem internet. Um desenho ou PIN tranca o app e, ao
+        tocar em Sair, os dados da conferência saem do aparelho.</li>
     </ul>
-    <p>Nome completo, celular, e-mail, endereço e relatos ficam <strong>criptografados</strong>, e no app só quem tem
-      permissão na conferência consegue abri-los. O nome de exibição, o bairro e a cidade ficam abertos, para as listas
-      funcionarem.</p>`,
-  fala: 'Em dois lugares. Na planilha da conferência, na conta Google do Conselho Central. E no seu celular, para usar ' +
-    'sem internet. Um desenho ou PIN tranca o app, e ao tocar em Sair os dados da conferência saem do aparelho. Nome ' +
-    'completo, celular, e-mail, endereço e relatos ficam criptografados, e no app só quem tem permissão na conferência ' +
-    'consegue abri-los. O nome de exibição, o bairro e a cidade ficam abertos, para as listas funcionarem.'},
+    <p>Nome completo, celular, e-mail, endereço e relatos das visitas ficam <strong>criptografados</strong>. No app, só
+      quem tem permissão na conferência consegue abri-los. O nome curto, o bairro e a cidade ficam abertos, para as
+      listas funcionarem.</p>`,
+  fala: 'Em dois lugares. Na planilha da conferência, na conta Google do Conselho Central. E no seu celular, para a ' +
+    'visita funcionar sem internet. Um desenho ou PIN tranca o app e, ao tocar em Sair, os dados da conferência saem ' +
+    'do aparelho. Nome completo, celular, e-mail, endereço e relatos das visitas ficam criptografados. No app, só quem ' +
+    'tem permissão na conferência consegue abri-los. O nome curto, o bairro e a cidade ficam abertos, para as listas ' +
+    'funcionarem.'},
   {titulo: 'Vou gastar usando?', html: `
-    <p>Não há cobrança para usar. O único consumo é o do seu pacote de dados:</p>
+    <p>Não há cobrança para usar. Você gasta apenas um pouco do seu pacote de dados:</p>
     <ul>
-      <li><strong>Primeira abertura:</strong> cerca de 250 KB, menos que uma foto de WhatsApp.</li>
-      <li><strong>Depois:</strong> o app abre do próprio celular, e só trafegam as mudanças, normalmente poucos KB.</li>
-      <li><strong>Quer gastar ainda menos?</strong> Ligue "Sincronizar só em Wi-Fi" nas Configurações.</li>
+      <li><strong>Na primeira abertura:</strong> cerca de 250 KB, menos que uma foto de WhatsApp.</li>
+      <li><strong>Nas seguintes:</strong> o app abre do próprio celular e só envia ou recebe o que mudou.</li>
+      <li><strong>Para gastar menos:</strong> ligue "Sincronizar só em Wi-Fi" nas Configurações.</li>
     </ul>`,
-  fala: 'Não há cobrança para usar. O único consumo é o do seu pacote de dados. Na primeira abertura, cerca de 250 ' +
-    'quilobytes, menos que uma foto de WhatsApp. Depois, o app abre do próprio celular, e só trafegam as mudanças, ' +
-    'normalmente poucos quilobytes. Para gastar ainda menos, ligue Sincronizar só em Wi-Fi nas Configurações.'},
+  fala: 'Não há cobrança para usar. Você gasta apenas um pouco do seu pacote de dados. Na primeira abertura, cerca de ' +
+    '250 quilobytes, menos que uma foto de WhatsApp. Nas seguintes, o app abre do próprio celular e só envia ou recebe ' +
+    'o que mudou. Para gastar menos, ligue Sincronizar só em Wi-Fi nas Configurações.'},
 ];
 
-const INTRO = 'Um aplicativo para ajudar as conferências no dia a dia: pessoas, famílias e visitas. É um projeto em ' +
-  'teste, ainda não é um serviço oficial.';
+const INTRO = 'Ajuda os vicentinos a preparar, registrar e acompanhar as visitas às famílias, mesmo sem internet. É um ' +
+  'projeto em teste, ainda não é um serviço oficial.';
 
 const TEXTO_FALADO = [TITULO + '.', INTRO].concat(PERGUNTAS.map((p) => p.titulo + ' ' + p.fala)).join(' ');
 
@@ -74,7 +76,6 @@ export function renderizar(area, sessao) {
   db.salvarConfig(CHAVE_VIU, new Date().toISOString());
   area.innerHTML = `
     <div class="tela-sobre">
-      ${sessao ? '' : `<h1 class="sobre-titulo">${esc(TITULO)}</h1>`}
       <p class="sobre-intro">${esc(INTRO)}</p>
       <a class="btn-submit btn-link sobre-entrar" href="#pessoas">${sessao ? 'Ir para o app' : 'Já uso, quero entrar'}</a>
       <button type="button" class="btn-secundario sobre-ouvir" data-sobre="ouvir">🔊 Ouvir</button>

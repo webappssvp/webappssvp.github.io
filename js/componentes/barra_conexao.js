@@ -24,6 +24,7 @@ import {mostrarCarregando} from './carregando.js';
 import {LOGINS_DEV_ATIVOS, lembrarLogin, loginsDaConferencia, esquecerLogins} from './logins_dev.js';
 import * as trava from '../core/trava.js';
 import * as uso from '../core/uso.js';
+import {TITULO as TITULO_APRESENTACAO} from '../telas/sobre.js';
 
 const CHAVE_ESCOLHA = 'conexao_escolha';
 const CHAVE_SESSOES = 'conexao_sessoes';
@@ -203,6 +204,7 @@ export async function iniciarBarraConexao(opcoes = {}) {
   estado.aoEntrarComSenha = opcoes.aoEntrarComSenha || null;
   estado.aoEncerrarSessao = opcoes.aoEncerrarSessao || null;
   montarPainel();
+  window.addEventListener('hashchange', atualizarBarra); // a apresentação tem o próprio título na barra do alto
   try {
     estado.metropolitanos = await carregarMetropolitanos();
   } catch (erro) {
@@ -955,18 +957,20 @@ async function atualizarBarra() {
   if (!titulo || !sub) {
     return;
   }
+  // Na apresentação, sem login, o alto mostra o nome do app, e não "Escolha a conferência" (22/11/2026).
+  const naApresentacao = location.hash.startsWith('#sobre') && !(cf && estado.sessoes[cf]);
   if (!cf) {
     const pillDev = document.getElementById('pillDev');
     if (pillDev) {
       pillDev.hidden = true;
     }
-    titulo.textContent = 'Escolha a conferência';
+    titulo.textContent = naApresentacao ? TITULO_APRESENTACAO : 'Escolha a conferência';
     sub.textContent = 'Toque aqui para conectar';
     return;
   }
   const s = estado.sessoes[cf];
   const cp = estado.lista && estado.lista.conselhos_particulares.find((x) => x.sigla === estado.escolha.cp);
-  titulo.textContent = nomeConferencia(cf);
+  titulo.textContent = naApresentacao ? TITULO_APRESENTACAO : nomeConferencia(cf);
   // Acesso DEV (Dev.gs): a etiqueta vermelha mostra que está com todas as permissões.
   const pillDev = document.getElementById('pillDev');
   if (pillDev) {
