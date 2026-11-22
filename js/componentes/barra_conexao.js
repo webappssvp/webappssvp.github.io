@@ -25,6 +25,7 @@ import {LOGINS_DEV_ATIVOS, lembrarLogin, loginsDaConferencia, esquecerLogins} fr
 import * as trava from '../core/trava.js';
 import * as uso from '../core/uso.js';
 import {TITULO as TITULO_APRESENTACAO} from '../telas/sobre.js';
+import {redesenharBarra} from './barra_tela.js';
 
 const CHAVE_ESCOLHA = 'conexao_escolha';
 const CHAVE_SESSOES = 'conexao_sessoes';
@@ -350,7 +351,8 @@ function montarPainel() {
   // Em "Como o app guarda e envia" (abre sem login, link compartilhado) o painel começa fechado: senão ficaria por
   // cima da explicação enquanto a lista de conferências carrega.
   painel.hidden = naAjuda();
-  barra.insertAdjacentElement('afterend', painel);
+  // Depois da barra da tela: ela fica à vista também no login, com o botão Ajuda (22/11/2026).
+  (document.getElementById('barraTela') || barra).insertAdjacentElement('afterend', painel);
   ['painelConexao', 'grpCm', 'selCm', 'grpCc', 'selCc', 'grpUrl', 'iptUrl', 'btnUrl', 'btnMostrarUrl', 'grpCp', 'selCp', 'grpCf', 'selCf',
     'areaEntrar', 'grpDevLogin', 'selDevLogin', 'iptEmail', 'iptSenha', 'btnOlhoEntrar', 'btnEntrar', 'btnPrimeiroAcesso', 'btnOQueE', 'areaCodigo', 'txtCodigo', 'iptCodigo',
     'iptSenhaNova', 'btnOlhoSenha', 'iptSenhaConfirma', 'erroSenhaConfirma', 'btnCriarSenha', 'btnVoltarEntrar', 'areaConectado', 'txtConectado', 'btnFecharPainel', 'btnSair', 'btnSairTodos', 'btnPerdiCelular',
@@ -434,6 +436,7 @@ function abrirPainel(aberto) {
   }
   el.painelConexao.hidden = !aberto;
   document.body.classList.toggle('painel-aberto', Boolean(aberto));
+  redesenharBarra();
   if (aberto) {
     mensagem('');
     mostrarAreaDaEscolha();

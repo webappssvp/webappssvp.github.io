@@ -10,13 +10,17 @@
  * - O passo cujo elemento não está na tela é pulado. A tela continua usável: tocar em algo que troca de tela fecha
  *   o tutorial.
  * - Ouvir lê o passo aberto. O uso vai para a aba "uso" (tipo tutorial: aberto, terminou ou até que passo foi).
+ * - O botão Ajuda fica em todas as telas, também no login (22/11/2026). Com login, ele pergunta: "Conhecer esta tela" ou
+ *   "Praticar". No treino (tutoriais.js, TREINOS), a pessoa faz cada passo de verdade: acertou, "Ótimo! Próximo passo";
+ *   errou, "Tente de novo" com uma explicação mais detalhada, e o toque errado não tem efeito. Depois de dois erros, o
+ *   elemento pulsa e aparece "Mostrar para mim". O treino grava de verdade (ambiente de homologação).
  */
 
 import * as db from '../core/db.js';
 import {prefs, vibrar} from '../core/preferencias.js';
 import {definirLeitor, leitorAtual} from '../core/voz.js';
 import {contar} from '../core/uso.js';
-import {TUTORIAIS, chaveDoTutorial} from './tutoriais.js';
+import {TREINOS, TUTORIAIS, chaveDoTutorial} from './tutoriais.js';
 
 const CHAVE_VISTOS = 'tutoriais_vistos';
 const MARGEM = 16; // gutter da tela
@@ -32,7 +36,14 @@ const estado = {
   quadro: 0,
   leitorAntes: null,
   maiorPasso: 0,
+  escolhendo: false, // card "Conhecer esta tela" ou "Praticar"
+  treino: null, // {id, titulo, passos, n, erros, ocupado, concluiu, timer}
 };
+
+/** @return {string} O tutorial da tela à vista (o painel de entrar cobre a tela). */
+export function chaveAtual() {
+  return document.body.classList.contains('painel-aberto') ? 'login' : chaveDoTutorial(location.hash);
+}
 
 /** @param {string} chave @return {boolean} Mostra o aviso de primeira vez nesta tela. */
 export function precisaAviso(chave) {
@@ -134,7 +145,7 @@ const larguraDoCard = () => Math.min(document.documentElement.clientWidth - MARG
  *     para o resto aparecer logo abaixo.
  */
 function rolarAte(alvo, hCard, soOTitulo) {
-  const area = alvo.closest('#areaConteudo');
+  const area = alvo.closest('#areaConteudo, #painelConexao'); // a tela ou o painel de entrar
   if (!area) {
     return;
   }
@@ -192,7 +203,17 @@ function montar() {
         <button type="button" class="tutorial-fechar" data-tutorial="fechar" aria-label="Fechar a ajuda">✕</button>
       </div>
       <h2 class="tutorial-titulo" id="tutorialTitulo" tabindex="-1"></h2>
+      <p class="tutorial-retorno" id="tutorialRetorno" role="status" hidden></p>
       <p class="tutorial-texto" id="tutorialTexto" aria-live="polite"></p>
+      <div class="tutorial-escolha" hidden>
+        <button type="button" class="tutorial-opcao" data-tutorial="conhecer">Conhecer esta tela</button>
+        <button type="button" class="tutorial-opcao tutorial-seguir" data-tutorial="praticar">Praticar: registrar uma
+          visita</button>
+      </div>
+      <div class="tutorial-acoes-treino" hidden>
+        <button type="button" class="tutorial-opcao" data-tutorial="mostrar" hidden>Mostrar para mim</button>
+        <button type="button" class="tutorial-opcao tutorial-seguir" data-tutorial="continuar" hidden>Continuar</button>
+      </div>
       <div class="tutorial-acoes">
         <button type="button" class="tutorial-passo" data-tutorial="voltar" aria-label="Passo anterior">‹</button>
         <button type="button" class="tutorial-passo tutorial-seguir" data-tutorial="seguir"
@@ -207,6 +228,16 @@ function montar() {
     vibrar();
     if (b.dataset.tutorial === 'fechar') {
       fechar(true);
+    } else if (b.dataset.tutorial === 'conhecer') {
+      const chave = estado.chave;
+      fechar(false);
+      abrirTutorial(chave);
+    } else if (b.dataset.tutorial === 'praticar') {
+      iniciarTreino('visita');
+    } else if (b.dataset.tutorial === 'mostrar') {
+      mostrarParaMim();
+    } else if (b.dataset.tutorial === 'continuar') {
+      continuarTreino();
     } else if (b.dataset.tutorial === 'voltar') {
       irPara(estado.n - 1);
     } else if (estado.n >= estado.passos.length - 1) {
@@ -271,10 +302,19 @@ function fechar(pelaPessoa) {
   if (!estado.raiz) {
     return;
   }
-  const titulo = (TUTORIAIS[estado.chave] || {}).titulo || estado.chave;
-  const terminou = estado.maiorPasso >= estado.passos.length - 1;
-  contar('tutorial', {nome: terminou ? 'terminou' : 'parou no passo ' + (estado.maiorPasso + 1) + ' de ' +
-    estado.passos.length, tela: titulo});
+  const t = estado.treino;
+  if (t) {
+    clearInterval(t.timer);
+    contar('tutorial', {nome: t.concluiu ? 'treino terminou' : 'treino parou no passo ' + (t.n + 1) + ' de ' +
+      t.passos.length, tela: t.titulo});
+    estado.treino = null;
+  } else if (!estado.escolhendo) {
+    const titulo = (TUTORIAIS[estado.chave] || {}).titulo || estado.chave;
+    const terminou = estado.maiorPasso >= estado.passos.length - 1;
+    contar('tutorial', {nome: terminou ? 'terminou' : 'parou no passo ' + (estado.maiorPasso + 1) + ' de ' +
+      estado.passos.length, tela: titulo});
+  }
+  estado.escolhendo = false;
   estado.raiz.remove();
   estado.raiz = null;
   estado.alvo = null;
@@ -288,6 +328,318 @@ function fechar(pelaPessoa) {
     if (ajuda) {
       ajuda.focus({preventScroll: true});
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// "Conhecer esta tela" ou "Praticar"
+// ---------------------------------------------------------------------------
+
+/** @param {string} chave */
+function abrirEscolha(chave) {
+  fechar(false);
+  marcarVisto(chave);
+  estado.chave = chave;
+  estado.passos = [];
+  estado.escolhendo = true;
+  estado.leitorAntes = leitorAtual();
+  montar();
+  const raiz = estado.raiz;
+  raiz.querySelector('.tutorial-acoes').hidden = true;
+  raiz.querySelector('.tutorial-escolha').hidden = false;
+  raiz.querySelector('#tutorialContagem').textContent = 'Ajuda';
+  raiz.querySelector('#tutorialTitulo').textContent = 'Como quer aprender?';
+  raiz.querySelector('#tutorialTexto').textContent = 'Veja o que cada parte desta tela faz, ou pratique fazendo uma visita ' +
+    'passo a passo. O treino grava de verdade, nos dados de teste.';
+  definirLeitor(() => 'Como quer aprender? Conhecer esta tela, ou praticar registrar uma visita.');
+  estado.alvo = document.querySelector('[data-barra="ajuda"]');
+  raiz.querySelector('.tutorial-card').style.width = larguraDoCard() + 'px';
+  posicionar();
+  raiz.querySelector('#tutorialTitulo').focus({preventScroll: true});
+}
+
+// ---------------------------------------------------------------------------
+// Treino: a pessoa faz cada passo
+// ---------------------------------------------------------------------------
+
+const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** @param {string} id */
+function iniciarTreino(id) {
+  fechar(false);
+  const modelo = TREINOS[id];
+  estado.treino = {id, titulo: modelo.titulo, passos: modelo.passos, n: -1, erros: 0, ocupado: true, concluiu: false,
+    timer: setInterval(seguirAlvoDoTreino, 300)};
+  estado.leitorAntes = leitorAtual();
+  montar();
+  const raiz = estado.raiz;
+  raiz.querySelector('.tutorial-acoes').hidden = true;
+  raiz.querySelector('.tutorial-acoes-treino').hidden = false;
+  contar('tutorial', {nome: 'treino aberto', tela: modelo.titulo});
+  proximoPassoDoTreino();
+}
+
+/** A tela redesenha a cada toque: o destaque acompanha o elemento novo. */
+function seguirAlvoDoTreino() {
+  const t = estado.treino;
+  const passo = t && t.passos[t.n];
+  const el = passo && achar(passo);
+  if (el) {
+    estado.alvo = el;
+    posicionar();
+  }
+}
+
+/**
+ * Espera o elemento do passo aparecer (a tela pode estar trocando ou buscando os dados).
+ * @param {!Object} t
+ * @param {!Object} passo
+ * @return {!Promise<?HTMLElement>}
+ */
+async function esperarAlvo(t, passo) {
+  const limite = Date.now() + (passo.opcional ? 1200 : 8000);
+  while (estado.treino === t && Date.now() < limite) {
+    const el = achar(passo);
+    if (el) {
+      return el;
+    }
+    await espera(100);
+  }
+  return null;
+}
+
+/**
+ * O passo já foi feito (rascunho de uma visita em andamento) ou não se aplica.
+ * @param {!Object} t
+ * @param {!Object} passo
+ * @return {!Promise<boolean>}
+ */
+async function passoJaFeito(t, passo) {
+  if (passo.pularSeExiste && document.querySelector(passo.pularSeExiste)) {
+    return true;
+  }
+  if (passo.textoDoBotao) {
+    const limite = Date.now() + 1200; // o botão muda de nome logo depois do toque anterior
+    while (estado.treino === t && Date.now() < limite) {
+      const el = achar(passo);
+      if (el && el.textContent.includes(passo.textoDoBotao)) {
+        return false;
+      }
+      await espera(100);
+    }
+    return true;
+  }
+  return false;
+}
+
+async function proximoPassoDoTreino() {
+  const t = estado.treino;
+  if (!t) {
+    return;
+  }
+  t.ocupado = true;
+  t.erros = 0;
+  for (;;) {
+    t.n += 1;
+    const passo = t.passos[t.n];
+    if (!passo) {
+      fechar(true);
+      return;
+    }
+    if (passo.pularEm && passo.pularEm.includes(location.hash.split('/')[0])) {
+      continue;
+    }
+    const el = await esperarAlvo(t, passo);
+    if (estado.treino !== t) {
+      return;
+    }
+    if (!el) {
+      if (passo.opcional) {
+        continue;
+      }
+      treinoSemSaida(passo.semAlvo || 'Não encontrei o próximo passo nesta tela. Feche e comece de novo pela Ajuda.');
+      return;
+    }
+    if (await passoJaFeito(t, passo)) {
+      if (estado.treino !== t) {
+        return;
+      }
+      continue;
+    }
+    if (estado.treino !== t) {
+      return;
+    }
+    if (passo.tipo === 'fim') {
+      t.concluiu = true;
+    }
+    t.ocupado = false;
+    desenharPassoDoTreino(passo, achar(passo) || el);
+    return;
+  }
+}
+
+/** @param {string} texto */
+function treinoSemSaida(texto) {
+  const raiz = estado.raiz;
+  raiz.querySelector('#tutorialTitulo').textContent = 'Não deu para continuar';
+  raiz.querySelector('#tutorialTexto').textContent = texto;
+  raiz.querySelector('#tutorialRetorno').hidden = true;
+  raiz.querySelector('[data-tutorial="mostrar"]').hidden = true;
+  raiz.querySelector('[data-tutorial="continuar"]').hidden = true;
+  estado.alvo = document.querySelector('[data-barra="ajuda"]');
+  posicionar();
+}
+
+/** @param {string} texto @param {string} classe ok ou erro */
+function retornoDoTreino(texto, classe) {
+  const r = estado.raiz.querySelector('#tutorialRetorno');
+  r.textContent = texto;
+  r.className = 'tutorial-retorno ' + classe;
+  r.hidden = false;
+}
+
+/** @param {!Object} passo @param {!HTMLElement} el */
+function desenharPassoDoTreino(passo, el) {
+  const t = estado.treino;
+  const raiz = estado.raiz;
+  raiz.querySelector('#tutorialContagem').textContent = 'Treino · passo ' + (t.n + 1) + ' de ' + t.passos.length;
+  raiz.querySelector('#tutorialTitulo').textContent = passo.titulo;
+  raiz.querySelector('#tutorialTexto').textContent = passo.pede;
+  raiz.querySelector('#tutorialRetorno').hidden = true;
+  raiz.querySelector('.tutorial-destaque').classList.remove('tutorial-pulsando');
+  raiz.querySelector('[data-tutorial="mostrar"]').hidden = true;
+  const continuar = raiz.querySelector('[data-tutorial="continuar"]');
+  continuar.hidden = passo.tipo === 'tocar';
+  continuar.textContent = passo.tipo === 'fim' ? 'Pronto' : 'Continuar';
+  definirLeitor(() => passo.titulo + '. ' + passo.pede);
+  const card = raiz.querySelector('.tutorial-card');
+  card.style.width = larguraDoCard() + 'px';
+  estado.alvo = el;
+  rolarAte(el, card.offsetHeight, false);
+  posicionar();
+  raiz.querySelector('#tutorialTitulo').focus({preventScroll: true});
+}
+
+/** @param {string=} detalhe O que a tela disse (ex.: ao salvar). */
+function errouNoTreino(detalhe) {
+  const t = estado.treino;
+  const passo = t.passos[t.n];
+  t.erros += 1;
+  vibrar(60);
+  contar('tutorial', {nome: 'treino errou: ' + passo.titulo, tela: t.titulo});
+  retornoDoTreino('Tente de novo', 'erro');
+  const raiz = estado.raiz;
+  raiz.querySelector('#tutorialTexto').textContent = detalhe || passo.erro;
+  definirLeitor(() => 'Tente de novo. ' + (detalhe || passo.erro));
+  if (t.erros >= 2) {
+    raiz.querySelector('.tutorial-destaque').classList.add('tutorial-pulsando');
+    raiz.querySelector('[data-tutorial="mostrar"]').hidden = false;
+  }
+  const el = achar(passo);
+  if (el) {
+    estado.alvo = el;
+    rolarAte(el, raiz.querySelector('.tutorial-card').offsetHeight, false);
+  }
+  posicionar();
+}
+
+async function acertouNoTreino() {
+  const t = estado.treino;
+  const passo = t.passos[t.n];
+  t.ocupado = true;
+  retornoDoTreino('✓ Ótimo! Próximo passo', 'ok');
+  const raiz = estado.raiz;
+  raiz.querySelector('[data-tutorial="mostrar"]').hidden = true;
+  raiz.querySelector('[data-tutorial="continuar"]').hidden = true;
+  raiz.querySelector('.tutorial-destaque').classList.remove('tutorial-pulsando');
+  if (passo.espera === 'salvar') {
+    const limite = Date.now() + 8000;
+    while (estado.treino === t && Date.now() < limite && !location.hash.startsWith('#familias/')) {
+      const aviso = document.querySelector('#msgVisita.erro');
+      if (aviso && aviso.textContent.trim()) {
+        t.ocupado = false;
+        errouNoTreino(aviso.textContent.trim());
+        return;
+      }
+      await espera(100);
+    }
+    if (estado.treino !== t) {
+      return;
+    }
+  }
+  await espera(900);
+  if (estado.treino === t) {
+    proximoPassoDoTreino();
+  }
+}
+
+/** Depois de dois erros: o app faz o passo pela pessoa. */
+function mostrarParaMim() {
+  const t = estado.treino;
+  const passo = t && t.passos[t.n];
+  const el = passo && achar(passo);
+  if (!el || t.ocupado) {
+    return;
+  }
+  if (passo.tipo === 'escrever') {
+    el.value = el.value.trim() || passo.exemplo || '';
+    el.dispatchEvent(new Event('input', {bubbles: true}));
+    acertouNoTreino();
+  } else {
+    // Com "perto", o destaque é o grupo: o toque vai na primeira opção dele.
+    (el.matches(passo.alvo) ? el : el.querySelector(passo.alvo)).click(); // passa por aoClicarNoTreino, como um toque certo
+  }
+}
+
+function continuarTreino() {
+  const t = estado.treino;
+  const passo = t && t.passos[t.n];
+  if (!passo || t.ocupado) {
+    return;
+  }
+  if (passo.tipo === 'fim') {
+    fechar(true);
+    return;
+  }
+  const el = achar(passo);
+  if (el && el.value.trim().length >= 5) {
+    acertouNoTreino();
+  } else {
+    errouNoTreino();
+  }
+}
+
+/**
+ * No treino, só o toque certo tem efeito: o errado é barrado antes de chegar ao botão. Rolar a tela continua livre.
+ * @param {!MouseEvent} e
+ */
+function aoClicarNoTreino(e) {
+  const t = estado.treino;
+  if (!t || !(e.target instanceof Element) || e.target.closest('.tutorial-card, [data-barra="ajuda"]')) {
+    return;
+  }
+  const barrar = () => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  if (t.ocupado) {
+    barrar();
+    return;
+  }
+  const passo = t.passos[t.n];
+  const noAlvo = e.target.closest(passo.alvo);
+  if (passo.tipo === 'escrever') {
+    if (!noAlvo && !e.target.closest('#btnAudioHub')) {
+      barrar();
+      errouNoTreino();
+    }
+  } else if (passo.tipo === 'fim') {
+    barrar();
+  } else if (noAlvo) {
+    acertouNoTreino();
+  } else {
+    barrar();
+    errouNoTreino();
   }
 }
 
@@ -306,6 +658,9 @@ function limites(alvo) {
   const barra = document.getElementById('barraTela');
   const header = document.getElementById('appHeader');
   const rodape = document.getElementById('appFooter');
+  if (alvo.closest('#bottomSheet, #scrimOpcoes')) {
+    return {topo: 0, base: altura}; // gaveta aberta, por cima das barras
+  }
   const emCima = alvo.closest('#appHeader, #barraTela');
   const embaixo = alvo.closest('#appFooter');
   const fundoDe = (el) => (el && el.getBoundingClientRect().height ? el.getBoundingClientRect().bottom : 0);
@@ -326,7 +681,9 @@ function posicionar() {
     return;
   }
   if (!alvo.isConnected) {
-    mostrarPasso(); // a tela redesenhou: acha o elemento de novo
+    if (!estado.treino && !estado.escolhendo) {
+      mostrarPasso(); // a tela redesenhou: acha o elemento de novo
+    }
     return;
   }
   const card = raiz.querySelector('.tutorial-card');
@@ -388,18 +745,37 @@ export async function iniciarTutoriais() {
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-barra="ajuda"]')) {
       vibrar();
-      const chave = chaveDoTutorial(location.hash);
-      if (estado.raiz && estado.chave === chave) {
+      const chave = chaveAtual();
+      if (estado.raiz) {
         fechar(true);
+      } else if (chave !== 'login' && !document.body.classList.contains('sem-sessao')) {
+        abrirEscolha(chave);
       } else {
         abrirTutorial(chave);
       }
     } else if (e.target.closest('[data-aviso-ajuda="fechar"]')) {
       vibrar();
-      marcarVisto(chaveDoTutorial(location.hash));
+      marcarVisto(chaveAtual());
     }
   });
-  window.addEventListener('hashchange', () => fechar(false));
+  document.addEventListener('click', aoClicarNoTreino, true);
+  window.addEventListener('hashchange', () => {
+    if (!estado.treino) {
+      fechar(false);
+      return;
+    }
+    // O treino atravessa as telas: guarda o leitor da tela nova, para devolver ao terminar.
+    setTimeout(() => {
+      const t = estado.treino;
+      if (t) {
+        estado.leitorAntes = leitorAtual();
+        const passo = t.passos[t.n];
+        if (passo && !t.ocupado) {
+          definirLeitor(() => passo.titulo + '. ' + passo.pede);
+        }
+      }
+    }, 0);
+  });
   document.addEventListener('scroll', agendarPosicao, true);
   window.addEventListener('resize', agendarPosicao);
   if (window.visualViewport) {
@@ -412,6 +788,8 @@ export async function iniciarTutoriais() {
     }
     if (e.key === 'Escape') {
       fechar(true);
+    } else if (estado.treino || estado.escolhendo) {
+      return;
     } else if (e.key === 'ArrowRight' && !e.target.matches('input, textarea, select')) {
       irPara(estado.n + 1);
     } else if (e.key === 'ArrowLeft' && !e.target.matches('input, textarea, select')) {

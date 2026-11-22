@@ -15,8 +15,7 @@
 
 import {vibrar} from '../core/preferencias.js';
 import {iconeSync} from './icone_sync.js';
-import {avisoDePrimeiraVez, precisaAviso} from './tutorial.js';
-import {chaveDoTutorial} from './tutoriais.js';
+import {avisoDePrimeiraVez, chaveAtual, precisaAviso} from './tutorial.js';
 
 /** Ícones do Material Symbols (viewBox 0 -960 960 960). */
 const ICONES = {
@@ -116,6 +115,11 @@ export function atualizarOpcoes(opcoes) {
   }
 }
 
+/** O painel de entrar abriu ou fechou: a barra mostra o título certo (a Ajuda fica em todas as telas, 22/11/2026). */
+export function redesenharBarra() {
+  desenharBarra();
+}
+
 /** Mostra a nuvem descendo na barra enquanto a tela busca na nuvem. @param {boolean} ocupado */
 export function barraOcupada(ocupado) {
   if (estado.ocupado !== Boolean(ocupado)) {
@@ -182,7 +186,8 @@ function botaoOpcoes(n, linha) {
 
 function desenharBarra() {
   const barra = $barra();
-  const c = estado.config;
+  const naEntrada = document.body.classList.contains('painel-aberto');
+  const c = naEntrada ? {titulo: document.body.classList.contains('sem-sessao') ? 'Entrar' : 'Conferência'} : estado.config;
   if (!barra || !c) {
     return;
   }
@@ -190,8 +195,9 @@ function desenharBarra() {
   const n = ativos(o);
   const linha = resumo(o);
   // Ajuda (20/11/2026, tutorial.js): na tela que tem tutorial; na primeira vez, o aviso e o ícone pulsando.
-  const tutorial = chaveDoTutorial(location.hash);
-  const aviso = precisaAviso(tutorial);
+  const tutorial = chaveAtual();
+  const pulsa = precisaAviso(tutorial);
+  const aviso = pulsa && tutorial !== 'login'; // no login, o aviso cobriria o primeiro campo: só o ícone pulsa
   barra.innerHTML = `
     ${c.voltar ? `<button type="button" class="barra-tela-botao barra-tela-voltar" data-voltar href="${esc(c.voltar)}"
       aria-label="Voltar">${icone('voltar')}</button>` : ''}
@@ -202,7 +208,7 @@ function desenharBarra() {
       barra-tela-compartilhar" data-compartilhar="${esc(c.compartilhar.rota)}" data-compartilhar-cf="${
   esc(c.compartilhar.cf || '')}" data-compartilhar-oque="${esc(c.compartilhar.oQue || '')}" aria-label="Compartilhar"
       title="Compartilhar">${icone('compartilhar')}</button>` : ''}
-    ${tutorial ? `<button type="button" class="barra-tela-ajuda${aviso ? ' pulsando' : ''}" data-barra="ajuda"
+    ${tutorial ? `<button type="button" class="barra-tela-ajuda${pulsa ? ' pulsando' : ''}" data-barra="ajuda"
       aria-label="Ajuda: como esta tela funciona">${icone('ajuda')}<span>Ajuda</span></button>` : ''}
     ${o ? botaoOpcoes(n, linha) : ''}
     ${aviso ? avisoDePrimeiraVez() : ''}`;

@@ -1379,9 +1379,7 @@ body.sem-sessao .toast-msg {
   z-index: 50;
 }
 
-.barra-tela:empty,
-body.sem-sessao .barra-tela,
-body.painel-aberto .barra-tela {
+.barra-tela:empty {
   display: none;
 }
 
@@ -2228,4 +2226,75 @@ body.tema-claro .link-perigo {
   margin-top: 0.75rem;
   border-top: 1px solid var(--md-border-soft);
   padding-top: 0.75rem;
+}
+
+/* Ajuda: escolher entre conhecer a tela e praticar; treino com retorno (22/11/2026, tutorial.js) */
+.tutorial-escolha,
+.tutorial-acoes-treino {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tutorial-escolha[hidden],
+.tutorial-acoes-treino[hidden],
+.tutorial-opcao[hidden],
+.tutorial-retorno[hidden] {
+  display: none;
+}
+
+.tutorial-opcao {
+  min-height: 2.9rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--md-surface-1);
+  border: 1px solid var(--md-border-soft);
+  border-radius: 0.75rem;
+  color: var(--md-on-surface);
+  font: inherit;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tutorial-opcao.tutorial-seguir {
+  background-color: var(--md-secondary);
+  border-color: var(--md-secondary);
+  color: #ffffff;
+}
+
+.tutorial-retorno {
+  margin: 0 0 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.98rem;
+  font-weight: 800;
+}
+
+.tutorial-retorno.ok {
+  background-color: #14532d;
+  color: #ffffff;
+}
+
+.tutorial-retorno.erro {
+  background-color: #7f1d1d;
+  color: #ffffff;
+}
+
+.tutorial-destaque.tutorial-pulsando {
+  animation: pulsoDestaque 1s ease-in-out infinite;
+}
+
+@keyframes pulsoDestaque {
+  0%, 100% { outline-width: 3px; outline-offset: 0; }
+  50% { outline-width: 6px; outline-offset: 3px; }
+}
+
+body.sem-animacoes .tutorial-destaque.tutorial-pulsando {
+  animation: none;
+  outline-width: 6px;
+}
+
+/* Com a Ajuda aberta, o aviso de primeira vez não cobre o que está sendo explicado */
+body.com-tutorial .aviso-ajuda {
+  display: none;
 }

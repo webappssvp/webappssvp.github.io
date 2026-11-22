@@ -269,6 +269,127 @@ export const TUTORIAIS = {
   },
 };
 
+/** Tutoriais das telas restantes: o botão Ajuda fica em todas (22/11/2026). */
+Object.assign(TUTORIAIS, {
+  login: {
+    titulo: 'Entrar',
+    passos: [
+      {alvo: '#selCm', titulo: 'Conselho Metropolitano', texto: 'Comece por aqui: toque e escolha o seu Metropolitano.'},
+      {alvo: '#selCc', titulo: 'Conselho Central', texto: 'Depois, escolha o Conselho Central.'},
+      {alvo: '#selCp', titulo: 'Conselho Particular', texto: 'Escolha o Conselho Particular.'},
+      {alvo: '#selCf', titulo: 'Conferência',
+        texto: 'Escolha a sua conferência. Os campos ficam vermelhos até dar para usar, amarelos quando falta ' +
+          'preencher e verdes quando já estão escolhidos.'},
+      {alvo: '#iptEmail', titulo: 'Seu e-mail', texto: 'Escreva o e-mail cadastrado na conferência.'},
+      {alvo: '#iptSenha', titulo: 'Sua senha', texto: 'Escreva a sua senha. Toque no olho para ver o que digitou.'},
+      {alvo: '#btnEntrar', titulo: 'Entrar', texto: 'Com tudo preenchido, toque aqui.'},
+      {alvo: '#btnPrimeiroAcesso', titulo: 'Primeiro acesso ou esqueci a senha',
+        texto: 'Escreva o e-mail e toque aqui. Você recebe um código por e-mail para criar a senha. Pode levar alguns ' +
+          'minutos; olhe também o spam.'},
+      {alvo: '#btnPerdiCelular', titulo: 'Perdi o celular', texto: 'Mostra como tirar a sua conta do aparelho perdido.'},
+      {alvo: '#btnOQueE', titulo: 'O que é este app?', texto: 'Explica para que serve o app e onde ficam os dados.'},
+      {alvo: '#btnFecharPainel', titulo: 'Continuar', texto: 'Volta para a tela em que você estava.'},
+      {alvo: '#btnSair', titulo: 'Sair desta conferência', texto: 'Sai da conferência neste celular.'},
+      {alvo: '#btnSairTodos', titulo: 'Sair de todos os aparelhos',
+        texto: 'Se perdeu um celular, tira a sua conta de todos os aparelhos.'},
+    ],
+  },
+  sobre: {
+    titulo: 'O que é este app',
+    passos: [
+      {alvo: '.sobre-intro', titulo: 'Para que serve', texto: 'Um resumo do app, que ajuda nas visitas às famílias.'},
+      {alvo: '.sobre-aviso', titulo: 'Importante',
+        texto: 'Este é um ambiente de teste, com dados fictícios. Não cadastre pessoas nem famílias reais.'},
+      {alvo: '.sobre-entrar', titulo: 'Entrar', texto: 'Toque aqui para ir à tela de entrada.'},
+      {alvo: '.sobre-ouvir', titulo: 'Ouvir', texto: 'O app lê esta página em voz alta.'},
+      {alvo: '.sobre-perguntas', titulo: 'Perguntas', texto: 'Toque numa pergunta para abrir a resposta.'},
+      AJUDA,
+    ],
+  },
+  como_funciona: {
+    titulo: 'Como o app guarda e envia',
+    passos: [
+      {alvo: '.cf-intro', titulo: 'Esta página', texto: 'Explica o caminho do que você grava e o que quer dizer cada ícone.'},
+      {alvo: '.cf-ouvir', titulo: 'Ouvir', texto: 'O app lê esta página em voz alta.'},
+      {alvo: '.cf-passo', titulo: 'Passo a passo', texto: 'Role a tela para ler os passos, um de cada vez.'},
+      {alvo: 'input[name="cfEnvio"]', perto: 'fieldset', titulo: 'Como enviar',
+        texto: 'Escolha se as mudanças vão na hora ou só quando você mandar. O relato de visita vai sempre na hora.'},
+      {alvo: '.cf-entendi', titulo: 'Entendi', texto: 'Volta para a tela de pessoas.'},
+      AJUDA,
+    ],
+  },
+  importar: {
+    titulo: 'Importar pessoas',
+    passos: [
+      {alvo: '.selo-construcao', titulo: 'Em construção',
+        texto: 'Esta tela ainda não funciona. Aqui o presidente vai trazer a planilha de vicentinos da conferência.'},
+      AJUDA,
+    ],
+  },
+  visita_completar: {
+    titulo: 'Completar a visita',
+    passos: [
+      VOLTAR,
+      {alvo: '#vis_acrescimo', titulo: 'O que faltou contar',
+        texto: 'Escreva ou dite o que ficou de fora. O relato anterior não é apagado.'},
+      {alvo: '#vis_combinados', titulo: 'O que combinamos', texto: 'O que ficou combinado para a próxima visita.'},
+      {alvo: '[data-completar="auxilio"]', titulo: 'Auxílio esquecido', texto: 'Inclua um auxílio entregue nessa visita.'},
+      {alvo: '[data-completar="salvar"]', titulo: 'Salvar', texto: 'Grava no celular e envia quando houver internet.'},
+      AJUDA,
+    ],
+  },
+});
+
+/**
+ * Treinos: a pessoa faz cada passo de verdade (22/11/2026). O treino grava: a conferência de teste volta ao estado inicial
+ * pelo presidente. Passo: {alvo, tipo: 'tocar'|'escrever'|'fim', titulo, pede, erro, pularEm?, pularSeExiste?,
+ * textoDoBotao?, opcional?, semAlvo?, exemplo?, espera?}.
+ */
+export const TREINOS = {
+  visita: {
+    titulo: 'Registrar uma visita',
+    passos: [
+      {alvo: '#btnFooterMenu', tipo: 'tocar', pularEm: ['#visitas', '#visita'], titulo: 'Abra o Menu',
+        pede: 'Toque em Menu, na barra de baixo.',
+        erro: 'O Menu é o primeiro botão da barra de baixo, à esquerda, com três traços. Toque nele.'},
+      {alvo: '#bottomSheet a[href="#visitas"]', tipo: 'tocar', pularEm: ['#visitas', '#visita'], titulo: 'Abra Visitas',
+        pede: 'Toque em Visitas.', erro: 'Na lista de telas, procure "Visitas", com o desenho de uma pessoa andando.'},
+      {alvo: '.visitas-registrar', tipo: 'tocar', pularEm: ['#visita'], titulo: 'Escolha uma família',
+        pede: 'Toque em Registrar visita, embaixo da família.',
+        erro: 'Cada família tem um botão "Registrar visita" logo abaixo do cartão. Toque no botão destacado.',
+        semAlvo: 'Não encontrei uma família para visitar. Visitantes e benfeitores não registram visitas: entre com a ' +
+          'conta de um vicentino.'},
+      {alvo: '.btn-toque', tipo: 'tocar', textoDoBotao: 'Estou saindo', titulo: 'Saindo de casa',
+        pede: 'Toque em Estou saindo. O app anota a hora.',
+        erro: 'É o botão azul grande, em Deslocamento. Na visita de verdade, toque nele ao sair de casa.'},
+      {alvo: '[data-meio]', perto: '.visita-chips', tipo: 'tocar', pularSeExiste: '[data-meio][aria-pressed="true"]', titulo: 'Como você vai',
+        pede: 'Toque em como você vai até a família: a pé, de ônibus, de carro…',
+        erro: 'Escolha uma das opções destacadas, abaixo de "Vou de".'},
+      {alvo: '.btn-toque', tipo: 'tocar', textoDoBotao: 'Cheguei à casa da família', titulo: 'Chegando à família',
+        pede: 'Toque em Cheguei à casa da família.',
+        erro: 'O mesmo botão azul grande mudou de nome. Toque nele ao chegar.'},
+      {alvo: '[data-parceiro]', perto: '.visita-chips', tipo: 'tocar', opcional: true, pularSeExiste: '[data-parceiro][aria-pressed="true"]',
+        titulo: 'Sua dupla', pede: 'Toque no nome de quem foi com você.',
+        erro: 'Em "Dupla", toque no nome de um vicentino. A Regra pede a visita de preferência em dupla.'},
+      {alvo: '#vis_relato', tipo: 'escrever', titulo: 'O relato',
+        pede: 'Toque no campo e escreva como foi a visita, ou use o botão Falar. Depois, toque em Continuar.',
+        erro: 'Toque dentro do campo destacado e escreva uma frase curta. Ex.: A família está bem.',
+        exemplo: 'Visita de treino: a família está bem.'},
+      {alvo: '[data-simnao="rezou"]', perto: '.visita-chips', tipo: 'tocar', pularSeExiste: '[data-simnao="rezou"][aria-pressed="true"]',
+        titulo: 'Fé', pede: 'Vocês rezaram juntos? Toque em Sim ou Não.',
+        erro: 'Em "Rezamos juntos?", toque em Sim ou em Não.'},
+      {alvo: '.btn-toque', tipo: 'tocar', textoDoBotao: 'Saí da casa da família', titulo: 'Saindo da família',
+        pede: 'Toque em Saí da casa da família.', erro: 'Suba um pouco a tela: é o botão azul grande, em Deslocamento.'},
+      {alvo: '.btn-toque', tipo: 'tocar', textoDoBotao: 'Cheguei de volta', titulo: 'De volta',
+        pede: 'Toque em Cheguei de volta.', erro: 'É o mesmo botão azul grande, em Deslocamento.'},
+      {alvo: '[data-visita="salvar"]', tipo: 'tocar', espera: 'salvar', titulo: 'Salvar',
+        pede: 'Toque em Salvar a visita.', erro: 'Role até o fim da tela: é o botão azul "Salvar a visita".'},
+      {alvo: '#btnFooterNuvem', tipo: 'fim', titulo: 'Parabéns!',
+        pede: 'Você registrou uma visita. A Nuvem, na barra de baixo, mostra quando ela chegou à planilha.'},
+    ],
+  },
+};
+
 /**
  * Qual tutorial vale para o #hash.
  * @param {string} hash
@@ -283,10 +404,16 @@ export function chaveDoTutorial(hash) {
     chave = id ? 'familia_detalhe' : 'familias';
   } else if (base === '#visitas') {
     chave = 'visitas';
-  } else if (base === '#visita' && id && !extra) {
-    chave = 'visita';
+  } else if (base === '#visita' && id) {
+    chave = extra ? 'visita_completar' : 'visita';
   } else if (base === '#sugestoes') {
     chave = 'sugestoes';
+  } else if (base === '#sobre') {
+    chave = 'sobre';
+  } else if (base === '#como-funciona') {
+    chave = 'como_funciona';
+  } else if (base === '#importar') {
+    chave = 'importar';
   }
   return TUTORIAIS[chave] ? chave : '';
 }

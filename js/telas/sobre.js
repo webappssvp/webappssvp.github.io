@@ -15,7 +15,7 @@ import * as db from '../core/db.js';
 /** Config: a apresentação já abriu neste aparelho. */
 export const CHAVE_VIU = 'viu_apresentacao';
 
-/** O nome do app nesta tela: na barra do alto (sem login) ou na barra da tela (com login). */
+/** O nome do app, na barra do alto (sem login). */
 export const TITULO = 'WebApp para visitas';
 
 const PERGUNTAS = [
@@ -77,14 +77,14 @@ const TEXTO_FALADO = [TITULO + '.', INTRO, 'Importante. ' + AVISO_FICTICIOS, AVI
  * @return {string} Texto para o modo Ouvir.
  */
 export function renderizar(area, sessao) {
-  definirBarra({titulo: TITULO});
+  definirBarra({titulo: 'O que é este app'});
   db.salvarConfig(CHAVE_VIU, new Date().toISOString());
   area.innerHTML = `
     <div class="tela-sobre">
       <p class="sobre-intro">${esc(INTRO)}</p>
       <p class="sobre-aviso" role="note"><strong>Importante:</strong> ${esc(AVISO_FICTICIOS)}
         <strong>${esc(AVISO_SEM_DADOS_REAIS)}</strong></p>
-      <a class="btn-submit btn-link sobre-entrar" href="#pessoas">${sessao ? 'Ir para o app' : 'Já uso, quero entrar'}</a>
+      <a class="btn-submit btn-link sobre-entrar" href="#pessoas">${sessao ? 'Ir para o app' : 'Entrar'}</a>
       <button type="button" class="btn-secundario sobre-ouvir" data-sobre="ouvir">🔊 Ouvir</button>
       <div class="sobre-perguntas">
         ${PERGUNTAS.map((p) => `
