@@ -132,8 +132,22 @@ function parteVisivel(el, hCard) {
   return titulo && visivel(titulo) ? titulo : el;
 }
 
-/** @return {number} Largura do card: a tela toda, com a margem (até 560px no computador). */
-const larguraDoCard = () => Math.min(document.documentElement.clientWidth - MARGEM * 2, 560);
+/**
+ * A área em que o card é desenhado. No computador, o app fica numa moldura de celular (desktop.css) e o "fixed" conta a
+ * partir dela, e não da janela (23/11/2026).
+ * @return {{left: number, top: number, bottom: number, width: number}}
+ */
+function moldura() {
+  const janela = document.documentElement.clientWidth;
+  if (!estado.raiz) {
+    return {left: 0, top: 0, bottom: window.innerHeight, width: janela};
+  }
+  const r = estado.raiz.getBoundingClientRect();
+  return {left: r.left, top: r.top, bottom: r.bottom, width: Math.min(janela, r.width)};
+}
+
+/** @return {number} Largura do card: a tela toda, com a margem (até 560px). */
+const larguraDoCard = () => Math.min(moldura().width - MARGEM * 2, 560);
 
 /**
  * Rola a tela quando o elemento não está todo à vista ou não sobra lugar para o card: o elemento vai para o alto da
@@ -651,22 +665,23 @@ function aoClicarNoTreino(e) {
  * @return {{topo: number, base: number}}
  */
 function limites(alvo) {
-  const altura = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const caixa = moldura();
+  const altura = Math.min(caixa.bottom, window.visualViewport ? window.visualViewport.height : window.innerHeight);
   const barra = document.getElementById('barraTela');
   const header = document.getElementById('appHeader');
   const rodape = document.getElementById('appFooter');
   if (alvo.closest('#bottomSheet, #scrimOpcoes')) {
-    return {topo: 0, base: altura}; // gaveta aberta, por cima das barras
+    return {topo: caixa.top, base: altura}; // gaveta aberta, por cima das barras
   }
   const emCima = alvo.closest('#appHeader, #barraTela');
   const embaixo = alvo.closest('#appFooter');
   const fundoDe = (el) => (el && el.getBoundingClientRect().height ? el.getBoundingClientRect().bottom : 0);
-  let topo = emCima ? 0 : Math.max(fundoDe(barra), fundoDe(header));
+  let topo = emCima ? caixa.top : Math.max(fundoDe(barra), fundoDe(header));
   let base = altura;
   if (!embaixo && rodape && rodape.getBoundingClientRect().height) {
     base = Math.min(base, rodape.getBoundingClientRect().top);
   }
-  topo = Math.max(0, topo);
+  topo = Math.max(caixa.top, topo);
   return {topo, base};
 }
 
@@ -687,16 +702,16 @@ function posicionar() {
   const seta = raiz.querySelector('.tutorial-seta');
   const destaque = raiz.querySelector('.tutorial-destaque');
   const r = alvo.getBoundingClientRect();
-  const largura = document.documentElement.clientWidth;
+  const caixa = moldura();
   const {topo, base} = limites(alvo);
 
-  // Destaque: um pouco maior que o elemento.
+  // Destaque: um pouco maior que o elemento. As medidas vêm da janela; o desenho conta a partir da moldura.
   const folga = 4;
-  Object.assign(destaque.style, {left: (r.left - folga) + 'px', top: (r.top - folga) + 'px',
+  Object.assign(destaque.style, {left: (r.left - caixa.left - folga) + 'px', top: (r.top - caixa.top - folga) + 'px',
     width: (r.width + folga * 2) + 'px', height: (r.height + folga * 2) + 'px'});
 
   const larguraCard = larguraDoCard();
-  const esquerda = (largura - larguraCard) / 2;
+  const esquerda = (caixa.width - larguraCard) / 2;
   card.style.width = larguraCard + 'px';
   card.style.left = esquerda + 'px';
   const h = card.offsetHeight;
@@ -713,11 +728,11 @@ function posicionar() {
   let y = emBaixo ? r.bottom + ESPACO : r.top - ESPACO - h;
   // Elemento fora da faixa visível (rolou): o card fica preso na borda.
   y = Math.max(topo + 4, Math.min(y, base - h - 4));
-  card.style.top = y + 'px';
+  card.style.top = (y - caixa.top) + 'px';
   card.classList.toggle('seta-em-cima', emBaixo);
   card.classList.toggle('seta-embaixo', !emBaixo);
   const meio = Math.max(r.left, Math.min(r.right, r.left + r.width / 2));
-  seta.style.left = Math.max(18, Math.min(larguraCard - 18, meio - esquerda)) + 'px';
+  seta.style.left = Math.max(18, Math.min(larguraCard - 18, meio - caixa.left - esquerda)) + 'px';
   // Sem o elemento à vista, a seta some (o card não aponta para o vazio).
   seta.hidden = r.bottom < topo || r.top > base;
 }
