@@ -136,6 +136,28 @@ function acao() {
 // Ouvir
 // ---------------------------------------------------------------------------
 
+/** Cada leitura tem um número: o aviso de uma fala cancelada não mexe na leitura seguinte. */
+let vezDaLeitura = 0;
+
+/**
+ * Divide em frases de até 200 letras: o Chrome pode interromper uma fala muito longa (23/11/2026).
+ * @param {string} texto
+ * @return {!Array<string>}
+ */
+function pedacosDeFala(texto) {
+  const frases = String(texto).match(/[^.!?;:]+[.!?;:]*\s*/g) || [String(texto)];
+  const pedacos = [];
+  frases.forEach((frase) => {
+    const ultimo = pedacos.length - 1;
+    if (ultimo >= 0 && pedacos[ultimo].length + frase.length <= 200) {
+      pedacos[ultimo] += frase;
+    } else {
+      pedacos.push(frase);
+    }
+  });
+  return pedacos;
+}
+
 /** @param {string} texto */
 function ler(texto) {
   if (!texto) {
@@ -147,18 +169,30 @@ function ler(texto) {
     return;
   }
   window.speechSynthesis.cancel();
-  const fala = new SpeechSynthesisUtterance(texto);
-  fala.lang = 'pt-BR';
-  fala.rate = 0.95; // um pouco mais devagar, para quem tem mais idade
-  fala.onstart = () => {
-    estado.lendo = true;
-    mostrarModo();
+  const vez = ++vezDaLeitura;
+  const terminar = () => {
+    if (vez === vezDaLeitura) {
+      estado.lendo = false;
+      mostrarModo();
+    }
   };
-  fala.onend = fala.onerror = () => {
-    estado.lendo = false;
-    mostrarModo();
-  };
-  window.speechSynthesis.speak(fala);
+  const pedacos = pedacosDeFala(texto);
+  pedacos.forEach((pedaco, i) => {
+    const fala = new SpeechSynthesisUtterance(pedaco);
+    fala.lang = 'pt-BR';
+    fala.rate = 0.95; // um pouco mais devagar, para quem tem mais idade
+    fala.onstart = () => {
+      if (vez === vezDaLeitura) {
+        estado.lendo = true;
+        mostrarModo();
+      }
+    };
+    fala.onerror = terminar;
+    if (i === pedacos.length - 1) {
+      fala.onend = terminar;
+    }
+    window.speechSynthesis.speak(fala);
+  });
 }
 
 /**
@@ -170,6 +204,7 @@ export function lerEmVozAlta(texto) {
 }
 
 export function pararLeitura() {
+  vezDaLeitura++;
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }

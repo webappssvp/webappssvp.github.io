@@ -8,6 +8,7 @@
 import {prefs, definirPreferencia, eventosPreferencias, vibrar, bipar, tipoDeRede} from './core/preferencias.js';
 import {pararLeitura} from './core/voz.js';
 import {mostrarAvisosDeNovo} from './componentes/tutorial.js';
+import {redesenharBarra} from './componentes/barra_tela.js';
 
 const estado = {
   timerAviso: null,
@@ -193,8 +194,8 @@ function ligarAjuda() {
     await mostrarAvisosDeNovo();
     vibrar(25);
     fecharGaveta();
-    avisar('Os avisos de primeira vez voltam a aparecer em cada tela.');
-    window.dispatchEvent(new HashChangeEvent('hashchange')); // a tela aberta redesenha a barra, com o aviso
+    avisar('O ícone de Ajuda volta a pulsar em cada tela.');
+    redesenharBarra(); // a tela aberta fica com o ícone pulsando
   });
 }
 

@@ -568,7 +568,7 @@ body.tema-claro .badge-status-nuvem {
   background-color: var(--md-surface-2);
 }
 
-/* Primeira vez na tela: o ícone pulsa (tamanho e brilho, perceptível sem cor) */
+/* Até ser tocado nesta tela: o ícone pulsa (tamanho e brilho, perceptível sem cor) */
 .barra-tela-ajuda.pulsando svg {
   animation: pulsoAjuda 1.4s ease-in-out infinite;
 }
@@ -585,43 +585,6 @@ body.sem-animacoes .barra-tela-ajuda.pulsando svg {
 body.sem-animacoes .barra-tela-ajuda.pulsando {
   border-width: 2px;
   border-color: var(--md-secondary);
-}
-
-.aviso-ajuda {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.5rem 0.45rem 1rem;
-  background-color: var(--md-surface-2);
-  border-bottom: 1px solid var(--md-border-subtle);
-  color: var(--md-on-surface-variant);
-  font-size: 0.85rem;
-  line-height: 1.35;
-  box-shadow: var(--md-elevation-1);
-}
-
-.aviso-ajuda span {
-  flex: 1 1 auto;
-}
-
-.aviso-ajuda strong {
-  color: var(--md-on-surface);
-}
-
-.aviso-ajuda-fechar {
-  flex: 0 0 auto;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: none;
-  border: none;
-  border-radius: 999px;
-  color: var(--md-on-surface-variant);
-  font-size: 1rem;
-  cursor: pointer;
 }
 
 /* Tutorial aberto: a tela continua usável (só o card recebe toques da camada) */
@@ -2292,9 +2255,4 @@ body.tema-claro .link-perigo {
 body.sem-animacoes .tutorial-destaque.tutorial-pulsando {
   animation: none;
   outline-width: 6px;
-}
-
-/* Com a Ajuda aberta, o aviso de primeira vez não cobre o que está sendo explicado */
-body.com-tutorial .aviso-ajuda {
-  display: none;
 }

@@ -306,6 +306,18 @@ Object.assign(TUTORIAIS, {
       AJUDA,
     ],
   },
+  cuidados: {
+    titulo: 'Cuidados',
+    passos: [
+      {alvo: '.cuidados-aviso', titulo: 'Em revisão', texto: 'As fichas ainda estão sendo revisadas por profissionais.'},
+      {alvo: '.cuidados-lista', titulo: 'Os cinco cuidados',
+        texto: 'Toque num cuidado para ver as fichas. Em cada ficha, você pode ler ou tocar em Ouvir.'},
+      {alvo: '.cuidados-encaminhar', titulo: 'Onde encaminhar',
+        texto: 'Para quem ligar ou aonde levar a pessoa quando a situação não é com o vicentino.'},
+      {alvo: '.cuidados-principios', titulo: 'Como conversar', texto: 'O jeito de falar com a família, sem cobrar nem culpar.'},
+      AJUDA,
+    ],
+  },
   como_funciona: {
     titulo: 'Como o app guarda e envia',
     passos: [
@@ -410,6 +422,8 @@ export function chaveDoTutorial(hash) {
     chave = 'sugestoes';
   } else if (base === '#sobre') {
     chave = 'sobre';
+  } else if (base === '#cuidados') {
+    chave = 'cuidados';
   } else if (base === '#como-funciona') {
     chave = 'como_funciona';
   } else if (base === '#importar') {

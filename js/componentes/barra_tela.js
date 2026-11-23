@@ -15,7 +15,7 @@
 
 import {vibrar} from '../core/preferencias.js';
 import {iconeSync} from './icone_sync.js';
-import {avisoDePrimeiraVez, chaveAtual, precisaAviso} from './tutorial.js';
+import {ajudaPulsa, chaveAtual} from './tutorial.js';
 
 /** Ícones do Material Symbols (viewBox 0 -960 960 960). */
 const ICONES = {
@@ -194,10 +194,9 @@ function desenharBarra() {
   const o = c.opcoes;
   const n = ativos(o);
   const linha = resumo(o);
-  // Ajuda (20/11/2026, tutorial.js): na tela que tem tutorial; na primeira vez, o aviso e o ícone pulsando.
+  // Ajuda (20/11/2026, tutorial.js): na tela que tem tutorial; o ícone pulsa até ser tocado nesta tela (23/11/2026).
   const tutorial = chaveAtual();
-  const pulsa = precisaAviso(tutorial);
-  const aviso = pulsa && tutorial !== 'login'; // no login, o aviso cobriria o primeiro campo: só o ícone pulsa
+  const pulsa = ajudaPulsa(tutorial);
   barra.innerHTML = `
     ${c.voltar ? `<button type="button" class="barra-tela-botao barra-tela-voltar" data-voltar href="${esc(c.voltar)}"
       aria-label="Voltar">${icone('voltar')}</button>` : ''}
@@ -210,8 +209,7 @@ function desenharBarra() {
       title="Compartilhar">${icone('compartilhar')}</button>` : ''}
     ${tutorial ? `<button type="button" class="barra-tela-ajuda${pulsa ? ' pulsando' : ''}" data-barra="ajuda"
       aria-label="Ajuda: como esta tela funciona">${icone('ajuda')}<span>Ajuda</span></button>` : ''}
-    ${o ? botaoOpcoes(n, linha) : ''}
-    ${aviso ? avisoDePrimeiraVez() : ''}`;
+    ${o ? botaoOpcoes(n, linha) : ''}`;
   const botao = barra.querySelector('[data-barra="opcoes"]');
   if (botao) {
     botao.addEventListener('click', () => {

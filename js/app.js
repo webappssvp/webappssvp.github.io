@@ -26,6 +26,7 @@ import * as importarPessoas from './telas/importar_pessoas.js';
 import * as comoFunciona from './telas/como_funciona.js';
 import * as sugestoes from './telas/sugestoes.js';
 import * as sobre from './telas/sobre.js';
+import * as cuidados from './telas/cuidados.js';
 import {eventosFamilias} from './telas/familia_dados.js';
 import {ligarCompartilhar} from './componentes/compartilhar.js';
 import {voltar} from './telas/comum.js';
@@ -39,6 +40,7 @@ const TELAS = {
   '#familias': familias,
   '#visitas': visitas,
   '#visita': visita, // #visita/<id_familia>: registrar uma visita (06_visitas.md, etapa 1)
+  '#cuidados': cuidados, // fichas de micro-hábitos para as visitas (23/11/2026)
   '#importar': importarPessoas,
   '#sobre': sobre, // apresentação para quem ainda não usa, sem login (22/11/2026)
   '#sugestoes': sugestoes, // sugestões, opiniões e dúvidas para o CC (homologação, 19/11/2026)

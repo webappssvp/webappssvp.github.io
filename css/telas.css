@@ -2065,3 +2065,117 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
 .sobre-resposta strong {
   color: var(--md-on-surface);
 }
+
+/* Cuidados: fichas de micro-hábitos (#cuidados, 23/11/2026) */
+.cuidados-fichas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 0.6rem 0.6rem;
+}
+
+.cuidados-ficha {
+  background-color: var(--md-surface-0);
+  border: 1px solid var(--md-border-subtle);
+  border-radius: 0.6rem;
+}
+
+.cuidados-ficha summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--md-secondary);
+  cursor: pointer;
+  list-style: none;
+}
+
+.cuidados-ficha summary::-webkit-details-marker {
+  display: none;
+}
+
+.cuidados-ficha summary::after {
+  content: '+';
+  flex: 0 0 auto;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.cuidados-ficha[open] summary::after {
+  content: '−';
+}
+
+.cuidados-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 0.2rem 0.8rem 0.9rem;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--md-on-surface-variant);
+}
+
+.cuidados-secao h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+  color: var(--md-on-surface);
+}
+
+.cuidados-secao h3 small {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--md-on-surface-variant);
+}
+
+.cuidados-secao p {
+  margin: 0 0 0.45rem;
+}
+
+.cuidados-secao ul,
+.cuidados-secao ol,
+.cuidados-principios ol {
+  margin: 0 0 0.45rem;
+  padding-left: 1.3rem;
+}
+
+.cuidados-secao li + li,
+.cuidados-principios li + li {
+  margin-top: 0.3rem;
+}
+
+.cuidados-corpo strong {
+  color: var(--md-on-surface);
+}
+
+.cuidados-corpo a,
+.cuidados-destinos a {
+  color: var(--md-secondary);
+  font-weight: 700;
+}
+
+.cuidados-destinos {
+  margin: 0;
+}
+
+.cuidados-destinos > div {
+  padding: 0.45rem 0;
+  border-top: 1px solid var(--md-border-subtle);
+}
+
+.cuidados-destinos > div:first-child {
+  border-top: 0;
+}
+
+.cuidados-destinos dt {
+  color: var(--md-on-surface-variant);
+}
+
+.cuidados-destinos dd {
+  margin: 0.1rem 0 0;
+  font-weight: 700;
+  color: var(--md-on-surface);
+}

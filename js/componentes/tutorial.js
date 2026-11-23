@@ -2,8 +2,8 @@
  * @fileoverview Tutorial de cada tela (pedido de 20/11/2026; substitui o modo "O que é isso?").
  *
  * - O botão "Ajuda" fica na barra da tela (barra_tela.js) quando a tela tem tutorial (tutoriais.js).
- * - Na primeira vez em cada tela, um aviso discreto logo abaixo da barra, com o ícone da Ajuda pulsando. Some ao
- *   abrir o tutorial ou ao fechar o aviso (config "tutoriais_vistos", neste aparelho).
+ * - Em cada tela, o ícone da Ajuda pulsa até ser tocado ali (23/11/2026, no lugar do aviso que cobria o conteúdo;
+ *   config "tutoriais_vistos", neste aparelho).
  * - O card flutuante ocupa a largura da tela, fica logo acima ou logo abaixo do elemento explicado (no lado com mais
  *   espaço) e uma seta liga os dois. O elemento ganha destaque (o resto escurece). ‹ e › passam os passos; ✕ fecha.
  * - Rolando a tela, o card acompanha o elemento; se o elemento sai da tela, o card fica na borda.
@@ -45,8 +45,8 @@ export function chaveAtual() {
   return document.body.classList.contains('painel-aberto') ? 'login' : chaveDoTutorial(location.hash);
 }
 
-/** @param {string} chave @return {boolean} Mostra o aviso de primeira vez nesta tela. */
-export function precisaAviso(chave) {
+/** @param {string} chave @return {boolean} A Ajuda desta tela ainda não foi tocada: o ícone pulsa. */
+export function ajudaPulsa(chave) {
   return Boolean(chave) && !estado.vistos[chave];
 }
 
@@ -61,7 +61,6 @@ async function marcarVisto(chave) {
     return;
   }
   estado.vistos[chave] = new Date().toISOString();
-  document.querySelectorAll('.aviso-ajuda').forEach((a) => a.remove());
   document.querySelectorAll('.barra-tela-ajuda.pulsando').forEach((b) => b.classList.remove('pulsando'));
   try {
     await db.salvarConfig(CHAVE_VISTOS, estado.vistos);
@@ -70,7 +69,7 @@ async function marcarVisto(chave) {
   }
 }
 
-/** Volta a mostrar o aviso de primeira vez em todas as telas (Ajuda, na gaveta do alto). */
+/** O ícone da Ajuda volta a pulsar em todas as telas (Ajuda, na gaveta do alto). */
 export async function mostrarAvisosDeNovo() {
   estado.vistos = {};
   try {
@@ -247,7 +246,6 @@ function montar() {
     }
   });
   document.body.appendChild(raiz);
-  document.body.classList.add('com-tutorial');
   estado.raiz = raiz;
 }
 
@@ -318,7 +316,6 @@ function fechar(pelaPessoa) {
   estado.raiz.remove();
   estado.raiz = null;
   estado.alvo = null;
-  document.body.classList.remove('com-tutorial');
   if (estado.leitorAntes) {
     definirLeitor(estado.leitorAntes);
     estado.leitorAntes = null;
@@ -735,7 +732,7 @@ function agendarPosicao() {
 // Início
 // ---------------------------------------------------------------------------
 
-/** Liga o botão Ajuda, o aviso e a posição do card (uma vez, ao abrir o app). */
+/** Liga o botão Ajuda e a posição do card (uma vez, ao abrir o app). */
 export async function iniciarTutoriais() {
   try {
     estado.vistos = (await db.lerConfig(CHAVE_VISTOS)) || {};
@@ -753,9 +750,6 @@ export async function iniciarTutoriais() {
       } else {
         abrirTutorial(chave);
       }
-    } else if (e.target.closest('[data-aviso-ajuda="fechar"]')) {
-      vibrar();
-      marcarVisto(chaveAtual());
     }
   });
   document.addEventListener('click', aoClicarNoTreino, true);
@@ -796,12 +790,4 @@ export async function iniciarTutoriais() {
       irPara(estado.n - 1);
     }
   });
-}
-
-/** @return {string} HTML do aviso de primeira vez (vai dentro da barra da tela). */
-export function avisoDePrimeiraVez() {
-  return `<div class="aviso-ajuda" role="note">
-    <span>Primeira vez aqui? Toque em <strong>Ajuda</strong> para ver como esta tela funciona.</span>
-    <button type="button" class="aviso-ajuda-fechar" data-aviso-ajuda="fechar" aria-label="Fechar o aviso">✕</button>
-  </div>`;
 }

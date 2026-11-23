@@ -1,0 +1,662 @@
+{
+ "principios": [
+  "**O vicentino é amigo, não terapeuta nem fiscal.** Pergunta mais do que aconselha, e a pessoa escolhe o próprio passo.",
+  "**Nunca culpar.** Se não conseguiu, procurar juntos o que atrapalhou: quase sempre há uma barreira real.",
+  "**Sem gastar dinheiro.** Todo micro-hábito precisa ser possível com o que a família já tem.",
+  "**A ajuda nunca depende de cumprir hábito.** Cesta e auxílios não são prêmio nem castigo.",
+  "**Respeito à fé de cada um.** Quem tem outra fé, ou nenhuma, é acolhido do mesmo jeito.",
+  "**Separar as fontes.** O que é recomendação da OMS ou do Ministério da Saúde aparece como tal. Os micro-hábitos e as perguntas são adaptação nossa.",
+  "**As perguntas são escritas por nós**, inspiradas no questionamento socrático, sem copiar o livro e sem fazer terapia.",
+  "**Os rostinhos não são o questionário da OMS.** São uma avaliação simples, inspirada nos domínios do WHOQOL."
+ ],
+ "encaminhar": [
+  {
+   "situacao": "Emergência de saúde",
+   "destino": "**SAMU 192**"
+  },
+  {
+   "situacao": "Perigo imediato, violência acontecendo",
+   "destino": "**Polícia 190**"
+  },
+  {
+   "situacao": "Gás, incêndio",
+   "destino": "**Bombeiros 193**"
+  },
+  {
+   "situacao": "Risco de desabamento, enchente",
+   "destino": "**Defesa Civil 199**"
+  },
+  {
+   "situacao": "Tristeza profunda, falar em morrer",
+   "destino": "**CVV 188**; em risco imediato, **SAMU 192**"
+  },
+  {
+   "situacao": "Violência contra a mulher",
+   "destino": "**Ligue 180**"
+  },
+  {
+   "situacao": "Violência ou negligência contra criança, idoso ou pessoa com deficiência",
+   "destino": "**Disque 100**"
+  },
+  {
+   "situacao": "Saúde em geral",
+   "destino": "**UBS**"
+  },
+  {
+   "situacao": "Sofrimento mental",
+   "destino": "**CAPS**"
+  },
+  {
+   "situacao": "Benefícios, assistência social",
+   "destino": "**CRAS**"
+  }
+ ],
+ "cuidados": [
+  {
+   "titulo": "Cuidados com o corpo",
+   "fichas": [
+    {
+     "titulo": "Mexer o corpo",
+     "versao": "93cc3423f432",
+     "secoes": [
+      {
+       "titulo": "Como aparece na conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "\"Ando sem disposição.\"",
+          "\"Fico o dia inteiro sentada.\"",
+          "\"Meu corpo está todo travado.\""
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "O hábito, em palavras simples",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Mexer o corpo um pouco, quase todo dia, ajuda no ânimo, no sono e na saúde. Não precisa de academia nem de roupa especial. Qualquer movimento já é melhor do que nenhum."
+        }
+       ]
+      },
+      {
+       "titulo": "De onde vem",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "OMS, *Guidelines on physical activity and sedentary behaviour* (2020): para adultos, de 150 a 300 minutos de atividade moderada por semana."
+        },
+        {
+         "tipo": "ul",
+         "itens": [
+          "Documento: <https://www.who.int/publications/i/item/9789240015128>",
+          "Resumo: <https://www.who.int/news-room/fact-sheets/detail/physical-activity>"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Micro-hábitos, em degraus",
+       "nota": "adaptação nossa",
+       "blocos": [
+        {
+         "tipo": "ol",
+         "itens": [
+          "Depois do café, sentar e levantar de uma cadeira firme 5 vezes, com apoio se precisar.",
+          "Marchar parado por 5 minutos, perto de um apoio.",
+          "Marchar 10 minutos dentro de casa.",
+          "Caminhar 10 minutos na rua, em lugar seguro.",
+          "Caminhar 30 minutos, 5 dias por semana."
+         ]
+        },
+        {
+         "tipo": "p",
+         "texto": "Só subir de degrau quando o anterior estiver fácil. Parar se sentir dor."
+        },
+        {
+         "tipo": "p",
+         "texto": "**Atestado de aptidão física:** a pessoa pode marcar uma consulta na UBS, contar ao médico quais exercícios pretende fazer em casa e pedir o atestado."
+        }
+       ]
+      },
+      {
+       "titulo": "Perguntas para a conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "O que a senhora gostaria de voltar a fazer?",
+          "O que ficaria mais fácil se tivesse mais disposição?",
+          "Qual é o menor passo que daria para fazer amanhã?",
+          "Em que momento do dia isso caberia?",
+          "O que pode atrapalhar? Quem pode ajudar?"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Se não conseguir",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "\"O que aconteceu nesta semana?\" Sem cobrança. Diminuir o passo, trocar o horário ou procurar quem ajude."
+        }
+       ]
+      },
+      {
+       "titulo": "Como a conferência pode ajudar",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Caminhar junto na visita, combinar com um vizinho, ajudar a marcar a consulta na UBS e a anotar os exercícios para mostrar ao médico ou, se faltar um calçado seguro, ver a possibilidade de um auxílio."
+        }
+       ]
+      },
+      {
+       "titulo": "Quando não é com o vicentino",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "Dor no peito, falta de ar forte, desmaio, fraqueza ou fala enrolada de repente: **SAMU 192**.",
+          "Dor que não passa, tontura, quedas, pressão alta ou diabetes sem acompanhamento: procurar a **UBS** antes de aumentar os exercícios."
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "Cuidados com a mente",
+   "fichas": [
+    {
+     "titulo": "Um momento bom por dia",
+     "versao": "43c6214b0a13",
+     "secoes": [
+      {
+       "titulo": "Como aparece na conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "\"Minha cabeça não para.\"",
+          "\"Só vejo problema.\"",
+          "\"Não tenho vontade de nada.\""
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "O hábito, em palavras simples",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Quando a vida está pesada, a cabeça fica presa nas preocupações. Parar um pouco e reparar em algo bom do dia não resolve os problemas, mas ajuda a respirar e a enfrentá-los. Sentir tristeza não é defeito nem falta de fé."
+        }
+       ]
+      },
+      {
+       "titulo": "De onde vem",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "OMS, *Doing What Matters in Times of Stress* (2020): guia para lidar com o estresse, com técnicas de autoajuda que pedem poucos minutos por dia. Os passos abaixo são adaptação nossa."
+        },
+        {
+         "tipo": "ul",
+         "itens": [
+          "Documento: <https://www.who.int/publications/i/item/9789240003927>",
+          "Saúde mental: <https://www.who.int/news-room/fact-sheets/detail/mental-health-strengthening-our-response>"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Micro-hábitos, em degraus",
+       "nota": "adaptação nossa",
+       "blocos": [
+        {
+         "tipo": "ol",
+         "itens": [
+          "Uma vez por dia, parar e respirar devagar 3 vezes.",
+          "Reparar em uma coisa ao redor: o sol, um som, o gosto do café.",
+          "À noite, lembrar uma coisa que foi boa ou menos difícil no dia.",
+          "Contar essa coisa para alguém ou anotar num caderno.",
+          "Reservar 10 minutos do dia para algo de que goste: música, rádio, plantas, costura."
+         ]
+        },
+        {
+         "tipo": "p",
+         "texto": "Se lembrar de algo bom estiver difícil, voltar ao primeiro degrau. Ninguém precisa fingir que está bem."
+        }
+       ]
+      },
+      {
+       "titulo": "Perguntas para a conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "Como têm sido os seus dias?",
+          "Teve algum momento, mesmo pequeno, em que ficou um pouco mais leve?",
+          "O que costumava fazer e trazia alegria?",
+          "O que caberia hoje, em poucos minutos?",
+          "Em que hora do dia é mais fácil parar um pouco?"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Se não conseguir",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "\"Tem dias em que nem isso dá, e está tudo bem.\" Escutar primeiro. Não insistir em ver o lado bom, principalmente em luto ou em dificuldade grave."
+        }
+       ]
+      },
+      {
+       "titulo": "Como a conferência pode ajudar",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Escutar sem pressa, voltar na semana seguinte e, se a pessoa quiser, acompanhá-la à UBS ou ao CAPS."
+        }
+       ]
+      },
+      {
+       "titulo": "Quando não é com o vicentino",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "Fala em morrer, em sumir ou em ser um peso: não deixar a pessoa sozinha, **CVV 188**; em risco imediato, **SAMU 192**.",
+          "Tristeza ou falta de vontade na maior parte dos dias, por semanas: **UBS** ou **CAPS**.",
+          "Vozes, confusão repentina ou uso de álcool e drogas que preocupa: **UBS** ou **CAPS**."
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "Cuidados com a casa",
+   "fichas": [
+    {
+     "titulo": "Uma pequena arrumação por dia",
+     "versao": "87603da25bc0",
+     "secoes": [
+      {
+       "titulo": "Como aparece na conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "\"Não dou conta da casa.\"",
+          "\"Nem sei por onde começar.\"",
+          "\"Tenho vergonha de receber vocês assim.\""
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "O hábito, em palavras simples",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Ninguém arruma a casa inteira de uma vez. Uma tarefa pequena por dia já alivia, deixa a casa mais segura e dá a sensação de ter conseguido algo. A visita não vem para avaliar a casa."
+        }
+       ]
+      },
+      {
+       "titulo": "De onde vem",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "OMS, *Housing and health guidelines* (2018): tratam, entre outros temas, de excesso de pessoas na moradia e de riscos de acidente em casa. A página da OMS sobre quedas recomenda avaliar e adaptar a casa de quem tem risco maior de cair."
+        },
+        {
+         "tipo": "ul",
+         "itens": [
+          "Documento: <https://www.who.int/publications/i/item/9789241550376>",
+          "Quedas: <https://www.who.int/news-room/fact-sheets/detail/falls>"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Micro-hábitos, em degraus",
+       "nota": "adaptação nossa",
+       "blocos": [
+        {
+         "tipo": "ol",
+         "itens": [
+          "Tirar do chão uma coisa que possa fazer alguém tropeçar.",
+          "Lavar a louça de uma refeição logo depois de comer.",
+          "Escolher um cantinho por dia: a pia, a mesa ou uma prateleira.",
+          "Limpar o banheiro uma vez por semana, dividindo com quem mora junto.",
+          "Combinar uma tarefa para cada pessoa da casa."
+         ]
+        },
+        {
+         "tipo": "p",
+         "texto": "Nunca misturar produtos de limpeza, como água sanitária com outros: pode soltar gás perigoso."
+        }
+       ]
+      },
+      {
+       "titulo": "Perguntas para a conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "Que parte da casa mais incomoda?",
+          "O que ficaria mais fácil se esse lugar estivesse em ordem?",
+          "Qual é a menor tarefa que daria para fazer amanhã?",
+          "Quem da casa pode ajudar?",
+          "O que está faltando para conseguir: água, produto, força, tempo?"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Se não conseguir",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "\"O que pegou nesta semana?\" Diminuir a tarefa. Casa desarrumada pode ser cansaço, dor, tristeza ou falta de água."
+        }
+       ]
+      },
+      {
+       "titulo": "Como a conferência pode ajudar",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Se a pessoa aceitar, um mutirão pequeno. Se faltar, ver a possibilidade de material de limpeza ou de um pequeno reparo. Nunca mexer nas coisas da pessoa sem ela pedir."
+        }
+       ]
+      },
+      {
+       "titulo": "Quando não é com o vicentino",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "Cheiro de gás: não acender nada, abrir as janelas, sair e chamar os **Bombeiros 193**.",
+          "Rachaduras grandes, risco de desabamento ou de enchente: **Defesa Civil 199**.",
+          "Quedas repetidas: **UBS**.",
+          "Acúmulo de objetos ou de lixo que impede de circular, ou idoso ou criança sem cuidados: **CRAS**, **UBS** ou **Disque 100**."
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "Cuidados com os relacionamentos",
+   "fichas": [
+    {
+     "titulo": "Falar com alguém por dia",
+     "versao": "5fbb34d05187",
+     "secoes": [
+      {
+       "titulo": "Como aparece na conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "\"Não tenho ninguém.\"",
+          "\"Meus filhos nem ligam.\"",
+          "\"Vocês são as únicas pessoas que vêm aqui.\""
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "O hábito, em palavras simples",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Ter com quem conversar também é cuidar da saúde. Não precisa de muita gente nem de conversa longa: um bom-dia, uma ligação ou um café já começam a mudar o dia."
+        }
+       ]
+      },
+      {
+       "titulo": "De onde vem",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "OMS, Comissão sobre Conexão Social, *From loneliness to social connection* (2025): 1 em cada 6 pessoas no mundo é afetada pela solidão, e quem se sente só tem o dobro de chance de ter depressão."
+        },
+        {
+         "tipo": "ul",
+         "itens": [
+          "Comissão: <https://www.who.int/groups/commission-on-social-connection>",
+          "Resumo: <https://www.who.int/news/item/30-06-2025-social-connection-linked-to-improved-heath-and-reduced-risk-of-early-death>"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Micro-hábitos, em degraus",
+       "nota": "adaptação nossa",
+       "blocos": [
+        {
+         "tipo": "ol",
+         "itens": [
+          "Dar bom-dia a uma pessoa: vizinho, porteiro, quem passa.",
+          "Trocar duas frases com alguém que já conhece.",
+          "Mandar um áudio ou ligar para uma pessoa por semana.",
+          "Combinar um café ou uma conversa no portão.",
+          "Participar de um grupo por mês: igreja, UBS, associação do bairro."
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Perguntas para a conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "Com quem tem conversado nos últimos dias?",
+          "De quem sente falta?",
+          "Quem já foi importante e seria bom reencontrar?",
+          "Quem está perto e talvez também precise de companhia?",
+          "Qual seria um primeiro contato fácil nesta semana?"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Se não conseguir",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "\"Como foi tentar?\" Se alguém não respondeu, não é sinal de que a pessoa não tem valor. Escolher outro contato ou um passo menor."
+        }
+       ]
+      },
+      {
+       "titulo": "Como a conferência pode ajudar",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Ser presença fiel nas visitas, apresentar um vizinho ou um grupo da paróquia, se a pessoa quiser, e acompanhar na primeira vez."
+        }
+       ]
+      },
+      {
+       "titulo": "Quando não é com o vicentino",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "**Nunca incentivar a reaproximação** com quem agrediu, ameaçou ou explorou a pessoa.",
+          "Violência contra a mulher: **Ligue 180**. Em perigo agora: **Polícia 190**.",
+          "Violência ou negligência contra criança, idoso ou pessoa com deficiência: **Disque 100**.",
+          "Isolamento com tristeza profunda ou fala em morrer: **CVV 188**; em risco imediato, **SAMU 192**."
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "Cuidados com o espírito",
+   "fichas": [
+    {
+     "titulo": "Um momento de oração ou silêncio",
+     "versao": "fab9fc995705",
+     "secoes": [
+      {
+       "titulo": "Como aparece na conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "\"Faz tempo que não consigo rezar.\"",
+          "\"Por que isso aconteceu comigo?\"",
+          "\"Só a fé me segura.\""
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "O hábito, em palavras simples",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Reservar um momento de quietude ajuda a lembrar o que dá sentido à vida. Para quem crê, pode ser uma oração. Para quem não crê, um silêncio, uma lembrança de gratidão ou um olhar para o céu."
+        }
+       ]
+      },
+      {
+       "titulo": "De onde vem",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Esta ficha **não** vem de uma recomendação da OMS. A OMS define qualidade de vida levando em conta a cultura e os valores de cada pessoa, e tem um módulo do WHOQOL sobre espiritualidade, religião e crenças pessoais (WHOQOL-SRPB). Os passos são adaptação nossa e dependem da revisão da assessoria espiritual."
+        },
+        {
+         "tipo": "ul",
+         "itens": [
+          "WHOQOL: <https://www.who.int/tools/whoqol>"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Micro-hábitos, em degraus",
+       "nota": "adaptação nossa",
+       "blocos": [
+        {
+         "tipo": "ol",
+         "itens": [
+          "Ao acordar, respirar fundo e agradecer por uma coisa, ou pedir força para o dia.",
+          "Um minuto de oração ou de silêncio, sempre no mesmo momento.",
+          "Ler ou ouvir uma frase que faça bem, da sua fé ou da sua vida.",
+          "Cinco minutos de oração ou silêncio por dia.",
+          "Se a pessoa desejar, participar da sua comunidade de fé."
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Perguntas para a conversa",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "O que dá força nas horas difíceis?",
+          "A fé tem algum lugar na sua vida? Como?",
+          "Existe uma oração, um canto ou um lugar que traga paz?",
+          "Em que momento do dia caberia um minuto só seu?",
+          "Gostaria de rezar junto agora, ou prefere deixar para outro dia?"
+         ]
+        }
+       ]
+      },
+      {
+       "titulo": "Se não conseguir",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "\"Tem épocas em que rezar fica difícil, e isso acontece com muita gente.\" Sem cobrança e sem explicar o sofrimento da pessoa."
+        }
+       ]
+      },
+      {
+       "titulo": "Como a conferência pode ajudar",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "p",
+         "texto": "Rezar junto quando a pessoa pedir ou aceitar e, se ela quiser, aproximá-la de um padre, de um ministro da sua fé ou de uma comunidade. Nunca condicionar a ajuda à fé ou à participação."
+        }
+       ]
+      },
+      {
+       "titulo": "Quando não é com o vicentino",
+       "nota": "",
+       "blocos": [
+        {
+         "tipo": "ul",
+         "itens": [
+          "Nunca dizer que doença ou sofrimento é castigo, nem que falta fé.",
+          "Pessoa que quer parar remédio ou tratamento por motivo religioso: conversar com respeito e procurar a **UBS**.",
+          "Culpa intensa, desespero ou fala em morrer: **CVV 188**; em risco imediato, **SAMU 192**."
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
