@@ -8,9 +8,21 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.26.1';
+const VERSAO = 'ssvp-casca-v0.27.0';
 
-const EM_DESENVOLVIMENTO = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
+/**
+ * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
+ * A cada versão, o Claude propõe o texto e o Luiz aprova antes de publicar. Aspas duplas: o app também lê este trecho
+ * como JSON, quando o service worker novo demora a responder.
+ * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
+ */
+const NOVIDADES = [
+  "O aviso de versão nova mostra o que mudou e se a atualização é necessária ou pode esperar.",
+  "Os avisos rápidos não ficam mais escondidos atrás do aviso de versão nova."
+];
+const NECESSARIA = false;
+
+const EM_DESENVOLVIMENTO =/^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
 
 const ARQUIVOS = [
   './',
@@ -96,7 +108,7 @@ self.addEventListener('activate', (evento) => {
 // A página pergunta a versão (etiqueta do alto) e pede para trocar já pela versão nova ("Atualizar agora", 18/11/2026).
 self.addEventListener('message', (evento) => {
   if (evento.data === 'versao' && evento.source) {
-    evento.source.postMessage({versao: VERSAO.replace(/^ssvp-casca-v/, '')});
+    evento.source.postMessage({versao: VERSAO.replace(/^ssvp-casca-v/, ''), novidades: NOVIDADES, necessaria: NECESSARIA});
   } else if (evento.data === 'atualizar') {
     self.skipWaiting();
   }

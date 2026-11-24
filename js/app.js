@@ -29,7 +29,7 @@ import * as sobre from './telas/sobre.js';
 import * as cuidados from './telas/cuidados.js';
 import {eventosFamilias} from './telas/familia_dados.js';
 import {ligarCompartilhar} from './componentes/compartilhar.js';
-import {voltar} from './telas/comum.js';
+import {esc, voltar} from './telas/comum.js';
 import * as uso from './core/uso.js';
 
 /** Telas por #hash. Pessoas é a inicial (mvp/telas/02_pessoas.md). */
@@ -354,10 +354,12 @@ function versaoPeloArquivo() {
 }
 
 /**
- * Versão nova baixada e esperando (18/11/2026): uma faixa com "Atualizar agora". Tocar troca de versão e recarrega;
- * o que está guardado no celular (fila, cópias, rascunhos) fica. Sem tocar, a versão nova vale quando todas as
- * janelas do app forem fechadas. A faixa diz "Versão Nova" e o código dela; os dois códigos pulsam, o da faixa e o da
- * versão atual na barra do alto (22/11/2026).
+ * Versão nova baixada e esperando: o card "Versão Nova" (padrão de 24/11/2026, testes/ux/t1_versao_nova.html).
+ * Três colunas: "Versão Nova", o código e o tipo | "O que mudou" (abre os detalhes para cima) e "Atualizar agora" |
+ * ✕ (Agora não), só quando a versão pode esperar. O tipo e o texto vêm do sw.js da versão nova (NOVIDADES,
+ * NECESSARIA). Os códigos, no card e na barra do alto, pulsam: vermelhos se a versão é necessária, amarelos se pode
+ * esperar. Atualizar troca de versão e recarrega; o que está guardado no celular (fila, cópias, rascunhos) fica. Sem
+ * tocar, a versão nova vale quando todas as janelas do app forem fechadas.
  * @param {!ServiceWorker} espera
  */
 function oferecerAtualizacao(espera) {
@@ -368,54 +370,131 @@ function oferecerAtualizacao(espera) {
   faixa.id = 'avisoVersao';
   faixa.className = 'aviso-versao';
   faixa.setAttribute('role', 'status');
-  faixa.innerHTML = '<span class="aviso-versao-textos"><strong>Versão Nova</strong>' +
-    '<span class="aviso-versao-codigo versao-pulsando" id="avisoVersaoCodigo">v…</span></span>' +
-    '<button type="button" class="aviso-versao-botao">Atualizar agora</button>' +
-    '<button type="button" class="aviso-versao-fechar" aria-label="Agora não">✕</button>';
-  faixa.querySelector('.aviso-versao-botao').addEventListener('click', () => {
-    estadoAtualizacao.recarregar = true;
-    espera.postMessage('atualizar');
+  faixa.addEventListener('click', (e) => {
+    if (e.target.closest('.aviso-versao-mudou')) {
+      faixa.classList.toggle('expandido');
+      desenharAvisoVersao();
+    } else if (e.target.closest('.aviso-versao-botao')) {
+      const botao = e.target.closest('.aviso-versao-botao');
+      botao.disabled = true;
+      botao.textContent = 'Atualizando…';
+      estadoAtualizacao.recarregar = true;
+      espera.postMessage('atualizar');
+    } else if (e.target.closest('.aviso-versao-fechar')) {
+      fecharAvisoVersao();
+    }
   });
-  faixa.querySelector('.aviso-versao-fechar').addEventListener('click', fecharAvisoVersao);
   document.body.appendChild(faixa);
-  const atual = document.getElementById('versaoApp');
-  if (atual) {
-    atual.classList.add('versao-pulsando');
+  document.body.classList.add('com-aviso-versao');
+  // Os avisos rápidos sobem acima do card, em vez de ficarem escondidos atrás dele.
+  if ('ResizeObserver' in window) {
+    estadoAtualizacao.medidor = new ResizeObserver(() => {
+      document.body.style.setProperty('--altura-aviso-versao', faixa.offsetHeight + 'px');
+    });
+    estadoAtualizacao.medidor.observe(faixa);
   }
   estadoAtualizacao.espera = espera;
+  estadoAtualizacao.info = {versao: '', novidades: [], necessaria: false};
+  desenharAvisoVersao();
   espera.postMessage('versao');
-  setTimeout(codigoNovoPeloArquivo, 1500); // sem resposta do service worker novo: a versão escrita no sw.js do site
+  setTimeout(lerVersaoNovaPeloArquivo, 1500); // sem resposta do service worker novo: o que está escrito no sw.js
 }
 
-/** Tira a faixa e para o pulso da versão atual. */
+/** Monta o card com o que se sabe da versão nova (o código pode chegar depois). */
+function desenharAvisoVersao() {
+  const faixa = document.getElementById('avisoVersao');
+  if (!faixa) {
+    return;
+  }
+  const {versao, novidades, necessaria} = estadoAtualizacao.info;
+  const aberto = faixa.classList.contains('expandido');
+  const cor = necessaria ? 'versao-necessaria' : 'versao-espera';
+  const lista = novidades.length ? novidades : ['Correções e melhorias.'];
+  faixa.classList.toggle('necessaria', necessaria);
+  faixa.innerHTML = `
+    <div class="aviso-versao-detalhes" id="avisoVersaoDetalhes" aria-hidden="${!aberto}">
+      ${necessaria ? `<p class="aviso-versao-motivo"><strong>Necessária</strong> para continuar enviando. O app funciona
+        sem internet, e o que você registrar fica guardado no celular.</p>` : ''}
+      <h2>O que muda${versao ? ' na v' + esc(versao) : ''}</h2>
+      <ul>${lista.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
+      <p class="aviso-versao-fica">O que está guardado no celular continua: mudanças a enviar, famílias guardadas e
+        rascunhos.</p>
+    </div>
+    <div class="aviso-versao-linha">
+      <span class="aviso-versao-textos">
+        <strong>Versão Nova</strong>
+        <span class="aviso-versao-codigo versao-pulsando ${cor}" id="avisoVersaoCodigo">v${esc(versao || '…')}</span>
+        <span class="aviso-versao-tipo${necessaria ? ' e-necessaria' : ''}">${necessaria ? 'Necessária' : 'Pode esperar'}</span>
+      </span>
+      <span class="aviso-versao-acoes">
+        <button type="button" class="aviso-versao-mudou" aria-expanded="${aberto}" aria-controls="avisoVersaoDetalhes">${
+  aberto ? 'Fechar ▾' : 'O que mudou ▴'}</button>
+        <button type="button" class="aviso-versao-botao">Atualizar agora</button>
+      </span>
+      ${necessaria ? '' : '<button type="button" class="aviso-versao-fechar" aria-label="Agora não">✕</button>'}
+    </div>`;
+  const atual = document.getElementById('versaoApp');
+  if (atual) {
+    atual.classList.remove('versao-necessaria', 'versao-espera');
+    atual.classList.add('versao-pulsando', cor);
+  }
+}
+
+/** Tira o card e para o pulso da versão atual. */
 function fecharAvisoVersao() {
   const faixa = document.getElementById('avisoVersao');
   if (faixa) {
     faixa.remove();
   }
+  if (estadoAtualizacao.medidor) {
+    estadoAtualizacao.medidor.disconnect();
+    estadoAtualizacao.medidor = null;
+  }
+  document.body.classList.remove('com-aviso-versao');
+  document.body.style.removeProperty('--altura-aviso-versao');
   const atual = document.getElementById('versaoApp');
   if (atual) {
-    atual.classList.remove('versao-pulsando');
+    atual.classList.remove('versao-pulsando', 'versao-necessaria', 'versao-espera');
   }
   estadoAtualizacao.espera = null;
 }
 
-function codigoNovoPeloArquivo() {
-  const codigo = document.getElementById('avisoVersaoCodigo');
-  if (!codigo || codigo.textContent !== 'v…') {
+/**
+ * O que a versão nova diz de si, vindo do service worker que espera (ou do sw.js do site).
+ * @param {!Object} dados {versao, novidades?, necessaria?}
+ */
+function guardarInfoDaVersaoNova(dados) {
+  estadoAtualizacao.info = {
+    versao: String(dados.versao || ''),
+    novidades: Array.isArray(dados.novidades) ? dados.novidades.map(String).filter(Boolean).slice(0, 8) : [],
+    necessaria: dados.necessaria === true,
+  };
+  desenharAvisoVersao();
+}
+
+function lerVersaoNovaPeloArquivo() {
+  if (!document.getElementById('avisoVersao') || estadoAtualizacao.info.versao) {
     return;
   }
   fetch('./sw.js', {cache: 'no-store'}).then((r) => r.text()).then((texto) => {
-    const achado = texto.match(/ssvp-casca-v([0-9.]+)/);
-    if (achado && codigo.textContent === 'v…') {
-      codigo.textContent = 'v' + achado[1];
+    const versao = texto.match(/ssvp-casca-v([0-9.]+)/);
+    if (!versao || estadoAtualizacao.info.versao) {
+      return;
     }
+    let novidades = [];
+    try {
+      novidades = JSON.parse((texto.match(/const NOVIDADES = (\[[\s\S]*?\]);/) || [])[1] || '[]');
+    } catch (erro) {
+      // fica o texto padrão
+    }
+    guardarInfoDaVersaoNova({versao: versao[1], novidades, necessaria: /const NECESSARIA = true;/.test(texto)});
   }).catch(() => {
-    // sem conexão: a faixa fica sem o número
+    // sem conexão: o card fica sem o número
   });
 }
 
-const estadoAtualizacao = {recarregar: false, espera: null};
+const estadoAtualizacao = {recarregar: false, espera: null, medidor: null,
+  info: {versao: '', novidades: [], necessaria: false}};
 
 /** O Sair está em andamento (pode estar enviando o que falta antes). */
 let saindo = false;
@@ -431,10 +510,7 @@ function ouvirServiceWorker() {
     }
     // Quem responde é o service worker que espera: é o código da versão nova, não o da que está rodando.
     if (estadoAtualizacao.espera && e.source === estadoAtualizacao.espera) {
-      const codigo = document.getElementById('avisoVersaoCodigo');
-      if (codigo) {
-        codigo.textContent = 'v' + e.data.versao;
-      }
+      guardarInfoDaVersaoNova(e.data);
       return;
     }
     const etiqueta = document.getElementById('versaoApp');

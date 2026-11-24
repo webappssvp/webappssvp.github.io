@@ -1929,7 +1929,22 @@ fieldset.gaveta-grupo > legend,
   margin-left: auto;
 }
 
-/* Faixa "Há uma versão nova do app · Atualizar agora" (js/app.js, 18/11/2026), acima da barra de baixo */
+/*
+ * Card "Versão Nova" (js/app.js; padrão de 24/11/2026, testes/ux/t1_versao_nova.html), acima da barra de baixo.
+ * Três colunas: "Versão Nova", código e tipo | "O que mudou" e "Atualizar agora" | ✕ (só quando pode esperar).
+ * Os detalhes abrem para cima. Necessária: códigos e borda vermelhos, sem ✕; pode esperar: códigos amarelos.
+ */
+:root {
+  --versao-necessaria: #ff6b6b;
+  --versao-espera: #fbbf24;
+}
+
+/* No modo claro, tons mais escuros: vermelho e amarelo claros somem no fundo branco */
+body.tema-claro {
+  --versao-necessaria: #c00410;
+  --versao-espera: #92400e;
+}
+
 .aviso-versao {
   position: fixed;
   left: 0.75rem;
@@ -1937,8 +1952,7 @@ fieldset.gaveta-grupo > legend,
   bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   z-index: 3000;
   display: flex;
-  align-items: center;
-  gap: 0.35rem;
+  flex-direction: column;
   padding: 0.5rem 0.25rem 0.5rem 0.8rem;
   background-color: var(--md-surface-3);
   color: var(--md-on-surface);
@@ -1948,20 +1962,148 @@ fieldset.gaveta-grupo > legend,
   font-weight: 700;
 }
 
+.aviso-versao.necessaria {
+  border-color: var(--versao-necessaria);
+  padding-right: 0.8rem;
+}
+
+.aviso-versao-linha {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
 .aviso-versao-textos {
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   white-space: nowrap;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.1rem;
+  justify-content: space-between;
+  padding: 0.2rem 0;
   line-height: 1.25;
 }
 
 .aviso-versao-codigo {
+  font-size: 1.1rem;
+}
+
+.aviso-versao-codigo.versao-necessaria,
+.header-version-pill.versao-necessaria {
+  color: var(--versao-necessaria);
+}
+
+.aviso-versao-codigo.versao-espera,
+.header-version-pill.versao-espera {
+  color: var(--versao-espera);
+}
+
+.header-version-pill.versao-necessaria {
+  background-color: rgba(255, 107, 107, 0.14);
+}
+
+.header-version-pill.versao-espera {
+  background-color: rgba(251, 191, 36, 0.14);
+}
+
+body.tema-claro .header-version-pill.versao-necessaria {
+  background-color: rgba(192, 4, 16, 0.1);
+}
+
+body.tema-claro .header-version-pill.versao-espera {
+  background-color: rgba(180, 83, 9, 0.12);
+}
+
+.aviso-versao-tipo {
+  font-size: 1rem;
+  color: var(--md-on-surface-variant);
+}
+
+.aviso-versao-tipo.e-necessaria {
+  color: var(--versao-necessaria);
+}
+
+/* Os dois botões do mesmo tamanho, com espaço entre eles para não tocar em "Atualizar agora" sem querer. Com a
+   fonte grande, eles usam o espaço que sobra e quebram a linha se preciso. */
+.aviso-versao-acoes {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.5rem;
+}
+
+.aviso-versao-mudou {
+  min-height: 44px;
+  padding: 0.5rem 0.65rem;
+  white-space: normal;
+  line-height: 1.2;
+  border: 1.5px solid var(--md-secondary);
+  border-radius: 0.6rem;
+  background: transparent;
   color: var(--md-secondary);
-  font-size: 0.95rem;
+  font: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.aviso-versao-mudou:active {
+  background-color: rgba(0, 127, 255, 0.15);
+}
+
+/* Os detalhes: escondidos, abrem para cima (o card está preso embaixo) */
+.aviso-versao-detalhes {
+  max-height: 0;
+  overflow: hidden;
+  margin-right: 0.55rem;
+  transition: max-height 0.25s ease;
+  font-weight: 400;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--md-on-surface);
+}
+
+.aviso-versao.expandido .aviso-versao-detalhes {
+  max-height: min(55vh, 26rem);
+  overflow-y: auto;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--md-border-subtle);
+}
+
+.aviso-versao-detalhes h2 {
+  margin: 0.35rem 0 0.45rem;
+  font-size: 1rem;
+}
+
+.aviso-versao-detalhes ul {
+  margin: 0 0 0.5rem;
+  padding-left: 1.1rem;
+}
+
+.aviso-versao-detalhes li + li {
+  margin-top: 0.35rem;
+}
+
+.aviso-versao-motivo {
+  margin: 0.35rem 0 0.6rem;
+}
+
+.aviso-versao-motivo strong {
+  color: var(--versao-necessaria);
+}
+
+.aviso-versao-fica {
+  margin: 0;
+  color: var(--md-on-surface-variant);
+  font-size: 0.85rem;
+}
+
+/* Com o card à vista, os avisos rápidos aparecem acima dele, e não escondidos atrás */
+body.com-aviso-versao .toast-msg {
+  bottom: calc(5.5rem + var(--safe-bottom) + var(--altura-aviso-versao, 8rem) + 0.5rem);
 }
 
 /* Versão nova esperando (22/11/2026): o código da faixa e o da barra do alto pulsam (tamanho e brilho, sem depender da cor) */
@@ -1984,10 +2126,10 @@ body.sem-animacoes .versao-pulsando {
 }
 
 .aviso-versao-botao {
-  flex: 0 0 auto;
   min-height: 44px;
   padding: 0.5rem 0.65rem;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.2;
   border: 0;
   border-radius: 0.6rem;
   background-color: var(--md-secondary);
@@ -1997,7 +2139,16 @@ body.sem-animacoes .versao-pulsando {
   cursor: pointer;
 }
 
+.aviso-versao-botao:disabled {
+  opacity: 0.7;
+}
+
+body.sem-animacoes .aviso-versao-detalhes {
+  transition: none;
+}
+
 .aviso-versao-fechar {
+  align-self: flex-start;
   flex: 0 0 auto;
   width: 44px;
   height: 44px;
