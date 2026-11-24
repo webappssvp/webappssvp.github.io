@@ -7,7 +7,7 @@
  */
 
 import {vibrar, bipar} from './preferencias.js';
-import {paraComplemento, paraLogradouro, paraNumeroDoEndereco} from './numeros_falados.js';
+import {paraComplemento, paraEmail, paraLogradouro, paraNumeroDoEndereco} from './numeros_falados.js';
 
 const TEMPO_SEGURAR_MS = 600;
 
@@ -228,6 +228,9 @@ function tipoDoCampo(campo) {
   if (campo.dataset.voz) {
     return campo.dataset.voz;
   }
+  if (campo.type === 'email' || /_email$/.test(campo.id || '')) {
+    return 'email'; // sem espaços nem maiúsculas (24/11/2026)
+  }
   const m = /_(numero|complemento|logradouro)$/.exec(campo.id || '');
   return m ? m[1] : '';
 }
@@ -246,6 +249,9 @@ function converterDitado(tipo, texto) {
   }
   if (tipo === 'logradouro') {
     return paraLogradouro(texto, {datas: 'extenso'}); // a grafia dos Correios ("Avenida Vinte e Três de Maio"; 15/11/2026)
+  }
+  if (tipo === 'email') {
+    return paraEmail(texto);
   }
   return texto;
 }
@@ -277,9 +283,15 @@ function ditar() {
     };
     rec.onresult = (e) => {
       const tipo = tipoDoCampo(campo);
-      const texto = converterDitado(tipo, e.results[0][0].transcript);
-      // No número, ditar de novo é corrigir: substitui. Nos outros campos, junta ao que já estava.
-      campo.value = tipo === 'numero' || !campo.value ? texto : campo.value + ' ' + texto;
+      const falado = e.results[0][0].transcript;
+      // No número, ditar de novo é corrigir: substitui. No e-mail, continua do que já estava (ditar em partes) e
+      // converte tudo junto, para não repetir o final. Nos outros campos, junta ao que já estava, com um espaço.
+      if (tipo === 'email') {
+        campo.value = converterDitado(tipo, campo.value + ' ' + falado);
+      } else {
+        const texto = converterDitado(tipo, falado);
+        campo.value = tipo === 'numero' || !campo.value ? texto : campo.value + ' ' + texto;
+      }
       campo.dataset.ditado = 'sim'; // a visita grava relato_origem = VOZ
       campo.dispatchEvent(new Event('input', {bubbles: true}));
       bipar(1046.5);

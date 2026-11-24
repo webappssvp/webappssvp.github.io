@@ -293,6 +293,42 @@ export function paraLogradouro(texto, opcoes = {datas: 'extenso'}) {
   return palavras.join(' ');
 }
 
+/** Palavras ditas num e-mail e o símbolo de cada uma. */
+const SIMBOLOS_DO_EMAIL = [
+  [/\barroba\b/g, '@'],
+  [/\bponto\b/g, '.'],
+  [/\b(underline|underscore|sublinhado|subtra[cç]o)\b/g, '_'],
+  [/\b(tra[cç]o|h[ií]fen|menos)\b/g, '-'],
+  [/\bmais\b/g, '+'],
+];
+
+/**
+ * Campo de e-mail (24/11/2026): tudo minúsculo, sem acentos e sem espaços, e as palavras viram símbolos
+ * ("Maria ponto Silva arroba gmail ponto com" → "maria.silva@gmail.com"). Números falados viram algarismos.
+ * @param {string} texto
+ * @return {string}
+ */
+export function paraEmail(texto) {
+  let t = numerosEmAlgarismos(String(texto)).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  for (const [palavra, simbolo] of SIMBOLOS_DO_EMAIL) {
+    t = t.replace(palavra, simbolo);
+  }
+  t = t.replace(/[^a-z0-9@._+-]/g, '').replace(/\.+$/, '');
+  // O reconhecedor às vezes corta o fim ("@gmail" sem o ".com"): completa os domínios que só têm um final.
+  const dominio = t.match(/@([a-z0-9-]+)$/);
+  if (dominio && FINAL_DO_DOMINIO[dominio[1]]) {
+    t += FINAL_DO_DOMINIO[dominio[1]];
+  }
+  // Completou e depois a pessoa disse o final: não repete ("@gmail.com" + "ponto com").
+  return t.replace(/(\.com\.br|\.com|\.br)\1+$/, '$1').replace(/\.com\.br\.br$/, '.com.br');
+}
+
+/** Domínios comuns que só existem com um final (o Yahoo tem .com e .com.br: fica como foi dito). */
+const FINAL_DO_DOMINIO = {
+  gmail: '.com', hotmail: '.com', outlook: '.com', live: '.com', icloud: '.com',
+  uol: '.com.br', bol: '.com.br', terra: '.com.br', globo: '.com', globomail: '.com',
+};
+
 /**
  * Campo "Complemento": números em algarismos e "apartamento"/"apê"/"apto" como "ap" ("apartamento trinta e dois" → "ap 32").
  * @param {string} texto

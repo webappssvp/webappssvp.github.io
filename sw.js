@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.27.1';
+const VERSAO = 'ssvp-casca-v0.27.2';
 
 /**
  * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
@@ -17,7 +17,7 @@ const VERSAO = 'ssvp-casca-v0.27.1';
  * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
  */
 const NOVIDADES = [
-  "Nenhuma mudança nas telas: esta versão serve para conferir o novo aviso de versão."
+  "Ao ditar um e-mail, o app escreve tudo junto e em minúsculas, entende \"arroba\", \"ponto\", \"traço\", \"underline\" e \"mais\", e completa finais como \"@gmail.com\"."
 ];
 const NECESSARIA = false;
 
