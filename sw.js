@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.27.0';
+const VERSAO = 'ssvp-casca-v0.27.1';
 
 /**
  * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
@@ -17,8 +17,7 @@ const VERSAO = 'ssvp-casca-v0.27.0';
  * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
  */
 const NOVIDADES = [
-  "O aviso de versão nova mostra o que mudou e se a atualização é necessária ou pode esperar.",
-  "Os avisos rápidos não ficam mais escondidos atrás do aviso de versão nova."
+  "Nenhuma mudança nas telas: esta versão serve para conferir o novo aviso de versão."
 ];
 const NECESSARIA = false;
 
