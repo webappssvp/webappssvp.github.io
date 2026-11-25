@@ -14,6 +14,7 @@
  */
 
 import {campoSenha, esc, voltar} from './comum.js';
+import {nomeDoCargo} from '../core/cargos.js';
 import {definirBarra} from '../componentes/barra_tela.js';
 import {CARD_BAIXANDO, mostrarCarregando} from '../componentes/carregando.js';
 import {chamarComSessao} from '../componentes/barra_conexao.js';
@@ -35,7 +36,6 @@ export {CAMPOS_ENDERECO};
 
 const NOME_DO_PAPEL = {VIC: 'Vicentino', ASP: 'Aspirante', AST: 'Assistido', SOC: 'Socorrido', VIS: 'Visitante',
   BEN: 'Benfeitor'};
-const CARGOS = {PRE: 'Presidente', VIC: 'Vice-presidente', SEC: 'Secretário(a)', TES: 'Tesoureiro(a)'};
 
 /** Erros de rede (api_cc.js): sem eles, a tela não tenta a cópia guardada. */
 const SEM_REDE = ['SEM_INTERNET', 'SEM_CONEXAO'];
@@ -329,8 +329,7 @@ function desenhar() {
 function visualizacao(d) {
   const p = d.pessoa;
   const papeis = d.papeis.map((s) => NOME_DO_PAPEL[s] || s).join(' · ') || 'Sem papel ativo';
-  const cargo = d.cargo ? `<span class="selo-cargo">${esc(CARGOS[String(d.cargo.id_cargo).toUpperCase()] ||
-    d.cargo.id_cargo)}${String(d.cargo.provisorio).toUpperCase() === 'SIM' ? ' (provisório)' : ''}</span>` : '';
+  const cargo = d.cargo ? `<span class="selo-cargo">${esc(nomeDoCargo(d.cargo.id_cargo))}${String(d.cargo.provisorio).toUpperCase() === 'SIM' ? ' (provisório)' : ''}</span>` : '';
   const exemplo = String(p.ficticio).toUpperCase() === 'SIM' ? '<span class="selo-exemplo">EXEMPLO</span>' : '';
   const linha = (rotulo, valor, link) => `<div class="detalhe-linha"><dt>${esc(rotulo)}</dt><dd>${valor ?
     (link ? `<a href="${link}">${esc(valor)}</a>` : esc(valor)) : '<span class="detalhe-vazio">não informado</span>'}</dd></div>`;
@@ -874,8 +873,7 @@ async function mudarPapel(area) {
   }
   const novo = marcado.value;
   if (d.cargo && novo !== 'VIC') {
-    mostrar(msg, d.pessoa.nome_exibicao + ' tem o cargo de ' + (CARGOS[String(d.cargo.id_cargo).toUpperCase()] ||
-      d.cargo.id_cargo) + ', que é só de vicentinos. Tire o cargo antes de mudar o papel.');
+    mostrar(msg, d.pessoa.nome_exibicao + ' tem o cargo de ' + nomeDoCargo(d.cargo.id_cargo) + ', que é só de vicentinos. Tire o cargo antes de mudar o papel.');
     return;
   }
   const hoje = new Date().toISOString().slice(0, 10);
@@ -985,7 +983,7 @@ function textoParaOuvir() {
   const papeis = d.papeis.map((s) => NOME_DO_PAPEL[s] || s).join(' e ');
   const partes = [d.pessoa.nome_exibicao, papeis];
   if (d.cargo) {
-    partes.push(CARGOS[String(d.cargo.id_cargo).toUpperCase()] || '');
+    partes.push(nomeDoCargo(d.cargo.id_cargo));
   }
   if (veContatos() && d.pessoa.celular) {
     partes.push('celular ' + formatarCelular(d.pessoa.celular));

@@ -5,6 +5,7 @@
  */
 
 import {carregarPreferencias} from './core/preferencias.js';
+import {siglaDoCargo} from './core/cargos.js';
 import {iniciarBotaoVoz, definirLeitor} from './core/voz.js';
 import {iniciarCasca, avisar, marcarTelaAtual} from './casca.js';
 import {iniciarTutoriais} from './componentes/tutorial.js';
@@ -166,7 +167,7 @@ async function trocarTrava() {
 }
 
 /** Quem pode voltar a conferência ao estado inicial (EstadoInicial.gs no script do CC). */
-const CARGOS_QUE_VOLTAM = ['PRE', 'VIC'];
+const CARGOS_QUE_VOLTAM = ['PCF', 'VCF'];
 
 /** O botão das Configurações aparece só para o presidente e o vice, numa conferência de teste. */
 function mostrarVoltarAoInicio() {
@@ -177,7 +178,7 @@ function mostrarVoltarAoInicio() {
   const s = sessaoAtual();
   const perfil = (s && s.perfil) || {};
   linha.hidden = !(s && perfil.teste !== false &&
-    (perfil.cargos || []).some((c) => CARGOS_QUE_VOLTAM.includes(String(c).toUpperCase())));
+    (perfil.cargos || []).some((c) => CARGOS_QUE_VOLTAM.includes(siglaDoCargo(c))));
 }
 
 /**

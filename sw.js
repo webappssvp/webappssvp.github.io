@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.27.2';
+const VERSAO = 'ssvp-casca-v0.28.0';
 
 /**
  * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
@@ -17,9 +17,9 @@ const VERSAO = 'ssvp-casca-v0.27.2';
  * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
  */
 const NOVIDADES = [
-  "Ao ditar um e-mail, o app escreve tudo junto e em minúsculas, entende \"arroba\", \"ponto\", \"traço\", \"underline\" e \"mais\", e completa finais como \"@gmail.com\"."
+  "Os cargos da conferência passam a ter siglas próprias (PCF, VCF, SCF e TCF), no mesmo padrão que os conselhos vão usar. Nada muda nas telas."
 ];
-const NECESSARIA = false;
+const NECESSARIA = true;
 
 const EM_DESENVOLVIMENTO =/^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
 
@@ -43,6 +43,7 @@ const ARQUIVOS = [
   './js/core/sync.js',
   './js/core/voz.js',
   './js/core/numeros_falados.js',
+  './js/core/cargos.js',
   './js/componentes/barra_conexao.js',
   './js/componentes/barra_tela.js',
   './js/componentes/carregando.js',

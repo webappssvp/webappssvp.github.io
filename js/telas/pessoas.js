@@ -12,6 +12,7 @@
  */
 
 import {campoSenha, esc, pedirConexao} from './comum.js';
+import {NOMES_DOS_CARGOS, ORDEM_DOS_CARGOS, siglaDoCargo} from '../core/cargos.js';
 import {CARD_BAIXANDO} from '../componentes/carregando.js';
 import {atualizarOpcoes, barraOcupada, definirBarra} from '../componentes/barra_tela.js';
 import {chamarComSessao, conferirSenha} from '../componentes/barra_conexao.js';
@@ -38,16 +39,16 @@ const PAPEIS = [
 ];
 const NOME_DO_PAPEL = Object.fromEntries(PAPEIS.map((p) => [p.sigla, p.nome]));
 
-/** Cargos da diretoria, na ordem em que aparecem no topo da lista. */
-const CARGOS = {PRE: 'Presidente', VIC: 'Vice-presidente', SEC: 'Secretário(a)', TES: 'Tesoureiro(a)'};
-const ORDEM_CARGO = ['PRE', 'VIC', 'SEC', 'TES'];
+/** Cargos da diretoria, na ordem em que aparecem no topo da lista (js/core/cargos.js). */
+const CARGOS = NOMES_DOS_CARGOS;
+const ORDEM_CARGO = ORDEM_DOS_CARGOS;
 
 /** Papéis de quem é atendido: destes, a lista mostra só o responsável pela família. */
 const ATENDIDOS = ['AST', 'SOC'];
 /** Papéis que entram no app (os que têm semáforo de acesso). */
 const PAPEIS_COM_LOGIN = ['VIC', 'ASP', 'VIS', 'BEN'];
 /** Quem vê o semáforo de acesso. */
-const CARGOS_QUE_VEEM_ACESSOS = ['PRE', 'VIC', 'SEC'];
+const CARGOS_QUE_VEEM_ACESSOS = ['PCF', 'VCF', 'SCF'];
 /** Os acessos são pedidos de novo, no máximo, a cada tanto (ao voltar para a tela). */
 const ACESSOS_DE_NOVO_MS = 60 * 1000;
 const ACESSO = {
@@ -184,7 +185,7 @@ export function renderizar(area, sessao, rota = '') {
   estado.podeCadastrar = papeisQuePodeCadastrar((sessao.perfil && sessao.perfil.permissoes) || []).length > 0;
   const perfil = sessao.perfil || {};
   estado.veMoradores = (perfil.permissoes || []).includes('CONTATOS_VER');
-  estado.veAcessos = Boolean(perfil.dev) || (perfil.cargos || []).some((c) => CARGOS_QUE_VEEM_ACESSOS.includes(c));
+  estado.veAcessos = Boolean(perfil.dev) || (perfil.cargos || []).some((c) => CARGOS_QUE_VEEM_ACESSOS.includes(siglaDoCargo(c)));
   if (rota === 'novo') {
     areaAtual = null;
     // Os nomes de exibição de quem já está na conferência, para a sugestão do nome da pessoa nova (null: lista não carregada).
@@ -384,7 +385,7 @@ function aplicarLinhas(porId, pessoas, papeis, cargos) {
       if (encerrado(x)) {
         delete r.cargos_ids[String(x.id_pessoa_cargo)];
       } else {
-        r.cargos_ids[String(x.id_pessoa_cargo)] = {sigla: String(x.id_cargo).toUpperCase(),
+        r.cargos_ids[String(x.id_pessoa_cargo)] = {sigla: siglaDoCargo(x.id_cargo),
           provisorio: String(x.provisorio).toUpperCase() === 'SIM'};
       }
     }
