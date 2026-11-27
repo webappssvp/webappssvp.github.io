@@ -24,7 +24,7 @@ const TIPOS = [
 /** Nome da tela pelo #hash, para a coluna "tela" da planilha. */
 const NOME_DA_TELA = {
   '#pessoas': 'Pessoas', '#familias': 'Famílias', '#visitas': 'Visitas', '#visita': 'Registrar visita',
-  '#como-funciona': 'Como o app guarda e envia', '#importar': 'Importar pessoas',
+  '#como-funciona': 'Como o app guarda e envia', '#importar': 'Importar pessoas', '#consolidacao': 'Consolidação',
 };
 
 const estado = {

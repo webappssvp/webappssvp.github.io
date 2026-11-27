@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.28.0';
+const VERSAO = 'ssvp-casca-v0.29.0';
 
 /**
  * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
@@ -17,9 +17,9 @@ const VERSAO = 'ssvp-casca-v0.28.0';
  * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
  */
 const NOVIDADES = [
-  "Os cargos da conferência passam a ter siglas próprias (PCF, VCF, SCF e TCF), no mesmo padrão que os conselhos vão usar. Nada muda nas telas."
+  "Nova tela Consolidação, no Menu, para a Diretoria da conferência e para quem tem cargo num conselho: os números do mês, com o que precisa de atenção primeiro."
 ];
-const NECESSARIA = true;
+const NECESSARIA = false;
 
 const EM_DESENVOLVIMENTO =/^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
 
@@ -62,6 +62,7 @@ const ARQUIVOS = [
   './js/telas/sugestoes.js',
   './js/telas/sobre.js',
   './js/telas/cuidados.js',
+  './js/telas/consolidacao.js',
   './siglas/cuidados.json',
   './js/componentes/endereco_busca.js',
   './js/componentes/de_onde_vem.js',

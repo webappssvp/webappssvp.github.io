@@ -2179,3 +2179,215 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
   font-weight: 700;
   color: var(--md-on-surface);
 }
+
+/* ---------- Consolidação (#consolidacao, 27/11/2026; veio do testes/ux/t2_consolidacao.html) ---------- */
+
+/* O .nav-item-btn é display: flex, que passaria por cima do atributo hidden (item só da Diretoria) */
+.nav-item-btn[hidden] {
+  display: none;
+}
+
+.tela-consolidacao {
+  padding: 0.75rem 1rem 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.consolidacao-raizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Caminho: CC › CP › Conferência. Cada nível volta para ele. */
+.consolidacao-caminho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.95rem;
+}
+
+.consolidacao-caminho li {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.consolidacao-caminho li + li::before {
+  content: '›';
+  color: var(--md-on-surface-variant);
+}
+
+.consolidacao-caminho button {
+  min-height: 44px;
+  padding: 0.3rem 0.2rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--md-secondary);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.consolidacao-caminho [aria-current="page"] {
+  font-weight: 700;
+  color: var(--md-on-surface);
+}
+
+.consolidacao-aviso {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.7rem;
+  background: var(--md-amber-bg);
+  color: var(--md-on-surface);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.consolidacao-secao {
+  margin: 0.2rem 0 0;
+  font-size: 1.05rem;
+}
+
+/* Primeiro o que precisa de atenção */
+.consolidacao-alertas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.consolidacao-alertas li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.7rem;
+  background: var(--md-surface-1);
+  border: 1px solid var(--md-amber);
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.consolidacao-alertas li span:first-child {
+  font-size: 1.2rem;
+  line-height: 1.1;
+}
+
+.consolidacao-alertas .tudo-bem {
+  border-color: var(--md-success);
+}
+
+/* Um número, uma frase e uma cor. Todos os cards na largura toda, um embaixo do outro (27/11/2026) */
+.consolidacao-indicadores {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.6rem;
+}
+
+.consolidacao-indicador {
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.8rem;
+  background: var(--md-surface-1);
+  border: 1px solid var(--md-border-soft);
+  border-left: 5px solid var(--md-border-strong);
+}
+
+.consolidacao-indicador.bom {
+  border-left-color: var(--md-success);
+}
+
+.consolidacao-indicador.atencao {
+  border-left-color: var(--md-amber);
+}
+
+.consolidacao-indicador .indicador-nome {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--md-on-surface-variant);
+}
+
+.consolidacao-indicador .indicador-valor {
+  margin: 0.15rem 0;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.consolidacao-indicador .indicador-frase {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+/* As unidades de baixo, em ordem alfabética (não é ranking) */
+.consolidacao-unidades {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.consolidacao-unidades button {
+  width: 100%;
+  min-height: 3.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.9rem;
+  font: inherit;
+  text-align: left;
+  color: var(--md-on-surface);
+  background: var(--md-surface-1);
+  border: 1px solid var(--md-border-soft);
+  border-radius: 0.8rem;
+  cursor: pointer;
+}
+
+.consolidacao-unidades button:active {
+  background: var(--md-surface-2);
+}
+
+.consolidacao-unidades .unidade-texto {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.consolidacao-unidades .unidade-nome {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.consolidacao-unidades .unidade-meta {
+  font-size: 0.88rem;
+  color: var(--md-on-surface-variant);
+}
+
+.consolidacao-unidades .unidade-seta {
+  font-size: 1.4rem;
+  color: var(--md-on-surface-variant);
+}
+
+.consolidacao-nota {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--md-on-surface-variant);
+  line-height: 1.4;
+}

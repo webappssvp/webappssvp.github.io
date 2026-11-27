@@ -28,6 +28,7 @@ import * as comoFunciona from './telas/como_funciona.js';
 import * as sugestoes from './telas/sugestoes.js';
 import * as sobre from './telas/sobre.js';
 import * as cuidados from './telas/cuidados.js';
+import * as consolidacao from './telas/consolidacao.js';
 import {eventosFamilias} from './telas/familia_dados.js';
 import {ligarCompartilhar} from './componentes/compartilhar.js';
 import {esc, voltar} from './telas/comum.js';
@@ -42,6 +43,7 @@ const TELAS = {
   '#visitas': visitas,
   '#visita': visita, // #visita/<id_familia>: registrar uma visita (06_visitas.md, etapa 1)
   '#cuidados': cuidados, // fichas de micro-hábitos para as visitas (23/11/2026)
+  '#consolidacao': consolidacao, // números da conferência e dos conselhos, só a Diretoria (27/11/2026)
   '#importar': importarPessoas,
   '#sobre': sobre, // apresentação para quem ainda não usa, sem login (22/11/2026)
   '#sugestoes': sugestoes, // sugestões, opiniões e dúvidas para o CC (homologação, 19/11/2026)
@@ -60,11 +62,21 @@ function desenharTela() {
   const area = document.getElementById('areaConteudo');
   // Sem sessão, a barra inferior (Menu, Nuvem, Falar, Sair) fica escondida: não há o que usar antes de entrar.
   document.body.classList.toggle('sem-sessao', !sessaoAtual());
+  mostrarItensDaDiretoria();
   const texto = TELAS[hash].renderizar(area, sessaoAtual(), TELAS[base] ? decodeURIComponent(resto.join('/')) : '');
   // A tela pode devolver uma função: o texto é montado na hora de ler (a lista pode chegar depois).
   definirLeitor(() => (typeof texto === 'function' ? texto() : texto));
   marcarTelaAtual(hash === '#vicentinos' ? '#pessoas' : hash === '#visita' ? '#visitas' : hash);
   area.scrollTop = 0;
+}
+
+/** "📊 Consolidação" no Menu só para quem pode ver (CONSOLIDACAO_VER: Diretoria da conferência ou de um conselho). */
+function mostrarItensDaDiretoria() {
+  const item = document.getElementById('itemConsolidacao');
+  if (item) {
+    const s = sessaoAtual();
+    item.hidden = !(s && s.perfil && (s.perfil.permissoes || []).includes('CONSOLIDACAO_VER'));
+  }
 }
 
 /**
@@ -112,7 +124,7 @@ async function apagarDadosDaConferencia(cf) {
     // banco indisponível: nada a apagar
   }
   await Promise.all(['pessoas_atualizada:', 'pessoas_desde:', 'pessoas_lista:', 'familias_atualizada:',
-    'familias_desde:'].map((k) => db.apagarConfig(k + cf)));
+    'familias_desde:', consolidacao.CHAVE_GUARDADA].map((k) => db.apagarConfig(k + cf)));
 }
 
 /**
