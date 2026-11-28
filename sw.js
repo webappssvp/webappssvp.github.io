@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.29.2';
+const VERSAO = 'ssvp-casca-v0.30.0';
 
 /**
  * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
@@ -17,7 +17,8 @@ const VERSAO = 'ssvp-casca-v0.29.2';
  * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
  */
 const NOVIDADES = [
-  "Na Consolidação do Conselho Central, cada Conselho Particular é um card: toque para ver as conferências dele, com as famílias, as visitas da semana e os alertas de cada uma. Os números do conselho ficam embaixo e abrem com um toque."
+  "Aniversários da semana: uma vela 🕯️ aparece no cartão de quem faz aniversário hoje ou nos próximos 6 dias, com o dia da semana. Nas famílias, a vela mostra quem da casa faz aniversário.",
+  "A data de nascimento aparece em Dados pessoais e pode ser preenchida no cadastro e na edição."
 ];
 const NECESSARIA = false;
 
@@ -29,6 +30,9 @@ const NECESSARIA = false;
  * linha.
  */
 const ANTERIORES = [
+  {"versao": "0.29.2", "necessaria": false, "novidades": [
+    "Na Consolidação do Conselho Central, cada Conselho Particular é um card: toque para ver as conferências dele, com as famílias, as visitas da semana e os alertas de cada uma. Os números do conselho ficam embaixo e abrem com um toque."
+  ]},
   {"versao": "0.29.1", "necessaria": false, "novidades": [
     "Se você pulou alguma atualização, o aviso de versão nova mostra o que mudou em todas elas, não só na última."
   ]},
@@ -70,6 +74,7 @@ const ARQUIVOS = [
   './js/core/voz.js',
   './js/core/numeros_falados.js',
   './js/core/cargos.js',
+  './js/core/aniversarios.js',
   './js/componentes/barra_conexao.js',
   './js/componentes/barra_tela.js',
   './js/componentes/carregando.js',

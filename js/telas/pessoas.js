@@ -23,6 +23,7 @@ import {textoDoEstado} from '../componentes/icone_sync.js';
 import {botaoDoItem, guardadosDaLista} from '../componentes/folha_item.js';
 import {acaoSincronizar} from '../componentes/painel_sync.js';
 import * as db from '../core/db.js';
+import * as aniversarios from '../core/aniversarios.js';
 import {vibrar} from '../core/preferencias.js';
 import * as sync from '../core/sync.js';
 import {renderizarDetalhe} from './pessoa_detalhe.js';
@@ -74,7 +75,27 @@ const estado = {
   filtroAcesso: 'TODOS', // TODOS, verde, amarelo ou vermelho
   familias: null, // lista guardada (familia_dados.js), para saber quem é responsável e quem é morador
   veMoradores: false, // CONTATOS_VER: a busca acha os moradores e diz em que família moram
+  aniversarios: {}, // id -> aniversário de hoje até 6 dias depois (js/core/aniversarios.js): a vela no cartão
 };
+
+/** Relê os aniversários guardados e redesenha (a vela 🕯️ no cartão; 28/11/2026). */
+async function lerAniversarios() {
+  const cf = estado.conferencia;
+  if (!cf) {
+    return;
+  }
+  const lista = await aniversarios.daSemana(cf);
+  if (cf === estado.conferencia) {
+    estado.aniversarios = lista;
+    desenharLista();
+  }
+}
+
+aniversarios.eventos.addEventListener('mudou', (e) => {
+  if (e.detail.conferencia === estado.conferencia) {
+    lerAniversarios();
+  }
+});
 
 /** @type {?HTMLElement} */
 let areaAtual = null;
@@ -178,7 +199,7 @@ export function renderizar(area, sessao, rota = '') {
   }
   if (estado.conferencia !== sessao.id_conferencia) {
     Object.assign(estado, {conferencia: sessao.id_conferencia, lista: null, erro: '', filtro: 'TODOS', busca: '',
-      guardados: {}, acessos: null, acessosEm: 0, filtroAcesso: 'TODOS', familias: null});
+      guardados: {}, acessos: null, acessosEm: 0, filtroAcesso: 'TODOS', familias: null, aniversarios: {}});
     abrirConferencia(sessao.id_conferencia);
   }
   estado.euMesmo = String((sessao.perfil && sessao.perfil.id_pessoa) || '');
@@ -200,6 +221,8 @@ export function renderizar(area, sessao, rota = '') {
   areaAtual = area;
   montar(area);
   lerGuardados();
+  lerAniversarios();
+  aniversarios.atualizar(sessao.id_conferencia, chamarComSessao); // no máximo 1 vez por hora; o evento redesenha
   buscarAcessos(false);
   return textoParaOuvir;
 }
@@ -292,6 +315,10 @@ async function atualizar(opcoes = {}) {
         db.substituirDaConferencia(db.STORES.DETALHES_FAMILIAS, id, [])]);
     }
     eventosFamilias.dispatchEvent(new CustomEvent('pessoas', {detail: {conferencia: id}}));
+    // A lista trouxe mudança (ex.: data de nascimento corrigida) ou foi atualizada pelo botão: a vela vem de novo.
+    if (mudou || opcoes.completo) {
+      aniversarios.atualizar(id, chamarComSessao, true);
+    }
     if (navigator.onLine) {
       // Quem é responsável vem da lista de famílias; se falhar, fica a guardada.
       atualizarLista(id, (acao, dados) => chamarComSessao(acao, dados), Boolean(opcoes.completo)).then(() =>
@@ -773,6 +800,7 @@ function cartao(p, situacaoSync, motivo, ligadas) {
         <span class="cartao-pessoa-nome">${esc(p.nome)}</span>
         <span class="cartao-pessoa-papel">${esc(papeis)}</span>
         ${cargo || exemplo ? `<span class="cartao-pessoa-selos">${cargo}${exemplo}</span>` : ''}
+        ${aniversarios.selo(estado.aniversarios[p.id])}
         ${sinalDeAcesso(p)}
       </span>
       <span class="cartao-pessoa-seta" aria-hidden="true">›</span>
@@ -788,6 +816,7 @@ function textoParaOuvir() {
   }
   const estados = sync.estadosPorPessoa(estado.fila, estado.conferencia);
   const nomes = lista.slice(0, 10).map((p) => p.nome + (p.cargo ? ', ' + CARGOS[p.cargo] : '') +
+    (estado.aniversarios[p.id] ? ', aniversário ' + estado.aniversarios[p.id].texto.toLowerCase() : '') +
     (estados[p.id] ? ', ' + textoDoEstado(estados[p.id]).toLowerCase() : '')).join('; ');
   const naFila = lista.filter((p) => estados[p.id]).length;
   return 'Pessoas. ' + lista.length + (lista.length === 1 ? ' pessoa' : ' pessoas') + '. ' +

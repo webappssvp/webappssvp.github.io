@@ -13,6 +13,7 @@ import {CARD_BAIXANDO, mostrarCarregando} from '../componentes/carregando.js';
 import {chamarComSessao} from '../componentes/barra_conexao.js';
 import * as cofre from '../core/cofre.js';
 import * as db from '../core/db.js';
+import * as aniversarios from '../core/aniversarios.js';
 import {botaoRegra} from '../componentes/de_onde_vem.js';
 import {NOME_DA_SITUACAO, buscarDetalheFamilia, dia, guardarFamilia, lerFamiliaGuardada} from './familia_dados.js';
 import {atualizarGuardados, desbloquear, eventosDados, haGuardados} from './pessoa_dados.js';
@@ -39,6 +40,7 @@ const estado = {
   pessoas: [], // lista de pessoas (com a fila por cima), para adicionar morador
   emAndamento: false, // há uma visita em andamento guardada no celular
   fila: [], // itens da fila (as visitas salvas que ainda não chegaram à nuvem aparecem no cartão)
+  aniversarios: {}, // id_pessoa -> aniversário de hoje até 6 dias depois: a vela no morador (28/11/2026)
 };
 
 /** @type {?HTMLElement} */
@@ -101,7 +103,9 @@ async function carregar() {
   const cf = sessaoAtual.id_conferencia;
   estado.carregando = true;
   desenhar();
-  const [guardadas, fila] = await Promise.all([db.listar(db.STORES.PESSOAS, cf), sync.itens(), nomesDosVinculos()]);
+  const [guardadas, fila, , aniversariosDaSemana] = await Promise.all([db.listar(db.STORES.PESSOAS, cf), sync.itens(),
+    nomesDosVinculos(), aniversarios.daSemana(cf)]);
+  estado.aniversarios = aniversariosDaSemana;
   estado.pessoas = sync.aplicarFila(guardadas, fila, cf);
   estado.nomes = Object.fromEntries(estado.pessoas.map((p) => [p.id, p.nome]));
   estado.emAndamento = await temRascunho(cf, id);
@@ -236,6 +240,7 @@ function visualizacao(d) {
           <span class="morador-nome">${esc(estado.nomes[m.id_pessoa] || m.nome || 'Pessoa ' + m.id_pessoa)}</span>
           <span class="morador-vinculo">${esc((vinculos && vinculos[m.id_vinculo]) || m.id_vinculo || 'Vínculo não informado')}${
   m.detalhes_vinculo ? ' · ' + esc(m.detalhes_vinculo) : ''}</span>
+          ${aniversarios.selo(estado.aniversarios[m.id_pessoa])}
         </a>${acoes.podeRetirar(contexto()) ? `<button type="button" class="btn-secundario btn-retirar" data-acao-familia="retirar"
           data-morador="${esc(m.id_pessoa_familia)}" aria-label="Retirar ${esc(estado.nomes[m.id_pessoa] || m.nome || '')} da família">Retirar</button>` : ''}</li>`).join('')}</ul>` : reservados ? '' : '<p class="tela-texto">Nenhum morador ligado a esta família.</p>'}
       ${reservados ? `<p class="detalhe-nota">${reservados === 1 ? 'Mais 1 morador' : 'Mais ' + reservados + ' moradores'}. Os

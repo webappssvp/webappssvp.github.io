@@ -16,6 +16,7 @@ import {botaoDoItem, guardadosDaLista} from '../componentes/folha_item.js';
 import {acaoSincronizar} from '../componentes/painel_sync.js';
 import {eventosDados} from './pessoa_dados.js';
 import * as db from '../core/db.js';
+import * as aniversarios from '../core/aniversarios.js';
 import {vibrar} from '../core/preferencias.js';
 import * as sync from '../core/sync.js';
 import {NOME_DA_SITUACAO, SITUACOES, atualizarLista, chaveFamiliasAtualizada, eventosFamilias,
@@ -47,7 +48,43 @@ const estado = {
   pessoasDaRede: null, // nomes buscados quando a lista de pessoas ainda não está no celular
   vinculos: null, // sigla -> {nome, ordem}
   veMoradores: false, // CONTATOS_VER
+  aniversarios: {}, // id_pessoa -> aniversário de hoje até 6 dias depois (js/core/aniversarios.js)
 };
+
+/** Relê os aniversários guardados e redesenha (a vela 🕯️ no cartão da família; 28/11/2026). */
+async function lerAniversarios() {
+  const cf = estado.conferencia;
+  if (!cf) {
+    return;
+  }
+  const lista = await aniversarios.daSemana(cf);
+  if (cf === estado.conferencia) {
+    estado.aniversarios = lista;
+    desenharLista();
+  }
+}
+
+aniversarios.eventos.addEventListener('mudou', (e) => {
+  if (e.detail.conferencia === estado.conferencia) {
+    lerAniversarios();
+  }
+});
+
+/**
+ * As velas do cartão: quem da família faz aniversário na semana, o mais próximo primeiro. Sem CONTATOS_VER, o nome
+ * de quem não é o responsável não aparece (como na lista de moradores): só "Na família".
+ * @param {!Object} f
+ * @return {string} HTML
+ */
+function velasDaFamilia(f) {
+  return Object.values(f.moradores_ids || {})
+      .map((m) => ({m, a: estado.aniversarios[m.id_pessoa]}))
+      .filter((x) => x.a)
+      .sort((x, y) => x.a.em - y.a.em)
+      .map(({m, a}) => aniversarios.selo(a, (estado.veMoradores || m.vinculo === 'TIT') && estado.nomes[m.id_pessoa] ?
+        estado.nomes[m.id_pessoa] : 'Na família'))
+      .join('');
+}
 
 /** @type {?HTMLElement} */
 let areaAtual = null;
@@ -175,7 +212,7 @@ export function renderizar(area, sessao, rota = '') {
   }
   if (estado.conferencia !== sessao.id_conferencia) {
     Object.assign(estado, {conferencia: sessao.id_conferencia, lista: null, erro: '', filtro: 'TODAS', busca: '',
-      bairro: '', guardados: {}, nomes: {}, pessoasDaRede: null});
+      bairro: '', guardados: {}, nomes: {}, pessoasDaRede: null, aniversarios: {}});
     abrirConferencia(sessao.id_conferencia);
   }
   estado.veMoradores = ((sessao.perfil && sessao.perfil.permissoes) || []).includes('CONTATOS_VER');
@@ -189,6 +226,8 @@ export function renderizar(area, sessao, rota = '') {
   lerGuardados();
   lerNomes();
   lerVinculos();
+  lerAniversarios();
+  aniversarios.atualizar(sessao.id_conferencia, chamarComSessao); // no máximo 1 vez por hora; o evento redesenha
   return textoParaOuvir;
 }
 
@@ -441,6 +480,7 @@ function cartao(f, situacaoSync) {
   esc(NOME_DA_SITUACAO[f.situacao] || f.situacao || 'Sem situação')}</span>${f.ficticio ? '<span class="selo-exemplo">EXEMPLO</span>' : ''}</span>
         <span class="cartao-pessoa-papel">${esc(partes)}</span>
         ${linhasDeMoradores(f)}
+        ${velasDaFamilia(f)}
         ${ativa ? `<span class="familia-visita visita-${visita.nivel}">${esc(visita.texto)}</span>` : ''}
         ${f.situacao === 'PRM' ? `<span class="familia-promovida">${esc('Promovida' + (f.encerrada_em ? ' em ' +
     new Date(f.encerrada_em + 'T12:00').toLocaleDateString('pt-BR') : ''))}</span>` : ''}

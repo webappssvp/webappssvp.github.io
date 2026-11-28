@@ -29,6 +29,7 @@ import * as sugestoes from './telas/sugestoes.js';
 import * as sobre from './telas/sobre.js';
 import * as cuidados from './telas/cuidados.js';
 import * as consolidacao from './telas/consolidacao.js';
+import * as aniversarios from './core/aniversarios.js';
 import {eventosFamilias} from './telas/familia_dados.js';
 import {ligarCompartilhar} from './componentes/compartilhar.js';
 import {esc, voltar} from './telas/comum.js';
@@ -124,7 +125,7 @@ async function apagarDadosDaConferencia(cf) {
     // banco indisponível: nada a apagar
   }
   await Promise.all(['pessoas_atualizada:', 'pessoas_desde:', 'pessoas_lista:', 'familias_atualizada:',
-    'familias_desde:', consolidacao.CHAVE_GUARDADA].map((k) => db.apagarConfig(k + cf)));
+    'familias_desde:', consolidacao.CHAVE_GUARDADA, aniversarios.CHAVE_GUARDADA].map((k) => db.apagarConfig(k + cf)));
 }
 
 /**

@@ -339,6 +339,7 @@ function visualizacao(d) {
       <h2 class="detalhe-titulo">Dados pessoais</h2>
       <dl class="detalhe-lista">
         ${linha('Nome completo', p.nome)}
+        ${linha('Data de nascimento', textoNascimento(p.data_nascimento))}
         ${linha('Celular', formatarCelular(celular), celular ? 'tel:+55' + celular.replace(/\D/g, '') : '')}
         ${linha('E-mail', p.email, p.email ? 'mailto:' + p.email : '')}
       </dl>
@@ -419,6 +420,7 @@ function visualizacaoProvisoria() {
 /** Textos de exemplo cifrados no lugar dos dados verdadeiros (o app não os recebe). */
 const EXEMPLOS_CIFRA = {
   nome: 'Nome completo da pessoa',
+  data_nascimento: '01/01/1970',
   celular: '(11) 90000-0000',
   email: 'nome.sobrenome@exemplo.com.br',
   endereco: 'Rua Exemplo, 123, Bairro, Cidade/UF, CEP 00000-000',
@@ -494,6 +496,7 @@ function dadosProtegidos(d) {
       <h2 class="detalhe-titulo">Dados pessoais</h2>
       <dl class="detalhe-lista">
         ${linha('Nome completo', 'nome')}
+        ${linha('Data de nascimento', 'data_nascimento')}
         ${linha('Celular', 'celular')}
         ${linha('E-mail', 'email')}
       </dl>
@@ -504,7 +507,7 @@ function dadosProtegidos(d) {
     </section>
     <section class="md-card detalhe-secao cartao-lgpd" aria-labelledby="tituloLgpd">
       <h2 class="detalhe-titulo" id="tituloLgpd">🔒 Dados protegidos pela LGPD</h2>
-      <p class="tela-texto">Nome completo, celular, e-mail e endereço ficam guardados com criptografia
+      <p class="tela-texto">Nome completo, data de nascimento, celular, e-mail e endereço ficam guardados com criptografia
         (AES-256, a mesma usada pelos bancos). Só os vicentinos registrados nesta conferência podem ver estes
         dados abertos.</p>
       <p class="tela-texto">Os dados verdadeiros são cifrados com uma chave própria do Conselho Central.
@@ -525,6 +528,54 @@ function textoEndereco(e) {
   const cidade = [e.cidade, e.estado_uf].filter(Boolean).join('/');
   return [rua, e.complemento, e.bairro, cidade, e.cep ? 'CEP ' + formatarCep(e.cep) : '', e.ponto_referencia ?
     'Referência: ' + e.ponto_referencia : ''].filter(Boolean).join(' · ');
+}
+
+/**
+ * "1980-05-28" → "28/05/1980" (o formato da planilha → o da tela).
+ * @param {*} iso
+ * @return {string} Vazio se não há data.
+ */
+function dataBr(iso) {
+  const achado = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return achado ? achado[3] + '/' + achado[2] + '/' + achado[1] : '';
+}
+
+/**
+ * "28/05/1980 · 46 anos" (28/11/2026).
+ * @param {*} iso
+ * @return {string}
+ */
+function textoNascimento(iso) {
+  const br = dataBr(iso);
+  if (!br) {
+    return '';
+  }
+  const [a, m, d] = String(iso).slice(0, 10).split('-').map(Number);
+  const hoje = new Date();
+  const idade = hoje.getFullYear() - a - (hoje.getMonth() + 1 < m || (hoje.getMonth() + 1 === m && hoje.getDate() < d) ?
+    1 : 0);
+  return br + ' · ' + (idade === 1 ? '1 ano' : idade + ' anos');
+}
+
+/**
+ * Confere a data digitada no formulário.
+ * @param {string} texto "dd/mm/aaaa" (ou vazio).
+ * @return {?string} "aaaa-mm-dd", "" para apagar, ou null se é inválida.
+ */
+function lerDataDigitada(texto) {
+  if (!texto) {
+    return '';
+  }
+  const achado = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!achado) {
+    return null;
+  }
+  const [d, m, a] = [Number(achado[1]), Number(achado[2]), Number(achado[3])];
+  const data = new Date(a, m - 1, d);
+  if (data.getDate() !== d || data.getMonth() !== m - 1 || a < 1900 || data > new Date()) {
+    return null;
+  }
+  return a + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
 }
 
 /** @param {string} c Só dígitos. @return {string} */
@@ -568,6 +619,8 @@ function formularioEdicao(d) {
         <legend class="detalhe-titulo">Dados pessoais</legend>
         ${campo('ed_nome_exibicao', 'Nome de exibição (aparece na lista)', p.nome_exibicao, 'required maxlength="60"')}
         ${contatos ? campo('ed_nome', 'Nome completo', p.nome, 'maxlength="200"') +
+          campo('ed_nascimento', 'Data de nascimento (dia/mês/ano)', dataBr(p.data_nascimento),
+              'inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa"') +
           campo('ed_celular', 'Celular com DDD', formatarCelular(p.celular), 'type="tel" inputmode="tel"') +
           campo('ed_email', 'E-mail (usado para entrar no app)', p.email,
               'type="email" inputmode="email" autocomplete="off" autocapitalize="none"') +
@@ -698,6 +751,15 @@ function ligarEventos(area) {
         {conferido: Boolean(estado.dados && estado.dados.endereco && estado.dados.endereco.endereco_conferido === 'SIM')});
     confirmacaoEmail = ligarConfirmarEmail(formEditar, 'ed_email', 'ed_email_confirma',
         estado.dados && estado.dados.pessoa ? estado.dados.pessoa.email : '');
+    // Data de nascimento: as barras entram sozinhas ("28051960" → "28/05/1960"; 28/11/2026).
+    const nascimento = formEditar.querySelector('#ed_nascimento');
+    if (nascimento) {
+      nascimento.addEventListener('input', () => {
+        const n = nascimento.value.replace(/\D/g, '').slice(0, 8);
+        nascimento.value = n.length > 4 ? n.slice(0, 2) + '/' + n.slice(2, 4) + '/' + n.slice(4) :
+          n.length > 2 ? n.slice(0, 2) + '/' + n.slice(2) : n;
+      });
+    }
     formEditar.addEventListener('submit', (e) => {
       e.preventDefault();
       salvar(area);
@@ -779,12 +841,19 @@ async function salvar(area) {
   // null = campo que não está na tela: não é enviado.
   const celularDigitado = valor('ed_celular');
   const emailDigitado = valor('ed_email');
+  const nascimentoDigitado = valor('ed_nascimento');
   const novos = {nome_exibicao: valor('ed_nome_exibicao'), nome: valor('ed_nome'),
+    data_nascimento: nascimentoDigitado === null ? null : lerDataDigitada(nascimentoDigitado),
     celular: celularDigitado === null ? null : celularDigitado.replace(/\D/g, ''),
     email: emailDigitado === null ? null : emailDigitado.toLowerCase()};
   if (!novos.nome_exibicao) {
     mostrar(msg, 'Escreva o nome de exibição.');
     area.querySelector('#ed_nome_exibicao').focus();
+    return;
+  }
+  if (nascimentoDigitado && novos.data_nascimento === null) {
+    mostrar(msg, 'Confira a data de nascimento: dia/mês/ano, como 28/05/1960.');
+    area.querySelector('#ed_nascimento').focus();
     return;
   }
   if (novos.celular && !/^\d{10,11}$/.test(novos.celular)) {

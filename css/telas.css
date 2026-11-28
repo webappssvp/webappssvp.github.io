@@ -2180,6 +2180,42 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
   color: var(--md-on-surface);
 }
 
+/* ---------- Aniversários da semana (28/11/2026): a vela nos cards de Pessoas e Famílias ---------- */
+
+/* Texto só para o leitor de tela */
+.visualmente-escondido {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.selo-aniversario {
+  display: inline-block;
+  align-self: flex-start; /* nos cartões em coluna, o fundo do "Hoje" não estica na largura toda */
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--md-amber);
+}
+
+/* Hoje: o selo ganha fundo, para chamar a atenção */
+.selo-aniversario.e-hoje {
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: var(--md-amber-bg);
+  color: var(--md-on-surface);
+}
+
+.morador .selo-aniversario {
+  margin-top: 0.15rem;
+}
+
 /* ---------- Consolidação (#consolidacao, 27/11/2026; veio do testes/ux/t2_consolidacao.html) ---------- */
 
 /* O .nav-item-btn é display: flex, que passaria por cima do atributo hidden (item só da Diretoria) */

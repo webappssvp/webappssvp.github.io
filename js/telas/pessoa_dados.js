@@ -105,7 +105,10 @@ export const chaveBaixados = (cf) => 'detalhes_baixados:' + cf;
  * Versão do que a cópia guarda. Aumentar quando a cópia passar a guardar algo novo: a próxima conferência baixa tudo.
  * 2: com os detalhes das famílias (14/11/2026).
  */
-const VERSAO_COPIA = 3; // 3 (16/11/2026): as visitas dos últimos 2 meses dentro de cada família
+const VERSAO_COPIA = 4; // 3 (16/11/2026): as visitas dos últimos 2 meses; 4 (28/11/2026): a data de nascimento
+
+/** Campos de "pessoas" decifrados para quem vê os contatos (a data de nascimento desde 28/11/2026). */
+const CIFRADOS_PESSOA = ['nome', 'email', 'celular', 'data_nascimento'];
 
 /** @param {string} cf @return {string} */
 const chaveVersao = (cf) => 'detalhes_versao:' + cf;
@@ -142,7 +145,7 @@ export async function buscarDetalhe(id, chamar, contatos) {
   const listar = (aba, filtros, decifrar) => chamar('listar', {aba, filtros: {...filtros, apenas_ativas: true}, decifrar})
       .then((r) => r.registros);
   const [obtido, papeis, cargos, enderecosPessoa, vinculos] = await Promise.all([
-    chamar('obter', {aba: 'pessoas', id_registro: id, decifrar: contatos ? ['nome', 'email', 'celular'] : []}),
+    chamar('obter', {aba: 'pessoas', id_registro: id, decifrar: contatos ? CIFRADOS_PESSOA : []}),
     listar('pessoas_papeis', {id_pessoa: id}),
     listar('pessoas_cargos', {id_pessoa: id}),
     listar('pessoas_enderecos', {id_pessoa: id}, camposDecifrados(contatos, false)),
@@ -359,7 +362,7 @@ async function baixar(cf, chamar, contatos) {
   }
   const listar = (aba, decifrar = []) => chamar('listar', {aba, filtros: {apenas_ativas: true}, decifrar});
   const respostas = await Promise.all([
-    listar('pessoas', contatos ? ['nome', 'email', 'celular'] : []),
+    listar('pessoas', contatos ? CIFRADOS_PESSOA : []),
     listar('pessoas_papeis'),
     listar('pessoas_cargos'),
     listar('pessoas_enderecos', camposDecifrados(contatos, false)),

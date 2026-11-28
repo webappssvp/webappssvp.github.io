@@ -123,6 +123,7 @@ export function renderizarNova(area, sessao, opcoes) {
           ${campo('novo_nome_exibicao', 'Nome de exibição (aparece na lista)', 'required maxlength="60" autocapitalize="words"',
       'Vem do nome completo: só o primeiro nome, se não houver outro igual na conferência. Pode trocar, por um apelido, por exemplo.')}
           <p class="detalhe-nota" id="avisoNomeRepetido" hidden></p>
+          ${campo('novo_nascimento', 'Data de nascimento (dia/mês/ano)', 'inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa"')}
           ${campo('novo_celular', 'Celular com DDD', 'type="tel" inputmode="tel" autocomplete="off"')}
           ${campo('novo_email', 'E-mail', 'type="email" inputmode="email" autocomplete="off" autocapitalize="none" maxlength="200"',
       'É com este e-mail que a pessoa entra no app e recebe o código de acesso.')}
@@ -160,6 +161,13 @@ export function renderizarNova(area, sessao, opcoes) {
   confirmacaoEmail = ligarConfirmarEmail(form, 'novo_email', 'novo_email_confirma');
   // Rua e CEP conferidos na base dos Correios enquanto preenche (15/11/2026).
   buscaEndereco = ligarEndereco(form, 'novo_');
+  // Data de nascimento: as barras entram sozinhas ("28051960" → "28/05/1960"; 28/11/2026).
+  const nascimento = area.querySelector('#novo_nascimento');
+  nascimento.addEventListener('input', () => {
+    const n = nascimento.value.replace(/\D/g, '').slice(0, 8);
+    nascimento.value = n.length > 4 ? n.slice(0, 2) + '/' + n.slice(2, 4) + '/' + n.slice(4) :
+      n.length > 2 ? n.slice(0, 2) + '/' + n.slice(2) : n;
+  });
   area.querySelector('#novo_celular').addEventListener('blur', (e) => {
     e.target.value = formatarCelular(e.target.value.replace(/\D/g, '')) || e.target.value;
   });
@@ -196,6 +204,24 @@ function ligarNomeDeExibicao(area, existentes) {
     mexeu = exibicao.value.trim() !== '';
     conferirRepetido();
   });
+}
+
+/**
+ * Confere a data de nascimento digitada.
+ * @param {string} texto "dd/mm/aaaa"
+ * @return {string} "aaaa-mm-dd", ou vazio se está em branco ou é inválida (dia que não existe, futuro, antes de 1900).
+ */
+function dataDigitada(texto) {
+  const achado = String(texto || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!achado) {
+    return '';
+  }
+  const [d, m, a] = [Number(achado[1]), Number(achado[2]), Number(achado[3])];
+  const data = new Date(a, m - 1, d);
+  if (data.getDate() !== d || data.getMonth() !== m - 1 || a < 1900 || data > new Date()) {
+    return '';
+  }
+  return a + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
 }
 
 /**
@@ -238,6 +264,13 @@ async function cadastrar(area, sessao, papel) {
     area.querySelector('#novo_nome_exibicao').focus();
     return;
   }
+  const nascimentoDigitado = valor('novo_nascimento');
+  const nascimento = dataDigitada(nascimentoDigitado);
+  if (nascimentoDigitado && !nascimento) {
+    erro(msg, 'Confira a data de nascimento: dia/mês/ano, como 28/05/1960.');
+    area.querySelector('#novo_nascimento').focus();
+    return;
+  }
   if (celular && !/^\d{10,11}$/.test(celular)) {
     erro(msg, 'Celular com DDD: 10 ou 11 números, como (11) 98765-4321.');
     area.querySelector('#novo_celular').focus();
@@ -274,6 +307,9 @@ async function cadastrar(area, sessao, papel) {
   erro(msg, '');
   const idNovo = sync.novoProvisorio();
   const dados = {nome_exibicao: nomeExibicao, nome, celular};
+  if (nascimento) {
+    dados.data_nascimento = nascimento;
+  }
   let operacoes;
   if (papel === 'SOC') {
     operacoes = [{acao: 'cadastrar_socorrido', temp_uuid: idNovo, dados, endereco}];
