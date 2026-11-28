@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.30.1';
+const VERSAO = 'ssvp-casca-v0.30.2';
 
 /**
  * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
@@ -17,7 +17,8 @@ const VERSAO = 'ssvp-casca-v0.30.1';
  * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
  */
 const NOVIDADES = [
-  "A marca \"exemplo\" fica em cinza, em minúsculas e no fim de cada cartão. A vela do aniversário fica em vermelho."
+  "Ao corrigir a data de nascimento, o cursor fica onde você está digitando, e trocar o dia ou o mês não desarruma o resto da data.",
+  "Na vela do aniversário, a data e o dia da semana ficam juntos na segunda linha."
 ];
 const NECESSARIA = false;
 
@@ -29,6 +30,9 @@ const NECESSARIA = false;
  * linha.
  */
 const ANTERIORES = [
+  {"versao": "0.30.1", "necessaria": false, "novidades": [
+    "A marca \"exemplo\" fica em cinza, em minúsculas e no fim de cada cartão. A vela do aniversário fica em vermelho."
+  ]},
   {"versao": "0.30.0", "necessaria": false, "novidades": [
     "Aniversários da semana: uma vela 🕯️ aparece no cartão de quem faz aniversário hoje ou nos próximos 6 dias, com o dia da semana. Nas famílias, a vela mostra quem da casa faz aniversário.",
     "A data de nascimento aparece em Dados pessoais e pode ser preenchida no cadastro e na edição."
@@ -99,6 +103,7 @@ const ARQUIVOS = [
   './js/telas/consolidacao.js',
   './siglas/cuidados.json',
   './js/componentes/endereco_busca.js',
+  './js/componentes/campo_data.js',
   './js/componentes/de_onde_vem.js',
   './js/componentes/painel_sync.js',
   './js/componentes/logins_dev.js',

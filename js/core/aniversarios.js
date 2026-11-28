@@ -89,7 +89,7 @@ export async function daSemana(cf) {
     }
     const em = Math.round((data - zero) / 86400000);
     if (em >= 0 && em < DIAS_NA_TELA && !porId[a.id_pessoa]) {
-      porId[a.id_pessoa] = {dia: a.dia, em, texto: textoDoDia(em, data, a.dia)};
+      porId[a.id_pessoa] = {dia: a.dia, em, semana: DIAS_DA_SEMANA[data.getDay()], texto: textoDoDia(em, data, a.dia)};
     }
   });
   return porId;
@@ -114,8 +114,9 @@ function textoDoDia(em, data, dia) {
 }
 
 /**
- * O selo da vela, para os cards.
- * @param {?{texto: string, em: number}} a
+ * O selo da vela, para os cards, em duas linhas (28/11/2026): "🕯️ Hoje" (ou Amanhã, ou Aniversário) e, embaixo, a
+ * data com o dia da semana à direita ("28/11 sáb").
+ * @param {?{dia: string, em: number, semana: string}} a
  * @param {string=} quem Nome de quem faz aniversário (no card da família).
  * @return {string} HTML (vazio sem aniversário).
  */
@@ -123,9 +124,11 @@ export function selo(a, quem) {
   if (!a) {
     return '';
   }
-  const texto = (quem ? quem + ': ' : '') + a.texto;
+  const quando = a.em === 0 ? 'Hoje' : a.em === 1 ? 'Amanhã' : 'Aniversário';
   const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
     '\'': '&#39;'}[c]));
-  return `<span class="selo-aniversario${a.em === 0 ? ' e-hoje' : ''}"><span aria-hidden="true">🕯️</span> ` +
-    `<span class="visualmente-escondido">Aniversário: </span>${esc(texto)}</span>`;
+  return `<span class="selo-aniversario${a.em === 0 ? ' e-hoje' : ''}">` +
+    `<span class="aniversario-quando"><span aria-hidden="true">🕯️</span> ${quem ? esc(quem) + ': ' : ''}` +
+    `${quando === 'Aniversário' ? '' : '<span class="visualmente-escondido">Aniversário </span>'}${quando}</span>` +
+    `<span class="aniversario-data">${esc(a.dia)} ${esc(a.semana || '')}</span></span>`;
 }

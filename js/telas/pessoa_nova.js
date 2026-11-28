@@ -19,6 +19,7 @@ import {campoConfirmarEmail, ligarConfirmarEmail} from '../componentes/confirmar
 import {avisar} from '../casca.js';
 import * as sync from '../core/sync.js';
 import {ligarEndereco} from '../componentes/endereco_busca.js';
+import {ligarCampoData} from '../componentes/campo_data.js';
 import {CAMPOS_ENDERECO, formatarCelular, avisoDaFila} from './pessoa_detalhe.js';
 
 /** Papéis na ordem da escolha, com a permissão que cada um exige. */
@@ -161,13 +162,8 @@ export function renderizarNova(area, sessao, opcoes) {
   confirmacaoEmail = ligarConfirmarEmail(form, 'novo_email', 'novo_email_confirma');
   // Rua e CEP conferidos na base dos Correios enquanto preenche (15/11/2026).
   buscaEndereco = ligarEndereco(form, 'novo_');
-  // Data de nascimento: as barras entram sozinhas ("28051960" → "28/05/1960"; 28/11/2026).
-  const nascimento = area.querySelector('#novo_nascimento');
-  nascimento.addEventListener('input', () => {
-    const n = nascimento.value.replace(/\D/g, '').slice(0, 8);
-    nascimento.value = n.length > 4 ? n.slice(0, 2) + '/' + n.slice(2, 4) + '/' + n.slice(4) :
-      n.length > 2 ? n.slice(0, 2) + '/' + n.slice(2) : n;
-  });
+  // Data de nascimento: as barras entram sozinhas, e o cursor fica onde se digita (js/componentes/campo_data.js).
+  ligarCampoData(area.querySelector('#novo_nascimento'));
   area.querySelector('#novo_celular').addEventListener('blur', (e) => {
     e.target.value = formatarCelular(e.target.value.replace(/\D/g, '')) || e.target.value;
   });

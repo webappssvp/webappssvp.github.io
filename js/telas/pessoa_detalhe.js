@@ -30,6 +30,7 @@ import {ATENDIDOS, CAMPOS_ENDERECO, atualizarGuardados, buscarDetalhe, chaveBaix
   guardar, haGuardados, lerGuardado} from './pessoa_dados.js';
 import * as db from '../core/db.js';
 import {ligarEndereco} from '../componentes/endereco_busca.js';
+import {ligarCampoData} from '../componentes/campo_data.js';
 import {familiaDoTitular, operacoesDePapeis} from './familia_dados.js';
 
 export {CAMPOS_ENDERECO};
@@ -751,15 +752,8 @@ function ligarEventos(area) {
         {conferido: Boolean(estado.dados && estado.dados.endereco && estado.dados.endereco.endereco_conferido === 'SIM')});
     confirmacaoEmail = ligarConfirmarEmail(formEditar, 'ed_email', 'ed_email_confirma',
         estado.dados && estado.dados.pessoa ? estado.dados.pessoa.email : '');
-    // Data de nascimento: as barras entram sozinhas ("28051960" → "28/05/1960"; 28/11/2026).
-    const nascimento = formEditar.querySelector('#ed_nascimento');
-    if (nascimento) {
-      nascimento.addEventListener('input', () => {
-        const n = nascimento.value.replace(/\D/g, '').slice(0, 8);
-        nascimento.value = n.length > 4 ? n.slice(0, 2) + '/' + n.slice(2, 4) + '/' + n.slice(4) :
-          n.length > 2 ? n.slice(0, 2) + '/' + n.slice(2) : n;
-      });
-    }
+    // Data de nascimento: as barras entram sozinhas, e o cursor fica onde se digita (js/componentes/campo_data.js).
+    ligarCampoData(formEditar.querySelector('#ed_nascimento'));
     formEditar.addEventListener('submit', (e) => {
       e.preventDefault();
       salvar(area);

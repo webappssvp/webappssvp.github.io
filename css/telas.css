@@ -2202,7 +2202,8 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
 }
 
 .selo-aniversario {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column; /* 1ª linha: 🕯️ Hoje; 2ª: a data e o dia da semana (28/11/2026) */
   align-self: flex-start; /* nos cartões em coluna, o fundo do "Hoje" não estica na largura toda */
   font-size: 0.85rem;
   font-weight: 600;
@@ -2219,8 +2220,8 @@ body.tema-claro .selo-aniversario {
 /* Hoje: o selo ganha o fundo vermelho da SSVP, com o texto branco (nos dois temas) */
 .selo-aniversario.e-hoje,
 body.tema-claro .selo-aniversario.e-hoje {
-  padding: 0.05rem 0.45rem;
-  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  border-radius: 0.6rem;
   background: var(--ssvp-red);
   color: #ffffff;
 }
