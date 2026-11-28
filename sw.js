@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.29.1';
+const VERSAO = 'ssvp-casca-v0.29.2';
 
 /**
  * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
@@ -17,7 +17,7 @@ const VERSAO = 'ssvp-casca-v0.29.1';
  * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
  */
 const NOVIDADES = [
-  "Se você pulou alguma atualização, o aviso de versão nova mostra o que mudou em todas elas, não só na última."
+  "Na Consolidação do Conselho Central, cada Conselho Particular é um card: toque para ver as conferências dele, com as famílias, as visitas da semana e os alertas de cada uma. Os números do conselho ficam embaixo e abrem com um toque."
 ];
 const NECESSARIA = false;
 
@@ -29,6 +29,9 @@ const NECESSARIA = false;
  * linha.
  */
 const ANTERIORES = [
+  {"versao": "0.29.1", "necessaria": false, "novidades": [
+    "Se você pulou alguma atualização, o aviso de versão nova mostra o que mudou em todas elas, não só na última."
+  ]},
   {"versao": "0.29.0", "necessaria": false, "novidades": [
     "Nova tela Consolidação, no Menu, para a Diretoria da conferência e para quem tem cargo num conselho: os números do mês, com o que precisa de atenção primeiro."
   ]},

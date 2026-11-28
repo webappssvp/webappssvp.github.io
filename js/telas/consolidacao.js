@@ -26,6 +26,8 @@ const estado = {
   carregando: false,
   raiz: 0, // qual das unidades da pessoa (CC, CP, conferência)
   caminho: [], // ids da raiz até a unidade aberta
+  abertos: {alertas: false, numeros: false}, // no CC e no CP: o que a pessoa abriu fica aberto ao trocar de nível
+  cpsAbertos: {}, // no CC: os cards de CP abertos (id do CP → true)
 };
 
 /**
@@ -51,6 +53,15 @@ export function renderizar(area, sessao) {
   area.innerHTML = '<div class="tela-consolidacao" id="consolidacao"></div>';
   const caixa = area.querySelector('#consolidacao');
   caixa.addEventListener('click', (e) => aoTocar(e, caixa));
+  // "toggle" não sobe pela árvore: escuta na fase de captura.
+  caixa.addEventListener('toggle', (e) => {
+    const d = e.target.dataset || {};
+    if (d.dobra) {
+      estado.abertos[d.dobra] = e.target.open;
+    } else if (d.cp) {
+      estado.cpsAbertos[d.cp] = e.target.open; // ao voltar de uma conferência, o card do CP continua aberto
+    }
+  }, true);
   desenhar(caixa);
   buscar(caixa, sessao.id_conferencia);
   return () => textoParaOuvir();
@@ -253,6 +264,71 @@ function nosDoCaminho() {
   return nos;
 }
 
+/**
+ * O resumo de uma unidade na lista: famílias, % visitadas na semana e, na linha de baixo, os alertas.
+ * @param {!Object} f
+ * @return {{meta: string, alertas: string}}
+ */
+function resumoDaUnidade(f) {
+  const nAlertas = conferenciasDe(f).reduce((t, c) => t + alertasDaConferencia(c, true).length, 0);
+  const partes = [];
+  if (f.nivel === 'cp') {
+    partes.push(plural(conferenciasDe(f).length, 'conferência', 'conferências'));
+  }
+  const fn = f.numeros || {};
+  if (f.sem_dados) {
+    partes.push('sem números');
+  } else {
+    partes.push(plural(num(fn.familias_assistidas), 'família', 'famílias'));
+    if (num(fn.familias_assistidas)) {
+      partes.push(num(fn.cobertura_semanal_pct) + '% visitadas na semana');
+    }
+  }
+  if (f.nivel === 'cf' && f.teste) {
+    partes.push('🧪 teste');
+  }
+  return {meta: partes.join(' · '), alertas: nAlertas ? '⚠️ ' + plural(nAlertas, 'alerta', 'alertas') : ''};
+}
+
+/**
+ * Botão que abre uma unidade.
+ * @param {!Object} f
+ * @param {string} caminho Ids a acrescentar ao caminho, separados por "|" (do CC direto a uma conferência: CP|CF).
+ * @return {string} HTML
+ */
+function botaoDaUnidade(f, caminho) {
+  const r = resumoDaUnidade(f);
+  return `<button type="button" class="unidade-botao" data-abrir="${esc(caminho)}">
+    <span class="unidade-texto"><span class="unidade-nome">${esc(f.nome)}</span>
+      <span class="unidade-meta">${esc(r.meta)}</span>
+      ${r.alertas ? `<span class="unidade-alertas">${esc(r.alertas)}</span>` : ''}</span>
+    <span class="unidade-seta" aria-hidden="true">›</span></button>`;
+}
+
+/**
+ * No CC, cada CP é um card que abre e fecha (28/11/2026): aberto, mostra as conferências do CP (cada uma leva aos
+ * detalhes dela) e, no fim, o botão para os números do CP.
+ * @param {!Object} cp
+ * @return {string} HTML
+ */
+function cardDoCp(cp) {
+  const r = resumoDaUnidade(cp);
+  const aberto = Boolean(estado.cpsAbertos[cp.id]);
+  return `<li><details class="unidade-card"${aberto ? ' open' : ''} data-cp="${esc(cp.id)}">
+    <summary>
+      <span class="unidade-texto"><span class="unidade-nome">${esc(cp.nome)}</span>
+        <span class="unidade-meta">${esc(r.meta)}</span>
+        ${r.alertas ? `<span class="unidade-alertas">${esc(r.alertas)}</span>` : ''}</span>
+      <span class="unidade-abre" aria-hidden="true"></span>
+    </summary>
+    <ul class="consolidacao-unidades unidade-filhas">
+      ${(cp.filhos || []).map((c) => `<li>${botaoDaUnidade(c, cp.id + '|' + c.id)}</li>`).join('') ||
+        '<li class="consolidacao-nota">Nenhuma conferência com números.</li>'}
+    </ul>
+    <button type="button" class="unidade-ver-cp" data-abrir="${esc(cp.id)}">Ver os números do ${esc(cp.nome)} ›</button>
+  </details></li>`;
+}
+
 /** @param {!HTMLElement} caixa */
 function desenhar(caixa) {
   const dados = estado.dados;
@@ -314,36 +390,38 @@ function desenhar(caixa) {
     const deCp = no.filhos.every((f) => f.nivel === 'cp');
     htmlUnidades = `
       <h2 class="consolidacao-secao">${deCp ? 'Conselhos Particulares' : 'Conferências'}</h2>
-      <ul class="consolidacao-unidades">${no.filhos.map((f) => {
-        const nAlertas = conferenciasDe(f).reduce((t, c) => t + alertasDaConferencia(c, true).length, 0);
-        const partes = [];
-        if (f.nivel === 'cp') {
-          partes.push(plural(conferenciasDe(f).length, 'conferência', 'conferências'));
-        }
-        partes.push(f.sem_dados ? 'sem números' : plural(num((f.numeros || {}).familias_assistidas), 'família', 'famílias'));
-        if (f.nivel === 'cf' && f.teste) {
-          partes.push('🧪 teste');
-        }
-        if (nAlertas) {
-          partes.push(`⚠️ ${plural(nAlertas, 'alerta', 'alertas')}`);
-        }
-        return `<li><button type="button" data-abrir="${esc(f.id)}">
-          <span class="unidade-texto"><span class="unidade-nome">${esc(f.nome)}</span>
-            <span class="unidade-meta">${esc(partes.join(' · '))}</span></span>
-          <span class="unidade-seta" aria-hidden="true">›</span></button></li>`;
-      }).join('')}</ul>`;
+      <ul class="consolidacao-unidades">${no.filhos.map((f) => (f.nivel === 'cp' ? cardDoCp(f) :
+        `<li>${botaoDaUnidade(f, f.id)}</li>`)).join('')}</ul>`;
   }
 
   const atualizado = quandoFoi(no.atualizado_em || dados.atualizado_em);
+  const htmlAvisos = avisos.map((a) => `<p class="consolidacao-aviso">${a}</p>`).join('');
+  let htmlCorpo;
+  if (htmlUnidades) {
+    // CC e CP (28/11/2026): a lista primeiro; os alertas e as somas do conselho embaixo, abrindo com um toque.
+    const nomeNivel = no.nivel === 'cc' ? 'do CC' : 'do CP';
+    htmlCorpo = `
+      ${htmlUnidades}
+      <details class="consolidacao-dobra"${estado.abertos.alertas ? ' open' : ''} data-dobra="alertas">
+        <summary><h2 class="consolidacao-secao">Precisa de atenção${alertas.length ? ` (${alertas.length})` : ''}</h2></summary>
+        <ul class="consolidacao-alertas">${htmlAlertas}</ul>
+      </details>
+      <details class="consolidacao-dobra"${estado.abertos.numeros ? ' open' : ''} data-dobra="numeros">
+        <summary><h2 class="consolidacao-secao">Números ${nomeNivel} no mês</h2></summary>
+        ${htmlNumeros}
+      </details>`;
+  } else {
+    htmlCorpo = `
+      <h2 class="consolidacao-secao">Precisa de atenção</h2>
+      <ul class="consolidacao-alertas">${htmlAlertas}</ul>
+      <h2 class="consolidacao-secao">Números do mês</h2>
+      ${htmlNumeros}`;
+  }
   caixa.innerHTML = `
     ${htmlRaizes}
     ${htmlCaminho}
-    ${avisos.map((a) => `<p class="consolidacao-aviso">${a}</p>`).join('')}
-    <h2 class="consolidacao-secao">Precisa de atenção</h2>
-    <ul class="consolidacao-alertas">${htmlAlertas}</ul>
-    <h2 class="consolidacao-secao">Números do mês</h2>
-    ${htmlNumeros}
-    ${htmlUnidades}
+    ${htmlAvisos}
+    ${htmlCorpo}
     <p class="consolidacao-nota">${atualizado ? 'Calculado em ' + esc(atualizado) + ' (o Conselho Central recalcula toda ' +
       'noite). ' : ''}Só números: nomes, endereços e relatos ficam na conferência.</p>`;
 }
@@ -354,7 +432,7 @@ function aoTocar(e, caixa) {
   const voltarNivel = e.target.closest('[data-voltar-nivel]');
   const raiz = e.target.closest('[data-raiz]');
   if (abrir) {
-    estado.caminho.push(abrir.dataset.abrir);
+    estado.caminho.push(...abrir.dataset.abrir.split('|'));
   } else if (voltarNivel) {
     estado.caminho = estado.caminho.slice(0, Number(voltarNivel.dataset.voltarNivel));
   } else if (raiz) {
