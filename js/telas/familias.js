@@ -477,13 +477,14 @@ function cartao(f, situacaoSync) {
       <span class="cartao-pessoa-texto">
         <span class="cartao-pessoa-nome">${esc(f.nome)}</span>
         <span class="cartao-pessoa-selos"><span class="selo-situacao selo-${esc(f.situacao.toLowerCase())}">${
-  esc(NOME_DA_SITUACAO[f.situacao] || f.situacao || 'Sem situação')}</span>${f.ficticio ? '<span class="selo-exemplo">EXEMPLO</span>' : ''}</span>
+  esc(NOME_DA_SITUACAO[f.situacao] || f.situacao || 'Sem situação')}</span></span>
         <span class="cartao-pessoa-papel">${esc(partes)}</span>
         ${linhasDeMoradores(f)}
         ${velasDaFamilia(f)}
         ${ativa ? `<span class="familia-visita visita-${visita.nivel}">${esc(visita.texto)}</span>` : ''}
         ${f.situacao === 'PRM' ? `<span class="familia-promovida">${esc('Promovida' + (f.encerrada_em ? ' em ' +
     new Date(f.encerrada_em + 'T12:00').toLocaleDateString('pt-BR') : ''))}</span>` : ''}
+        ${f.ficticio ? '<span class="selo-exemplo">exemplo</span>' : ''}
       </span>
       <span class="cartao-pessoa-seta" aria-hidden="true">›</span>
     </a>${botaoDoItem({tipo: 'familia', id: f.id, nome: f.nome, estado: situacaoSync,

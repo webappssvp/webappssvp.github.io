@@ -330,7 +330,7 @@ function visualizacao(d) {
   const p = d.pessoa;
   const papeis = d.papeis.map((s) => NOME_DO_PAPEL[s] || s).join(' · ') || 'Sem papel ativo';
   const cargo = d.cargo ? `<span class="selo-cargo">${esc(nomeDoCargo(d.cargo.id_cargo))}${String(d.cargo.provisorio).toUpperCase() === 'SIM' ? ' (provisório)' : ''}</span>` : '';
-  const exemplo = String(p.ficticio).toUpperCase() === 'SIM' ? '<span class="selo-exemplo">EXEMPLO</span>' : '';
+  const exemplo = String(p.ficticio).toUpperCase() === 'SIM' ? '<span class="selo-exemplo">exemplo</span>' : '';
   const linha = (rotulo, valor, link) => `<div class="detalhe-linha"><dt>${esc(rotulo)}</dt><dd>${valor ?
     (link ? `<a href="${link}">${esc(valor)}</a>` : esc(valor)) : '<span class="detalhe-vazio">não informado</span>'}</dd></div>`;
   const celular = p.celular ? String(p.celular) : '';

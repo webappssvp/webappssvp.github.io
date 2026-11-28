@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.30.0';
+const VERSAO = 'ssvp-casca-v0.30.1';
 
 /**
  * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
@@ -17,8 +17,7 @@ const VERSAO = 'ssvp-casca-v0.30.0';
  * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
  */
 const NOVIDADES = [
-  "Aniversários da semana: uma vela 🕯️ aparece no cartão de quem faz aniversário hoje ou nos próximos 6 dias, com o dia da semana. Nas famílias, a vela mostra quem da casa faz aniversário.",
-  "A data de nascimento aparece em Dados pessoais e pode ser preenchida no cadastro e na edição."
+  "A marca \"exemplo\" fica em cinza, em minúsculas e no fim de cada cartão. A vela do aniversário fica em vermelho."
 ];
 const NECESSARIA = false;
 
@@ -30,6 +29,10 @@ const NECESSARIA = false;
  * linha.
  */
 const ANTERIORES = [
+  {"versao": "0.30.0", "necessaria": false, "novidades": [
+    "Aniversários da semana: uma vela 🕯️ aparece no cartão de quem faz aniversário hoje ou nos próximos 6 dias, com o dia da semana. Nas famílias, a vela mostra quem da casa faz aniversário.",
+    "A data de nascimento aparece em Dados pessoais e pode ser preenchida no cadastro e na edição."
+  ]},
   {"versao": "0.29.2", "necessaria": false, "novidades": [
     "Na Consolidação do Conselho Central, cada Conselho Particular é um card: toque para ver as conferências dele, com as famílias, as visitas da semana e os alertas de cada uma. Os números do conselho ficam embaixo e abrem com um toque."
   ]},

@@ -789,8 +789,9 @@ function cartao(p, situacaoSync, motivo, ligadas) {
     (responsavel ? ' · responsável pela família' : '');
   const cargo = p.cargo ? `<span class="selo-cargo">${esc(CARGOS[p.cargo] || p.cargo)}${p.provisorio ?
     ' (provisório)' : ''}</span>` : '';
-  const exemplo = (p.id === estado.euMesmo ? '<span class="selo-voce">Você</span>' : '') +
-    (p.ficticio ? '<span class="selo-exemplo">EXEMPLO</span>' : '');
+  const voce = p.id === estado.euMesmo ? '<span class="selo-voce">Você</span>' : '';
+  // "exemplo" em minúsculas e por último no cartão (28/11/2026).
+  const exemplo = p.ficticio ? '<span class="selo-exemplo">exemplo</span>' : '';
   const tipo = (p.papeis[0] || 'X').toLowerCase();
   // O par de ícones é um botão ao lado do link (botão dentro de link não vale): abre a folhinha do item.
   return `
@@ -799,9 +800,10 @@ function cartao(p, situacaoSync, motivo, ligadas) {
       <span class="cartao-pessoa-texto">
         <span class="cartao-pessoa-nome">${esc(p.nome)}</span>
         <span class="cartao-pessoa-papel">${esc(papeis)}</span>
-        ${cargo || exemplo ? `<span class="cartao-pessoa-selos">${cargo}${exemplo}</span>` : ''}
+        ${cargo || voce ? `<span class="cartao-pessoa-selos">${cargo}${voce}</span>` : ''}
         ${aniversarios.selo(estado.aniversarios[p.id])}
         ${sinalDeAcesso(p)}
+        ${exemplo}
       </span>
       <span class="cartao-pessoa-seta" aria-hidden="true">›</span>
     </a>${botaoDoItem({tipo: 'pessoa', id: p.id, nome: p.nome, estado: situacaoSync, motivo,

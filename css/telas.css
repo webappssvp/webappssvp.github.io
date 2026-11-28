@@ -666,10 +666,16 @@ body:not(.tema-claro) .feedback-msg.sucesso {
   color: var(--md-secondary);
 }
 
+/* EXEMPLO em cinza (28/11/2026): é só uma marca, não um alerta */
 .selo-exemplo {
-  background-color: var(--md-amber-bg);
-  color: var(--md-amber);
-  letter-spacing: 0.05em;
+  background-color: rgba(128, 128, 128, 0.18);
+  color: var(--md-on-surface-variant);
+}
+
+/* No fim do cartão (28/11/2026): o tamanho do texto, sem esticar na largura toda */
+.cartao-pessoa-texto > .selo-exemplo {
+  align-self: flex-start;
+  margin-top: 0.1rem;
 }
 
 /* Cartão é um link para os detalhes */
@@ -2201,15 +2207,22 @@ body.tema-claro .tela-visita input[type="date"], body.tema-claro .tela-visita in
   font-size: 0.85rem;
   font-weight: 600;
   line-height: 1.35;
-  color: var(--md-amber);
+  /* Tema escuro (o padrão): um vermelho mais claro, da família do da SSVP, para dar leitura no fundo escuro (contraste
+     perto de 4,7:1; o #E00512 ficava em 2,6:1). No tema claro, o vermelho da SSVP (28/11/2026). */
+  color: #ff6b72;
 }
 
-/* Hoje: o selo ganha fundo, para chamar a atenção */
-.selo-aniversario.e-hoje {
+body.tema-claro .selo-aniversario {
+  color: var(--ssvp-red);
+}
+
+/* Hoje: o selo ganha o fundo vermelho da SSVP, com o texto branco (nos dois temas) */
+.selo-aniversario.e-hoje,
+body.tema-claro .selo-aniversario.e-hoje {
   padding: 0.05rem 0.45rem;
   border-radius: 999px;
-  background: var(--md-amber-bg);
-  color: var(--md-on-surface);
+  background: var(--ssvp-red);
+  color: #ffffff;
 }
 
 .morador .selo-aniversario {
