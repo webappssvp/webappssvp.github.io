@@ -407,7 +407,7 @@ function oferecerAtualizacao(espera) {
     estadoAtualizacao.medidor.observe(faixa);
   }
   estadoAtualizacao.espera = espera;
-  estadoAtualizacao.info = {versao: '', novidades: [], necessaria: false};
+  estadoAtualizacao.info = {versao: '', grupos: [], necessaria: false};
   desenharAvisoVersao();
   espera.postMessage('versao');
   setTimeout(lerVersaoNovaPeloArquivo, 1500); // sem resposta do service worker novo: o que está escrito no sw.js
@@ -419,17 +419,24 @@ function desenharAvisoVersao() {
   if (!faixa) {
     return;
   }
-  const {versao, novidades, necessaria} = estadoAtualizacao.info;
+  const {versao, grupos, necessaria} = estadoAtualizacao.info;
   const aberto = faixa.classList.contains('expandido');
   const cor = necessaria ? 'versao-necessaria' : 'versao-espera';
-  const lista = novidades.length ? novidades : ['Correções e melhorias.'];
+  const lista = grupos.length ? grupos : [{versao, novidades: ['Correções e melhorias.']}];
+  // Pulou versões (28/11/2026): o que mudou em cada uma, da mais nova para a mais antiga.
+  const varias = lista.length > 1;
+  const titulo = varias && estadoAtualizacao.atual ? 'O que muda desde a v' + esc(estadoAtualizacao.atual) :
+    'O que muda' + (versao ? ' na v' + esc(versao) : '');
+  const itens = (g) => `<ul>${(g.novidades.length ? g.novidades : ['Correções e melhorias.'])
+      .map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`;
+  const corpo = varias ? lista.map((g) => `<h3>Na v${esc(g.versao)}</h3>${itens(g)}`).join('') : itens(lista[0]);
   faixa.classList.toggle('necessaria', necessaria);
   faixa.innerHTML = `
     <div class="aviso-versao-detalhes" id="avisoVersaoDetalhes" aria-hidden="${!aberto}">
       ${necessaria ? `<p class="aviso-versao-motivo"><strong>Necessária</strong> para continuar enviando. O app funciona
         sem internet, e o que você registrar fica guardado no celular.</p>` : ''}
-      <h2>O que muda${versao ? ' na v' + esc(versao) : ''}</h2>
-      <ul>${lista.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
+      <h2>${titulo}</h2>
+      ${corpo}
       <p class="aviso-versao-fica">O que está guardado no celular continua: mudanças a enviar, famílias guardadas e
         rascunhos.</p>
     </div>
@@ -473,14 +480,43 @@ function fecharAvisoVersao() {
 }
 
 /**
+ * Compara versões "0.29.1".
+ * @param {string} a
+ * @param {string} b
+ * @return {number} Positivo se a é mais nova que b.
+ */
+function compararVersoes(a, b) {
+  const x = String(a).split('.').map(Number);
+  const y = String(b).split('.').map(Number);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    const d = (x[i] || 0) - (y[i] || 0);
+    if (d) {
+      return d;
+    }
+  }
+  return 0;
+}
+
+/**
  * O que a versão nova diz de si, vindo do service worker que espera (ou do sw.js do site).
- * @param {!Object} dados {versao, novidades?, necessaria?}
+ * Com as anteriores (sw.js a partir da v0.29.1), junta as versões que a pessoa pulou desde a que está rodando; a
+ * atualização é necessária se alguma delas era (28/11/2026).
+ * @param {!Object} dados {versao, novidades?, necessaria?, anteriores?: [{versao, novidades, necessaria}]}
  */
 function guardarInfoDaVersaoNova(dados) {
+  estadoAtualizacao.dados = dados;
+  const textos = (lista) => (Array.isArray(lista) ? lista.map(String).filter(Boolean).slice(0, 8) : []);
+  const versao = String(dados.versao || '');
+  const atual = estadoAtualizacao.atual;
+  const puladas = atual && Array.isArray(dados.anteriores) ? dados.anteriores.filter((v) => v && v.versao &&
+    compararVersoes(v.versao, atual) > 0 && compararVersoes(v.versao, versao) < 0).slice(0, 6) : [];
+  const grupos = [{versao, novidades: textos(dados.novidades)}]
+      .concat(puladas.map((v) => ({versao: String(v.versao), novidades: textos(v.novidades)})))
+      .filter((g, i) => i === 0 || g.novidades.length);
   estadoAtualizacao.info = {
-    versao: String(dados.versao || ''),
-    novidades: Array.isArray(dados.novidades) ? dados.novidades.map(String).filter(Boolean).slice(0, 8) : [],
-    necessaria: dados.necessaria === true,
+    versao,
+    grupos: grupos.length === 1 && !grupos[0].novidades.length ? [] : grupos,
+    necessaria: dados.necessaria === true || puladas.some((v) => v.necessaria === true),
   };
   desenharAvisoVersao();
 }
@@ -495,19 +531,23 @@ function lerVersaoNovaPeloArquivo() {
       return;
     }
     let novidades = [];
+    let anteriores = [];
     try {
       novidades = JSON.parse((texto.match(/const NOVIDADES = (\[[\s\S]*?\]);/) || [])[1] || '[]');
+      anteriores = JSON.parse((texto.match(/const ANTERIORES = (\[[\s\S]*?\n\]);/) || [])[1] || '[]');
     } catch (erro) {
       // fica o texto padrão
     }
-    guardarInfoDaVersaoNova({versao: versao[1], novidades, necessaria: /const NECESSARIA = true;/.test(texto)});
+    guardarInfoDaVersaoNova({versao: versao[1], novidades, anteriores,
+      necessaria: /const NECESSARIA = true;/.test(texto)});
   }).catch(() => {
     // sem conexão: o card fica sem o número
   });
 }
 
-const estadoAtualizacao = {recarregar: false, espera: null, medidor: null,
-  info: {versao: '', novidades: [], necessaria: false}};
+// atual: a versão que está rodando (a do service worker que controla a página), para juntar as versões puladas.
+const estadoAtualizacao = {recarregar: false, espera: null, medidor: null, atual: '', dados: null,
+  info: {versao: '', grupos: [], necessaria: false}};
 
 /** O Sair está em andamento (pode estar enviando o que falta antes). */
 let saindo = false;
@@ -525,6 +565,12 @@ function ouvirServiceWorker() {
     if (estadoAtualizacao.espera && e.source === estadoAtualizacao.espera) {
       guardarInfoDaVersaoNova(e.data);
       return;
+    }
+    if (e.source === navigator.serviceWorker.controller) {
+      estadoAtualizacao.atual = String(e.data.versao);
+      if (estadoAtualizacao.dados && estadoAtualizacao.espera) {
+        guardarInfoDaVersaoNova(estadoAtualizacao.dados); // a versão nova respondeu antes: junta as puladas agora
+      }
     }
     const etiqueta = document.getElementById('versaoApp');
     if (etiqueta) {

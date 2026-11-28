@@ -8,7 +8,7 @@
  * - Só GET deste site: os pedidos ao script do CC (POST, outro endereço) nunca passam pelo cache.
  */
 
-const VERSAO = 'ssvp-casca-v0.29.0';
+const VERSAO = 'ssvp-casca-v0.29.1';
 
 /**
  * Card "Versão Nova" (24/11/2026): o que muda nesta versão, em linguagem simples, e o tipo de atualização.
@@ -17,9 +17,32 @@ const VERSAO = 'ssvp-casca-v0.29.0';
  * NECESSARIA = true quando a versão anterior deixa de funcionar com o servidor: o card fica sem o "Agora não".
  */
 const NOVIDADES = [
-  "Nova tela Consolidação, no Menu, para a Diretoria da conferência e para quem tem cargo num conselho: os números do mês, com o que precisa de atenção primeiro."
+  "Se você pulou alguma atualização, o aviso de versão nova mostra o que mudou em todas elas, não só na última."
 ];
 const NECESSARIA = false;
+
+/**
+ * Versões anteriores, a mais nova primeiro (28/11/2026): quem pulou versões vê o que mudou em cada uma, e a
+ * atualização é necessária se alguma delas era. Ao publicar, a versão de agora (VERSAO, NOVIDADES e NECESSARIA) entra
+ * no topo desta lista. No máximo 10 versões: passou disso, sai a mais antiga (a lista fica abaixo de 3 KB). Versões
+ * sem nada que o vicentino perceba ficam de fora. JSON: o app também lê este trecho, e o "];" do fim fica sozinho na
+ * linha.
+ */
+const ANTERIORES = [
+  {"versao": "0.29.0", "necessaria": false, "novidades": [
+    "Nova tela Consolidação, no Menu, para a Diretoria da conferência e para quem tem cargo num conselho: os números do mês, com o que precisa de atenção primeiro."
+  ]},
+  {"versao": "0.28.0", "necessaria": true, "novidades": [
+    "Os cargos da conferência passam a ter siglas próprias (PCF, VCF, SCF e TCF), no mesmo padrão que os conselhos vão usar. Nada muda nas telas."
+  ]},
+  {"versao": "0.27.2", "necessaria": false, "novidades": [
+    "Ao ditar um e-mail, o app escreve tudo junto e em minúsculas, entende \"arroba\", \"ponto\", \"traço\", \"underline\" e \"mais\", e completa finais como \"@gmail.com\"."
+  ]},
+  {"versao": "0.27.0", "necessaria": false, "novidades": [
+    "O aviso de versão nova mostra o que mudou e se a atualização é necessária ou pode esperar.",
+    "Os avisos rápidos não ficam mais escondidos atrás do aviso de versão nova."
+  ]}
+];
 
 const EM_DESENVOLVIMENTO =/^(localhost|127\.0\.0\.1|192\.168\.)/.test(self.location.hostname);
 
@@ -109,7 +132,9 @@ self.addEventListener('activate', (evento) => {
 // A página pergunta a versão (etiqueta do alto) e pede para trocar já pela versão nova ("Atualizar agora", 18/11/2026).
 self.addEventListener('message', (evento) => {
   if (evento.data === 'versao' && evento.source) {
-    evento.source.postMessage({versao: VERSAO.replace(/^ssvp-casca-v/, ''), novidades: NOVIDADES, necessaria: NECESSARIA});
+    // anteriores: só o app a partir da v0.29.1 lê; os de antes usam novidades e necessaria, como sempre.
+    evento.source.postMessage({versao: VERSAO.replace(/^ssvp-casca-v/, ''), novidades: NOVIDADES, necessaria: NECESSARIA,
+      anteriores: ANTERIORES});
   } else if (evento.data === 'atualizar') {
     self.skipWaiting();
   }

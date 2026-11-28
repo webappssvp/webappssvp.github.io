@@ -2083,6 +2083,13 @@ body.tema-claro .header-version-pill.versao-espera {
   padding-left: 1.1rem;
 }
 
+/* Versões puladas (28/11/2026): um título por versão, da mais nova para a mais antiga */
+.aviso-versao-detalhes h3 {
+  margin: 0.4rem 0 0.25rem;
+  font-size: 0.9rem;
+  color: var(--md-on-surface-variant);
+}
+
 .aviso-versao-detalhes li + li {
   margin-top: 0.35rem;
 }
